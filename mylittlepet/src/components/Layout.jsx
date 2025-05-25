@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     Menu,
     X,
@@ -10,6 +10,8 @@ import {
     Settings,
     LogOut
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import LogoutConfirmDialog from './LogoutConfirmDialog';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -20,7 +22,16 @@ const navigation = [
 
 export default function Layout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+        setShowLogoutDialog(false);
+    };
 
     return (
         <div className="h-screen flex overflow-hidden bg-gray-100">
@@ -55,10 +66,32 @@ export default function Layout({ children }) {
                                     >
                                         <Icon className="mr-3 h-5 w-5" />
                                         {item.name}
-                                    </Link>
-                                );
+                                    </Link>);
                             })}
                         </nav>
+                        {/* Mobile user section */}
+                        <div className="mt-auto border-t border-gray-200 p-4">
+                            <div className="flex items-center">
+                                <div className="flex-shrink-0">
+                                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <span className="text-sm font-medium text-indigo-600">
+                                            {user?.name?.charAt(0) || 'A'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="ml-3 flex-1">
+                                    <p className="text-sm font-medium text-gray-700">{user?.name || 'Admin'}</p>
+                                    <p className="text-xs text-gray-500">{user?.email || 'admin@mylittlepet.com'}</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowLogoutDialog(true)}
+                                    className="ml-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                    title="Sign out"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -89,22 +122,26 @@ export default function Layout({ children }) {
                                 );
                             })}
                         </nav>
-                    </div>
-
-                        <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-                            <div className="flex items-center">
+                    </div>                        <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
+                            <div className="flex items-center w-full">
                                 <div className="flex-shrink-0">
-                                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <span className="text-sm font-medium text-gray-700">A</span>
+                                    <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <span className="text-sm font-medium text-indigo-600">
+                                            {user?.name?.charAt(0) || 'A'}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-700">Admin</p>
-                                    <button className="flex items-center text-xs text-gray-500 hover:text-gray-700">
-                                        <LogOut className="mr-1 h-3 w-3" />
-                                        Sign out
-                                    </button>
+                                <div className="ml-3 flex-1">
+                                    <p className="text-sm font-medium text-gray-700">{user?.name || 'Admin'}</p>
+                                    <p className="text-xs text-gray-500">{user?.email || 'admin@mylittlepet.com'}</p>
                                 </div>
+                                <button
+                                    onClick={() => setShowLogoutDialog(true)}
+                                    className="ml-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                    title="Sign out"
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -128,9 +165,15 @@ export default function Layout({ children }) {
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                             {children}
                         </div>
-                    </div>
-                </main>
+                    </div>                </main>
             </div>
+
+            {/* Logout confirmation dialog */}
+            <LogoutConfirmDialog
+                isOpen={showLogoutDialog}
+                onClose={() => setShowLogoutDialog(false)}
+                onConfirm={handleLogout}
+            />
         </div>
     );
 }
