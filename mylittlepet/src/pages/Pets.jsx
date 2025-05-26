@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Filter, Heart } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { mockPets, mockPlayers, RARITY_TYPES } from '../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../utils/helpers';
 
@@ -10,6 +10,8 @@ export default function Pets() {
     const [typeFilter, setTypeFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [selectedPet, setSelectedPet] = useState(null);
+    // Add state to track expanded pet cards
+    const [expandedPets, setExpandedPets] = useState({});
 
     const uniqueTypes = [...new Set(pets.map(pet => pet.type))];
 
@@ -40,6 +42,14 @@ export default function Pets() {
     const getOwnerName = (ownerId) => {
         const owner = mockPlayers.find(player => player.id === ownerId);
         return owner ? owner.username : 'Unknown';
+    };
+
+    // Toggle expanded state for a specific pet
+    const toggleExpanded = (petId) => {
+        setExpandedPets(prev => ({
+            ...prev,
+            [petId]: !prev[petId]
+        }));
     };
 
     return (
@@ -93,110 +103,133 @@ export default function Pets() {
                 </div>
             </div>
 
-            {/* Pets Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredPets.map((pet) => (
-                    <div key={pet.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="p-4">
-                            <div className="flex justify-between items-start mb-3">
-                                <h3 className="text-lg font-semibold text-gray-900 truncate">{pet.name}</h3>
-                                <div className="flex space-x-1">
-                                    <button
-                                        onClick={() => openModal(pet)}
-                                        className="text-blue-600 hover:text-blue-800"
-                                        title="Edit Pet"
-                                    >
-                                        <Edit2 className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeletePet(pet.id)}
-                                        className="text-red-600 hover:text-red-800"
-                                        title="Delete Pet"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between">
-                                    <span className="text-sm text-gray-500">Type:</span>
-                                    <span className="text-sm font-medium text-gray-900">{pet.type}</span>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <span className="text-sm text-gray-500">Level:</span>
-                                    <span className="text-sm font-medium text-gray-900">{pet.level}</span>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <span className="text-sm text-gray-500">Rarity:</span>
-                                    <span
-                                        className={`text-sm font-medium px-2 py-1 rounded-full border ${getRarityClass(pet.rarity)}`}
-                                        style={{ color: getRarityColor(pet.rarity) }}
-                                    >
-                                        {capitalize(pet.rarity)}
-                                    </span>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <span className="text-sm text-gray-500">Owner:</span>
-                                    <span className="text-sm font-medium text-gray-900">{getOwnerName(pet.ownerId)}</span>
-                                </div>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                                <h4 className="text-sm font-medium text-gray-700 mb-2">Stats</h4>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">HP:</span>
-                                        <span className="font-medium">{formatNumber(pet.stats.hp)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">ATK:</span>
-                                        <span className="font-medium">{formatNumber(pet.stats.attack)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">DEF:</span>
-                                        <span className="font-medium">{formatNumber(pet.stats.defense)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">SPD:</span>
-                                        <span className="font-medium">{formatNumber(pet.stats.speed)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Abilities */}
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                                <h4 className="text-sm font-medium text-gray-700 mb-2">Abilities</h4>
-                                <div className="flex flex-wrap gap-1">
-                                    {pet.abilities.map((ability, index) => (
+            {/* Replace Grid with Table Layout */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rarity
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Level
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Owner
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Stats
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredPets.length > 0 ? (
+                            filteredPets.map((pet) => (
+                                <tr key={pet.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm font-medium text-gray-900">{pet.name}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {pet.type}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
                                         <span
-                                            key={index}
-                                            className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
+                                            className={`inline-flex text-xs font-medium px-2 py-1 rounded-full border ${getRarityClass(pet.rarity)}`}
+                                            style={{ color: getRarityColor(pet.rarity) }}
                                         >
-                                            {ability}
+                                            {capitalize(pet.rarity)}
                                         </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {pet.level}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {getOwnerName(pet.ownerId)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-xs text-gray-500">
+                                            <div className="flex space-x-4">
+                                                <span>HP: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
+                                                <span>ATK: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
+                                            </div>
+                                            
+                                            {expandedPets[pet.id] && (
+                                                <div className="mt-2 animate-fadeIn">
+                                                    <div className="flex space-x-4">
+                                                        <span>DEF: <span className="font-medium">{formatNumber(pet.stats.defense)}</span></span>
+                                                        <span>SPD: <span className="font-medium">{formatNumber(pet.stats.speed)}</span></span>
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <span className="block mb-1">Abilities:</span>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {pet.abilities.map((ability, index) => (
+                                                                <span
+                                                                    key={index}
+                                                                    className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
+                                                                >
+                                                                    {ability}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => toggleExpanded(pet.id)}
+                                            className="mt-1 text-xs text-indigo-600 hover:text-indigo-900 flex items-center"
+                                        >
+                                            {expandedPets[pet.id] ? 'Hide Details' : 'Show Details'}
+                                            {expandedPets[pet.id] ? 
+                                                <ChevronUp className="h-3 w-3 ml-1" /> : 
+                                                <ChevronDown className="h-3 w-3 ml-1" />
+                                            }
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button
+                                            onClick={() => openModal(pet)}
+                                            className="text-blue-600 hover:text-blue-800 mr-3"
+                                            title="Edit Pet"
+                                        >
+                                            <Edit2 className="h-4 w-4 inline" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeletePet(pet.id)}
+                                            className="text-red-600 hover:text-red-800"
+                                            title="Delete Pet"
+                                        >
+                                            <Trash2 className="h-4 w-4 inline" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="px-6 py-12 text-center">
+                                    <Heart className="mx-auto h-12 w-12 text-gray-400" />
+                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        No pets match your current filter criteria.
+                                    </p>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
-            {filteredPets.length === 0 && (
-                <div className="text-center py-12">
-                    <Heart className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                        No pets match your current filter criteria.
-                    </p>
-                </div>
-            )}
-
+            {/* Remove the old no pets message as it's now handled in the table */}
+            
             {/* Modal for Add/Edit Pet */}
             {showModal && (
                 <PetModal
@@ -349,10 +382,10 @@ function PetModal({ pet, onClose, onSave }) {
 
                     {/* Stats */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Stats</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Special</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
-                                <label className="block text-xs text-gray-500 mb-1">HP</label>
+                                <label className="block text-xs text-gray-500 mb-1">H</label>
                                 <input
                                     type="number"
                                     min="1"
