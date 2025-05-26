@@ -81,63 +81,63 @@ export const mockPlayers = [
 export const mockPets = [
     {
         id: 1,
-        name: 'Ancient Dragon',
-        type: 'Dragon',
+        name: 'Rex',
+        type: 'Dog',
         rarity: RARITY_TYPES.MYTHIC,
         level: 100,
         ownerId: 1,
         stats: { hp: 5000, attack: 800, defense: 600, speed: 450 },
-        abilities: ['Fire Breath', 'Ancient Roar', 'Dragon Scale']
+        abilities: ['Loyal Guard', 'Powerful Bite', 'Tracking']
     },
     {
         id: 2,
-        name: 'Crystal Phoenix',
-        type: 'Bird',
+        name: 'Fluffy',
+        type: 'Cat',
         rarity: RARITY_TYPES.LEGENDARY,
         level: 85,
         ownerId: 2,
         stats: { hp: 3500, attack: 650, defense: 400, speed: 700 },
-        abilities: ['Rebirth', 'Crystal Wing', 'Phoenix Fire']
+        abilities: ['Night Vision', 'Quick Reflexes', 'Silent Paws']
     },
     {
         id: 3,
-        name: 'Shadow Wolf',
-        type: 'Beast',
+        name: 'Thumper',
+        type: 'Rabbit',
         rarity: RARITY_TYPES.EPIC,
         level: 60,
         ownerId: 3,
         stats: { hp: 2800, attack: 550, defense: 350, speed: 600 },
-        abilities: ['Shadow Strike', 'Pack Hunt', 'Night Vision']
+        abilities: ['Quick Hop', 'Heightened Hearing', 'Burrow']
     },
     {
         id: 4,
-        name: 'Earth Golem',
-        type: 'Elemental',
+        name: 'Tank',
+        type: 'Turtle',
         rarity: RARITY_TYPES.RARE,
         level: 45,
         ownerId: 4,
         stats: { hp: 4000, attack: 400, defense: 800, speed: 200 },
-        abilities: ['Stone Throw', 'Earth Shake', 'Rock Armor']
+        abilities: ['Shell Defense', 'Water Adaptation', 'Patience']
     },
     {
         id: 5,
-        name: 'Water Sprite',
-        type: 'Fairy',
+        name: 'Chirpy',
+        type: 'Canary',
         rarity: RARITY_TYPES.UNCOMMON,
         level: 30,
         ownerId: 5,
         stats: { hp: 1800, attack: 300, defense: 250, speed: 500 },
-        abilities: ['Water Splash', 'Heal', 'Mist']
+        abilities: ['Sweet Song', 'Early Warning', 'Flight']
     },
     {
         id: 6,
-        name: 'Forest Bunny',
-        type: 'Beast',
+        name: 'Whiskers',
+        type: 'Mouse',
         rarity: RARITY_TYPES.COMMON,
         level: 15,
         ownerId: 1,
         stats: { hp: 800, attack: 150, defense: 100, speed: 400 },
-        abilities: ['Quick Hop', 'Nibble']
+        abilities: ['Tiny Squeeze', 'Quick Escape']
     }
 ];
 
