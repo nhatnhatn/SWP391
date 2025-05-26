@@ -124,7 +124,7 @@ export default function Pets() {
                                 Owner
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Stats
+                                Special
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
@@ -157,19 +157,20 @@ export default function Pets() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-xs text-gray-500">
-                                            <div className="flex space-x-4">
-                                                <span>HP: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
-                                                <span>ATK: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
-                                            </div>
-                                            
+                                            {/* <div className="flex space-x-4">
+                                            </div> */}
+
                                             {expandedPets[pet.id] && (
                                                 <div className="mt-2 animate-fadeIn">
+                                                    <span className="block mb-1 font-bold">Stats:</span>
                                                     <div className="flex space-x-4">
+                                                        <span>HP: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
+                                                        <span>ATK: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
                                                         <span>DEF: <span className="font-medium">{formatNumber(pet.stats.defense)}</span></span>
                                                         <span>SPD: <span className="font-medium">{formatNumber(pet.stats.speed)}</span></span>
                                                     </div>
-                                                    <div className="mt-2">
-                                                        <span className="block mb-1">Abilities:</span>
+                                                    <div className="mt-4">
+                                                        <span className="block mb-1 font-bold">Abilities:</span>
                                                         <div className="flex flex-wrap gap-1">
                                                             {pet.abilities.map((ability, index) => (
                                                                 <span
@@ -189,8 +190,8 @@ export default function Pets() {
                                             className="mt-1 text-xs text-indigo-600 hover:text-indigo-900 flex items-center"
                                         >
                                             {expandedPets[pet.id] ? 'Hide Details' : 'Show Details'}
-                                            {expandedPets[pet.id] ? 
-                                                <ChevronUp className="h-3 w-3 ml-1" /> : 
+                                            {expandedPets[pet.id] ?
+                                                <ChevronUp className="h-3 w-3 ml-1" /> :
                                                 <ChevronDown className="h-3 w-3 ml-1" />
                                             }
                                         </button>
@@ -229,7 +230,7 @@ export default function Pets() {
             </div>
 
             {/* Remove the old no pets message as it's now handled in the table */}
-            
+
             {/* Modal for Add/Edit Pet */}
             {showModal && (
                 <PetModal
@@ -382,7 +383,7 @@ function PetModal({ pet, onClose, onSave }) {
 
                     {/* Stats */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Special</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Stats</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                                 <label className="block text-xs text-gray-500 mb-1">H</label>
