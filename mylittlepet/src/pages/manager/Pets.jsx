@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { mockPets, mockPlayers, RARITY_TYPES } from '../../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
@@ -10,8 +10,10 @@ export default function Pets() {
     const [typeFilter, setTypeFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [selectedPet, setSelectedPet] = useState(null);
-    // Add state to track expanded pet cards
     const [expandedPets, setExpandedPets] = useState({});
+    // Add pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const petsPerPage = 6;
 
     const uniqueTypes = [...new Set(pets.map(pet => pet.type))];
 
@@ -22,6 +24,19 @@ export default function Pets() {
         const matchesType = typeFilter === 'all' || pet.type === typeFilter;
         return matchesSearch && matchesRarity && matchesType;
     });
+
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredPets.length / petsPerPage);
+    const indexOfLastPet = currentPage * petsPerPage;
+    const indexOfFirstPet = indexOfLastPet - petsPerPage;
+    const currentPets = filteredPets.slice(indexOfFirstPet, indexOfLastPet);
+
+    // Handle page changes
+    const goToPage = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        // Reset expanded state when changing pages
+        setExpandedPets({});
+    };
 
     const handleDeletePet = (petId) => {
         if (window.confirm('Are you sure you want to delete this pet?')) {
@@ -132,8 +147,8 @@ export default function Pets() {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredPets.length > 0 ? (
-                            filteredPets.map((pet) => (
+                        {currentPets.length > 0 ? (
+                            currentPets.map((pet) => (
                                 <tr key={pet.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">{pet.name}</div>
@@ -185,6 +200,8 @@ export default function Pets() {
                                                 </div>
                                             )}
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
                                             onClick={() => toggleExpanded(pet.id)}
                                             className="mt-1 text-xs text-indigo-600 hover:text-indigo-900 flex items-center"
@@ -195,8 +212,6 @@ export default function Pets() {
                                                 <ChevronDown className="h-3 w-3 ml-1" />
                                             }
                                         </button>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
                                             onClick={() => openModal(pet)}
                                             className="text-blue-600 hover:text-blue-800 mr-3"
@@ -229,7 +244,55 @@ export default function Pets() {
                 </table>
             </div>
 
-            {/* Remove the old no pets message as it's now handled in the table */}
+            {/* Add Pagination Controls */}
+            {filteredPets.length > petsPerPage && (
+                <div className="flex items-center justify-center space-x-2 mt-6">
+                    <button
+                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {[...Array(totalPages)].map((_, i) => {
+                        const pageNum = i + 1;
+                        // Show limited page buttons with ellipsis for many pages
+                        if (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                        ) {
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => goToPage(pageNum)}
+                                    className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        } else if (
+                            (pageNum === 2 && currentPage > 3) ||
+                            (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                        ) {
+                            return <span key={i} className="px-1">...</span>;
+                        } else {
+                            return null;
+                        }
+                    })}
+
+                    <button
+                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
 
             {/* Modal for Add/Edit Pet */}
             {showModal && (
