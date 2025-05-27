@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { mockPets, mockPlayers, RARITY_TYPES } from '../../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
@@ -138,10 +138,7 @@ export default function Pets() {
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Owner
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Special
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
@@ -170,68 +167,65 @@ export default function Pets() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {getOwnerName(pet.ownerId)}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-xs text-gray-500">
-                                            {/* <div className="flex space-x-4">
-                                            </div> */}
-
-                                            {expandedPets[pet.id] && (
-                                                <div className="mt-2 animate-fadeIn">
-                                                    <span className="block mb-1 font-bold">Stats:</span>
-                                                    <div className="flex space-x-4">
-                                                        <span>HP: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
-                                                        <span>ATK: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
-                                                        <span>DEF: <span className="font-medium">{formatNumber(pet.stats.defense)}</span></span>
-                                                        <span>SPD: <span className="font-medium">{formatNumber(pet.stats.speed)}</span></span>
-                                                    </div>
-                                                    <div className="mt-4">
-                                                        <span className="block mb-1 font-bold">Abilities:</span>
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {pet.abilities.map((ability, index) => (
-                                                                <span
-                                                                    key={index}
-                                                                    className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
-                                                                >
-                                                                    {ability}
-                                                                </span>
-                                                            ))}
-                                                        </div>
+                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        <div className="flex items-center justify-center space-x-3">
+                                            <button
+                                                onClick={() => toggleExpanded(pet.id)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                                title={expandedPets[pet.id] ? "Hide Details" : "Show Details"}
+                                            >
+                                                {expandedPets[pet.id] ? 
+                                                    <EyeOff className="h-4 w-4" /> : 
+                                                    <Eye className="h-4 w-4" />
+                                                }
+                                            </button>
+                                            <button
+                                                onClick={() => openModal(pet)}
+                                                className="text-blue-600 hover:text-blue-800"
+                                                title="Edit Pet"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeletePet(pet.id)}
+                                                className="text-red-600 hover:text-red-800"
+                                                title="Delete Pet"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        
+                                        {/* Display expanded pet details below */}
+                                        {expandedPets[pet.id] && (
+                                            <div className="mt-2 text-left animate-fadeIn">
+                                                <span className="block mb-1 font-bold">Stats:</span>
+                                                <div className="flex space-x-4">
+                                                    <span>HP: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
+                                                    <span>ATK: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
+                                                    <span>DEF: <span className="font-medium">{formatNumber(pet.stats.defense)}</span></span>
+                                                    <span>SPD: <span className="font-medium">{formatNumber(pet.stats.speed)}</span></span>
+                                                </div>
+                                                <div className="mt-4">
+                                                    <span className="block mb-1 font-bold">Abilities:</span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {pet.abilities.map((ability, index) => (
+                                                            <span
+                                                                key={index}
+                                                                className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
+                                                            >
+                                                                {ability}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            onClick={() => toggleExpanded(pet.id)}
-                                            className="mt-1 text-xs text-indigo-600 hover:text-indigo-900 flex items-center"
-                                        >
-                                            {expandedPets[pet.id] ? 'Hide Details' : 'Show Details'}
-                                            {expandedPets[pet.id] ?
-                                                <ChevronUp className="h-3 w-3 ml-1" /> :
-                                                <ChevronDown className="h-3 w-3 ml-1" />
-                                            }
-                                        </button>
-                                        <button
-                                            onClick={() => openModal(pet)}
-                                            className="text-blue-600 hover:text-blue-800 mr-3"
-                                            title="Edit Pet"
-                                        >
-                                            <Edit2 className="h-4 w-4 inline" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeletePet(pet.id)}
-                                            className="text-red-600 hover:text-red-800"
-                                            title="Delete Pet"
-                                        >
-                                            <Trash2 className="h-4 w-4 inline" />
-                                        </button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" className="px-6 py-12 text-center">
+                                <td colSpan="6" className="px-6 py-12 text-center"> {/* Updated colspan from 7 to 6 */}
                                     <Heart className="mx-auto h-12 w-12 text-gray-400" />
                                     <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
                                     <p className="mt-1 text-sm text-gray-500">
