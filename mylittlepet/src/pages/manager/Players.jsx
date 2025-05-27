@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Ban, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Edit2, Ban, CheckCircle, X, User, Mail, Heart, Trophy, ChevronUp, ChevronDown, Package, Star, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { mockPlayers } from '../../data/mockData';
 import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../utils/helpers';
 
@@ -7,208 +7,565 @@ export default function Players() {
     const [players, setPlayers] = useState(mockPlayers);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [showModal, setShowModal] = useState(false);
-    const [selectedPlayer, setSelectedPlayer] = useState(null);
-
-    const filteredPlayers = players.filter(player => {
+    const [showModal, setShowModal] = useState(false); const [selectedPlayer, setSelectedPlayer] = useState(null);
+    const [selectedPlayerDetails, setSelectedPlayerDetails] = useState(null);
+    const [accordionState, setAccordionState] = useState({
+        pets: true,
+        inventory: false,
+        achievements: false
+    });
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' }); const [currentPage, setCurrentPage] = useState(1);
+    const [playersPerPage, setPlayersPerPage] = useState(5); const filteredPlayers = players.filter(player => {
         const matchesSearch = player.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             player.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || player.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
-    const handleStatusChange = (playerId, newStatus) => {
+    // Reset to first page when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);// Sort filtered players
+    const sortedPlayers = [...filteredPlayers].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];        // Handle special cases
+        if (sortConfig.key === 'registeredAt') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        } else if (sortConfig.key === 'username') {
+            // Sort alphabetically for username (case-insensitive)
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+        } return 0;
+    });
+
+    // Pagination calculations
+    const totalPages = Math.ceil(sortedPlayers.length / playersPerPage);
+    const startIndex = (currentPage - 1) * playersPerPage;
+    const endIndex = startIndex + playersPerPage;
+    const currentPlayers = sortedPlayers.slice(startIndex, endIndex); const handlePageChange = (page) => {
+        setCurrentPage(page);
+        setSelectedPlayerDetails(null); // Clear player details when changing pages
+    };
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        } setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (columnKey) => {
+        if (sortConfig.key !== columnKey) {
+            return null;
+        }
+        return sortConfig.direction === 'asc' ?
+            <ChevronUp className="h-4 w-4" /> :
+            <ChevronDown className="h-4 w-4" />;
+    }; const handleStatusChange = (playerId, newStatus) => {
         setPlayers(players.map(player =>
             player.id === playerId ? { ...player, status: newStatus } : player
         ));
-    };
 
-    const handleDeletePlayer = (playerId) => {
-        if (window.confirm('Are you sure you want to delete this player?')) {
-            setPlayers(players.filter(player => player.id !== playerId));
+        // Update selected player details if it's currently displayed
+        if (selectedPlayerDetails && selectedPlayerDetails.id === playerId) {
+            setSelectedPlayerDetails({ ...selectedPlayerDetails, status: newStatus });
         }
     };
 
     const openModal = (player = null) => {
         setSelectedPlayer(player);
         setShowModal(true);
-    };
-
-    const closeModal = () => {
+    }; const closeModal = () => {
         setShowModal(false);
         setSelectedPlayer(null);
+    }; const handlePlayerClick = (player) => {
+        // Toggle functionality - if same player is clicked, close details
+        if (selectedPlayerDetails && selectedPlayerDetails.id === player.id) {
+            setSelectedPlayerDetails(null);
+        } else {
+            setSelectedPlayerDetails(player);
+            // Reset accordion state when opening new player details
+            setAccordionState({
+                pets: true,
+                inventory: false,
+                achievements: false
+            });
+        }
+    };
+
+    const closePlayerDetails = () => {
+        setSelectedPlayerDetails(null);
+    };
+
+    const toggleAccordion = (section) => {
+        setAccordionState(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
     };
 
     return (
-        <div>
-            <div className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900">Players Management</h1>
-                    <button
-                        onClick={() => openModal()}
-                        className="btn-primary flex items-center"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Player
-                    </button>
-                </div>
-
-                {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search players..."
-                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+        <div>            <div className="mb-6">            <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">Players Management</h1>
+        </div>            {/* Player Details Panel */}
+            {selectedPlayerDetails && (
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-blue-500">
+                    <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                            <User className="h-5 w-5 mr-2 text-blue-500" />
+                            Player Details
+                        </h3>
+                        <button
+                            onClick={closePlayerDetails}
+                            className="text-gray-400 hover:text-gray-600"
+                            title="Close"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
                     </div>
-                    <select
-                        className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="banned">Banned</option>
-                    </select>
+
+                    {/* Basic Info Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Username</label>
+                                <div className="flex items-center mt-1">
+                                    <User className="h-4 w-4 text-gray-400 mr-2" />
+                                    <span className="text-lg font-semibold text-gray-900">{selectedPlayerDetails.username}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Email</label>
+                                <div className="flex items-center mt-1">
+                                    <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                                    <span className="text-gray-900">{selectedPlayerDetails.email}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Level</label>
+                                <div className="flex items-center mt-1">
+                                    <Trophy className="h-4 w-4 text-yellow-500 mr-2" />
+                                    <span className="text-2xl font-bold text-yellow-600">{selectedPlayerDetails.level}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Status</label>
+                                <div className="mt-1">
+                                    <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedPlayerDetails.status)}`}>
+                                        {selectedPlayerDetails.status}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Total Pets</label>
+                                <div className="flex items-center mt-1">
+                                    <Heart className="h-4 w-4 text-pink-500 mr-2" />
+                                    <span className="text-xl font-bold text-pink-600">{formatNumber(selectedPlayerDetails.totalPets)}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Total Items</label>
+                                <div className="flex items-center mt-1">
+                                    <Package className="h-4 w-4 text-purple-500 mr-2" />
+                                    <span className="text-xl font-bold text-purple-600">{formatNumber(selectedPlayerDetails.totalItems)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Total Achievements</label>
+                                <div className="flex items-center mt-1">
+                                    <Star className="h-4 w-4 text-orange-500 mr-2" />
+                                    <span className="text-xl font-bold text-orange-600">{formatNumber(selectedPlayerDetails.totalAchievements)}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-500">Registered</label>
+                                <div className="mt-1">
+                                    <span className="text-gray-900">{formatDate(selectedPlayerDetails.registeredAt)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    {/* Detailed Sections */}
+                    <div className="space-y-4">
+                        {/* Pet List Accordion */}
+                        <div className="bg-gray-50 rounded-lg border border-gray-200">
+                            <button
+                                onClick={() => toggleAccordion('pets')}
+                                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 transition-colors"
+                            >
+                                <h4 className="text-md font-semibold text-gray-900 flex items-center">
+                                    <Heart className="h-4 w-4 text-pink-500 mr-2" />
+                                    Pet List ({selectedPlayerDetails.pets?.length || 0})
+                                </h4>
+                                {accordionState.pets ?
+                                    <ChevronUp className="h-4 w-4 text-gray-500" /> :
+                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                }
+                            </button>
+                            {accordionState.pets && (
+                                <div className="px-4 pb-4">
+                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                        {selectedPlayerDetails.pets?.map((pet, index) => (
+                                            <div key={index} className="flex justify-between items-center bg-white p-3 rounded border">
+                                                <div>
+                                                    <span className="font-medium text-gray-900">{pet.name}</span>
+                                                    <span className="text-sm text-gray-500 ml-2">({pet.type})</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm font-medium">Lv.{pet.level}</span>
+                                                    <span className={`px-2 py-1 text-xs rounded-full ${pet.rarity === 'mythic' ? 'bg-pink-100 text-pink-800' :
+                                                        pet.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-800' :
+                                                            pet.rarity === 'epic' ? 'bg-purple-100 text-purple-800' :
+                                                                pet.rarity === 'rare' ? 'bg-blue-100 text-blue-800' :
+                                                                    pet.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {pet.rarity}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )) || <p className="text-gray-500 text-sm p-3">No pets found</p>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Inventory Accordion */}
+                        <div className="bg-gray-50 rounded-lg border border-gray-200">
+                            <button
+                                onClick={() => toggleAccordion('inventory')}
+                                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 transition-colors"
+                            >
+                                <h4 className="text-md font-semibold text-gray-900 flex items-center">
+                                    <Package className="h-4 w-4 text-purple-500 mr-2" />
+                                    Inventory ({selectedPlayerDetails.inventory?.length || 0})
+                                </h4>
+                                {accordionState.inventory ?
+                                    <ChevronUp className="h-4 w-4 text-gray-500" /> :
+                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                }
+                            </button>
+                            {accordionState.inventory && (
+                                <div className="px-4 pb-4">
+                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                        {selectedPlayerDetails.inventory?.map((item, index) => (
+                                            <div key={index} className="flex justify-between items-center bg-white p-3 rounded border">
+                                                <div>
+                                                    <span className="font-medium text-gray-900">{item.name}</span>
+                                                    <span className="text-sm text-gray-500 ml-2">({item.type})</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm font-medium">x{item.quantity}</span>
+                                                    <span className={`px-2 py-1 text-xs rounded-full ${item.rarity === 'mythic' ? 'bg-pink-100 text-pink-800' :
+                                                        item.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-800' :
+                                                            item.rarity === 'epic' ? 'bg-purple-100 text-purple-800' :
+                                                                item.rarity === 'rare' ? 'bg-blue-100 text-blue-800' :
+                                                                    item.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {item.rarity}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )) || <p className="text-gray-500 text-sm p-3">No items found</p>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Achievements Accordion */}
+                        <div className="bg-gray-50 rounded-lg border border-gray-200">
+                            <button
+                                onClick={() => toggleAccordion('achievements')}
+                                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 transition-colors"
+                            >
+                                <h4 className="text-md font-semibold text-gray-900 flex items-center">
+                                    <Star className="h-4 w-4 text-orange-500 mr-2" />
+                                    Achievements ({selectedPlayerDetails.achievements?.length || 0})
+                                </h4>
+                                {accordionState.achievements ?
+                                    <ChevronUp className="h-4 w-4 text-gray-500" /> :
+                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                }
+                            </button>
+                            {accordionState.achievements && (
+                                <div className="px-4 pb-4">
+                                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                                        {selectedPlayerDetails.achievements?.map((achievement, index) => (
+                                            <div key={index} className="bg-white p-3 rounded border">
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <span className="font-medium text-gray-900">{achievement.name}</span>
+                                                        <p className="text-sm text-gray-600 mt-1">{achievement.description}</p>
+                                                    </div>
+                                                    <span className="text-xs text-gray-500">{formatDate(achievement.unlocked)}</span>
+                                                </div>
+                                            </div>
+                                        )) || <p className="text-gray-500 text-sm p-3">No achievements found</p>}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
+            )}            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search players..."
+                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>                <select
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="all">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Banned">Banned</option>
+                </select>
             </div>
+        </div>
 
             {/* Players Table */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <table className="min-w-full divide-y divide-gray-200">                        <thead className="bg-gray-50">
+                        <tr>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('username')}
+                            >
+                                <div className="flex items-center">
                                     Player
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {getSortIcon('username')}
+                                </div>
+                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('level')}
+                            >
+                                <div className="flex items-center">
                                     Level
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {getSortIcon('level')}
+                                </div>
+                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('status')}
+                            >
+                                <div className="flex items-center">
                                     Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {getSortIcon('status')}
+                                </div>
+                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('totalPets')}
+                            >
+                                <div className="flex items-center">
                                     Pets
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {getSortIcon('totalPets')}
+                                </div>
+                            </th>                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('totalItems')}
+                            >
+                                <div className="flex items-center">
                                     Items
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {getSortIcon('totalItems')}
+                                </div>
+                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('totalAchievements')}
+                            >
+                                <div className="flex items-center">
+                                    Achievements
+                                    {getSortIcon('totalAchievements')}
+                                </div>
+                            </th>                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                onClick={() => handleSort('registeredAt')}
+                            >
+                                <div className="flex items-center">
                                     Registered
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Last Login
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredPlayers.map((player) => (
-                                <tr key={player.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div>
-                                            <div className="text-sm font-medium text-gray-900">{player.username}</div>
-                                            <div className="text-sm text-gray-500">{player.email}</div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{player.level}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(player.status)}`}>
-                                            {player.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {formatNumber(player.totalPets)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {formatNumber(player.totalItems)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatDate(player.registeredAt)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formatTimeAgo(player.lastLogin)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex space-x-2">
-                                            <button
-                                                onClick={() => openModal(player)}
-                                                className="text-blue-600 hover:text-blue-900"
-                                                title="Edit"
-                                            >
-                                                <Edit2 className="h-4 w-4" />
-                                            </button>
-                                            {player.status === 'active' ? (
-                                                <button
-                                                    onClick={() => handleStatusChange(player.id, 'banned')}
-                                                    className="text-red-600 hover:text-red-900"
-                                                    title="Ban Player"
-                                                >
-                                                    <Ban className="h-4 w-4" />
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() => handleStatusChange(player.id, 'active')}
-                                                    className="text-green-600 hover:text-green-900"
-                                                    title="Activate Player"
-                                                >
-                                                    <CheckCircle className="h-4 w-4" />
-                                                </button>
-                                            )}
-                                            <button
-                                                onClick={() => handleDeletePlayer(player.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                                title="Delete"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                    {getSortIcon('registeredAt')}
+                                </div>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>                        <tbody className="bg-white divide-y divide-gray-200">                            {currentPlayers.map((player) => (
+                        <tr
+                            key={player.id}
+                            className="hover:bg-gray-50"
+                        ><td className="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div className="text-sm font-medium text-blue-600">
+                                        {player.username}
+                                    </div>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900">{player.level}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(player.status)}`}>
+                                    {player.status}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {formatNumber(player.totalPets)}
+                            </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {formatNumber(player.totalItems)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {formatNumber(player.totalAchievements)}
+                            </td>                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatDate(player.registeredAt)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => handlePlayerClick(player)}
+                                        className="text-indigo-600 hover:text-indigo-900"
+                                        title="View Details"
+                                    >
+                                        <Eye className="h-4 w-4" />
+                                    </button>                                            <button
+                                        onClick={() => openModal(player)}
+                                        className="text-blue-600 hover:text-blue-900"
+                                        title="Edit"
+                                    >
+                                        <Edit2 className="h-4 w-4" />
+                                    </button>                                            {player.status === 'Active' ? (
+                                        <button
+                                            onClick={() => handleStatusChange(player.id, 'Banned')}
+                                            className="text-red-600 hover:text-red-900"
+                                            title="Ban Player"
+                                        >
+                                            <Ban className="h-4 w-4" />
+                                        </button>) : (
+                                        <button
+                                            onClick={() => handleStatusChange(player.id, 'Active')}
+                                            className="text-green-600 hover:text-green-900"
+                                            title="Activate Player"
+                                        >
+                                            <CheckCircle className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
                         </tbody>
-                    </table>
-                </div>
+                    </table>                </div>
             </div>
 
-            {filteredPlayers.length === 0 && (
-                <div className="text-center py-12">
-                    <p className="text-gray-500">No players found matching your criteria.</p>
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-lg">
+                    <div className="flex-1 flex justify-between sm:hidden">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm text-gray-700">
+                                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                                <span className="font-medium">{Math.min(endIndex, sortedPlayers.length)}</span> of{' '}
+                                <span className="font-medium">{sortedPlayers.length}</span> results
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === currentPage
+                                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
                 </div>
             )}
 
-            {/* Modal for Add/Edit Player */}
+            {currentPlayers.length === 0 && (
+                <div className="text-center py-12">
+                    <p className="text-gray-500">No players found matching your criteria.</p>
+                </div>
+            )}            {/* Modal for Edit Player */}
             {showModal && (
                 <PlayerModal
                     player={selectedPlayer}
-                    onClose={closeModal}
-                    onSave={(playerData) => {
-                        if (selectedPlayer) {
-                            // Edit existing player
-                            setPlayers(players.map(p =>
-                                p.id === selectedPlayer.id ? { ...p, ...playerData } : p
-                            ));
-                        } else {
-                            // Add new player
-                            const newPlayer = {
-                                id: Math.max(...players.map(p => p.id)) + 1,
-                                ...playerData,
-                                registeredAt: new Date().toISOString(),
-                                lastLogin: new Date().toISOString(),
-                                totalPets: 0,
-                                totalItems: 0
-                            };
-                            setPlayers([...players, newPlayer]);
+                    onClose={closeModal} onSave={(playerData) => {
+                        // Edit existing player
+                        setPlayers(players.map(p =>
+                            p.id === selectedPlayer.id ? { ...p, ...playerData } : p
+                        ));
+
+                        // Update selected player details if it's currently displayed
+                        if (selectedPlayerDetails && selectedPlayerDetails.id === selectedPlayer.id) {
+                            setSelectedPlayerDetails({ ...selectedPlayerDetails, ...playerData });
                         }
                         closeModal();
                     }}
@@ -223,7 +580,7 @@ function PlayerModal({ player, onClose, onSave }) {
         username: player?.username || '',
         email: player?.email || '',
         level: player?.level || 1,
-        status: player?.status || 'active'
+        status: player?.status || 'Active'
     });
 
     const handleSubmit = (e) => {
@@ -233,10 +590,9 @@ function PlayerModal({ player, onClose, onSave }) {
 
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    {player ? 'Edit Player' : 'Add New Player'}
-                </h3>
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Edit Player
+            </h3>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -283,15 +639,13 @@ function PlayerModal({ player, onClose, onSave }) {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Status
-                        </label>
-                        <select
+                        </label>                        <select
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                         >
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="banned">Banned</option>
+                            <option value="Active">Active</option>
+                            <option value="Banned">Banned</option>
                         </select>
                     </div>
 
@@ -302,12 +656,11 @@ function PlayerModal({ player, onClose, onSave }) {
                             className="btn-secondary"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </button>                        <button
                             type="submit"
                             className="btn-primary"
                         >
-                            {player ? 'Update' : 'Create'}
+                            Update
                         </button>
                     </div>
                 </form>
