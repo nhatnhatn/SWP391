@@ -174,8 +174,8 @@ export default function Pets() {
                                                 className="text-indigo-600 hover:text-indigo-900"
                                                 title={expandedPets[pet.id] ? "Hide Details" : "Show Details"}
                                             >
-                                                {expandedPets[pet.id] ? 
-                                                    <EyeOff className="h-4 w-4" /> : 
+                                                {expandedPets[pet.id] ?
+                                                    <EyeOff className="h-4 w-4" /> :
                                                     <Eye className="h-4 w-4" />
                                                 }
                                             </button>
@@ -194,7 +194,7 @@ export default function Pets() {
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
-                                        
+
                                         {/* Display expanded pet details below */}
                                         {expandedPets[pet.id] && (
                                             <div className="mt-2 text-left animate-fadeIn">
