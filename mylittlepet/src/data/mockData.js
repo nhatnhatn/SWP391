@@ -636,8 +636,7 @@ export const mockPets = [
         ownerId: 5,
         stats: { hp: 1800, attack: 300, defense: 250, speed: 500 },
         abilities: ['Water Splash', 'Heal', 'Mist']
-    },
-    {
+    }, {
         id: 6,
         name: 'Forest Bunny',
         type: 'Beast',
@@ -646,6 +645,66 @@ export const mockPets = [
         ownerId: 1,
         stats: { hp: 800, attack: 150, defense: 100, speed: 400 },
         abilities: ['Quick Hop', 'Nibble']
+    },
+    {
+        id: 7,
+        name: 'Celestial Tiger',
+        type: 'Beast',
+        rarity: RARITY_TYPES.LEGENDARY,
+        level: 78,
+        ownerId: 2,
+        stats: { hp: 3200, attack: 720, defense: 450, speed: 650 },
+        abilities: ['Celestial Pounce', 'Star Strike', 'Cosmic Roar']
+    },
+    {
+        id: 8,
+        name: 'Ice Serpent',
+        type: 'Reptile',
+        rarity: RARITY_TYPES.EPIC,
+        level: 55,
+        ownerId: 3,
+        stats: { hp: 2600, attack: 480, defense: 380, speed: 520 },
+        abilities: ['Frost Bite', 'Ice Shield', 'Blizzard Coil']
+    },
+    {
+        id: 9,
+        name: 'Thunder Hawk',
+        type: 'Bird',
+        rarity: RARITY_TYPES.RARE,
+        level: 42,
+        ownerId: 4,
+        stats: { hp: 2000, attack: 420, defense: 280, speed: 750 },
+        abilities: ['Lightning Dive', 'Thunder Call', 'Storm Wing']
+    },
+    {
+        id: 10,
+        name: 'Mystic Unicorn',
+        type: 'Magical',
+        rarity: RARITY_TYPES.MYTHIC,
+        level: 95,
+        ownerId: 5,
+        stats: { hp: 4200, attack: 600, defense: 500, speed: 580 },
+        abilities: ['Heal Aura', 'Rainbow Beam', 'Purification', 'Magic Shield']
+    },
+    {
+        id: 11,
+        name: 'Lava Salamander',
+        type: 'Reptile',
+        rarity: RARITY_TYPES.UNCOMMON,
+        level: 35,
+        ownerId: 1,
+        stats: { hp: 1600, attack: 350, defense: 300, speed: 380 },
+        abilities: ['Lava Spit', 'Heat Wave', 'Fire Resistance']
+    },
+    {
+        id: 12,
+        name: 'Void Cat',
+        type: 'Magical',
+        rarity: RARITY_TYPES.EPIC,
+        level: 67,
+        ownerId: 2,
+        stats: { hp: 2400, attack: 520, defense: 320, speed: 680 },
+        abilities: ['Shadow Walk', 'Void Portal', 'Dark Energy', 'Phase Shift']
     }
 ];
 
