@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Package, DollarSign } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Package, DollarSign, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { mockItems, RARITY_TYPES } from '../../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
@@ -10,6 +10,18 @@ export default function Items() {
     const [typeFilter, setTypeFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [expandedItems, setExpandedItems] = useState({});
+    // Add pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    // Toggle expanded state for a specific item
+    const toggleExpanded = (itemId) => {
+        setExpandedItems(prev => ({
+            ...prev,
+            [itemId]: !prev[itemId]
+        }));
+    };
 
     const uniqueTypes = [...new Set(items.map(item => item.type))];
 
@@ -20,6 +32,19 @@ export default function Items() {
         const matchesType = typeFilter === 'all' || item.type === typeFilter;
         return matchesSearch && matchesRarity && matchesType;
     });
+
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Handle page changes
+    const goToPage = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        // Reset expanded state when changing pages
+        setExpandedItems({});
+    };
 
     const handleDeleteItem = (itemId) => {
         if (window.confirm('Are you sure you want to delete this item?')) {
@@ -103,7 +128,7 @@ export default function Items() {
                 </div>
             </div>
 
-            {/* Items Table */}
+            {/* Items Table - modify to use currentItems instead of filteredItems */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -125,93 +150,179 @@ export default function Items() {
                                     Quantity
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Stats
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredItems.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center">
-                                            <div className="text-2xl mr-3">{getTypeIcon(item.type)}</div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                                                <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            {item.type}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRarityClass(item.rarity)}`}
-                                            style={{ color: getRarityColor(item.rarity) }}
-                                        >
-                                            {capitalize(item.rarity)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center text-sm text-gray-900">
-                                            <DollarSign className="h-3 w-3 mr-1" />
-                                            {formatNumber(item.price)}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {formatNumber(item.quantity)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <div className="max-w-xs">
-                                            {Object.entries(item.stats).map(([key, value]) => (
-                                                <div key={key} className="flex justify-between text-xs">
-                                                    <span className="capitalize">{key}:</span>
-                                                    <span>{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}</span>
+                            {currentItems.length > 0 ? (
+                                currentItems.map((item) => (
+                                    <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="text-2xl mr-3">{getTypeIcon(item.type)}</div>
+                                                <div>
+                                                    <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                                                    <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex space-x-2">
-                                            <button
-                                                onClick={() => openModal(item)}
-                                                className="text-blue-600 hover:text-blue-900"
-                                                title="Edit"
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                {item.type}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRarityClass(item.rarity)}`}
+                                                style={{ color: getRarityColor(item.rarity) }}
                                             >
-                                                <Edit2 className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteItem(item.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                                title="Delete"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
+                                                {capitalize(item.rarity)}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center text-sm text-gray-900">
+                                                <DollarSign className="h-3 w-3 mr-1" />
+                                                {formatNumber(item.price)}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {formatNumber(item.quantity)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex space-x-3 justify-center">
+                                                <button
+                                                    onClick={() => toggleExpanded(item.id)}
+                                                    className="text-indigo-600 hover:text-indigo-900"
+                                                    title={expandedItems[item.id] ? "Hide Details" : "Show Details"}
+                                                >
+                                                    {expandedItems[item.id] ? 
+                                                        <EyeOff className="h-4 w-4" /> : 
+                                                        <Eye className="h-4 w-4" />
+                                                    }
+                                                </button>
+                                                <button
+                                                    onClick={() => openModal(item)}
+                                                    className="text-blue-600 hover:text-blue-900"
+                                                    title="Edit"
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteItem(item.id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                            
+                                            {/* Display expanded item details */}
+                                            {expandedItems[item.id] && (
+                                                <div className="mt-2 text-left animate-fadeIn">
+                                                    <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                                                        <p className="text-sm text-gray-700 mb-2">{item.description}</p>
+                                                        
+                                                        <div className="mt-2">
+                                                            <span className="block mb-1 font-bold text-xs">Stats:</span>
+                                                            <div className="grid grid-cols-2 gap-1">
+                                                                {Object.entries(item.stats).map(([key, value]) => (
+                                                                    <div key={key} className="text-xs">
+                                                                        <span className="capitalize font-medium">{key}:</span>{" "}
+                                                                        <span>{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}</span>
+                                                                </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {item.effects && (
+                                                            <div className="mt-2">
+                                                                <span className="block mb-1 font-bold text-xs">Effects:</span>
+                                                                <div className="flex flex-wrap gap-1">
+                                                                    {Object.entries(item.effects).map(([key, value]) => (
+                                                                        <span
+                                                                            key={key}
+                                                                            className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
+                                                                        >
+                                                                            {key}: +{value}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                        <Package className="mx-auto h-12 w-12 text-gray-400" />
+                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No items found</h3>
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            No items match your current filter criteria.
+                                        </p>
                                     </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {filteredItems.length === 0 && (
-                <div className="text-center py-12">
-                    <Package className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No items found</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                        No items match your current filter criteria.
-                    </p>
+            {/* Add Pagination Controls */}
+            {filteredItems.length > itemsPerPage && (
+                <div className="flex items-center justify-center space-x-2 mt-6">
+                    <button
+                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    {[...Array(totalPages)].map((_, i) => {
+                        const pageNum = i + 1;
+                        // Show limited page buttons with ellipsis for many pages
+                        if (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                        ) {
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() => goToPage(pageNum)}
+                                    className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        } else if (
+                            (pageNum === 2 && currentPage > 3) ||
+                            (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                        ) {
+                            return <span key={i} className="px-1">...</span>;
+                        } else {
+                            return null;
+                        }
+                    })}
+
+                    <button
+                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
                 </div>
             )}
 
-            {/* Summary Cards */}
+            {/* Summary Cards - keep these after pagination */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Total Items</h3>
