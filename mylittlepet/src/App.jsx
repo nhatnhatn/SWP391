@@ -2,11 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Players from './pages/Players';
-import Pets from './pages/Pets';
-import Items from './pages/Items';
+import Login from './pages/manager/Login';
+import Dashboard from './pages/manager/Dashboard';
+import Players from './pages/manager/Players';
+import Pets from './pages/manager/Pets';
+import Items from './pages/manager/Items';
 
 function App() {
   return (

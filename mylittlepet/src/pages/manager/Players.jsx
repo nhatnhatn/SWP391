@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Ban, CheckCircle } from 'lucide-react';
-import { mockPlayers } from '../data/mockData';
-import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../utils/helpers';
+import { mockPlayers } from '../../data/mockData';
+import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../utils/helpers';
 
 export default function Players() {
     const [players, setPlayers] = useState(mockPlayers);

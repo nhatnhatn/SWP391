@@ -14,8 +14,8 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { Users, Heart, Package, TrendingUp } from 'lucide-react';
-import { mockAnalytics, mockPlayers, mockPets, mockItems, RARITY_COLORS } from '../data/mockData';
-import { formatNumber } from '../utils/helpers';
+import { mockAnalytics, mockPlayers, mockPets, mockItems, RARITY_COLORS } from '../../data/mockData';
+import { formatNumber } from '../../utils/helpers';
 
 export default function Dashboard() {
     const totalPlayers = mockPlayers.length;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Package, DollarSign } from 'lucide-react';
-import { mockItems, RARITY_TYPES } from '../data/mockData';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../utils/helpers';
+import { mockItems, RARITY_TYPES } from '../../data/mockData';
+import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
 export default function Items() {
     const [items, setItems] = useState(mockItems);

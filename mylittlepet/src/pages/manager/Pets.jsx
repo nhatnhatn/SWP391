@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp } from 'lucide-react';
-import { mockPets, mockPlayers, RARITY_TYPES } from '../data/mockData';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../utils/helpers';
+import { mockPets, mockPlayers, RARITY_TYPES } from '../../data/mockData';
+import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
 export default function Pets() {
     const [pets, setPets] = useState(mockPets);
