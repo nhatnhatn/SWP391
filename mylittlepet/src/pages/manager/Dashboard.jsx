@@ -149,24 +149,23 @@ export default function Dashboard() {
                 {/* Pie Chart */}
                 <div className="bg-white p-6 rounded-lg shadow">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Item Rarity Distribution</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={mockAnalytics.rarityDistribution}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, percentage }) => `${name} ${percentage}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="count"
-                            >
-                                {mockAnalytics.rarityDistribution.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={rarityColors[index % rarityColors.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
+                    <ResponsiveContainer width="100%" height={300}>                        <PieChart>
+                        <Pie
+                            data={mockAnalytics.rarityDistribution}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ rarity, percentage }) => `${rarity} ${percentage}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="count"
+                        >
+                            {mockAnalytics.rarityDistribution.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={rarityColors[index % rarityColors.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip />
+                    </PieChart>
                     </ResponsiveContainer>
                 </div>
 
