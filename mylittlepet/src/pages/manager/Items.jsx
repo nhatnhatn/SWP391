@@ -221,9 +221,9 @@ export default function Items() {
                                             {expandedItems[item.id] && (
                                                 <div className="mt-2 text-left animate-fadeIn">
                                                     <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                                                        <p className="text-sm text-gray-700 mb-2">{item.description}</p>
+                                                        {/* Description removed */}
                                                         
-                                                        <div className="mt-2">
+                                                        <div>
                                                             <span className="block mb-1 font-bold text-xs">Stats:</span>
                                                             <div className="grid grid-cols-2 gap-1">
                                                                 {Object.entries(item.stats).map(([key, value]) => (
