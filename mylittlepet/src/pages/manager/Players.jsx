@@ -15,7 +15,7 @@ export default function Players() {
         achievements: false
     });
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' }); const [currentPage, setCurrentPage] = useState(1);
-    const [playersPerPage, setPlayersPerPage] = useState(5); const filteredPlayers = players.filter(player => {
+    const playersPerPage = 6; const filteredPlayers = players.filter(player => {
         const matchesSearch = player.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             player.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || player.status === statusFilter;
@@ -52,9 +52,9 @@ export default function Players() {
     const totalPages = Math.ceil(sortedPlayers.length / playersPerPage);
     const startIndex = (currentPage - 1) * playersPerPage;
     const endIndex = startIndex + playersPerPage;
-    const currentPlayers = sortedPlayers.slice(startIndex, endIndex); const handlePageChange = (page) => {
+    const currentPlayers = sortedPlayers.slice(startIndex, endIndex); const goToPage = (page) => {
         setCurrentPage(page);
-        setSelectedPlayerDetails(null); // Clear player details when changing pages
+        setSelectedPlayerDetails(null);
     };
 
     const handleSort = (key) => {
@@ -484,68 +484,53 @@ export default function Players() {
                     ))}
                         </tbody>
                     </table>                </div>
-            </div>
+            </div>            {/* Pagination */}
+            {filteredPlayers.length > playersPerPage && (
+                <div className="flex items-center justify-center space-x-2 mt-6">
+                    <button
+                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-lg">
-                    <div className="flex-1 flex justify-between sm:hidden">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Previous
-                        </button>
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Next
-                        </button>
-                    </div>
-                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-                                <span className="font-medium">{Math.min(endIndex, sortedPlayers.length)}</span> of{' '}
-                                <span className="font-medium">{sortedPlayers.length}</span> results
-                            </p>
-                        </div>
-                        <div>
-                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {[...Array(totalPages)].map((_, i) => {
+                        const pageNum = i + 1;
+                        // Show limited page buttons with ellipsis for many pages
+                        if (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                        ) {
+                            return (
                                 <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    key={i}
+                                    onClick={() => goToPage(pageNum)}
+                                    className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                                 >
-                                    <span className="sr-only">Previous</span>
-                                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                                    {pageNum}
                                 </button>
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === currentPage
-                                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <span className="sr-only">Next</span>
-                                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
+                            );
+                        } else if (
+                            (pageNum === 2 && currentPage > 3) ||
+                            (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                        ) {
+                            return <span key={i} className="px-1">...</span>;
+                        } else {
+                            return null;
+                        }
+                    })}
+
+                    <button
+                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'}`}
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
                 </div>
             )}
 
