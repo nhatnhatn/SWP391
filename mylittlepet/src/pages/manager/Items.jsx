@@ -59,9 +59,7 @@ export default function Items() {
     const closeModal = () => {
         setShowModal(false);
         setSelectedItem(null);
-    };
-
-    const getTypeIcon = (type) => {
+    }; const getTypeIcon = (type) => {
         switch (type.toLowerCase()) {
             case 'weapon':
                 return '⚔️';
@@ -71,8 +69,43 @@ export default function Items() {
                 return '🧪';
             case 'food':
                 return '🍞';
+            case 'accessory':
+                return '💍';
             default:
                 return '📦';
+        }
+    };
+
+    const getTypeColor = (type) => {
+        switch (type.toLowerCase()) {
+            case 'weapon':
+                return 'bg-red-100 text-red-800 border-red-200';
+            case 'armor':
+                return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'consumable':
+                return 'bg-green-100 text-green-800 border-green-200';
+            case 'food':
+                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'accessory':
+                return 'bg-purple-100 text-purple-800 border-purple-200'; default:
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
+
+    const getTypeIconBg = (type) => {
+        switch (type.toLowerCase()) {
+            case 'weapon':
+                return 'bg-red-200';
+            case 'armor':
+                return 'bg-blue-200';
+            case 'consumable':
+                return 'bg-green-200';
+            case 'food':
+                return 'bg-yellow-200';
+            case 'accessory':
+                return 'bg-purple-200';
+            default:
+                return 'bg-gray-200';
         }
     };
 
@@ -109,16 +142,16 @@ export default function Items() {
                     {Object.values(RARITY_TYPES).map(rarity => (
                         <option key={rarity} value={rarity}>{t(`rarities.${rarity}`)}</option>
                     ))}
-                </select>
-
-                <select
+                </select>                <select
                     className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
                 >
                     <option value="all">{t('items.allTypes')}</option>
                     {uniqueTypes.map(type => (
-                        <option key={type} value={type}>{t(`itemTypes.${type}`) || type}</option>
+                        <option key={type} value={type}>
+                            {getTypeIcon(type)} {t(`itemTypes.${type.toLowerCase()}`) || type}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -152,18 +185,20 @@ export default function Items() {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {currentItems.length > 0 ? (
                                 currentItems.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="text-2xl mr-3">{getTypeIcon(item.type)}</div>
-                                                <div>
-                                                    <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                                                    <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
-                                                </div>
+                                    <tr key={item.id} className="hover:bg-gray-50">                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center">
+                                            <div className={`flex items-center justify-center w-10 h-10 rounded-lg mr-3 ${getTypeIconBg(item.type)}`}>
+                                                <span className="text-xl">{getTypeIcon(item.type)}</span>
                                             </div>
-                                        </td>                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                {t(`itemTypes.${item.type}`) || item.type}
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                                                <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
+                                            </div>
+                                        </div>
+                                    </td><td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full border ${getTypeColor(item.type)}`}>
+                                                <span className="mr-1">{getTypeIcon(item.type)}</span>
+                                                {t(`itemTypes.${item.type.toLowerCase()}`) || item.type}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
