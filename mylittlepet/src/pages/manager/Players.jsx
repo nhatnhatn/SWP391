@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Edit2, Ban, CheckCircle, X, User, Mail, Heart, Trophy, ChevronUp, ChevronDown, Package, Star, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { mockPlayers } from '../../data/mockData';
 import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../utils/helpers';
+import { t } from '../../constants/vietnamese';
 
 export default function Players() {
     const [players, setPlayers] = useState(mockPlayers);
@@ -116,15 +117,14 @@ export default function Players() {
 
     return (
         <div>            <div className="mb-6">            <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Players Management</h1>
-        </div>            {/* Player Details Panel */}
+            <h1 className="text-2xl font-bold text-gray-900">{t('players.management')}</h1>
+        </div>{/* Player Details Panel */}
             {selectedPlayerDetails && (
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-l-4 border-blue-500">
-                    <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                            <User className="h-5 w-5 mr-2 text-blue-500" />
-                            Player Details
-                        </h3>
+                    <div className="flex justify-between items-start mb-4">                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <User className="h-5 w-5 mr-2 text-blue-500" />
+                        {t('players.playerDetails')}
+                    </h3>
                         <button
                             onClick={closePlayerDetails}
                             className="text-gray-400 hover:text-gray-600"
@@ -132,20 +132,18 @@ export default function Players() {
                         >
                             <X className="h-5 w-5" />
                         </button>
-                    </div>
-
-                    {/* Basic Info Grid */}
+                    </div>                    {/* Basic Info Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <div className="space-y-3">
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Username</label>
+                                <label className="text-sm font-medium text-gray-500">{t('players.username')}</label>
                                 <div className="flex items-center mt-1">
                                     <User className="h-4 w-4 text-gray-400 mr-2" />
                                     <span className="text-lg font-semibold text-gray-900">{selectedPlayerDetails.username}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Email</label>
+                                <label className="text-sm font-medium text-gray-500">{t('auth.email')}</label>
                                 <div className="flex items-center mt-1">
                                     <Mail className="h-4 w-4 text-gray-400 mr-2" />
                                     <span className="text-gray-900">{selectedPlayerDetails.email}</span>
@@ -155,17 +153,17 @@ export default function Players() {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Level</label>
+                                <label className="text-sm font-medium text-gray-500">{t('common.level')}</label>
                                 <div className="flex items-center mt-1">
                                     <Trophy className="h-4 w-4 text-yellow-500 mr-2" />
                                     <span className="text-2xl font-bold text-yellow-600">{selectedPlayerDetails.level}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Status</label>
+                                <label className="text-sm font-medium text-gray-500">{t('common.status')}</label>
                                 <div className="mt-1">
                                     <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(selectedPlayerDetails.status)}`}>
-                                        {selectedPlayerDetails.status}
+                                        {t(`statuses.${selectedPlayerDetails.status.toLowerCase()}`)}
                                     </span>
                                 </div>
                             </div>
@@ -173,14 +171,14 @@ export default function Players() {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Total Pets</label>
+                                <label className="text-sm font-medium text-gray-500">{t('players.totalPets')}</label>
                                 <div className="flex items-center mt-1">
                                     <Heart className="h-4 w-4 text-pink-500 mr-2" />
                                     <span className="text-xl font-bold text-pink-600">{formatNumber(selectedPlayerDetails.totalPets)}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Total Items</label>
+                                <label className="text-sm font-medium text-gray-500">{t('players.totalItems')}</label>
                                 <div className="flex items-center mt-1">
                                     <Package className="h-4 w-4 text-purple-500 mr-2" />
                                     <span className="text-xl font-bold text-purple-600">{formatNumber(selectedPlayerDetails.totalItems)}</span>
@@ -190,22 +188,21 @@ export default function Players() {
 
                         <div className="space-y-3">
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Total Achievements</label>
+                                <label className="text-sm font-medium text-gray-500">{t('players.totalAchievements')}</label>
                                 <div className="flex items-center mt-1">
                                     <Star className="h-4 w-4 text-orange-500 mr-2" />
                                     <span className="text-xl font-bold text-orange-600">{formatNumber(selectedPlayerDetails.totalAchievements)}</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-500">Registered</label>
+                                <label className="text-sm font-medium text-gray-500">{t('players.registered')}</label>
                                 <div className="mt-1">
                                     <span className="text-gray-900">{formatDate(selectedPlayerDetails.registeredAt)}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>                    {/* Detailed Sections */}
-                    <div className="space-y-4">
-                        {/* Pet List Accordion */}
+                    </div>{/* Detailed Sections */}
+                    <div className="space-y-4">                        {/* Pet List Accordion */}
                         <div className="bg-gray-50 rounded-lg border border-gray-200">
                             <button
                                 onClick={() => toggleAccordion('pets')}
@@ -213,7 +210,7 @@ export default function Players() {
                             >
                                 <h4 className="text-md font-semibold text-gray-900 flex items-center">
                                     <Heart className="h-4 w-4 text-pink-500 mr-2" />
-                                    Pet List ({selectedPlayerDetails.pets?.length || 0})
+                                    {t('nav.pets')} ({selectedPlayerDetails.pets?.length || 0})
                                 </h4>
                                 {accordionState.pets ?
                                     <ChevronUp className="h-4 w-4 text-gray-500" /> :
@@ -238,17 +235,15 @@ export default function Players() {
                                                                     pet.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
                                                                         'bg-gray-100 text-gray-800'
                                                         }`}>
-                                                        {pet.rarity}
+                                                        {t(`rarities.${pet.rarity}`)}
                                                     </span>
                                                 </div>
                                             </div>
-                                        )) || <p className="text-gray-500 text-sm p-3">No pets found</p>}
+                                        )) || <p className="text-gray-500 text-sm p-3">{t('players.noPetsFound')}</p>}
                                     </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* Inventory Accordion */}
+                        </div>                        {/* Inventory Accordion */}
                         <div className="bg-gray-50 rounded-lg border border-gray-200">
                             <button
                                 onClick={() => toggleAccordion('inventory')}
@@ -256,7 +251,7 @@ export default function Players() {
                             >
                                 <h4 className="text-md font-semibold text-gray-900 flex items-center">
                                     <Package className="h-4 w-4 text-purple-500 mr-2" />
-                                    Inventory ({selectedPlayerDetails.inventory?.length || 0})
+                                    {t('players.inventory')} ({selectedPlayerDetails.inventory?.length || 0})
                                 </h4>
                                 {accordionState.inventory ?
                                     <ChevronUp className="h-4 w-4 text-gray-500" /> :
@@ -281,17 +276,15 @@ export default function Players() {
                                                                     item.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
                                                                         'bg-gray-100 text-gray-800'
                                                         }`}>
-                                                        {item.rarity}
+                                                        {t(`rarities.${item.rarity}`)}
                                                     </span>
                                                 </div>
                                             </div>
-                                        )) || <p className="text-gray-500 text-sm p-3">No items found</p>}
+                                        )) || <p className="text-gray-500 text-sm p-3">{t('players.noItemsFound')}</p>}
                                     </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* Achievements Accordion */}
+                        </div>                        {/* Achievements Accordion */}
                         <div className="bg-gray-50 rounded-lg border border-gray-200">
                             <button
                                 onClick={() => toggleAccordion('achievements')}
@@ -299,7 +292,7 @@ export default function Players() {
                             >
                                 <h4 className="text-md font-semibold text-gray-900 flex items-center">
                                     <Star className="h-4 w-4 text-orange-500 mr-2" />
-                                    Achievements ({selectedPlayerDetails.achievements?.length || 0})
+                                    {t('players.achievements')} ({selectedPlayerDetails.achievements?.length || 0})
                                 </h4>
                                 {accordionState.achievements ?
                                     <ChevronUp className="h-4 w-4 text-gray-500" /> :
@@ -319,7 +312,7 @@ export default function Players() {
                                                     <span className="text-xs text-gray-500">{formatDate(achievement.unlocked)}</span>
                                                 </div>
                                             </div>
-                                        )) || <p className="text-gray-500 text-sm p-3">No achievements found</p>}
+                                        )) || <p className="text-gray-500 text-sm p-3">{t('players.noAchievementsFound')}</p>}
                                     </div>
                                 </div>
                             )}
@@ -332,19 +325,20 @@ export default function Players() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Search players..."
+                        placeholder={t('players.searchPlayers')}
                         className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                </div>                <select
+                </div>
+                <select
                     className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                    <option value="all">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Banned">Banned</option>
+                >                    <option value="all">{t('players.allStatus')}</option>
+                    <option value="Active">{t('statuses.active')}</option>
+                    <option value="Inactive">{t('statuses.inactive')}</option>
+                    <option value="Banned">{t('statuses.banned')}</option>
                 </select>
             </div>
         </div>
@@ -359,7 +353,7 @@ export default function Players() {
                                 onClick={() => handleSort('username')}
                             >
                                 <div className="flex items-center">
-                                    Player
+                                    {t('players.player')}
                                     {getSortIcon('username')}
                                 </div>
                             </th>
@@ -368,7 +362,7 @@ export default function Players() {
                                 onClick={() => handleSort('level')}
                             >
                                 <div className="flex items-center">
-                                    Level
+                                    {t('common.level')}
                                     {getSortIcon('level')}
                                 </div>
                             </th>
@@ -377,7 +371,7 @@ export default function Players() {
                                 onClick={() => handleSort('status')}
                             >
                                 <div className="flex items-center">
-                                    Status
+                                    {t('common.status')}
                                     {getSortIcon('status')}
                                 </div>
                             </th>
@@ -386,15 +380,16 @@ export default function Players() {
                                 onClick={() => handleSort('totalPets')}
                             >
                                 <div className="flex items-center">
-                                    Pets
+                                    {t('nav.pets')}
                                     {getSortIcon('totalPets')}
                                 </div>
-                            </th>                            <th
+                            </th>
+                            <th
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                 onClick={() => handleSort('totalItems')}
                             >
                                 <div className="flex items-center">
-                                    Items
+                                    {t('nav.items')}
                                     {getSortIcon('totalItems')}
                                 </div>
                             </th>
@@ -403,23 +398,24 @@ export default function Players() {
                                 onClick={() => handleSort('totalAchievements')}
                             >
                                 <div className="flex items-center">
-                                    Achievements
+                                    {t('players.achievements')}
                                     {getSortIcon('totalAchievements')}
                                 </div>
-                            </th>                            <th
+                            </th>
+                            <th
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                 onClick={() => handleSort('registeredAt')}
                             >
                                 <div className="flex items-center">
-                                    Registered
+                                    {t('players.registeredAt')}
                                     {getSortIcon('registeredAt')}
                                 </div>
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
+                                {t('common.actions')}
                             </th>
                         </tr>
-                    </thead>                        <tbody className="bg-white divide-y divide-gray-200">                            {currentPlayers.map((player) => (
+                    </thead><tbody className="bg-white divide-y divide-gray-200">                            {currentPlayers.map((player) => (
                         <tr
                             key={player.id}
                             className="hover:bg-gray-50"
@@ -432,10 +428,9 @@ export default function Players() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900">{player.level}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            </td>                            <td className="px-6 py-4 whitespace-nowrap">
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(player.status)}`}>
-                                    {player.status}
+                                    {t(`statuses.${player.status.toLowerCase()}`)}
                                 </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -448,37 +443,39 @@ export default function Players() {
                             </td>                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {formatDate(player.registeredAt)}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div className="flex space-x-2">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">                                <div className="flex space-x-2">
+                                <button
+                                    onClick={() => handlePlayerClick(player)}
+                                    className="text-indigo-600 hover:text-indigo-900"
+                                    title={t('common.viewDetails')}
+                                >
+                                    <Eye className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => openModal(player)}
+                                    className="text-blue-600 hover:text-blue-900"
+                                    title={t('common.edit')}
+                                >
+                                    <Edit2 className="h-4 w-4" />
+                                </button>                                {player.status === 'Banned' ? (
                                     <button
-                                        onClick={() => handlePlayerClick(player)}
-                                        className="text-indigo-600 hover:text-indigo-900"
-                                        title="View Details"
+                                        onClick={() => handleStatusChange(player.id, 'Active')}
+                                        className="text-green-600 hover:text-green-900"
+                                        title={t('players.unbanPlayer')}
                                     >
-                                        <Eye className="h-4 w-4" />
-                                    </button>                                            <button
-                                        onClick={() => openModal(player)}
-                                        className="text-blue-600 hover:text-blue-900"
-                                        title="Edit"
+                                        <CheckCircle className="h-4 w-4" />
+                                    </button>
+                                ) : (
+                                    // For both Active and Inactive players, show red Ban button
+                                    <button
+                                        onClick={() => handleStatusChange(player.id, 'Banned')}
+                                        className="text-red-600 hover:text-red-900"
+                                        title={t('players.banPlayer')}
                                     >
-                                        <Edit2 className="h-4 w-4" />
-                                    </button>                                            {player.status === 'Active' ? (
-                                        <button
-                                            onClick={() => handleStatusChange(player.id, 'Banned')}
-                                            className="text-red-600 hover:text-red-900"
-                                            title="Ban Player"
-                                        >
-                                            <Ban className="h-4 w-4" />
-                                        </button>) : (
-                                        <button
-                                            onClick={() => handleStatusChange(player.id, 'Active')}
-                                            className="text-green-600 hover:text-green-900"
-                                            title="Activate Player"
-                                        >
-                                            <CheckCircle className="h-4 w-4" />
-                                        </button>
-                                    )}
-                                </div>
+                                        <Ban className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
                             </td>
                         </tr>
                     ))}
@@ -532,13 +529,11 @@ export default function Players() {
                         <ChevronRight className="h-5 w-5" />
                     </button>
                 </div>
-            )}
-
-            {currentPlayers.length === 0 && (
+            )}            {currentPlayers.length === 0 && (
                 <div className="text-center py-12">
-                    <p className="text-gray-500">No players found matching your criteria.</p>
+                    <p className="text-gray-500">{t('common.noPlayersFound')}</p>
                 </div>
-            )}            {/* Modal for Edit Player */}
+            )}{/* Modal for Edit Player */}
             {showModal && (
                 <PlayerModal
                     player={selectedPlayer}
@@ -573,83 +568,85 @@ function PlayerModal({ player, onClose, onSave }) {
         onSave(formData);
     };
 
-    return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Edit Player
+    return (<div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {t('players.editPlayer')}
             </h3>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Username
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.username}
-                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        />
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('players.username')}
+                    </label>
+                    <input
+                        type="text"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        />
-                    </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('auth.email')}
+                    </label>
+                    <input
+                        type="email"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Level
-                        </label>
-                        <input
-                            type="number"
-                            min="1"
-                            max="100"
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.level}
-                            onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
-                        />
-                    </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('common.level')}
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        required
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={formData.level}
+                        onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
+                    />
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Status
-                        </label>                        <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        >
-                            <option value="Active">Active</option>
-                            <option value="Banned">Banned</option>
-                        </select>
-                    </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t('common.status')}
+                    </label>
+                    <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    >                        <option value="Active">{t('statuses.active')}</option>
+                        <option value="Inactive">{t('statuses.inactive')}</option>
+                        <option value="Banned">{t('statuses.banned')}</option>
+                    </select>
+                </div>
 
-                    <div className="flex justify-end space-x-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="btn-secondary"
-                        >
-                            Cancel
-                        </button>                        <button
-                            type="submit"
-                            className="btn-primary"
-                        >
-                            Update
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="btn-secondary"
+                    >
+                        {t('common.cancel')}
+                    </button>
+                    <button
+                        type="submit"
+                        className="btn-primary"
+                    >
+                        {t('common.update')}
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
     );
 }
