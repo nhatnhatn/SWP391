@@ -397,22 +397,7 @@ function PetModal({ pet, onClose, onSave }) {
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Owner
-                        </label>
-                        <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={formData.ownerId}
-                            onChange={(e) => setFormData({ ...formData, ownerId: parseInt(e.target.value) })}
-                            required
-                        >
-                            <option value="">Select Owner</option>
-                            {mockPlayers.map(player => (
-                                <option key={player.id} value={player.id}>{player.username}</option>
-                            ))}
-                        </select>
-                    </div>
+
                 </div>
 
                 {/* Stats */}

@@ -5,6 +5,7 @@ import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../u
 import { t } from '../../constants/vietnamese';
 
 // Helper functions for item type display
+//Note to delete 
 const getTypeIcon = (type) => {
     switch (type.toLowerCase()) {
         case 'weapon': return '⚔️';
@@ -362,7 +363,7 @@ export default function Players() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                 >                    <option value="all">{t('players.allStatus')}</option>
                     <option value="Active">{t('statuses.active')}</option>
-                    <option value="Inactive">{t('statuses.inactive')}</option>
+
                     <option value="Banned">{t('statuses.banned')}</option>
                 </select>
             </div>
@@ -650,7 +651,7 @@ function PlayerModal({ player, onClose, onSave }) {
                         value={formData.status}
                         onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     >                        <option value="Active">{t('statuses.active')}</option>
-                        <option value="Inactive">{t('statuses.inactive')}</option>
+
                         <option value="Banned">{t('statuses.banned')}</option>
                     </select>
                 </div>
