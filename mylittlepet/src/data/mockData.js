@@ -9,6 +9,18 @@ export const RARITY_TYPES = {
     MYTHIC: 'mythic'
 };
 
+export const PET_TYPES = {
+    DRAGON: 'Dragon',
+    BIRD: 'Bird',
+    BEAST: 'Beast',
+    ELEMENTAL: 'Elemental',
+    FAIRY: 'Fairy',
+    REPTILE: 'Reptile',
+    MAGICAL: 'Magical',
+    SPIRIT: 'Spirit',
+    GOLEM: 'Golem'
+};
+
 export const RARITY_COLORS = {
     [RARITY_TYPES.COMMON]: '#9ca3af',
     [RARITY_TYPES.UNCOMMON]: '#22c55e',

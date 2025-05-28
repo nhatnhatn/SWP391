@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
-import { mockPets, mockPlayers, RARITY_TYPES } from '../../data/mockData';
+import { mockPets, RARITY_TYPES, PET_TYPES } from '../../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
 
 export default function Pets() {
@@ -47,16 +47,9 @@ export default function Pets() {
     const openModal = (pet = null) => {
         setSelectedPet(pet);
         setShowModal(true);
-    };
-
-    const closeModal = () => {
+    }; const closeModal = () => {
         setShowModal(false);
         setSelectedPet(null);
-    };
-
-    const getOwnerName = (ownerId) => {
-        const owner = mockPlayers.find(player => player.id === ownerId);
-        return owner ? owner.username : 'Unknown';
     };
 
     // Toggle expanded state for a specific pet
@@ -131,12 +124,8 @@ export default function Pets() {
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Rarity
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            </th>                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Level
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Owner
                             </th>
                             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
@@ -160,12 +149,8 @@ export default function Pets() {
                                         >
                                             {capitalize(pet.rarity)}
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {pet.level}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {getOwnerName(pet.ownerId)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div className="flex items-center justify-center space-x-3">
@@ -223,16 +208,15 @@ export default function Pets() {
                                     </td>
                                 </tr>
                             ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-12 text-center"> {/* Updated colspan from 7 to 6 */}
-                                    <Heart className="mx-auto h-12 w-12 text-gray-400" />
-                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        No pets match your current filter criteria.
-                                    </p>
-                                </td>
-                            </tr>
+                        ) : (<tr>
+                            <td colSpan="5" className="px-6 py-12 text-center">
+                                <Heart className="mx-auto h-12 w-12 text-gray-400" />
+                                <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    No pets match your current filter criteria.
+                                </p>
+                            </td>
+                        </tr>
                         )}
                     </tbody>
                 </table>
@@ -321,7 +305,6 @@ function PetModal({ pet, onClose, onSave }) {
         type: pet?.type || '',
         rarity: pet?.rarity || RARITY_TYPES.COMMON,
         level: pet?.level || 1,
-        ownerId: pet?.ownerId || '',
         stats: {
             hp: pet?.stats?.hp || 100,
             attack: pet?.stats?.attack || 50,
@@ -375,19 +358,21 @@ function PetModal({ pet, onClose, onSave }) {
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
-                        </div>
-
-                        <div>
+                        </div>                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Type
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 required
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                            />
+                            >
+                                <option value="">Select Type</option>
+                                {Object.values(PET_TYPES).map(type => (
+                                    <option key={type} value={type}>{type}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div>
@@ -403,9 +388,7 @@ function PetModal({ pet, onClose, onSave }) {
                                     <option key={rarity} value={rarity}>{capitalize(rarity)}</option>
                                 ))}
                             </select>
-                        </div>
-
-                        <div>
+                        </div>                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Level
                             </label>
@@ -418,23 +401,6 @@ function PetModal({ pet, onClose, onSave }) {
                                 value={formData.level}
                                 onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
                             />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Owner
-                            </label>
-                            <select
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={formData.ownerId}
-                                onChange={(e) => setFormData({ ...formData, ownerId: parseInt(e.target.value) })}
-                                required
-                            >
-                                <option value="">Select Owner</option>
-                                {mockPlayers.map(player => (
-                                    <option key={player.id} value={player.id}>{player.username}</option>
-                                ))}
-                            </select>
                         </div>
                     </div>
 
