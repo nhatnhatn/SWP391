@@ -151,9 +151,9 @@ export default function Pets() {
                                     </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {pet.level}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {getOwnerName(pet.ownerId)}
-                                    </td>
+                                    </td> */}
                                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div className="flex items-center justify-center space-x-3">
                                             <button
@@ -534,4 +534,4 @@ function PetModal({ pet, onClose, onSave }) {
         </div>
         </div>
     );
-}
+}  
