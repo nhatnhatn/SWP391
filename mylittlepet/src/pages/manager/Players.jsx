@@ -4,6 +4,29 @@ import { mockPlayers } from '../../data/mockData';
 import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../utils/helpers';
 import { t } from '../../constants/vietnamese';
 
+// Helper functions for item type display
+const getTypeIcon = (type) => {
+    switch (type.toLowerCase()) {
+        case 'weapon': return '⚔️';
+        case 'armor': return '🛡️';
+        case 'consumable': return '🧪';
+        case 'food': return '🍞';
+        case 'accessory': return '💍';
+        default: return '📦';
+    }
+};
+
+const getTypeColor = (type) => {
+    switch (type.toLowerCase()) {
+        case 'weapon': return 'bg-red-100 text-red-800';
+        case 'armor': return 'bg-blue-100 text-blue-800';
+        case 'consumable': return 'bg-green-100 text-green-800';
+        case 'food': return 'bg-yellow-100 text-yellow-800';
+        case 'accessory': return 'bg-purple-100 text-purple-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+};
+
 export default function Players() {
     const [players, setPlayers] = useState(mockPlayers);
     const [searchTerm, setSearchTerm] = useState('');
@@ -260,27 +283,29 @@ export default function Players() {
                             </button>
                             {accordionState.inventory && (
                                 <div className="px-4 pb-4">
-                                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                                        {selectedPlayerDetails.inventory?.map((item, index) => (
-                                            <div key={index} className="flex justify-between items-center bg-white p-3 rounded border">
-                                                <div>
-                                                    <span className="font-medium text-gray-900">{item.name}</span>
-                                                    <span className="text-sm text-gray-500 ml-2">({item.type})</span>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-sm font-medium">x{item.quantity}</span>
-                                                    <span className={`px-2 py-1 text-xs rounded-full ${item.rarity === 'mythic' ? 'bg-pink-100 text-pink-800' :
-                                                        item.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-800' :
-                                                            item.rarity === 'epic' ? 'bg-purple-100 text-purple-800' :
-                                                                item.rarity === 'rare' ? 'bg-blue-100 text-blue-800' :
-                                                                    item.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
-                                                                        'bg-gray-100 text-gray-800'
-                                                        }`}>
-                                                        {t(`rarities.${item.rarity}`)}
-                                                    </span>
-                                                </div>
+                                    <div className="space-y-2 max-h-48 overflow-y-auto">                                        {selectedPlayerDetails.inventory?.map((item, index) => (
+                                        <div key={index} className="flex justify-between items-center bg-white p-3 rounded border">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="font-medium text-gray-900">{item.name}</span>
+                                                <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(item.type)}`}>
+                                                    <span className="mr-1">{getTypeIcon(item.type)}</span>
+                                                    {t(`itemTypes.${item.type.toLowerCase()}`) || item.type}
+                                                </span>
                                             </div>
-                                        )) || <p className="text-gray-500 text-sm p-3">{t('players.noItemsFound')}</p>}
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm font-medium">x{item.quantity}</span>
+                                                <span className={`px-2 py-1 text-xs rounded-full ${item.rarity === 'mythic' ? 'bg-pink-100 text-pink-800' :
+                                                    item.rarity === 'legendary' ? 'bg-yellow-100 text-yellow-800' :
+                                                        item.rarity === 'epic' ? 'bg-purple-100 text-purple-800' :
+                                                            item.rarity === 'rare' ? 'bg-blue-100 text-blue-800' :
+                                                                item.rarity === 'uncommon' ? 'bg-green-100 text-green-800' :
+                                                                    'bg-gray-100 text-gray-800'
+                                                    }`}>
+                                                    {t(`rarities.${item.rarity}`)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )) || <p className="text-gray-500 text-sm p-3">{t('players.noItemsFound')}</p>}
                                     </div>
                                 </div>
                             )}
