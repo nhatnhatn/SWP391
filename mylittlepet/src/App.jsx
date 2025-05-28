@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/manager/Login';
+import Register from './pages/manager/Register';
 import Dashboard from './pages/manager/Dashboard';
 import Players from './pages/manager/Players';
 import Pets from './pages/manager/Pets';
@@ -14,6 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/*" element={
             <ProtectedRoute>
               <Layout>

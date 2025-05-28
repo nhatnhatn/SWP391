@@ -189,10 +189,8 @@ export default function Items() {
                                         <div className="flex items-center">
                                             <div className={`flex items-center justify-center w-10 h-10 rounded-lg mr-3 ${getTypeIconBg(item.type)}`}>
                                                 <span className="text-xl">{getTypeIcon(item.type)}</span>
-                                            </div>
-                                            <div>
+                                            </div>                                            <div>
                                                 <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                                                <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
                                             </div>
                                         </div>
                                     </td><td className="px-6 py-4 whitespace-nowrap">
@@ -246,39 +244,43 @@ export default function Items() {
                                         </div>
 
                                             {/* Display expanded item details */}
-                                            {expandedItems[item.id] && (
-                                                <div className="mt-2 text-left animate-fadeIn">
-                                                    <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                                                        {/* Description removed */}
-                                                        <div>
-                                                            <span className="block mb-1 font-bold text-xs">{t('common.stats')}:</span>
-                                                            <div className="grid grid-cols-2 gap-1">
-                                                                {Object.entries(item.stats).map(([key, value]) => (
-                                                                    <div key={key} className="text-xs">
-                                                                        <span className="capitalize font-medium">{key}:</span>{" "}
-                                                                        <span>{typeof value === 'boolean' ? (value ? t('common.yes') : t('common.no')) : value}</span>
-                                                                    </div>
+                                            {expandedItems[item.id] && (<div className="mt-2 text-left animate-fadeIn">
+                                                <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                                                    {/* Description */}
+                                                    <div className="mb-3">
+                                                        <span className="block mb-1 font-bold text-xs">{t('common.description')}:</span>
+                                                        <p className="text-xs text-gray-700">{item.description}</p>
+                                                    </div>
+
+                                                    <div>
+                                                        <span className="block mb-1 font-bold text-xs">{t('common.stats')}:</span>
+                                                        <div className="grid grid-cols-2 gap-1">
+                                                            {Object.entries(item.stats).map(([key, value]) => (
+                                                                <div key={key} className="text-xs">
+                                                                    <span className="capitalize font-medium">{key}:</span>{" "}
+                                                                    <span>{typeof value === 'boolean' ? (value ? t('common.yes') : t('common.no')) : value}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {item.effects && (
+                                                        <div className="mt-2">
+                                                            <span className="block mb-1 font-bold text-xs">{t('common.effects')}:</span>
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {Object.entries(item.effects).map(([key, value]) => (
+                                                                    <span
+                                                                        key={key}
+                                                                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
+                                                                    >
+                                                                        {key}: +{value}
+                                                                    </span>
                                                                 ))}
                                                             </div>
                                                         </div>
-
-                                                        {item.effects && (
-                                                            <div className="mt-2">
-                                                                <span className="block mb-1 font-bold text-xs">{t('common.effects')}:</span>
-                                                                <div className="flex flex-wrap gap-1">
-                                                                    {Object.entries(item.effects).map(([key, value]) => (
-                                                                        <span
-                                                                            key={key}
-                                                                            className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full"
-                                                                        >
-                                                                            {key}: +{value}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    )}
                                                 </div>
+                                            </div>
                                             )}
                                         </td>
                                     </tr>

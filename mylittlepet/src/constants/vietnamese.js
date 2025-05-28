@@ -43,22 +43,29 @@ export const VIETNAMESE_TRANSLATIONS = {
         yes: 'Có',
         no: 'Không',
         noPlayersFound: 'Không tìm thấy người chơi nào phù hợp với tiêu chí của bạn.'
-    },
-
-    // Authentication
+    },    // Authentication
     auth: {
         login: 'Đăng nhập',
         logout: 'Đăng xuất',
+        register: 'Đăng ký',
         email: 'Email',
         emailAddress: 'Địa chỉ Email',
         password: 'Mật khẩu',
+        confirmPassword: 'Xác nhận mật khẩu',
+        fullName: 'Họ và tên',
         enterEmail: 'Nhập email của bạn',
         enterPassword: 'Nhập mật khẩu của bạn',
+        enterConfirmPassword: 'Nhập lại mật khẩu',
+        enterFullName: 'Nhập họ và tên đầy đủ',
         signIn: 'Đăng nhập',
         signingIn: 'Đang đăng nhập...',
+        signUp: 'Đăng ký',
+        signingUp: 'Đang đăng ký...',
         signInToDashboard: 'Đăng nhập vào Bảng điều khiển',
+        signUpForAccount: 'Đăng ký tài khoản quản trị viên',
         signOut: 'Đăng xuất',
         welcomeBack: 'Chào mừng trở lại',
+        createAccount: 'Tạo tài khoản mới',
         signInToAccount: 'Đăng nhập vào tài khoản quản trị viên của bạn',
         rememberMe: 'Ghi nhớ đăng nhập',
         forgotPassword: 'Quên mật khẩu?',
@@ -66,7 +73,16 @@ export const VIETNAMESE_TRANSLATIONS = {
         confirmLogout: 'Xác nhận đăng xuất',
         confirmLogoutMessage: 'Bạn có chắc chắn muốn đăng xuất không?',
         staySignedIn: 'Tiếp tục đăng nhập',
-        invalidCredentials: 'Email hoặc mật khẩu không hợp lệ'
+        invalidCredentials: 'Email hoặc mật khẩu không hợp lệ',
+        alreadyHaveAccount: 'Đã có tài khoản?',
+        dontHaveAccount: 'Chưa có tài khoản?',
+        goToLogin: 'Đăng nhập ngay',
+        goToRegister: 'Đăng ký ngay',
+        passwordsDoNotMatch: 'Mật khẩu không khớp',
+        emailAlreadyExists: 'Email này đã được sử dụng',
+        registrationSuccess: 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.',
+        registrationFailed: 'Đăng ký thất bại. Vui lòng thử lại.',
+        weakPassword: 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số'
     },
 
     // Navigation
@@ -79,21 +95,18 @@ export const VIETNAMESE_TRANSLATIONS = {
         settings: 'Cài đặt',
         myLittlePet: 'Thú Cưng Bé Nhỏ Của Tôi',
         admin: 'Quản trị viên'
-    },
-
-    // Dashboard
+    },    // Dashboard
     dashboard: {
         title: 'Bảng Điều Khiển',
-        welcome: 'Chào mừng đến với bảng điều khiển quản trị game',
-        welcomeMessage: 'Chào mừng đến với bảng điều khiển quản trị game',
-        totalPlayers: 'Tổng Người Chơi',
+        welcome: 'Chào mừng đến với bảng điều khiển dành cho quản trị game',
+        totalPlayers: 'Tổng Số Người Chơi',
         activePlayers: 'Người Chơi Đang Hoạt Động',
-        totalPets: 'Tổng Thú Cưng',
-        totalItems: 'Tổng Vật Phẩm',
-        playerGrowthOverTime: 'Tăng Trưởng Người Chơi Theo Thời Gian',
-        dailyActiveUsers: 'Người Dùng Hoạt Động Hàng Ngày',
-        itemRarityDistribution: 'Phân Bố Độ Hiếm Vật Phẩm',
-        rarityBreakdown: 'Phân Tích Độ Hiếm',
+        totalPets: 'Tổng Số Thú Cưng',
+        totalItems: 'Tổng Số Vật Phẩm',
+        playerGrowthOverTime: 'Biểu Đồ Thể Hiện Mức Tăng Trưởng Người Chơi Theo Thời Gian',
+        dailyActiveUsers: 'Biểu Đồ Thể Hiện Hoạt Động Của Người Dùng Hàng Ngày',
+        itemRarityDistribution: 'Biểu Đồ Phân Bố Độ Hiếm Vật Phẩm',
+        rarityBreakdown: 'Chi Tiết Thống Kê Phân Tích Về Số Lượng Và Độ Hiếm Vật Phẩm',
         month: 'Tháng',
         players: 'Người chơi',
         count: 'Số lượng',
@@ -165,8 +178,8 @@ export const VIETNAMESE_TRANSLATIONS = {
         item: 'Vật phẩm',
         statName: 'Tên thuộc tính...',
         value: 'Giá trị...',
-        totalItems: 'Tổng Vật Phẩm',
-        totalQuantity: 'Tổng Số Lượng',
+        totalItems: 'Số Vật Phẩm',
+        totalQuantity: 'Tổng Số Lượng Vật Phẩm',
         totalValue: 'Tổng Giá Trị',
         noItemsFound: 'Không tìm thấy vật phẩm',
         noItemsFoundMessage: 'Không có vật phẩm nào phù hợp với tiêu chí lọc hiện tại.',
@@ -184,8 +197,8 @@ export const VIETNAMESE_TRANSLATIONS = {
 
     // Rarity
     rarities: {
-        common: 'Thường',
-        uncommon: 'Không thường',
+        common: 'Thông Thường',
+        uncommon: 'Không Phổ Biến',
         rare: 'Hiếm',
         epic: 'Sử thi',
         legendary: 'Huyền thoại',

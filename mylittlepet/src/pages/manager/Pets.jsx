@@ -120,12 +120,8 @@ export default function Pets() {
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Rarity
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            </th>                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Level
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Owner
                             </th>
                             <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Actions
@@ -151,9 +147,6 @@ export default function Pets() {
                                     </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {pet.level}
                                     </td>
-                                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {getOwnerName(pet.ownerId)}
-                                    </td> */}
                                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div className="flex items-center justify-center space-x-3">
                                             <button

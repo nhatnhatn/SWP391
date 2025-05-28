@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Heart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { t } from '../../constants/vietnamese';
@@ -123,6 +123,18 @@ export default function Login() {
                             )}
                             </button>
                         </div>                        <div className="mt-4 text-center">
+                            <p className="text-sm text-gray-600">
+                                {t('auth.dontHaveAccount')}{' '}
+                                <Link
+                                    to="/register"
+                                    className="font-medium text-indigo-600 hover:text-indigo-500"
+                                >
+                                    {t('auth.goToRegister')}
+                                </Link>
+                            </p>
+                        </div>
+
+                        <div className="mt-4 text-center">
                             <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
                                 <p className="text-blue-700 text-xs font-medium">{t('auth.demoCredentials')}:</p>
                                 <p className="text-blue-600 text-xs">Email: admin@mylittlepet.com</p>

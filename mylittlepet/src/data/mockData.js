@@ -54,9 +54,8 @@ export const mockPlayers = [
             { id: 1, name: 'Excalibur', type: 'Weapon', quantity: 1, rarity: 'mythic' },
             { id: 4, name: 'Mana Potion', type: 'Consumable', quantity: 15, rarity: 'rare' }
         ],
-        achievements: [
-            { id: 1, name: 'Dragon Master', description: 'Obtain a mythic dragon', unlocked: '2024-01-20T12:00:00Z' },
-            { id: 2, name: 'Collector', description: 'Own 10+ pets', unlocked: '2024-02-15T09:30:00Z' }
+        achievements: [{ id: 1, name: 'Dragon Master', description: 'Có được một con rồng thần thoại', unlocked: '2024-01-20T12:00:00Z' },
+        { id: 2, name: 'Collector', description: 'Sở hữu 10+ thú cưng', unlocked: '2024-02-15T09:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T14:20:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -93,9 +92,8 @@ export const mockPlayers = [
             { id: 2, name: 'Dragon Scale Armor', type: 'Armor', quantity: 1, rarity: 'legendary' },
             { id: 3, name: 'Phoenix Feather', type: 'Consumable', quantity: 3, rarity: 'epic' }
         ],
-        achievements: [
-            { id: 3, name: 'Phoenix Rising', description: 'Evolve a phoenix pet', unlocked: '2024-03-10T14:00:00Z' },
-            { id: 4, name: 'Master Collector', description: 'Own 20+ pets', unlocked: '2024-04-05T16:30:00Z' }
+        achievements: [{ id: 3, name: 'Phoenix Rising', description: 'Tiến hóa một thú cưng phượng hoàng', unlocked: '2024-03-10T14:00:00Z' },
+        { id: 4, name: 'Master Collector', description: 'Sở hữu 20+ thú cưng', unlocked: '2024-04-05T16:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T09:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -124,7 +122,7 @@ export const mockPlayers = [
             { id: 5, name: 'Health Potion', type: 'Consumable', quantity: 10, rarity: 'uncommon' }
         ],
         achievements: [
-            { id: 5, name: 'Shadow Walker', description: 'Obtain a shadow-type pet', unlocked: '2024-03-15T20:00:00Z' }
+            { id: 5, name: 'Shadow Walker', description: 'Có được một thú cưng loại bóng tối', unlocked: '2024-03-15T20:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-20T18:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -155,7 +153,7 @@ export const mockPlayers = [
             { id: 6, name: 'Bread', type: 'Food', quantity: 50, rarity: 'common' }
         ],
         achievements: [
-            { id: 6, name: 'Earth Shaker', description: 'Train earth elemental 100 times', unlocked: '2024-04-01T12:00:00Z' }
+            { id: 6, name: 'Earth Shaker', description: 'Huấn luyện nguyên tố đất 100 lần', unlocked: '2024-04-01T12:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T11:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -183,9 +181,8 @@ export const mockPlayers = [
             { id: 3, name: 'Phoenix Feather', type: 'Consumable', quantity: 5, rarity: 'epic' },
             { id: 5, name: 'Health Potion', type: 'Consumable', quantity: 25, rarity: 'uncommon' }
         ],
-        achievements: [
-            { id: 7, name: 'Ice Princess', description: 'Reach level 80+', unlocked: '2024-03-20T15:00:00Z' },
-            { id: 8, name: 'Ultimate Collector', description: 'Own 30+ pets', unlocked: '2024-05-01T10:00:00Z' }
+        achievements: [{ id: 7, name: 'Ice Princess', description: 'Đạt cấp độ 80+', unlocked: '2024-03-20T15:00:00Z' },
+        { id: 8, name: 'Ultimate Collector', description: 'Sở hữu 30+ thú cưng', unlocked: '2024-05-01T10:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-23T20:10:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -214,7 +211,7 @@ export const mockPlayers = [
             { id: 6, name: 'Bread', type: 'Food', quantity: 5, rarity: 'common' }
         ],
         achievements: [
-            { id: 9, name: 'First Steps', description: 'Complete tutorial', unlocked: '2024-04-10T10:00:00Z' }
+            { id: 9, name: 'First Steps', description: 'Hoàn thành hướng dẫn', unlocked: '2024-04-10T10:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-15T16:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -255,7 +252,7 @@ export const mockPlayers = [
             { id: 9, name: 'Wind Charm', type: 'Accessory', quantity: 3, rarity: 'rare' }
         ],
         achievements: [
-            { id: 5, name: 'Sky Master', description: 'Train a flying pet to level 40+', unlocked: '2024-03-01T14:20:00Z' }
+            { id: 5, name: 'Sky Master', description: 'Huấn luyện thú cưng bay đến cấp 40+', unlocked: '2024-03-01T14:20:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T18:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -290,9 +287,8 @@ export const mockPlayers = [
             { id: 11, name: 'Mana Crystal', type: 'Consumable', quantity: 25, rarity: 'epic' },
             { id: 12, name: 'Gem Fragments', type: 'Material', quantity: 150, rarity: 'rare' }
         ],
-        achievements: [
-            { id: 6, name: 'Crystal Collector', description: 'Collect 100+ gem fragments', unlocked: '2024-02-14T16:30:00Z' },
-            { id: 7, name: 'Golem Master', description: 'Own a legendary golem', unlocked: '2024-03-05T10:45:00Z' }
+        achievements: [{ id: 6, name: 'Crystal Collector', description: 'Thu thập 100+ mảnh đá quý', unlocked: '2024-02-14T16:30:00Z' },
+        { id: 7, name: 'Golem Master', description: 'Sở hữu một golem huyền thoại', unlocked: '2024-03-05T10:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T20:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -327,7 +323,7 @@ export const mockPlayers = [
             { id: 15, name: 'Cloak of Shadows', type: 'Armor', quantity: 1, rarity: 'rare' }
         ],
         achievements: [
-            { id: 8, name: 'Shadow Master', description: 'Master stealth abilities', unlocked: '2024-02-28T19:20:00Z' }
+            { id: 8, name: 'Shadow Master', description: 'Thành thạo kỹ năng tàng hình', unlocked: '2024-02-28T19:20:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T22:00:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -362,9 +358,8 @@ export const mockPlayers = [
             { id: 17, name: 'Flame Sword', type: 'Weapon', quantity: 1, rarity: 'legendary' },
             { id: 18, name: 'Fire Potion', type: 'Consumable', quantity: 12, rarity: 'epic' }
         ],
-        achievements: [
-            { id: 9, name: 'Phoenix Rider', description: 'Obtain a mythic phoenix', unlocked: '2024-02-01T13:15:00Z' },
-            { id: 10, name: 'Fire Master', description: 'Master fire-based abilities', unlocked: '2024-03-10T11:30:00Z' }
+        achievements: [{ id: 9, name: 'Phoenix Rider', description: 'Có được một phượng hoàng thần thoại', unlocked: '2024-02-01T13:15:00Z' },
+        { id: 10, name: 'Fire Master', description: 'Thành thạo kỹ năng lửa', unlocked: '2024-03-10T11:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T19:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -399,9 +394,8 @@ export const mockPlayers = [
             { id: 20, name: 'Ice Shard', type: 'Material', quantity: 45, rarity: 'rare' },
             { id: 21, name: 'Frost Armor', type: 'Armor', quantity: 1, rarity: 'epic' }
         ],
-        achievements: [
-            { id: 11, name: 'Ice Master', description: 'Master ice-based abilities', unlocked: '2024-02-20T15:00:00Z' },
-            { id: 12, name: 'Winter Guardian', description: 'Protect the frozen realm', unlocked: '2024-03-15T12:45:00Z' }
+        achievements: [{ id: 11, name: 'Ice Master', description: 'Thành thạo kỹ năng băng', unlocked: '2024-02-20T15:00:00Z' },
+        { id: 12, name: 'Winter Guardian', description: 'Bảo vệ vương quốc băng giá', unlocked: '2024-03-15T12:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-25T08:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -436,7 +430,7 @@ export const mockPlayers = [
             { id: 24, name: 'Sacred Shield', type: 'Armor', quantity: 1, rarity: 'epic' }
         ],
         achievements: [
-            { id: 13, name: 'Divine Protector', description: 'Protect allies with holy magic', unlocked: '2024-02-25T10:30:00Z' }
+            { id: 13, name: 'Divine Protector', description: 'Bảo vệ đồng minh bằng phép thuật thiêng liêng', unlocked: '2024-02-25T10:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T16:20:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -472,7 +466,7 @@ export const mockPlayers = [
             { id: 27, name: 'Nature Essence', type: 'Material', quantity: 28, rarity: 'rare' }
         ],
         achievements: [
-            { id: 14, name: 'Green Thumb', description: 'Grow 20+ plant pets', unlocked: '2024-03-01T14:15:00Z' }
+            { id: 14, name: 'Green Thumb', description: 'Nuôi trồng 20+ thú cưng thực vật', unlocked: '2024-03-01T14:15:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T21:10:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -508,8 +502,8 @@ export const mockPlayers = [
             { id: 30, name: 'Lightning Rod', type: 'Accessory', quantity: 2, rarity: 'rare' }
         ],
         achievements: [
-            { id: 15, name: 'Storm Master', description: 'Control the power of storms', unlocked: '2024-02-28T16:45:00Z' },
-            { id: 16, name: 'Thunder Lord', description: 'Master lightning abilities', unlocked: '2024-03-20T09:30:00Z' }
+            { id: 15, name: 'Storm Master', description: 'Kiểm soát sức mạnh của bão tố', unlocked: '2024-02-28T16:45:00Z' },
+            { id: 16, name: 'Thunder Lord', description: 'Thành thạo kỹ năng sét', unlocked: '2024-03-20T09:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-25T07:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -545,7 +539,7 @@ export const mockPlayers = [
             { id: 33, name: 'Lunar Cloak', type: 'Armor', quantity: 1, rarity: 'epic' }
         ],
         achievements: [
-            { id: 17, name: 'Night Walker', description: 'Master nocturnal abilities', unlocked: '2024-02-15T23:00:00Z' }
+            { id: 17, name: 'Night Walker', description: 'Thành thạo kỹ năng ban đêm', unlocked: '2024-02-15T23:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T23:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -577,7 +571,7 @@ export const mockPlayers = [
             { id: 35, name: 'Corruption Potion', type: 'Consumable', quantity: 8, rarity: 'uncommon' }
         ],
         achievements: [
-            { id: 18, name: 'Chaos Wielder', description: 'Harness chaotic energies', unlocked: '2024-03-05T12:20:00Z' }
+            { id: 18, name: 'Chaos Wielder', description: 'Khai thác năng lượng hỗn loạn', unlocked: '2024-03-05T12:20:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T17:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -605,7 +599,7 @@ export const mockPets = [
         level: 100,
         ownerId: 1,
         stats: { hp: 5000, attack: 800, defense: 600, speed: 450 },
-        abilities: ['Fire Breath', 'Ancient Roar', 'Dragon Scale']
+        abilities: ['Hơi Thở Lửa', 'Tiếng Gầm Cổ Đại', 'Vảy Rồng']
     },
     {
         id: 2,
@@ -615,7 +609,7 @@ export const mockPets = [
         level: 85,
         ownerId: 2,
         stats: { hp: 3500, attack: 650, defense: 400, speed: 700 },
-        abilities: ['Rebirth', 'Crystal Wing', 'Phoenix Fire']
+        abilities: ['Tái Sinh', 'Cánh Pha Lê', 'Lửa Phượng Hoàng']
     },
     {
         id: 3,
@@ -625,7 +619,7 @@ export const mockPets = [
         level: 60,
         ownerId: 3,
         stats: { hp: 2800, attack: 550, defense: 350, speed: 600 },
-        abilities: ['Shadow Strike', 'Pack Hunt', 'Night Vision']
+        abilities: ['Đòn Bóng Tối', 'Săn Đàn', 'Tầm Nhìn Ban Đêm']
     },
     {
         id: 4,
@@ -635,7 +629,7 @@ export const mockPets = [
         level: 45,
         ownerId: 4,
         stats: { hp: 4000, attack: 400, defense: 800, speed: 200 },
-        abilities: ['Stone Throw', 'Earth Shake', 'Rock Armor']
+        abilities: ['Ném Đá', 'Rung Chuyển Đất', 'Giáp Đá']
     },
     {
         id: 5,
@@ -645,7 +639,7 @@ export const mockPets = [
         level: 30,
         ownerId: 5,
         stats: { hp: 1800, attack: 300, defense: 250, speed: 500 },
-        abilities: ['Water Splash', 'Heal', 'Mist']
+        abilities: ['Tạt Nước', 'Hồi Máu', 'Sương Mù']
     }, {
         id: 6,
         name: 'Forest Bunny',
@@ -654,7 +648,7 @@ export const mockPets = [
         level: 15,
         ownerId: 1,
         stats: { hp: 800, attack: 150, defense: 100, speed: 400 },
-        abilities: ['Quick Hop', 'Nibble']
+        abilities: ['Nhảy Nhanh', 'Cắn Nhẹ']
     },
     {
         id: 7,
@@ -664,7 +658,7 @@ export const mockPets = [
         level: 78,
         ownerId: 2,
         stats: { hp: 3200, attack: 720, defense: 450, speed: 650 },
-        abilities: ['Celestial Pounce', 'Star Strike', 'Cosmic Roar']
+        abilities: ['Nhảy Thiên Thể', 'Đòn Sao', 'Tiếng Gầm Vũ Trụ']
     },
     {
         id: 8,
@@ -674,7 +668,7 @@ export const mockPets = [
         level: 55,
         ownerId: 3,
         stats: { hp: 2600, attack: 480, defense: 380, speed: 520 },
-        abilities: ['Frost Bite', 'Ice Shield', 'Blizzard Coil']
+        abilities: ['Cắn Băng', 'Khiên Băng', 'Cuộn Bão Tuyết']
     },
     {
         id: 9,
@@ -684,7 +678,7 @@ export const mockPets = [
         level: 42,
         ownerId: 4,
         stats: { hp: 2000, attack: 420, defense: 280, speed: 750 },
-        abilities: ['Lightning Dive', 'Thunder Call', 'Storm Wing']
+        abilities: ['Lao Sét', 'Gọi Sấm', 'Cánh Bão']
     },
     {
         id: 10,
@@ -694,7 +688,7 @@ export const mockPets = [
         level: 95,
         ownerId: 5,
         stats: { hp: 4200, attack: 600, defense: 500, speed: 580 },
-        abilities: ['Heal Aura', 'Rainbow Beam', 'Purification', 'Magic Shield']
+        abilities: ['Hào Quang Hồi Máu', 'Tia Cầu Vồng', 'Thanh Tẩy', 'Khiên Phép Thuật']
     },
     {
         id: 11,
@@ -704,7 +698,7 @@ export const mockPets = [
         level: 35,
         ownerId: 1,
         stats: { hp: 1600, attack: 350, defense: 300, speed: 380 },
-        abilities: ['Lava Spit', 'Heat Wave', 'Fire Resistance']
+        abilities: ['Nhổ Dung Nham', 'Sóng Nhiệt', 'Kháng Lửa']
     },
     {
         id: 12,
@@ -714,72 +708,66 @@ export const mockPets = [
         level: 67,
         ownerId: 2,
         stats: { hp: 2400, attack: 520, defense: 320, speed: 680 },
-        abilities: ['Shadow Walk', 'Void Portal', 'Dark Energy', 'Phase Shift']
+        abilities: ['Bước Bóng Tối', 'Cổng Hư Không', 'Năng Lượng Tối', 'Dịch Chuyển Pha']
     }
 ];
 
 // Mock items data
-export const mockItems = [
-    {
-        id: 1,
-        name: 'Excalibur',
-        type: 'Weapon',
-        rarity: RARITY_TYPES.MYTHIC,
-        description: 'The legendary sword of kings',
-        stats: { attack: 500, critRate: 25 },
-        price: 100000,
-        quantity: 1
-    },
-    {
-        id: 2,
-        name: 'Dragon Scale Armor',
-        type: 'Armor',
-        rarity: RARITY_TYPES.LEGENDARY,
-        description: 'Armor forged from ancient dragon scales',
-        stats: { defense: 400, fireResist: 80 },
-        price: 75000,
-        quantity: 3
-    },
-    {
-        id: 3,
-        name: 'Phoenix Feather',
-        type: 'Consumable',
-        rarity: RARITY_TYPES.EPIC,
-        description: 'Resurrects a fallen pet with full health',
-        stats: { revive: true },
-        price: 25000,
-        quantity: 12
-    },
-    {
-        id: 4,
-        name: 'Mana Potion',
-        type: 'Consumable',
-        rarity: RARITY_TYPES.RARE,
-        description: 'Restores 500 MP',
-        stats: { manaRestore: 500 },
-        price: 1000,
-        quantity: 150
-    },
-    {
-        id: 5,
-        name: 'Health Potion',
-        type: 'Consumable',
-        rarity: RARITY_TYPES.UNCOMMON,
-        description: 'Restores 300 HP',
-        stats: { healthRestore: 300 },
-        price: 500,
-        quantity: 300
-    },
-    {
-        id: 6,
-        name: 'Bread',
-        type: 'Food',
-        rarity: RARITY_TYPES.COMMON,
-        description: 'Basic food item',
-        stats: { healthRestore: 50 },
-        price: 10,
-        quantity: 1000
-    }
+export const mockItems = [{
+    id: 1,
+    name: 'Excalibur',
+    type: 'Weapon',
+    rarity: RARITY_TYPES.MYTHIC,
+    description: 'Thanh kiếm huyền thoại của các vua',
+    stats: { attack: 500, critRate: 25 },
+    price: 100000,
+    quantity: 1
+}, {
+    id: 2,
+    name: 'Dragon Scale Armor',
+    type: 'Armor',
+    rarity: RARITY_TYPES.LEGENDARY,
+    description: 'Áo giáp được rèn từ vảy rồng cổ đại',
+    stats: { defense: 400, fireResist: 80 },
+    price: 75000,
+    quantity: 3
+}, {
+    id: 3,
+    name: 'Phoenix Feather',
+    type: 'Consumable',
+    rarity: RARITY_TYPES.EPIC,
+    description: 'Hồi sinh thú cưng đã ngã xuống với đầy đủ máu',
+    stats: { revive: true },
+    price: 25000,
+    quantity: 12
+}, {
+    id: 4,
+    name: 'Mana Potion',
+    type: 'Consumable',
+    rarity: RARITY_TYPES.RARE,
+    description: 'Hồi phục 500 MP',
+    stats: { manaRestore: 500 },
+    price: 1000,
+    quantity: 150
+}, {
+    id: 5,
+    name: 'Health Potion',
+    type: 'Consumable',
+    rarity: RARITY_TYPES.UNCOMMON,
+    description: 'Hồi phục 300 HP',
+    stats: { healthRestore: 300 },
+    price: 500,
+    quantity: 300
+}, {
+    id: 6,
+    name: 'Bread',
+    type: 'Food',
+    rarity: RARITY_TYPES.COMMON,
+    description: 'Thức ăn cơ bản',
+    stats: { healthRestore: 50 },
+    price: 10,
+    quantity: 1000
+}
 ];
 
 // Mock analytics data
