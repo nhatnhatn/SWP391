@@ -12,12 +12,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
+import { t } from '../constants/vietnamese';
 
 const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Players', href: '/players', icon: Users },
-    { name: 'Pets', href: '/pets', icon: Heart },
-    { name: 'Items', href: '/items', icon: Package },
+    { name: t('nav.dashboard'), href: '/', icon: LayoutDashboard },
+    { name: t('nav.players'), href: '/players', icon: Users },
+    { name: t('nav.pets'), href: '/pets', icon: Heart },
+    { name: t('nav.items'), href: '/items', icon: Package },
 ];
 
 export default function Layout({ children }) {
@@ -47,10 +48,9 @@ export default function Layout({ children }) {
                         >
                             <X className="h-6 w-6 text-white" />
                         </button>
-                    </div>                    <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                        <div className="flex-shrink-0 flex items-center px-4">
-                            <h1 className="text-xl font-bold text-gray-900">My Little Pet</h1>
-                        </div>
+                    </div>                    <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">                        <div className="flex-shrink-0 flex items-center px-4">
+                        <h1 className="text-xl font-bold text-gray-900">🐾 My Little Pet</h1>
+                    </div>
                         <nav className="mt-5 px-2 space-y-1">
                             {navigation.map((item) => {
                                 const Icon = item.icon;
@@ -68,8 +68,7 @@ export default function Layout({ children }) {
                                         {item.name}
                                     </Link>);
                             })}
-                        </nav>
-                        {/* Mobile user section */}
+                        </nav>                        {/* Mobile user section */}
                         <div className="mt-auto border-t border-gray-200 p-4">
                             <div className="flex items-center">
                                 <div className="flex-shrink-0">
@@ -80,13 +79,13 @@ export default function Layout({ children }) {
                                     </div>
                                 </div>
                                 <div className="ml-3 flex-1">
-                                    <p className="text-sm font-medium text-gray-700">{user?.name || 'Admin'}</p>
+                                    <p className="text-sm font-medium text-gray-700">{user?.name || t('nav.admin')}</p>
                                     <p className="text-xs text-gray-500">{user?.email || 'admin@mylittlepet.com'}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowLogoutDialog(true)}
                                     className="ml-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
-                                    title="Sign out"
+                                    title={t('auth.signOut')}
                                 >
                                     <LogOut className="h-4 w-4" />
                                 </button>
@@ -99,10 +98,9 @@ export default function Layout({ children }) {
             {/* Static sidebar for desktop */}
             <div className="hidden md:flex md:flex-shrink-0">
                 <div className="flex flex-col w-64">
-                    <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">                        <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-                        <div className="flex items-center flex-shrink-0 px-4">
-                            <h1 className="text-xl font-bold text-gray-900">🐾 My Little Pet</h1>
-                        </div>
+                    <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">                        <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">                        <div className="flex items-center flex-shrink-0 px-4">
+                        <h1 className="text-xl font-bold text-gray-900">🐾 My Little Pet</h1>
+                    </div>
                         <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
                             {navigation.map((item) => {
                                 const Icon = item.icon;
@@ -130,15 +128,14 @@ export default function Layout({ children }) {
                                             {user?.name?.charAt(0) || 'A'}
                                         </span>
                                     </div>
-                                </div>
-                                <div className="ml-3 flex-1">
-                                    <p className="text-sm font-medium text-gray-700">{user?.name || 'Admin'}</p>
+                                </div>                                <div className="ml-3 flex-1">
+                                    <p className="text-sm font-medium text-gray-700">{user?.name || t('nav.admin')}</p>
                                     <p className="text-xs text-gray-500">{user?.email || 'admin@mylittlepet.com'}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowLogoutDialog(true)}
                                     className="ml-2 p-1 text-gray-400 hover:text-red-600 transition-colors"
-                                    title="Sign out"
+                                    title={t('auth.signOut')}
                                 >
                                     <LogOut className="h-4 w-4" />
                                 </button>

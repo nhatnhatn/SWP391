@@ -16,6 +16,7 @@ import {
 import { Users, Heart, Package, TrendingUp } from 'lucide-react';
 import { mockAnalytics, mockPlayers, mockPets, mockItems, RARITY_COLORS } from '../../data/mockData';
 import { formatNumber } from '../../utils/helpers';
+import { t } from '../../constants/vietnamese';
 
 export default function Dashboard() {
     const totalPlayers = mockPlayers.length;
@@ -23,30 +24,41 @@ export default function Dashboard() {
     const totalPets = mockPets.length;
     const totalItems = mockItems.length;
 
-    const stats = [
+    // Helper function to translate rarity labels
+    const translateRarity = (rarity) => {
+        const rarityMap = {
+            'Common': t('rarities.common'),
+            'Uncommon': t('rarities.uncommon'),
+            'Rare': t('rarities.rare'),
+            'Epic': t('rarities.epic'),
+            'Legendary': t('rarities.legendary'),
+            'Mythic': t('rarities.mythic')
+        };
+        return rarityMap[rarity] || rarity;
+    }; const stats = [
         {
-            name: 'Total Players',
+            name: t('dashboard.totalPlayers'),
             value: totalPlayers,
             change: '+12%',
             changeType: 'positive',
             icon: Users,
         },
         {
-            name: 'Active Players',
+            name: t('dashboard.activePlayers'),
             value: activePlayers,
             change: '+8%',
             changeType: 'positive',
             icon: TrendingUp,
         },
         {
-            name: 'Total Pets',
+            name: t('dashboard.totalPets'),
             value: totalPets,
             change: '+15%',
             changeType: 'positive',
             icon: Heart,
         },
         {
-            name: 'Total Items',
+            name: t('dashboard.totalItems'),
             value: totalItems,
             change: '+5%',
             changeType: 'positive',
@@ -57,11 +69,10 @@ export default function Dashboard() {
     const rarityColors = Object.values(RARITY_COLORS);
 
     return (
-        <div>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-2 text-gray-600">Welcome to the game administration dashboard</p>
-            </div>
+        <div>            <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-2 text-gray-600">Welcome to the game admin dashboard</p>
+        </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -96,10 +107,9 @@ export default function Dashboard() {
             </div>
 
             {/* Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                {/* Player Growth Chart */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">                {/* Player Growth Chart */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Player Growth Over Time</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('dashboard.playerGrowthOverTime')}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <AreaChart data={mockAnalytics.playerGrowth}>
                             <defs>
@@ -121,11 +131,9 @@ export default function Dashboard() {
                             />
                         </AreaChart>
                     </ResponsiveContainer>
-                </div>
-
-                {/* Daily Active Users */}
+                </div>                {/* Daily Active Users */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Daily Active Users</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('dashboard.dailyActiveUsers')}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={mockAnalytics.dailyActiveUsers}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -145,45 +153,41 @@ export default function Dashboard() {
             </div>
 
             {/* Rarity Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Pie Chart */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">                {/* Pie Chart */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Item Rarity Distribution</h3>
-                    <ResponsiveContainer width="100%" height={300}>                        <PieChart>
-                        <Pie
-                            data={mockAnalytics.rarityDistribution}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ rarity, percentage }) => `${rarity} ${percentage}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="count"
-                        >
-                            {mockAnalytics.rarityDistribution.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={rarityColors[index % rarityColors.length]} />
-                            ))}
-                        </Pie>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('dashboard.itemRarityDistribution')}</h3>
+                    <ResponsiveContainer width="100%" height={300}>                        <PieChart>                        <Pie
+                        data={mockAnalytics.rarityDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ rarity, percentage }) => `${translateRarity(rarity)} ${percentage}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="count"
+                    >
+                        {mockAnalytics.rarityDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={rarityColors[index % rarityColors.length]} />
+                        ))}
+                    </Pie>
                         <Tooltip />
                     </PieChart>
                     </ResponsiveContainer>
-                </div>
-
-                {/* Rarity Table */}
+                </div>                {/* Rarity Table */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Rarity Breakdown</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">{t('dashboard.rarityBreakdown')}</h3>
                     <div className="overflow-hidden">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Rarity
+                                        {t('common.rarity')}
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Count
+                                        {t('dashboard.count')}
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Percentage
+                                        {t('dashboard.percentage')}
                                     </th>
                                 </tr>
                             </thead>
@@ -196,7 +200,7 @@ export default function Dashboard() {
                                                     className="h-3 w-3 rounded-full mr-3"
                                                     style={{ backgroundColor: rarityColors[index] }}
                                                 />
-                                                <span className="text-sm font-medium text-gray-900">{item.rarity}</span>
+                                                <span className="text-sm font-medium text-gray-900">{translateRarity(item.rarity)}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

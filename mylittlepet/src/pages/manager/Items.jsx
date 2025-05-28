@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Package, DollarSign, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { mockItems, RARITY_TYPES } from '../../data/mockData';
 import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
+import { t } from '../../constants/vietnamese';
 
 export default function Items() {
     const [items, setItems] = useState(mockItems);
@@ -44,10 +45,8 @@ export default function Items() {
         setCurrentPage(pageNumber);
         // Reset expanded state when changing pages
         setExpandedItems({});
-    };
-
-    const handleDeleteItem = (itemId) => {
-        if (window.confirm('Are you sure you want to delete this item?')) {
+    }; const handleDeleteItem = (itemId) => {
+        if (window.confirm(t('items.confirmDelete'))) {
             setItems(items.filter(item => item.id !== itemId));
         }
     };
@@ -78,82 +77,78 @@ export default function Items() {
     };
 
     return (
-        <div>
-            <div className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-bold text-gray-900">Items Management</h1>
-                    <button
-                        onClick={() => openModal()}
-                        className="btn-primary flex items-center"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Item
-                    </button>
-                </div>
-
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search items..."
-                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    <select
-                        className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={rarityFilter}
-                        onChange={(e) => setRarityFilter(e.target.value)}
-                    >
-                        <option value="all">All Rarities</option>
-                        {Object.values(RARITY_TYPES).map(rarity => (
-                            <option key={rarity} value={rarity}>{capitalize(rarity)}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                    >
-                        <option value="all">All Types</option>
-                        {uniqueTypes.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-                </div>
+        <div>            <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold text-gray-900">{t('items.management')}</h1>
+                <button
+                    onClick={() => openModal()}
+                    className="btn-primary flex items-center"
+                >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t('items.addItem')}
+                </button>
             </div>
+
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder={t('items.searchItems')}
+                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>                    <select
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={rarityFilter}
+                    onChange={(e) => setRarityFilter(e.target.value)}
+                >
+                    <option value="all">{t('pets.allRarities')}</option>
+                    {Object.values(RARITY_TYPES).map(rarity => (
+                        <option key={rarity} value={rarity}>{t(`rarities.${rarity}`)}</option>
+                    ))}
+                </select>
+
+                <select
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                >
+                    <option value="all">{t('items.allTypes')}</option>
+                    {uniqueTypes.map(type => (
+                        <option key={type} value={type}>{t(`itemTypes.${type}`) || type}</option>
+                    ))}
+                </select>
+            </div>
+        </div>
 
             {/* Items Table - modify to use currentItems instead of filteredItems */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Item
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Type
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Rarity
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Price
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Quantity
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
+                    <table className="min-w-full divide-y divide-gray-200">                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('items.item')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('common.type')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('common.rarity')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('common.price')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('common.quantity')}
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {t('common.actions')}
+                            </th>
+                        </tr>
+                    </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {currentItems.length > 0 ? (
                                 currentItems.map((item) => (
@@ -166,10 +161,9 @@ export default function Items() {
                                                     <div className="text-sm text-gray-500 max-w-xs truncate">{item.description}</div>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </td>                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                {item.type}
+                                                {t(`itemTypes.${item.type}`) || item.type}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -177,7 +171,7 @@ export default function Items() {
                                                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRarityClass(item.rarity)}`}
                                                 style={{ color: getRarityColor(item.rarity) }}
                                             >
-                                                {capitalize(item.rarity)}
+                                                {t(`rarities.${item.rarity}`)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -189,55 +183,53 @@ export default function Items() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {formatNumber(item.quantity)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="flex space-x-3 justify-center">
-                                                <button
-                                                    onClick={() => toggleExpanded(item.id)}
-                                                    className="text-indigo-600 hover:text-indigo-900"
-                                                    title={expandedItems[item.id] ? "Hide Details" : "Show Details"}
-                                                >
-                                                    {expandedItems[item.id] ? 
-                                                        <EyeOff className="h-4 w-4" /> : 
-                                                        <Eye className="h-4 w-4" />
-                                                    }
-                                                </button>
-                                                <button
-                                                    onClick={() => openModal(item)}
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                    title="Edit"
-                                                >
-                                                    <Edit2 className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteItem(item.id)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                            
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">                                            <div className="flex space-x-3 justify-center">
+                                            <button
+                                                onClick={() => toggleExpanded(item.id)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                                title={expandedItems[item.id] ? t('common.hideDetails') : t('common.showDetails')}
+                                            >
+                                                {expandedItems[item.id] ?
+                                                    <EyeOff className="h-4 w-4" /> :
+                                                    <Eye className="h-4 w-4" />
+                                                }
+                                            </button>
+                                            <button
+                                                onClick={() => openModal(item)}
+                                                className="text-blue-600 hover:text-blue-900"
+                                                title={t('items.editItem')}
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteItem(item.id)}
+                                                className="text-red-600 hover:text-red-900"
+                                                title={t('common.delete')}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+
                                             {/* Display expanded item details */}
                                             {expandedItems[item.id] && (
                                                 <div className="mt-2 text-left animate-fadeIn">
                                                     <div className="mt-2 p-3 bg-gray-50 rounded-md">
                                                         {/* Description removed */}
-                                                        
                                                         <div>
-                                                            <span className="block mb-1 font-bold text-xs">Stats:</span>
+                                                            <span className="block mb-1 font-bold text-xs">{t('common.stats')}:</span>
                                                             <div className="grid grid-cols-2 gap-1">
                                                                 {Object.entries(item.stats).map(([key, value]) => (
                                                                     <div key={key} className="text-xs">
                                                                         <span className="capitalize font-medium">{key}:</span>{" "}
-                                                                        <span>{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}</span>
-                                                                </div>
+                                                                        <span>{typeof value === 'boolean' ? (value ? t('common.yes') : t('common.no')) : value}</span>
+                                                                    </div>
                                                                 ))}
                                                             </div>
                                                         </div>
-                                                        
+
                                                         {item.effects && (
                                                             <div className="mt-2">
-                                                                <span className="block mb-1 font-bold text-xs">Effects:</span>
+                                                                <span className="block mb-1 font-bold text-xs">{t('common.effects')}:</span>
                                                                 <div className="flex flex-wrap gap-1">
                                                                     {Object.entries(item.effects).map(([key, value]) => (
                                                                         <span
@@ -256,16 +248,15 @@ export default function Items() {
                                         </td>
                                     </tr>
                                 ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center">
-                                        <Package className="mx-auto h-12 w-12 text-gray-400" />
-                                        <h3 className="mt-2 text-sm font-medium text-gray-900">No items found</h3>
-                                        <p className="mt-1 text-sm text-gray-500">
-                                            No items match your current filter criteria.
-                                        </p>
-                                    </td>
-                                </tr>
+                            ) : (<tr>
+                                <td colSpan="6" className="px-6 py-12 text-center">
+                                    <Package className="mx-auto h-12 w-12 text-gray-400" />
+                                    <h3 className="mt-2 text-sm font-medium text-gray-900">{t('items.noItemsFound')}</h3>
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        {t('items.noItemsFoundMessage')}
+                                    </p>
+                                </td>
+                            </tr>
                             )}
                         </tbody>
                     </table>
@@ -320,24 +311,22 @@ export default function Items() {
                         <ChevronRight className="h-5 w-5" />
                     </button>
                 </div>
-            )}
-
-            {/* Summary Cards - keep these after pagination */}
+            )}            {/* Summary Cards - keep these after pagination */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Total Items</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('items.totalItems')}</h3>
                     <p className="text-3xl font-bold text-blue-600">{formatNumber(items.length)}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Total Quantity</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('items.totalQuantity')}</h3>
                     <p className="text-3xl font-bold text-green-600">
                         {formatNumber(items.reduce((sum, item) => sum + item.quantity, 0))}
                     </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Total Value</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('items.totalValue')}</h3>
                     <p className="text-3xl font-bold text-purple-600">
                         ${formatNumber(items.reduce((sum, item) => sum + (item.price * item.quantity), 0))}
                     </p>
@@ -409,16 +398,15 @@ function ItemModal({ item, onClose, onSave }) {
 
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    {item ? 'Edit Item' : 'Add New Item'}
-                </h3>
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {item ? t('items.editItem') : t('items.addNewItem')}
+            </h3>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Name
+                                {t('common.name')}
                             </label>
                             <input
                                 type="text"
@@ -431,24 +419,23 @@ function ItemModal({ item, onClose, onSave }) {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Type
+                                {t('common.type')}
                             </label>
                             <select
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                             >
-                                <option value="Weapon">Weapon</option>
-                                <option value="Armor">Armor</option>
-                                <option value="Consumable">Consumable</option>
-                                <option value="Food">Food</option>
-                                <option value="Accessory">Accessory</option>
+                                <option value="Weapon">{t('itemTypes.weapon')}</option>
+                                <option value="Armor">{t('itemTypes.armor')}</option>                                <option value="Consumable">{t('itemTypes.consumable')}</option>
+                                <option value="Food">{t('itemTypes.food')}</option>
+                                <option value="Accessory">{t('itemTypes.accessory')}</option>
                             </select>
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Rarity
+                                {t('common.rarity')}
                             </label>
                             <select
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -456,14 +443,14 @@ function ItemModal({ item, onClose, onSave }) {
                                 onChange={(e) => setFormData({ ...formData, rarity: e.target.value })}
                             >
                                 {Object.values(RARITY_TYPES).map(rarity => (
-                                    <option key={rarity} value={rarity}>{capitalize(rarity)}</option>
+                                    <option key={rarity} value={rarity}>{t(`rarities.${rarity}`)}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Price
+                                {t('common.price')}
                             </label>
                             <input
                                 type="number"
@@ -477,7 +464,7 @@ function ItemModal({ item, onClose, onSave }) {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Quantity
+                                {t('common.quantity')}
                             </label>
                             <input
                                 type="number"
@@ -488,11 +475,9 @@ function ItemModal({ item, onClose, onSave }) {
                                 onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
                             />
                         </div>
-                    </div>
-
-                    <div>
+                    </div>                    <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
+                            {t('common.description')}
                         </label>
                         <textarea
                             rows={3}
@@ -504,18 +489,18 @@ function ItemModal({ item, onClose, onSave }) {
 
                     {/* Stats */}
                     <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Stats</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('common.stats')}</h4>
                         <div className="flex gap-2 mb-2">
                             <input
                                 type="text"
-                                placeholder="Stat name..."
+                                placeholder={t('items.statName')}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={statKey}
                                 onChange={(e) => setStatKey(e.target.value)}
                             />
                             <input
                                 type="text"
-                                placeholder="Value..."
+                                placeholder={t('items.value')}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={statValue}
                                 onChange={(e) => setStatValue(e.target.value)}
@@ -524,8 +509,7 @@ function ItemModal({ item, onClose, onSave }) {
                                 type="button"
                                 onClick={addStat}
                                 className="btn-secondary"
-                            >
-                                Add
+                            >                                {t('common.add')}
                             </button>
                         </div>
                         <div className="space-y-2">
@@ -552,13 +536,13 @@ function ItemModal({ item, onClose, onSave }) {
                             onClick={onClose}
                             className="btn-secondary"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button
                             type="submit"
                             className="btn-primary"
                         >
-                            {item ? 'Update' : 'Create'}
+                            {item ? t('common.update') : t('common.create')}
                         </button>
                     </div>
                 </form>

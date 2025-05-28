@@ -67,13 +67,13 @@ export function isValidEmail(email) {
 
 // Get status color
 export function getStatusColor(status) {
-    switch (status) {
+    switch (status.toLowerCase()) {
         case 'active':
             return 'text-green-600 bg-green-100';
         case 'inactive':
-            return 'text-red-600 bg-red-100';
-        case 'banned':
             return 'text-gray-600 bg-gray-100';
+        case 'banned':
+            return 'text-red-600 bg-red-100';
         default:
             return 'text-gray-600 bg-gray-100';
     }

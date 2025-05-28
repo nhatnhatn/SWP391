@@ -1,0 +1,295 @@
+// Vietnamese language constants for My Little Pet Admin Dashboard
+export const VIETNAMESE_TRANSLATIONS = {
+    // Common
+    common: {
+        cancel: 'Hủy',
+        save: 'Lưu',
+        create: 'Tạo',
+        update: 'Cập nhật',
+        edit: 'Chỉnh sửa',
+        delete: 'Xóa',
+        add: 'Thêm',
+        search: 'Tìm kiếm',
+        actions: 'Hành động',
+        status: 'Trạng thái',
+        level: 'Cấp độ',
+        name: 'Tên',
+        type: 'Loại',
+        price: 'Giá',
+        quantity: 'Số lượng',
+        description: 'Mô tả',
+        stats: 'Thống kê',
+        effects: 'Hiệu ứng',
+        rarity: 'Độ hiếm',
+        owner: 'Chủ sở hữu',
+        showDetails: 'Hiển thị chi tiết',
+        hideDetails: 'Ẩn chi tiết',
+        viewDetails: 'Xem chi tiết',
+        close: 'Đóng',
+        loading: 'Đang tải...',
+        noDataFound: 'Không tìm thấy dữ liệu',
+        error: 'Lỗi',
+        success: 'Thành công',
+        warning: 'Cảnh báo',
+        info: 'Thông tin',
+        previous: 'Trước',
+        next: 'Tiếp', page: 'Trang',
+        of: 'của',
+        showing: 'Hiển thị',
+        to: 'đến',
+        entries: 'mục',
+        total: 'Tổng',
+        all: 'Tất cả',
+        yes: 'Có',
+        no: 'Không',
+        noPlayersFound: 'Không tìm thấy người chơi nào phù hợp với tiêu chí của bạn.'
+    },
+
+    // Authentication
+    auth: {
+        login: 'Đăng nhập',
+        logout: 'Đăng xuất',
+        email: 'Email',
+        emailAddress: 'Địa chỉ Email',
+        password: 'Mật khẩu',
+        enterEmail: 'Nhập email của bạn',
+        enterPassword: 'Nhập mật khẩu của bạn',
+        signIn: 'Đăng nhập',
+        signingIn: 'Đang đăng nhập...',
+        signInToDashboard: 'Đăng nhập vào Bảng điều khiển',
+        signOut: 'Đăng xuất',
+        welcomeBack: 'Chào mừng trở lại',
+        signInToAccount: 'Đăng nhập vào tài khoản quản trị viên của bạn',
+        rememberMe: 'Ghi nhớ đăng nhập',
+        forgotPassword: 'Quên mật khẩu?',
+        demoCredentials: 'Thông tin đăng nhập demo',
+        confirmLogout: 'Xác nhận đăng xuất',
+        confirmLogoutMessage: 'Bạn có chắc chắn muốn đăng xuất không?',
+        staySignedIn: 'Tiếp tục đăng nhập',
+        invalidCredentials: 'Email hoặc mật khẩu không hợp lệ'
+    },
+
+    // Navigation
+    nav: {
+        dashboard: 'Bảng điều khiển',
+        players: 'Người chơi',
+        pets: 'Thú cưng',
+        items: 'Vật phẩm',
+        analytics: 'Phân tích',
+        settings: 'Cài đặt',
+        myLittlePet: 'Thú Cưng Bé Nhỏ Của Tôi',
+        admin: 'Quản trị viên'
+    },
+
+    // Dashboard
+    dashboard: {
+        title: 'Bảng Điều Khiển',
+        welcome: 'Chào mừng đến với bảng điều khiển quản trị game',
+        welcomeMessage: 'Chào mừng đến với bảng điều khiển quản trị game',
+        totalPlayers: 'Tổng Người Chơi',
+        activePlayers: 'Người Chơi Đang Hoạt Động',
+        totalPets: 'Tổng Thú Cưng',
+        totalItems: 'Tổng Vật Phẩm',
+        playerGrowthOverTime: 'Tăng Trưởng Người Chơi Theo Thời Gian',
+        dailyActiveUsers: 'Người Dùng Hoạt Động Hàng Ngày',
+        itemRarityDistribution: 'Phân Bố Độ Hiếm Vật Phẩm',
+        rarityBreakdown: 'Phân Tích Độ Hiếm',
+        month: 'Tháng',
+        players: 'Người chơi',
+        count: 'Số lượng',
+        percentage: 'Phần trăm'
+    },
+
+    // Players
+    players: {
+        title: 'Quản Lý Người Chơi',
+        management: 'Quản Lý Người Chơi',
+        playerDetails: 'Chi Tiết Người Chơi',
+        searchPlayers: 'Tìm kiếm người chơi...',
+        allStatus: 'Tất Cả Trạng Thái',
+        active: 'Hoạt động',
+        banned: 'Bị cấm',
+        inactive: 'Không hoạt động',
+        player: 'Người chơi',
+        pets: 'Thú cưng',
+        items: 'Vật phẩm',
+        achievements: 'Thành tích',
+        registeredAt: 'Ngày đăng ký',
+        lastActive: 'Hoạt động cuối',
+        banPlayer: 'Cấm người chơi',
+        unbanPlayer: 'Bỏ cấm người chơi',
+        editPlayer: 'Chỉnh sửa người chơi',
+        username: 'Tên người dùng',
+        totalPets: 'Tổng Thú Cưng',
+        totalItems: 'Tổng Vật Phẩm',
+        totalAchievements: 'Tổng Thành Tích',
+        registered: 'Đã đăng ký',
+        inventory: 'Kho đồ',
+        noPetsFound: 'Không tìm thấy thú cưng',
+        noItemsFound: 'Không tìm thấy vật phẩm',
+        noAchievementsFound: 'Không tìm thấy thành tích',
+        unlocked: 'Đã mở khóa'
+    },
+
+    // Pets
+    pets: {
+        title: 'Quản Lý Thú Cưng',
+        management: 'Quản Lý Thú Cưng',
+        addPet: 'Thêm Thú Cưng',
+        editPet: 'Chỉnh Sửa Thú Cưng',
+        addNewPet: 'Thêm Thú Cưng Mới',
+        searchPets: 'Tìm kiếm thú cưng...',
+        allRarities: 'Tất Cả Độ Hiếm',
+        allTypes: 'Tất Cả Loại',
+        selectOwner: 'Chọn Chủ Sở Hữu',
+        abilities: 'Kỹ năng',
+        addAbility: 'Thêm',
+        addAbilityPlaceholder: 'Thêm kỹ năng...',
+        hp: 'HP',
+        attack: 'Tấn công',
+        defense: 'Phòng thủ',
+        speed: 'Tốc độ',
+        noPetsFound: 'Không tìm thấy thú cưng',
+        noPetsFoundMessage: 'Không có thú cưng nào phù hợp với tiêu chí lọc hiện tại.', confirmDelete: 'Bạn có chắc chắn muốn xóa thú cưng này không?'
+    },
+
+    // Items
+    items: {
+        title: 'Quản Lý Vật Phẩm',
+        management: 'Quản Lý Vật Phẩm',
+        addItem: 'Thêm Vật Phẩm',
+        editItem: 'Chỉnh Sửa Vật Phẩm',
+        addNewItem: 'Thêm Vật Phẩm Mới',
+        searchItems: 'Tìm kiếm vật phẩm...',
+        allTypes: 'Tất Cả Loại',
+        item: 'Vật phẩm',
+        statName: 'Tên thuộc tính...',
+        value: 'Giá trị...',
+        totalItems: 'Tổng Vật Phẩm',
+        totalQuantity: 'Tổng Số Lượng',
+        totalValue: 'Tổng Giá Trị',
+        noItemsFound: 'Không tìm thấy vật phẩm',
+        noItemsFoundMessage: 'Không có vật phẩm nào phù hợp với tiêu chí lọc hiện tại.',
+        confirmDelete: 'Bạn có chắc chắn muốn xóa vật phẩm này không?'
+    },
+
+    // Item Types
+    itemTypes: {
+        weapon: 'Vũ khí',
+        armor: 'Giáp',
+        consumable: 'Tiêu hao',
+        food: 'Thức ăn',
+        accessory: 'Phụ kiện'
+    },
+
+    // Rarity
+    rarities: {
+        common: 'Thường',
+        uncommon: 'Không thường',
+        rare: 'Hiếm',
+        epic: 'Sử thi',
+        legendary: 'Huyền thoại',
+        mythic: 'Thần thoại'
+    },
+
+    // Status
+    statuses: {
+        active: 'Hoạt động',
+        inactive: 'Không hoạt động',
+        banned: 'Bị cấm'
+    },
+
+    // Notifications
+    notifications: {
+        playerUpdated: 'Đã cập nhật thông tin người chơi thành công',
+        playerBanned: 'Đã cấm người chơi thành công',
+        playerUnbanned: 'Đã bỏ cấm người chơi thành công',
+        playerDeleted: 'Đã xóa người chơi thành công',
+        petCreated: 'Đã tạo thú cưng mới thành công',
+        petUpdated: 'Đã cập nhật thú cưng thành công',
+        petDeleted: 'Đã xóa thú cưng thành công',
+        itemCreated: 'Đã tạo vật phẩm mới thành công',
+        itemUpdated: 'Đã cập nhật vật phẩm thành công',
+        itemDeleted: 'Đã xóa vật phẩm thành công',
+        loginSuccess: 'Đăng nhập thành công',
+        loginFailed: 'Đăng nhập thất bại',
+        logoutSuccess: 'Đăng xuất thành công'
+    },
+
+    // Validation
+    validation: {
+        required: 'Trường này là bắt buộc',
+        invalidEmail: 'Email không hợp lệ',
+        passwordTooShort: 'Mật khẩu phải có ít nhất 6 ký tự',
+        nameRequired: 'Tên là bắt buộc',
+        levelRequired: 'Cấp độ là bắt buộc',
+        priceRequired: 'Giá là bắt buộc',
+        quantityRequired: 'Số lượng là bắt buộc',
+        ownerRequired: 'Chủ sở hữu là bắt buộc'
+    },
+
+    // Error Messages
+    errors: {
+        generic: 'Đã xảy ra lỗi. Vui lòng thử lại.',
+        networkError: 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet.',
+        unauthorized: 'Bạn không có quyền truy cập.',
+        notFound: 'Không tìm thấy tài nguyên.',
+        serverError: 'Lỗi máy chủ. Vui lòng thử lại sau.',
+        loadingFailed: 'Không thể tải dữ liệu'
+    },
+
+    // Buttons and Actions
+    actions: {
+        addNew: 'Thêm mới',
+        saveChanges: 'Lưu thay đổi',
+        discardChanges: 'Hủy thay đổi',
+        confirmAction: 'Xác nhận',
+        goBack: 'Quay lại',
+        refresh: 'Làm mới',
+        export: 'Xuất',
+        import: 'Nhập',
+        filter: 'Lọc',
+        sort: 'Sắp xếp',
+        resetFilter: 'Đặt lại bộ lọc'
+    },
+
+    // Time and Date
+    time: {
+        today: 'Hôm nay',
+        yesterday: 'Hôm qua',
+        thisWeek: 'Tuần này',
+        lastWeek: 'Tuần trước',
+        thisMonth: 'Tháng này',
+        lastMonth: 'Tháng trước',
+        thisYear: 'Năm này',
+        lastYear: 'Năm trước',
+        minutesAgo: 'phút trước',
+        hoursAgo: 'giờ trước',
+        daysAgo: 'ngày trước',
+        weeksAgo: 'tuần trước',
+        monthsAgo: 'tháng trước',
+        yearsAgo: 'năm trước',
+        justNow: 'Vừa xong'
+    }
+};
+
+// Helper function to get translation
+export function getTranslation(key) {
+    const keys = key.split('.');
+    let translation = VIETNAMESE_TRANSLATIONS;
+
+    for (const k of keys) {
+        if (translation && translation[k]) {
+            translation = translation[k];
+        } else {
+            return key; // Return the key if translation not found
+        }
+    }
+
+    return translation;
+}
+
+// Short alias for translation function
+export const t = getTranslation;
+
+export default VIETNAMESE_TRANSLATIONS;
