@@ -49,9 +49,7 @@ export default function Pets() {
     }; const closeModal = () => {
         setShowModal(false);
         setSelectedPet(null);
-    };
-
-    // Toggle expanded state for a specific pet
+    };    // Toggle expanded state for a specific pet
     const toggleExpanded = (petId) => {
         setExpandedPets(prev => ({
             ...prev,
@@ -109,21 +107,22 @@ export default function Pets() {
 
             {/* Replace Grid with Table Layout */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
                                 Name
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
                                 Type
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
                                 Rarity
-                            </th>                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
                                 Level
                             </th>
-                            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
                                 Actions
                             </th>
                         </tr>
@@ -131,80 +130,104 @@ export default function Pets() {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {currentPets.length > 0 ? (
                             currentPets.map((pet) => (
-                                <tr key={pet.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-900">{pet.name}</div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {pet.type}
-                                    </td>                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex text-xs font-medium px-2 py-1 rounded-full border ${getRarityClass(pet.rarity)}`}
-                                            style={{ color: getRarityColor(pet.rarity) }}
-                                        >
-                                            {t(`rarities.${pet.rarity}`)}
-                                        </span>
-                                    </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {pet.level}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <div className="flex items-center justify-center space-x-3">
-                                            <button
-                                                onClick={() => toggleExpanded(pet.id)}
-                                                className="text-indigo-600 hover:text-indigo-900"
-                                                title={expandedPets[pet.id] ? "Hide Details" : "Show Details"}
+                                <>
+                                    <tr key={pet.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm font-medium text-gray-900">{pet.name}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {pet.type}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                className={`inline-flex text-xs font-medium px-2 py-1 rounded-full border ${getRarityClass(pet.rarity)}`}
+                                                style={{ color: getRarityColor(pet.rarity) }}
                                             >
-                                                {expandedPets[pet.id] ?
-                                                    <EyeOff className="h-4 w-4" /> :
-                                                    <Eye className="h-4 w-4" />
-                                                }
-                                            </button>
-                                            <button
-                                                onClick={() => openModal(pet)}
-                                                className="text-blue-600 hover:text-blue-800"
-                                                title="Edit Pet"
-                                            >
-                                                <Edit2 className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeletePet(pet.id)}
-                                                className="text-red-600 hover:text-red-800"
-                                                title="Delete Pet"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        </div>
-
-                                        {/* Display expanded pet details below */}
-                                        {expandedPets[pet.id] && (
-                                            <div className="mt-2 text-left animate-fadeIn">
-                                                <span className="block mb-1 font-bold">{t('common.stats')}:</span>
-                                                <div className="flex space-x-4">
-                                                    <span>{t('pets.hp')}: <span className="font-medium">{formatNumber(pet.stats.hp)}</span></span>
-                                                    <span>{t('pets.attack')}: <span className="font-medium">{formatNumber(pet.stats.attack)}</span></span>
-                                                    <span>{t('pets.defense')}: <span className="font-medium">{formatNumber(pet.stats.defense)}</span></span>
-                                                    <span>{t('pets.speed')}: <span className="font-medium">{formatNumber(pet.stats.speed)}</span></span>
-                                                </div>                                                <div className="mt-4">
-                                                    <span className="block mb-1 font-bold">{t('pets.abilities')}:</span>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {pet.abilities.map((ability, index) => (
-                                                            <span
-                                                                key={index}
-                                                                className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full"
-                                                            >
-                                                                {ability}
-                                                            </span>
-                                                        ))}
+                                                {t(`rarities.${pet.rarity}`)}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {pet.level}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <div className="flex items-center justify-center space-x-3">
+                                                <button
+                                                    onClick={() => toggleExpanded(pet.id)}
+                                                    className="text-indigo-600 hover:text-indigo-900"
+                                                    title={expandedPets[pet.id] ? "Hide Details" : "Show Details"}
+                                                >
+                                                    {expandedPets[pet.id] ?
+                                                        <EyeOff className="h-4 w-4" /> :
+                                                        <Eye className="h-4 w-4" />
+                                                    }
+                                                </button>
+                                                <button
+                                                    onClick={() => openModal(pet)}
+                                                    className="text-blue-600 hover:text-blue-800"
+                                                    title="Edit Pet"
+                                                >
+                                                    <Edit2 className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeletePet(pet.id)}
+                                                    className="text-red-600 hover:text-red-800"
+                                                    title="Delete Pet"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {expandedPets[pet.id] && (
+                                        <tr className="bg-gray-50 expanded-row">
+                                            <td colSpan="5" className="px-6 py-4">
+                                                <div className="animate-fadeIn">
+                                                    <div className="mb-4">
+                                                        <span className="block mb-2 font-bold text-gray-900">{t('common.stats')}:</span>
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                            <div className="bg-white p-2 rounded shadow-sm">
+                                                                <div className="text-xs text-gray-500">{t('pets.hp')}</div>
+                                                                <div className="font-medium">{formatNumber(pet.stats.hp)}</div>
+                                                            </div>
+                                                            <div className="bg-white p-2 rounded shadow-sm">
+                                                                <div className="text-xs text-gray-500">{t('pets.attack')}</div>
+                                                                <div className="font-medium">{formatNumber(pet.stats.attack)}</div>
+                                                            </div>
+                                                            <div className="bg-white p-2 rounded shadow-sm">
+                                                                <div className="text-xs text-gray-500">{t('pets.defense')}</div>
+                                                                <div className="font-medium">{formatNumber(pet.stats.defense)}</div>
+                                                            </div>
+                                                            <div className="bg-white p-2 rounded shadow-sm">
+                                                                <div className="text-xs text-gray-500">{t('pets.speed')}</div>
+                                                                <div className="font-medium">{formatNumber(pet.stats.speed)}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <span className="block mb-2 font-bold text-gray-900">{t('pets.abilities')}:</span>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {pet.abilities.map((ability, index) => (
+                                                                <span
+                                                                    key={index}
+                                                                    className="px-2 py-1 text-xs bg-white border border-gray-200 text-gray-700 rounded-full shadow-sm"
+                                                                >
+                                                                    {ability}
+                                                                </span>
+                                                            ))}
+                                                            {pet.abilities.length === 0 && (
+                                                                <span className="text-sm text-gray-500">{t('pets.noAbilities')}</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" className="px-6 py-12 text-center"> {/* Updated colspan from 7 to 6 */}
+                                <td colSpan="5" className="px-6 py-12 text-center">
                                     <Heart className="mx-auto h-12 w-12 text-gray-400" />
                                     <h3 className="mt-2 text-sm font-medium text-gray-900">No pets found</h3>
                                     <p className="mt-1 text-sm text-gray-500">
@@ -512,4 +535,4 @@ function PetModal({ pet, onClose, onSave }) {
         </div>
         </div>
     );
-}  
+}
