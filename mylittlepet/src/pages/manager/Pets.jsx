@@ -183,23 +183,10 @@ export default function Pets() {
                                             <td colSpan="5" className="px-6 py-4">
                                                 <div className="animate-fadeIn">
                                                     <div className="mb-4">
-                                                        <span className="block mb-2 font-bold text-gray-900">{t('common.stats')}:</span>
-                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                        <span className="block mb-2 font-bold text-gray-900">{t('common.stats')}:</span>                                                        <div className="grid grid-cols-1 gap-4">
                                                             <div className="bg-white p-2 rounded shadow-sm">
                                                                 <div className="text-xs text-gray-500">{t('pets.hp')}</div>
                                                                 <div className="font-medium">{formatNumber(pet.stats.hp)}</div>
-                                                            </div>
-                                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                                <div className="text-xs text-gray-500">{t('pets.attack')}</div>
-                                                                <div className="font-medium">{formatNumber(pet.stats.attack)}</div>
-                                                            </div>
-                                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                                <div className="text-xs text-gray-500">{t('pets.defense')}</div>
-                                                                <div className="font-medium">{formatNumber(pet.stats.defense)}</div>
-                                                            </div>
-                                                            <div className="bg-white p-2 rounded shadow-sm">
-                                                                <div className="text-xs text-gray-500">{t('pets.speed')}</div>
-                                                                <div className="font-medium">{formatNumber(pet.stats.speed)}</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -317,17 +304,13 @@ export default function Pets() {
     );
 }
 
-function PetModal({ pet, onClose, onSave }) {
-    const [formData, setFormData] = useState({
+function PetModal({ pet, onClose, onSave }) {    const [formData, setFormData] = useState({
         name: pet?.name || '',
         type: pet?.type || '',
         rarity: pet?.rarity || RARITY_TYPES.COMMON,
         level: pet?.level || 1,
         stats: {
-            hp: pet?.stats?.hp || 100,
-            attack: pet?.stats?.attack || 50,
-            defense: pet?.stats?.defense || 30,
-            speed: pet?.stats?.speed || 40
+            hp: pet?.stats?.hp || 100
         },
         abilities: pet?.abilities || []
     });
@@ -425,8 +408,7 @@ function PetModal({ pet, onClose, onSave }) {
 
                 {/* Stats */}
                 <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">{t('common.stats')}</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">{t('common.stats')}</h4>                    <div className="grid grid-cols-1 gap-4">
                         <div>
                             <label className="block text-xs text-gray-500 mb-1">{t('pets.hp')}</label>
                             <input
@@ -437,44 +419,6 @@ function PetModal({ pet, onClose, onSave }) {
                                 onChange={(e) => setFormData({
                                     ...formData,
                                     stats: { ...formData.stats, hp: parseInt(e.target.value) }
-                                })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">{t('pets.attack')}</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={formData.stats.attack}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    stats: { ...formData.stats, attack: parseInt(e.target.value) }
-                                })}
-                            />
-                        </div>                            <div>
-                            <label className="block text-xs text-gray-500 mb-1">{t('pets.defense')}</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={formData.stats.defense}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    stats: { ...formData.stats, defense: parseInt(e.target.value) }
-                                })}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">{t('pets.speed')}</label>
-                            <input
-                                type="number"
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={formData.stats.speed}
-                                onChange={(e) => setFormData({
-                                    ...formData,
-                                    stats: { ...formData.stats, speed: parseInt(e.target.value) }
                                 })}
                             />
                         </div>

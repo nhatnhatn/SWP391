@@ -598,7 +598,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.MYTHIC,
         level: 100,
         ownerId: 1,
-        stats: { hp: 5000, attack: 800, defense: 600, speed: 450 },
+        stats: { hp: 5000 },
         abilities: ['Hơi Thở Lửa', 'Tiếng Gầm Cổ Đại', 'Vảy Rồng']
     },
     {
@@ -608,7 +608,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.LEGENDARY,
         level: 85,
         ownerId: 2,
-        stats: { hp: 3500, attack: 650, defense: 400, speed: 700 },
+        stats: { hp: 3500 },
         abilities: ['Tái Sinh', 'Cánh Pha Lê', 'Lửa Phượng Hoàng']
     },
     {
@@ -618,7 +618,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.EPIC,
         level: 60,
         ownerId: 3,
-        stats: { hp: 2800, attack: 550, defense: 350, speed: 600 },
+        stats: { hp: 2800 },
         abilities: ['Đòn Bóng Tối', 'Săn Đàn', 'Tầm Nhìn Ban Đêm']
     },
     {
@@ -628,7 +628,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.RARE,
         level: 45,
         ownerId: 4,
-        stats: { hp: 4000, attack: 400, defense: 800, speed: 200 },
+        stats: { hp: 4000 },
         abilities: ['Ném Đá', 'Rung Chuyển Đất', 'Giáp Đá']
     },
     {
@@ -638,7 +638,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.UNCOMMON,
         level: 30,
         ownerId: 5,
-        stats: { hp: 1800, attack: 300, defense: 250, speed: 500 },
+        stats: { hp: 1800 },
         abilities: ['Tạt Nước', 'Hồi Máu', 'Sương Mù']
     }, {
         id: 6,
@@ -647,7 +647,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.COMMON,
         level: 15,
         ownerId: 1,
-        stats: { hp: 800, attack: 150, defense: 100, speed: 400 },
+        stats: { hp: 800 },
         abilities: ['Nhảy Nhanh', 'Cắn Nhẹ']
     },
     {
@@ -657,7 +657,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.LEGENDARY,
         level: 78,
         ownerId: 2,
-        stats: { hp: 3200, attack: 720, defense: 450, speed: 650 },
+        stats: { hp: 3200 },
         abilities: ['Nhảy Thiên Thể', 'Đòn Sao', 'Tiếng Gầm Vũ Trụ']
     },
     {
@@ -667,7 +667,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.EPIC,
         level: 55,
         ownerId: 3,
-        stats: { hp: 2600, attack: 480, defense: 380, speed: 520 },
+        stats: { hp: 2600 },
         abilities: ['Cắn Băng', 'Khiên Băng', 'Cuộn Bão Tuyết']
     },
     {
@@ -677,7 +677,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.RARE,
         level: 42,
         ownerId: 4,
-        stats: { hp: 2000, attack: 420, defense: 280, speed: 750 },
+        stats: { hp: 2000 },
         abilities: ['Lao Sét', 'Gọi Sấm', 'Cánh Bão']
     },
     {
@@ -687,7 +687,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.MYTHIC,
         level: 95,
         ownerId: 5,
-        stats: { hp: 4200, attack: 600, defense: 500, speed: 580 },
+        stats: { hp: 4200 },
         abilities: ['Hào Quang Hồi Máu', 'Tia Cầu Vồng', 'Thanh Tẩy', 'Khiên Phép Thuật']
     },
     {
@@ -697,7 +697,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.UNCOMMON,
         level: 35,
         ownerId: 1,
-        stats: { hp: 1600, attack: 350, defense: 300, speed: 380 },
+        stats: { hp: 1600 },
         abilities: ['Nhổ Dung Nham', 'Sóng Nhiệt', 'Kháng Lửa']
     },
     {
@@ -707,7 +707,7 @@ export const mockPets = [
         rarity: RARITY_TYPES.EPIC,
         level: 67,
         ownerId: 2,
-        stats: { hp: 2400, attack: 520, defense: 320, speed: 680 },
+        stats: { hp: 2400 },
         abilities: ['Bước Bóng Tối', 'Cổng Hư Không', 'Năng Lượng Tối', 'Dịch Chuyển Pha']
     }
 ];
@@ -715,38 +715,38 @@ export const mockPets = [
 // Mock items data
 export const mockItems = [{
     id: 1,
-    name: 'Excalibur',
-    type: 'Weapon',
+    name: 'Premium Pet Food',
+    type: 'Food',
     rarity: RARITY_TYPES.MYTHIC,
-    description: 'Thanh kiếm huyền thoại của các vua',
-    stats: { attack: 500, critRate: 25 },
+    description: 'Thức ăn cao cấp giúp thú cưng phát triển tối ưu',
+    stats: { healthBoost: 500, happinessBoost: 100 },
     price: 100000,
     quantity: 1
 }, {
     id: 2,
-    name: 'Dragon Scale Armor',
-    type: 'Armor',
+    name: 'Luxury Pet Bed',
+    type: 'Accessory',
     rarity: RARITY_TYPES.LEGENDARY,
-    description: 'Áo giáp được rèn từ vảy rồng cổ đại',
-    stats: { defense: 400, fireResist: 80 },
+    description: 'Giường ngủ sang trọng giúp thú cưng nghỉ ngơi tốt hơn',
+    stats: { comfortBoost: 400, restoreRate: 80 },
     price: 75000,
     quantity: 3
 }, {
     id: 3,
-    name: 'Phoenix Feather',
-    type: 'Consumable',
+    name: 'Revival Medicine',
+    type: 'Medicine',
     rarity: RARITY_TYPES.EPIC,
-    description: 'Hồi sinh thú cưng đã ngã xuống với đầy đủ máu',
+    description: 'Thuốc hồi sinh thú cưng đã ngã xuống với đầy đủ sức khỏe',
     stats: { revive: true },
     price: 25000,
     quantity: 12
 }, {
     id: 4,
-    name: 'Mana Potion',
-    type: 'Consumable',
+    name: 'Energy Drink',
+    type: 'Medicine',
     rarity: RARITY_TYPES.RARE,
-    description: 'Hồi phục 500 MP',
-    stats: { manaRestore: 500 },
+    description: 'Nước tăng lực hồi phục năng lượng cho thú cưng',
+    stats: { energyRestore: 500 },
     price: 1000,
     quantity: 150
 }, {
