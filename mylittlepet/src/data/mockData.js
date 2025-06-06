@@ -1,4 +1,4 @@
-// Mock data for the game admin dashboard
+// Mock data for the game admin panel
 
 export const RARITY_TYPES = {
     COMMON: 'common',
@@ -768,32 +768,5 @@ export const mockItems = [{
     price: 10,
     quantity: 1000
 }
-];
+]
 
-// Mock analytics data
-export const mockAnalytics = {
-    playerGrowth: [
-        { month: 'Jan', players: 1200 },
-        { month: 'Feb', players: 1800 },
-        { month: 'Mar', players: 2400 },
-        { month: 'Apr', players: 3200 },
-        { month: 'May', players: 4100 }
-    ],
-    rarityDistribution: [
-        { rarity: 'Common', count: 1567, percentage: 45.2 },
-        { rarity: 'Uncommon', count: 892, percentage: 25.7 },
-        { rarity: 'Rare', count: 456, percentage: 13.1 },
-        { rarity: 'Epic', count: 234, percentage: 6.7 },
-        { rarity: 'Legendary', count: 167, percentage: 4.8 },
-        { rarity: 'Mythic', count: 156, percentage: 4.5 }
-    ],
-    dailyActiveUsers: [
-        { date: '2024-05-18', users: 3200 },
-        { date: '2024-05-19', users: 3100 },
-        { date: '2024-05-20', users: 2900 },
-        { date: '2024-05-21', users: 3400 },
-        { date: '2024-05-22', users: 3600 },
-        { date: '2024-05-23', users: 3800 },
-        { date: '2024-05-24', users: 4100 }
-    ]
-};

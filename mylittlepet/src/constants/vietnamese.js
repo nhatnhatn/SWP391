@@ -1,4 +1,4 @@
-// Vietnamese language constants for My Little Pet Admin Dashboard
+// Vietnamese language constants for My Little Pet Admin
 export const VIETNAMESE_TRANSLATIONS = {
     // Common
     common: {
@@ -57,11 +57,10 @@ export const VIETNAMESE_TRANSLATIONS = {
         enterPassword: 'Nhập mật khẩu của bạn',
         enterConfirmPassword: 'Nhập lại mật khẩu',
         enterFullName: 'Nhập họ và tên đầy đủ',
-        signIn: 'Đăng nhập',
-        signingIn: 'Đang đăng nhập...',
+        signIn: 'Đăng nhập', signingIn: 'Đang đăng nhập...',
         signUp: 'Đăng ký',
         signingUp: 'Đang đăng ký...',
-        signInToDashboard: 'Đăng nhập vào Bảng điều khiển',
+        signInToAdmin: 'Đăng nhập vào Hệ thống Quản trị',
         signUpForAccount: 'Đăng ký tài khoản quản trị viên',
         signOut: 'Đăng xuất',
         welcomeBack: 'Chào mừng trở lại',
@@ -87,7 +86,6 @@ export const VIETNAMESE_TRANSLATIONS = {
 
     // Navigation
     nav: {
-        dashboard: 'Bảng điều khiển',
         players: 'Người chơi',
         pets: 'Thú cưng',
         items: 'Vật phẩm',

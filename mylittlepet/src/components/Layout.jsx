@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     Menu,
     X,
-    LayoutDashboard,
     Users,
     Heart,
     Package,
@@ -15,7 +14,6 @@ import LogoutConfirmDialog from './LogoutConfirmDialog';
 import { t } from '../constants/vietnamese';
 
 const navigation = [
-    { name: t('nav.dashboard'), href: '/', icon: LayoutDashboard },
     { name: t('nav.players'), href: '/players', icon: Users },
     { name: t('nav.pets'), href: '/pets', icon: Heart },
     { name: t('nav.items'), href: '/items', icon: Package },

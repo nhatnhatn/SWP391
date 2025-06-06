@@ -115,11 +115,10 @@ export default function Login() {
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                     {t('auth.signingIn')}
                                 </div>
-                            ) : (
-                                <div className="flex items-center">
-                                    <LogIn className="h-4 w-4 mr-2" />
-                                    {t('auth.signInToDashboard')}
-                                </div>
+                            ) : (<div className="flex items-center">
+                                <LogIn className="h-4 w-4 mr-2" />
+                                {t('auth.signIn')}
+                            </div>
                             )}
                             </button>
                         </div>                        <div className="mt-4 text-center">
