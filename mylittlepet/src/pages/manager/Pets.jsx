@@ -90,16 +90,14 @@ export default function Pets() {
                     {Object.values(RARITY_TYPES).map(rarity => (
                         <option key={rarity} value={rarity}>{t(`rarities.${rarity}`)}</option>
                     ))}
-                </select>
-
-                <select
+                </select>                <select
                     className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
                 >
                     <option value="all">{t('pets.allTypes')}</option>
                     {uniqueTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
+                        <option key={type} value={type}>{t(`petTypes.${type.toLowerCase()}`) || type}</option>
                     ))}
                 </select>
             </div>
@@ -134,9 +132,8 @@ export default function Pets() {
                                     <tr key={pet.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">{pet.name}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {pet.type}
+                                        </td>                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {t(`petTypes.${pet.type.toLowerCase()}`) || pet.type}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span
@@ -359,32 +356,33 @@ function PetModal({ pet, onClose, onSave }) {
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
-                    </div>
-
-                    <div>
+                    </div>                    <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Type
                         </label>
-                        <input
-                            type="text"
+                        <select
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                        />
+                        >
+                            <option value="">Select Type</option>
+                            {Object.values(PET_TYPES).map(type => (
+                                <option key={type} value={type}>{t(`petTypes.${type.toLowerCase()}`) || type}</option>
+                            ))}
+                        </select>
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Rarity
-                        </label>
-                        <select
+                        </label>                        <select
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={formData.rarity}
                             onChange={(e) => setFormData({ ...formData, rarity: e.target.value })}
                         >
                             {Object.values(RARITY_TYPES).map(rarity => (
-                                <option key={rarity} value={rarity}>{capitalize(rarity)}</option>
+                                <option key={rarity} value={rarity}>{t(`rarities.${rarity}`)}</option>
                             ))}
                         </select>
                     </div>

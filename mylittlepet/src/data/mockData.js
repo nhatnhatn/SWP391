@@ -34,7 +34,7 @@ export const RARITY_COLORS = {
 export const mockPlayers = [
     {
         id: 1,
-        username: 'DragonSlayer',
+        username: 'DragonLover',
         email: 'dragon@game.com',
         level: 45, registeredAt: '2024-01-15T08:30:00Z',
         lastLogin: '2024-05-23T14:20:00Z',
@@ -53,7 +53,7 @@ export const mockPlayers = [
             { id: 1, name: 'Premium Pet Food', type: 'Food', quantity: 1, rarity: 'mythic' },
             { id: 4, name: 'Energy Drink', type: 'Medicine', quantity: 15, rarity: 'rare' }
         ], achievements: [
-            { id: 1, name: 'Dragon Master', description: 'Có được một con rồng thần thoại', unlocked: '2024-01-20T12:00:00Z' },
+            { id: 1, name: 'Dragon Caretaker', description: 'Có được một con rồng thần thoại', unlocked: '2024-01-20T12:00:00Z' },
             { id: 2, name: 'Collector', description: 'Sở hữu 10+ thú cưng', unlocked: '2024-02-15T09:30:00Z' }
         ], activityLogs: [
             { timestamp: '2024-05-24T14:20:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -102,7 +102,7 @@ export const mockPlayers = [
     },
     {
         id: 3,
-        username: 'ShadowHunter',
+        username: 'ShadowCarer',
         email: 'shadow@game.com', level: 34,
         registeredAt: '2024-03-10T16:22:00Z', lastLogin: '2024-04-15T18:30:00Z',
         status: 'Inactive',
@@ -131,7 +131,7 @@ export const mockPlayers = [
     },
     {
         id: 4,
-        username: 'FireWarrior',
+        username: 'FireKeeper',
         email: 'fire@game.com',
         level: 52, registeredAt: '2024-01-05T12:45:00Z',
         lastLogin: '2024-05-24T11:15:00Z',
@@ -143,7 +143,7 @@ export const mockPlayers = [
             { id: 4, name: 'Earth Golem', type: 'Elemental', level: 45, rarity: 'rare' }
         ],
         careHistory: [
-            { date: '2024-05-24T10:00:00Z', action: 'Training', petName: 'Earth Golem', details: 'Defense training' }
+            { date: '2024-05-24T10:00:00Z', action: 'Training', petName: 'Earth Golem', details: 'Stability and posture training' }
         ],
         inventory: [
             { id: 4, name: 'Mana Potion', type: 'Consumable', quantity: 20, rarity: 'rare' },
@@ -153,7 +153,7 @@ export const mockPlayers = [
         ],
         activityLogs: [
             { timestamp: '2024-05-24T11:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-24T11:30:00Z', action: 'Training', details: 'Earth Golem defense training', suspicious: false }
+            { timestamp: '2024-05-24T11:30:00Z', action: 'Training', details: 'Earth Golem stability and posture training', suspicious: false }
         ],
         reports: [],
         adminNotes: [],
@@ -177,7 +177,7 @@ export const mockPlayers = [
             { id: 3, name: 'Phoenix Feather', type: 'Consumable', quantity: 5, rarity: 'epic' },
             { id: 5, name: 'Health Potion', type: 'Consumable', quantity: 25, rarity: 'uncommon' }
         ], achievements: [
-            { id: 7, name: 'Ice Princess', description: 'Đạt cấp độ 80+', unlocked: '2024-03-20T15:00:00Z' },
+            { id: 7, name: 'Ice Care Master', description: 'Đạt cấp độ 80+', unlocked: '2024-03-20T15:00:00Z' },
             { id: 8, name: 'Ultimate Collector', description: 'Sở hữu 30+ thú cưng', unlocked: '2024-05-01T10:00:00Z' }
         ],
         activityLogs: [
@@ -190,8 +190,8 @@ export const mockPlayers = [
     },
     {
         id: 6,
-        username: 'ToxicPlayer',
-        email: 'toxic@game.com',
+        username: 'CarelessOwner',
+        email: 'careless@game.com',
         level: 23,
         registeredAt: '2024-04-10T09:20:00Z',
         lastLogin: '2024-05-15T16:45:00Z',
@@ -211,17 +211,16 @@ export const mockPlayers = [
         ],
         activityLogs: [
             { timestamp: '2024-05-15T16:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-15T16:50:00Z', action: 'Chat', details: 'Inappropriate language in global chat', suspicious: true },
-            { timestamp: '2024-05-15T17:00:00Z', action: 'Ban', details: 'Account banned for toxic behavior', suspicious: false }
+            { timestamp: '2024-05-15T16:50:00Z', action: 'Chat', details: 'Shared harmful pet care advice in global chat', suspicious: true },
+            { timestamp: '2024-05-15T17:00:00Z', action: 'Ban', details: 'Account banned for spreading harmful pet care misinformation', suspicious: false }
         ],
-        reports: [
-            { id: 2, reporter: 'IceQueen', reason: 'Toxic behavior', status: 'Confirmed', date: '2024-05-15T16:55:00Z' },
-            { id: 3, reporter: 'FireWarrior', reason: 'Harassment', status: 'Confirmed', date: '2024-05-15T17:00:00Z' }
+        reports: [{ id: 2, reporter: 'IceQueen', reason: 'Spreading harmful pet care advice', status: 'Confirmed', date: '2024-05-15T16:55:00Z' },
+        { id: 3, reporter: 'FireKeeper', reason: 'Pet neglect encouragement', status: 'Confirmed', date: '2024-05-15T17:00:00Z' }
         ],
         adminNotes: [
-            { date: '2024-05-15T17:05:00Z', admin: 'Admin2', note: 'Multiple reports of toxic behavior confirmed. Account banned.' }
+            { date: '2024-05-15T17:05:00Z', admin: 'Admin2', note: 'Multiple reports of harmful pet care advice confirmed. Account banned.' }
         ], adminHistory: [
-            { date: '2024-05-15T17:00:00Z', admin: 'Admin2', action: 'Account Ban', details: 'Banned for toxic behavior and harassment' }
+            { date: '2024-05-15T17:00:00Z', admin: 'Admin2', action: 'Account Ban', details: 'Banned for spreading harmful pet care misinformation and encouraging neglect' }
         ]
     },
     {
@@ -246,7 +245,7 @@ export const mockPlayers = [
             { id: 8, name: 'Interactive Toy Ball', type: 'Toy', quantity: 1, rarity: 'epic' },
             { id: 9, name: 'Wind Charm', type: 'Accessory', quantity: 3, rarity: 'rare' }
         ], achievements: [
-            { id: 5, name: 'Sky Master', description: 'Huấn luyện thú cưng bay đến cấp 40+', unlocked: '2024-03-01T14:20:00Z' }
+            { id: 5, name: 'Sky Care Expert', description: 'Chăm sóc thú cưng bay đến cấp 40+', unlocked: '2024-03-01T14:20:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T18:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -281,7 +280,7 @@ export const mockPlayers = [
             { id: 12, name: 'Gem Fragments', type: 'Material', quantity: 150, rarity: 'rare' }
         ], achievements: [
             { id: 6, name: 'Crystal Collector', description: 'Thu thập 100+ mảnh đá quý', unlocked: '2024-02-14T16:30:00Z' },
-            { id: 7, name: 'Golem Master', description: 'Sở hữu một golem huyền thoại', unlocked: '2024-03-05T10:45:00Z' }
+            { id: 7, name: 'Golem Care Specialist', description: 'Sở hữu một golem huyền thoại', unlocked: '2024-03-05T10:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T20:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -347,12 +346,12 @@ export const mockPlayers = [
             { id: 17, name: 'Fire Resistance Treats', type: 'Food', quantity: 1, rarity: 'legendary' },
             { id: 18, name: 'Fire Potion', type: 'Consumable', quantity: 12, rarity: 'epic' }
         ], achievements: [
-            { id: 9, name: 'Phoenix Rider', description: 'Có được một phượng hoàng thần thoại', unlocked: '2024-02-01T13:15:00Z' },
+            { id: 9, name: 'Phoenix Companion', description: 'Có được một phượng hoàng thần thoại', unlocked: '2024-02-01T13:15:00Z' },
             { id: 10, name: 'Fire Care Specialist', description: 'Thành thạo chăm sóc thú cưng lửa', unlocked: '2024-03-10T11:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T19:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-24T19:00:00Z', action: 'Quest Complete', details: 'Completed Fire Temple quest', suspicious: false }
+            { timestamp: '2024-05-24T19:00:00Z', action: 'Care Mission', details: 'Completed Pet Health Check mission', suspicious: false }
         ],
         reports: [],
         adminNotes: [],
@@ -383,7 +382,7 @@ export const mockPlayers = [
             { id: 21, name: 'Warm Winter Coat', type: 'Accessory', quantity: 1, rarity: 'epic' }
         ], achievements: [
             { id: 11, name: 'Ice Care Specialist', description: 'Thành thạo chăm sóc thú cưng băng', unlocked: '2024-02-20T15:00:00Z' },
-            { id: 12, name: 'Winter Guardian', description: 'Bảo vệ vương quốc băng giá', unlocked: '2024-03-15T12:45:00Z' }
+            { id: 12, name: 'Winter Care Expert', description: 'Chăm sóc thú cưng trong môi trường băng giá', unlocked: '2024-03-15T12:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-25T08:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -416,7 +415,7 @@ export const mockPlayers = [
             { id: 23, name: 'Light Potion', type: 'Consumable', quantity: 18, rarity: 'rare' },
             { id: 24, name: 'Protective Charm', type: 'Accessory', quantity: 1, rarity: 'epic' }
         ], achievements: [
-            { id: 13, name: 'Divine Protector', description: 'Bảo vệ đồng minh bằng phép thuật thiêng liêng', unlocked: '2024-02-25T10:30:00Z' }
+            { id: 13, name: 'Divine Caretaker', description: 'Chăm sóc thú cưng bằng phép thuật thiêng liêng', unlocked: '2024-02-25T10:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T16:20:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -531,7 +530,7 @@ export const mockPlayers = [
     },
     {
         id: 16,
-        username: 'ChaosWarrior',
+        username: 'ChaosCarer',
         email: 'chaos@game.com', level: 35,
         registeredAt: '2024-02-12T11:10:00Z', lastLogin: '2024-03-20T17:45:00Z',
         status: 'Inactive',
@@ -553,16 +552,16 @@ export const mockPlayers = [
         ],
         activityLogs: [
             { timestamp: '2024-05-24T17:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-20T15:00:00Z', action: 'PvP Battle', details: 'Lost match vs LightPaladin', suspicious: false }
+            { timestamp: '2024-05-20T15:00:00Z', action: 'Pet Playdate', details: 'Organized social playdate with LightPaladin\'s pets', suspicious: false }
         ],
         reports: [
-            { id: 4, reporter: 'LightPaladin', reason: 'Excessive aggression in PvP', status: 'Under Review', date: '2024-05-21T10:30:00Z' }
+            { id: 4, reporter: 'LightPaladin', reason: 'Neglected pet care standards', status: 'Under Review', date: '2024-05-21T10:30:00Z' }
         ],
         adminNotes: [
-            { date: '2024-05-21T11:00:00Z', admin: 'Admin1', note: 'Player reported for aggressive behavior. Monitoring activity.' }
+            { date: '2024-05-21T11:00:00Z', admin: 'Admin1', note: 'Player reported for inadequate pet care. Monitoring activity.' }
         ],
         adminHistory: [
-            { date: '2024-05-21T11:00:00Z', admin: 'Admin1', action: 'Warning Issued', details: 'Warned about aggressive PvP behavior' }
+            { date: '2024-05-21T11:00:00Z', admin: 'Admin1', action: 'Care Guidance', details: 'Provided guidance on proper pet care standards' }
         ]
     }
 ];

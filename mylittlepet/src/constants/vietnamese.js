@@ -172,6 +172,19 @@ export const VIETNAMESE_TRANSLATIONS = {
         material: 'Nguyên liệu'
     },
 
+    // Pet Types
+    petTypes: {
+        dragon: 'Rồng',
+        bird: 'Chim',
+        beast: 'Thú',
+        elemental: 'Nguyên Tố',
+        fairy: 'Tiên',
+        reptile: 'Bò Sát',
+        magical: 'Phép Thuật',
+        spirit: 'Linh Hồn',
+        golem: 'Golem'
+    },
+
     // Rarity
     rarities: {
         common: 'Thông Thường',

@@ -6,12 +6,12 @@ export function cn(...inputs) {
     return clsx(inputs);
 }
 
-// Format date utility
+// Format date utility - Vietnamese dd/mm/yyyy format
 export function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('vi-VN', {
         year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+        month: '2-digit',
+        day: '2-digit'
     });
 }
 
