@@ -95,22 +95,6 @@ export const VIETNAMESE_TRANSLATIONS = {
         settings: 'Cài đặt',
         myLittlePet: 'Thú Cưng Bé Nhỏ Của Tôi',
         admin: 'Quản trị viên'
-    },    // Dashboard
-    dashboard: {
-        title: 'Bảng Điều Khiển',
-        welcome: 'Chào mừng đến với bảng điều khiển dành cho quản trị game',
-        totalPlayers: 'Tổng Số Người Chơi',
-        activePlayers: 'Người Chơi Đang Hoạt Động',
-        totalPets: 'Tổng Số Thú Cưng',
-        totalItems: 'Tổng Số Vật Phẩm',
-        playerGrowthOverTime: 'Biểu Đồ Thể Hiện Mức Tăng Trưởng Người Chơi Theo Thời Gian',
-        dailyActiveUsers: 'Biểu Đồ Thể Hiện Hoạt Động Của Người Dùng Hàng Ngày',
-        itemRarityDistribution: 'Biểu Đồ Phân Bố Độ Hiếm Vật Phẩm',
-        rarityBreakdown: 'Chi Tiết Thống Kê Phân Tích Về Số Lượng Và Độ Hiếm Vật Phẩm',
-        month: 'Tháng',
-        players: 'Người chơi',
-        count: 'Số lượng',
-        percentage: 'Phần trăm'
     },
 
     // Players
