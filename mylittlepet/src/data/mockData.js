@@ -49,17 +49,15 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T10:30:00Z', action: 'Fed pet', petName: 'Ancient Dragon', details: 'Premium Dragon Food' },
             { date: '2024-05-23T15:45:00Z', action: 'Training', petName: 'Forest Bunny', details: 'Speed training session' }
-        ],
-        inventory: [
-            { id: 1, name: 'Excalibur', type: 'Weapon', quantity: 1, rarity: 'mythic' },
-            { id: 4, name: 'Mana Potion', type: 'Consumable', quantity: 15, rarity: 'rare' }
-        ],
-        achievements: [{ id: 1, name: 'Dragon Master', description: 'Có được một con rồng thần thoại', unlocked: '2024-01-20T12:00:00Z' },
-        { id: 2, name: 'Collector', description: 'Sở hữu 10+ thú cưng', unlocked: '2024-02-15T09:30:00Z' }
-        ],
-        activityLogs: [
+        ],        inventory: [
+            { id: 1, name: 'Premium Pet Food', type: 'Food', quantity: 1, rarity: 'mythic' },
+            { id: 4, name: 'Energy Drink', type: 'Medicine', quantity: 15, rarity: 'rare' }
+        ],        achievements: [
+            { id: 1, name: 'Dragon Master', description: 'Có được một con rồng thần thoại', unlocked: '2024-01-20T12:00:00Z' },
+            { id: 2, name: 'Collector', description: 'Sở hữu 10+ thú cưng', unlocked: '2024-02-15T09:30:00Z' }
+        ],activityLogs: [
             { timestamp: '2024-05-24T14:20:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-24T14:25:00Z', action: 'Battle', details: 'Won arena battle vs MysticMage', suspicious: false },
+            { timestamp: '2024-05-24T14:25:00Z', action: 'Pet Care', details: 'Fed Ancient Dragon premium food', suspicious: false },
             { timestamp: '2024-05-24T14:30:00Z', action: 'Trade', details: 'Traded Mana Potion x5', suspicious: false }
         ],
         reports: [
@@ -87,13 +85,12 @@ export const mockPlayers = [
         ],
         careHistory: [
             { date: '2024-05-24T09:15:00Z', action: 'Evolution', petName: 'Crystal Phoenix', details: 'Evolved to final form' }
-        ],
-        inventory: [
-            { id: 2, name: 'Dragon Scale Armor', type: 'Armor', quantity: 1, rarity: 'legendary' },
-            { id: 3, name: 'Phoenix Feather', type: 'Consumable', quantity: 3, rarity: 'epic' }
-        ],
-        achievements: [{ id: 3, name: 'Phoenix Rising', description: 'Tiến hóa một thú cưng phượng hoàng', unlocked: '2024-03-10T14:00:00Z' },
-        { id: 4, name: 'Master Collector', description: 'Sở hữu 20+ thú cưng', unlocked: '2024-04-05T16:30:00Z' }
+        ],        inventory: [
+            { id: 2, name: 'Luxury Pet Bed', type: 'Accessory', quantity: 1, rarity: 'legendary' },
+            { id: 3, name: 'Revival Medicine', type: 'Medicine', quantity: 3, rarity: 'epic' }
+        ],        achievements: [
+            { id: 3, name: 'Phoenix Rising', description: 'Tiến hóa một thú cưng phượng hoàng', unlocked: '2024-03-10T14:00:00Z' },
+            { id: 4, name: 'Master Collector', description: 'Sở hữu 20+ thú cưng', unlocked: '2024-04-05T16:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T09:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -151,9 +148,8 @@ export const mockPlayers = [
         inventory: [
             { id: 4, name: 'Mana Potion', type: 'Consumable', quantity: 20, rarity: 'rare' },
             { id: 6, name: 'Bread', type: 'Food', quantity: 50, rarity: 'common' }
-        ],
-        achievements: [
-            { id: 6, name: 'Earth Shaker', description: 'Huấn luyện nguyên tố đất 100 lần', unlocked: '2024-04-01T12:00:00Z' }
+        ],        achievements: [
+            { id: 6, name: 'Earth Caretaker', description: 'Chăm sóc thú cưng nguyên tố đất 100 lần', unlocked: '2024-04-01T12:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T11:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -180,9 +176,9 @@ export const mockPlayers = [
         inventory: [
             { id: 3, name: 'Phoenix Feather', type: 'Consumable', quantity: 5, rarity: 'epic' },
             { id: 5, name: 'Health Potion', type: 'Consumable', quantity: 25, rarity: 'uncommon' }
-        ],
-        achievements: [{ id: 7, name: 'Ice Princess', description: 'Đạt cấp độ 80+', unlocked: '2024-03-20T15:00:00Z' },
-        { id: 8, name: 'Ultimate Collector', description: 'Sở hữu 30+ thú cưng', unlocked: '2024-05-01T10:00:00Z' }
+        ],        achievements: [
+            { id: 7, name: 'Ice Princess', description: 'Đạt cấp độ 80+', unlocked: '2024-03-20T15:00:00Z' },
+            { id: 8, name: 'Ultimate Collector', description: 'Sở hữu 30+ thú cưng', unlocked: '2024-05-01T10:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-23T20:10:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -246,12 +242,10 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T16:00:00Z', action: 'Pet Exercise', petName: 'Wind Eagle', details: 'Flight training in mountains' },
             { date: '2024-05-24T12:30:00Z', action: 'Fed pet', petName: 'Cloud Sprite', details: 'Ethereal Nectar' }
-        ],
-        inventory: [
-            { id: 8, name: 'Storm Bow', type: 'Weapon', quantity: 1, rarity: 'epic' },
+        ],        inventory: [
+            { id: 8, name: 'Interactive Toy Ball', type: 'Toy', quantity: 1, rarity: 'epic' },
             { id: 9, name: 'Wind Charm', type: 'Accessory', quantity: 3, rarity: 'rare' }
-        ],
-        achievements: [
+        ],        achievements: [
             { id: 5, name: 'Sky Master', description: 'Huấn luyện thú cưng bay đến cấp 40+', unlocked: '2024-03-01T14:20:00Z' }
         ],
         activityLogs: [
@@ -281,14 +275,13 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T19:00:00Z', action: 'Gem Feeding', petName: 'Crystal Golem', details: 'Fed rare crystals for power boost' },
             { date: '2024-05-24T18:15:00Z', action: 'Shell Polish', petName: 'Gem Turtle', details: 'Polished shell with crystal dust' }
-        ],
-        inventory: [
-            { id: 10, name: 'Crystal Staff', type: 'Weapon', quantity: 1, rarity: 'legendary' },
+        ],        inventory: [
+            { id: 10, name: 'Crystal Healing Stone', type: 'Medicine', quantity: 1, rarity: 'legendary' },
             { id: 11, name: 'Mana Crystal', type: 'Consumable', quantity: 25, rarity: 'epic' },
             { id: 12, name: 'Gem Fragments', type: 'Material', quantity: 150, rarity: 'rare' }
-        ],
-        achievements: [{ id: 6, name: 'Crystal Collector', description: 'Thu thập 100+ mảnh đá quý', unlocked: '2024-02-14T16:30:00Z' },
-        { id: 7, name: 'Golem Master', description: 'Sở hữu một golem huyền thoại', unlocked: '2024-03-05T10:45:00Z' }
+        ],        achievements: [
+            { id: 6, name: 'Crystal Collector', description: 'Thu thập 100+ mảnh đá quý', unlocked: '2024-02-14T16:30:00Z' },
+            { id: 7, name: 'Golem Master', description: 'Sở hữu một golem huyền thoại', unlocked: '2024-03-05T10:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T20:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -316,18 +309,15 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T21:30:00Z', action: 'Stealth Training', petName: 'Shadow Wolf', details: 'Advanced invisibility techniques' },
             { date: '2024-05-24T20:45:00Z', action: 'Fed pet', petName: 'Void Cat', details: 'Moonlight Essence' }
-        ],
-        inventory: [
-            { id: 13, name: 'Shadow Blade', type: 'Weapon', quantity: 2, rarity: 'epic' },
-            { id: 14, name: 'Smoke Bomb', type: 'Consumable', quantity: 20, rarity: 'uncommon' },
-            { id: 15, name: 'Cloak of Shadows', type: 'Armor', quantity: 1, rarity: 'rare' }
-        ],
-        achievements: [
-            { id: 8, name: 'Shadow Master', description: 'Thành thạo kỹ năng tàng hình', unlocked: '2024-02-28T19:20:00Z' }
-        ],
-        activityLogs: [
+        ],        inventory: [
+            { id: 13, name: 'Stealth Training Toy', type: 'Toy', quantity: 2, rarity: 'epic' },
+            { id: 14, name: 'Calming Smoke', type: 'Medicine', quantity: 20, rarity: 'uncommon' },
+            { id: 15, name: 'Comfort Blanket', type: 'Accessory', quantity: 1, rarity: 'rare' }
+        ],        achievements: [
+            { id: 8, name: 'Pet Care Expert', description: 'Thành thạo kỹ năng chăm sóc thú cưng', unlocked: '2024-02-28T19:20:00Z' }
+        ],activityLogs: [
             { timestamp: '2024-05-24T22:00:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-24T21:15:00Z', action: 'PvP Battle', details: 'Won stealth match vs LightPaladin', suspicious: false }
+            { timestamp: '2024-05-24T21:15:00Z', action: 'Pet Training', details: 'Completed stealth training with Shadow Wolf', suspicious: false }
         ],
         reports: [],
         adminNotes: [],
@@ -352,14 +342,13 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T18:00:00Z', action: 'Fire Bath', petName: 'Fire Phoenix', details: 'Rejuvenation in volcanic springs' },
             { date: '2024-05-24T17:30:00Z', action: 'Heat Training', petName: 'Flame Salamander', details: 'Lava resistance training' }
-        ],
-        inventory: [
+        ],        inventory: [
             { id: 16, name: 'Phoenix Feather', type: 'Material', quantity: 1, rarity: 'mythic' },
-            { id: 17, name: 'Flame Sword', type: 'Weapon', quantity: 1, rarity: 'legendary' },
+            { id: 17, name: 'Fire Resistance Treats', type: 'Food', quantity: 1, rarity: 'legendary' },
             { id: 18, name: 'Fire Potion', type: 'Consumable', quantity: 12, rarity: 'epic' }
-        ],
-        achievements: [{ id: 9, name: 'Phoenix Rider', description: 'Có được một phượng hoàng thần thoại', unlocked: '2024-02-01T13:15:00Z' },
-        { id: 10, name: 'Fire Master', description: 'Thành thạo kỹ năng lửa', unlocked: '2024-03-10T11:30:00Z' }
+        ],        achievements: [
+            { id: 9, name: 'Phoenix Rider', description: 'Có được một phượng hoàng thần thoại', unlocked: '2024-02-01T13:15:00Z' },
+            { id: 10, name: 'Fire Care Specialist', description: 'Thành thạo chăm sóc thú cưng lửa', unlocked: '2024-03-10T11:30:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T19:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -388,14 +377,13 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-25T07:45:00Z', action: 'Ice Bath', petName: 'Frost Dragon', details: 'Glacial water treatment' },
             { date: '2024-05-24T20:00:00Z', action: 'Winter Hunt', petName: 'Snow Wolf', details: 'Hunting practice in tundra' }
-        ],
-        inventory: [
-            { id: 19, name: 'Frozen Scepter', type: 'Weapon', quantity: 1, rarity: 'legendary' },
+        ],        inventory: [
+            { id: 19, name: 'Ice Therapy Kit', type: 'Medicine', quantity: 1, rarity: 'legendary' },
             { id: 20, name: 'Ice Shard', type: 'Material', quantity: 45, rarity: 'rare' },
-            { id: 21, name: 'Frost Armor', type: 'Armor', quantity: 1, rarity: 'epic' }
-        ],
-        achievements: [{ id: 11, name: 'Ice Master', description: 'Thành thạo kỹ năng băng', unlocked: '2024-02-20T15:00:00Z' },
-        { id: 12, name: 'Winter Guardian', description: 'Bảo vệ vương quốc băng giá', unlocked: '2024-03-15T12:45:00Z' }
+            { id: 21, name: 'Warm Winter Coat', type: 'Accessory', quantity: 1, rarity: 'epic' }
+        ],        achievements: [
+            { id: 11, name: 'Ice Care Specialist', description: 'Thành thạo chăm sóc thú cưng băng', unlocked: '2024-02-20T15:00:00Z' },
+            { id: 12, name: 'Winter Guardian', description: 'Bảo vệ vương quốc băng giá', unlocked: '2024-03-15T12:45:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-25T08:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -423,13 +411,11 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T15:30:00Z', action: 'Blessing Ritual', petName: 'Holy Unicorn', details: 'Divine blessing ceremony' },
             { date: '2024-05-24T14:45:00Z', action: 'Purification', petName: 'Light Angel', details: 'Cleansing with holy water' }
-        ],
-        inventory: [
-            { id: 22, name: 'Holy Sword', type: 'Weapon', quantity: 1, rarity: 'legendary' },
+        ],        inventory: [
+            { id: 22, name: 'Blessed Pet Treats', type: 'Food', quantity: 1, rarity: 'legendary' },
             { id: 23, name: 'Light Potion', type: 'Consumable', quantity: 18, rarity: 'rare' },
-            { id: 24, name: 'Sacred Shield', type: 'Armor', quantity: 1, rarity: 'epic' }
-        ],
-        achievements: [
+            { id: 24, name: 'Protective Charm', type: 'Accessory', quantity: 1, rarity: 'epic' }
+        ],        achievements: [
             { id: 13, name: 'Divine Protector', description: 'Bảo vệ đồng minh bằng phép thuật thiêng liêng', unlocked: '2024-02-25T10:30:00Z' }
         ],
         activityLogs: [
@@ -459,9 +445,8 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T20:30:00Z', action: 'Photosynthesis', petName: 'Ancient Tree', details: 'Sunlight absorption session' },
             { date: '2024-05-24T19:45:00Z', action: 'Berry Feast', petName: 'Forest Bear', details: 'Fed wild berries and honey' }
-        ],
-        inventory: [
-            { id: 25, name: 'Staff of Growth', type: 'Weapon', quantity: 1, rarity: 'epic' },
+        ],        inventory: [
+            { id: 25, name: 'Healing Garden Kit', type: 'Accessory', quantity: 1, rarity: 'epic' },
             { id: 26, name: 'Healing Herb', type: 'Consumable', quantity: 32, rarity: 'common' },
             { id: 27, name: 'Nature Essence', type: 'Material', quantity: 28, rarity: 'rare' }
         ],
@@ -495,19 +480,16 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-25T06:30:00Z', action: 'Storm Training', petName: 'Thunder Bird', details: 'Lightning strike practice' },
             { date: '2024-05-24T22:15:00Z', action: 'Electric Charge', petName: 'Lightning Wolf', details: 'Energy boost session' }
-        ],
-        inventory: [
-            { id: 28, name: 'Thunder Hammer', type: 'Weapon', quantity: 1, rarity: 'legendary' },
+        ],        inventory: [
+            { id: 28, name: 'Thunder Training Drum', type: 'Toy', quantity: 1, rarity: 'legendary' },
             { id: 29, name: 'Storm Potion', type: 'Consumable', quantity: 14, rarity: 'epic' },
             { id: 30, name: 'Lightning Rod', type: 'Accessory', quantity: 2, rarity: 'rare' }
-        ],
-        achievements: [
-            { id: 15, name: 'Storm Master', description: 'Kiểm soát sức mạnh của bão tố', unlocked: '2024-02-28T16:45:00Z' },
-            { id: 16, name: 'Thunder Lord', description: 'Thành thạo kỹ năng sét', unlocked: '2024-03-20T09:30:00Z' }
-        ],
-        activityLogs: [
+        ],        achievements: [
+            { id: 15, name: 'Storm Care Expert', description: 'Chăm sóc thú cưng trong mọi điều kiện thời tiết', unlocked: '2024-02-28T16:45:00Z' },
+            { id: 16, name: 'Thunder Care Specialist', description: 'Thành thạo chăm sóc thú cưng sét', unlocked: '2024-03-20T09:30:00Z' }
+        ],activityLogs: [
             { timestamp: '2024-05-25T07:15:00Z', action: 'Login', details: 'Successful login', suspicious: false },
-            { timestamp: '2024-05-24T23:45:00Z', action: 'Weather Control', details: 'Created thunderstorm for guild event', suspicious: false }
+            { timestamp: '2024-05-24T23:45:00Z', action: 'Pet Care', details: 'Groomed Thunder Bird after storm training', suspicious: false }
         ],
         reports: [],
         adminNotes: [],
@@ -532,14 +514,12 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-24T22:45:00Z', action: 'Moonbath', petName: 'Lunar Wolf', details: 'Lunar energy absorption under full moon' },
             { date: '2024-05-24T21:30:00Z', action: 'Night Flight', petName: 'Night Owl', details: 'Nocturnal hunting practice' }
-        ],
-        inventory: [
-            { id: 31, name: 'Moonstone Staff', type: 'Weapon', quantity: 1, rarity: 'epic' },
+        ],        inventory: [
+            { id: 31, name: 'Moonlight Grooming Kit', type: 'Accessory', quantity: 1, rarity: 'epic' },
             { id: 32, name: 'Night Potion', type: 'Consumable', quantity: 16, rarity: 'rare' },
-            { id: 33, name: 'Lunar Cloak', type: 'Armor', quantity: 1, rarity: 'epic' }
-        ],
-        achievements: [
-            { id: 17, name: 'Night Walker', description: 'Thành thạo kỹ năng ban đêm', unlocked: '2024-02-15T23:00:00Z' }
+            { id: 33, name: 'Lunar Comfort Blanket', type: 'Accessory', quantity: 1, rarity: 'epic' }
+        ],        achievements: [
+            { id: 17, name: 'Night Care Specialist', description: 'Thành thạo chăm sóc thú cưng ban đêm', unlocked: '2024-02-15T23:00:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T23:30:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -565,13 +545,11 @@ export const mockPlayers = [
         careHistory: [
             { date: '2024-05-20T14:20:00Z', action: 'Dark Ritual', petName: 'Chaos Beast', details: 'Power enhancement ritual' },
             { date: '2024-05-19T16:30:00Z', action: 'Void Training', petName: 'Void Hound', details: 'Dimensional travel practice' }
-        ],
-        inventory: [
-            { id: 34, name: 'Chaos Blade', type: 'Weapon', quantity: 1, rarity: 'rare' },
-            { id: 35, name: 'Corruption Potion', type: 'Consumable', quantity: 8, rarity: 'uncommon' }
-        ],
-        achievements: [
-            { id: 18, name: 'Chaos Wielder', description: 'Khai thác năng lượng hỗn loạn', unlocked: '2024-03-05T12:20:00Z' }
+        ],        inventory: [
+            { id: 34, name: 'Chaos Enrichment Toy', type: 'Toy', quantity: 1, rarity: 'rare' },
+            { id: 35, name: 'Calming Potion', type: 'Medicine', quantity: 8, rarity: 'uncommon' }
+        ],        achievements: [
+            { id: 18, name: 'Chaos Pet Caretaker', description: 'Chăm sóc thú cưng khó tính và phức tạp', unlocked: '2024-03-05T12:20:00Z' }
         ],
         activityLogs: [
             { timestamp: '2024-05-24T17:45:00Z', action: 'Login', details: 'Successful login', suspicious: false },
@@ -767,6 +745,114 @@ export const mockItems = [{
     stats: { healthRestore: 50 },
     price: 10,
     quantity: 1000
+}, {
+    id: 7,
+    name: 'Professional Grooming Kit',
+    type: 'Accessory',
+    rarity: RARITY_TYPES.EPIC,
+    description: 'Bộ dụng cụ chăm sóc chuyên nghiệp giúp thú cưng luôn sạch sẽ',
+    stats: { hygieneBoost: 300, beautyBoost: 150 },
+    price: 15000,
+    quantity: 45
+}, {
+    id: 8,
+    name: 'Interactive Puzzle Toy',
+    type: 'Toy',
+    rarity: RARITY_TYPES.RARE,
+    description: 'Đồ chơi giúp phát triển trí tuệ cho thú cưng',
+    stats: { intelligenceBoost: 200, happinessBoost: 100 },
+    price: 5000,
+    quantity: 120
+}, {
+    id: 9,
+    name: 'Vitamin Supplements',
+    type: 'Medicine',
+    rarity: RARITY_TYPES.UNCOMMON,
+    description: 'Viên vitamin tăng cường sức khỏe tổng thể',
+    stats: { healthBoost: 150, immunityBoost: 75 },
+    price: 800,
+    quantity: 200
+}, {
+    id: 10,
+    name: 'Catnip Treats',
+    type: 'Food',
+    rarity: RARITY_TYPES.RARE,
+    description: 'Bánh thưởng đặc biệt khiến thú cưng phấn khích',
+    stats: { happinessBoost: 250, energyBoost: 100 },
+    price: 2500,
+    quantity: 80
+}, {
+    id: 11,
+    name: 'Pet Shampoo',
+    type: 'Consumable',
+    rarity: RARITY_TYPES.COMMON,
+    description: 'Dầu gội chuyên dụng cho thú cưng',
+    stats: { cleanlinessBoost: 100 },
+    price: 150,
+    quantity: 500
+}, {
+    id: 12,
+    name: 'Healing Herbs',
+    type: 'Material',
+    rarity: RARITY_TYPES.UNCOMMON,
+    description: 'Thảo dược thiên nhiên có tác dụng chữa lành',
+    stats: { healingPower: 80 },
+    price: 300,
+    quantity: 250
+}, {
+    id: 13,
+    name: 'Diamond Collar',
+    type: 'Accessory',
+    rarity: RARITY_TYPES.LEGENDARY,
+    description: 'Vòng cổ kim cương sang trọng tăng danh tiếng',
+    stats: { prestigeBoost: 500, beautyBoost: 300 },
+    price: 50000,
+    quantity: 5
+}, {
+    id: 14,
+    name: 'Comfort Blanket',
+    type: 'Accessory',
+    rarity: RARITY_TYPES.COMMON,
+    description: 'Chăn ấm giúp thú cưng cảm thấy an toàn',
+    stats: { comfortBoost: 80, stressReduction: 50 },
+    price: 400,
+    quantity: 300
+}, {
+    id: 15,
+    name: 'Exercise Wheel',
+    type: 'Toy',
+    rarity: RARITY_TYPES.UNCOMMON,
+    description: 'Bánh xe tập thể dục giúp thú cưng khỏe mạnh',
+    stats: { fitnessBoost: 150, energyBoost: 75 },
+    price: 1200,
+    quantity: 90
+}, {
+    id: 16,
+    name: 'Antibiotics',
+    type: 'Medicine',
+    rarity: RARITY_TYPES.RARE,
+    description: 'Thuốc kháng sinh chữa trị bệnh tật',
+    stats: { diseaseResistance: 400, healthRestore: 200 },
+    price: 3000,
+    quantity: 60
+}, {
+    id: 17,
+    name: 'Dragon Scale Essence',
+    type: 'Material',
+    rarity: RARITY_TYPES.MYTHIC,
+    description: 'Tinh chất vảy rồng hiếm có, tăng sức mạnh đặc biệt',
+    stats: { powerBoost: 1000, magicResistance: 500 },
+    price: 200000,
+    quantity: 2
+}, {
+    id: 18,
+    name: 'Feather Toy',
+    type: 'Toy',
+    rarity: RARITY_TYPES.COMMON,
+    description: 'Đồ chơi lông vũ đơn giản nhưng hiệu quả',
+    stats: { agilityBoost: 50, happinessBoost: 40 },
+    price: 50,
+    quantity: 800
 }
 ]
 

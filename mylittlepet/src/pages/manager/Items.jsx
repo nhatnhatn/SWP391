@@ -59,51 +59,54 @@ export default function Items() {
     const closeModal = () => {
         setShowModal(false);
         setSelectedItem(null);
-    }; const getTypeIcon = (type) => {
+    };    const getTypeIcon = (type) => {
         switch (type.toLowerCase()) {
-            case 'weapon':
-                return '⚔️';
-            case 'armor':
-                return '🛡️';
-            case 'consumable':
-                return '🧪';
             case 'food':
                 return '🍞';
+            case 'toy':
+                return '🧸';
+            case 'medicine':
+                return '💊';
             case 'accessory':
                 return '💍';
+            case 'consumable':
+                return '🧪';
+            case 'material':
+                return '⚗️';
             default:
                 return '📦';
         }
-    };
-
-    const getTypeColor = (type) => {
+    };    const getTypeColor = (type) => {
         switch (type.toLowerCase()) {
-            case 'weapon':
-                return 'bg-red-100 text-red-800 border-red-200';
-            case 'armor':
-                return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'consumable':
-                return 'bg-green-100 text-green-800 border-green-200';
             case 'food':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'toy':
+                return 'bg-pink-100 text-pink-800 border-pink-200';
+            case 'medicine':
+                return 'bg-green-100 text-green-800 border-green-200';
             case 'accessory':
-                return 'bg-purple-100 text-purple-800 border-purple-200'; default:
+                return 'bg-purple-100 text-purple-800 border-purple-200';
+            case 'consumable':
+                return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'material':
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+            default:
                 return 'bg-gray-100 text-gray-800 border-gray-200';
         }
-    };
-
-    const getTypeIconBg = (type) => {
+    };    const getTypeIconBg = (type) => {
         switch (type.toLowerCase()) {
-            case 'weapon':
-                return 'bg-red-200';
-            case 'armor':
-                return 'bg-blue-200';
-            case 'consumable':
-                return 'bg-green-200';
             case 'food':
                 return 'bg-yellow-200';
+            case 'toy':
+                return 'bg-pink-200';
+            case 'medicine':
+                return 'bg-green-200';
             case 'accessory':
                 return 'bg-purple-200';
+            case 'consumable':
+                return 'bg-blue-200';
+            case 'material':
+                return 'bg-gray-200';
             default:
                 return 'bg-gray-200';
         }
@@ -397,10 +400,9 @@ export default function Items() {
     );
 }
 
-function ItemModal({ item, onClose, onSave }) {
-    const [formData, setFormData] = useState({
+function ItemModal({ item, onClose, onSave }) {    const [formData, setFormData] = useState({
         name: item?.name || '',
-        type: item?.type || 'Weapon',
+        type: item?.type || 'Food',
         rarity: item?.rarity || RARITY_TYPES.COMMON,
         description: item?.description || '',
         price: item?.price || 0,
@@ -461,12 +463,13 @@ function ItemModal({ item, onClose, onSave }) {
                             <select
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={formData.type}
-                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                            >
-                                <option value="Weapon">{t('itemTypes.weapon')}</option>
-                                <option value="Armor">{t('itemTypes.armor')}</option>                                <option value="Consumable">{t('itemTypes.consumable')}</option>
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}                            >
                                 <option value="Food">{t('itemTypes.food')}</option>
+                                <option value="Toy">{t('itemTypes.toy')}</option>
+                                <option value="Medicine">{t('itemTypes.medicine')}</option>
                                 <option value="Accessory">{t('itemTypes.accessory')}</option>
+                                <option value="Consumable">{t('itemTypes.consumable')}</option>
+                                <option value="Material">{t('itemTypes.material')}</option>
                             </select>
                         </div>
 

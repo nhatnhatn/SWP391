@@ -137,7 +137,7 @@ export const VIETNAMESE_TRANSLATIONS = {
         allRarities: 'Tất Cả Độ Hiếm',
         allTypes: 'Tất Cả Loại',
         selectOwner: 'Chọn Chủ Sở Hữu',
-        abilities: 'Kỹ năng',        addAbility: 'Thêm',
+        abilities: 'Kỹ năng', addAbility: 'Thêm',
         addAbilityPlaceholder: 'Thêm kỹ năng...',
         hp: 'HP',
         noPetsFound: 'Không tìm thấy thú cưng',
@@ -162,15 +162,14 @@ export const VIETNAMESE_TRANSLATIONS = {
         noItemsFound: 'Không tìm thấy vật phẩm',
         noItemsFoundMessage: 'Không có vật phẩm nào phù hợp với tiêu chí lọc hiện tại.',
         confirmDelete: 'Bạn có chắc chắn muốn xóa vật phẩm này không?'
-    },
-
-    // Item Types
+    },    // Item Types
     itemTypes: {
-        weapon: 'Vũ khí',
-        armor: 'Giáp',
-        consumable: 'Tiêu hao',
         food: 'Thức ăn',
-        accessory: 'Phụ kiện'
+        toy: 'Đồ chơi', 
+        medicine: 'Thuốc',
+        accessory: 'Phụ kiện',
+        consumable: 'Tiêu hao',
+        material: 'Nguyên liệu'
     },
 
     // Rarity

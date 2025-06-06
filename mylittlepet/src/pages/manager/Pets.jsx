@@ -304,7 +304,8 @@ export default function Pets() {
     );
 }
 
-function PetModal({ pet, onClose, onSave }) {    const [formData, setFormData] = useState({
+function PetModal({ pet, onClose, onSave }) {
+    const [formData, setFormData] = useState({
         name: pet?.name || '',
         type: pet?.type || '',
         rarity: pet?.rarity || RARITY_TYPES.COMMON,

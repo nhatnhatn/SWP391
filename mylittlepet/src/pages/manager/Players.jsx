@@ -5,25 +5,26 @@ import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../u
 import { t } from '../../constants/vietnamese';
 
 // Helper functions for item type display
-//Note to delete 
 const getTypeIcon = (type) => {
     switch (type.toLowerCase()) {
-        case 'weapon': return '⚔️';
-        case 'armor': return '🛡️';
-        case 'consumable': return '🧪';
         case 'food': return '🍞';
+        case 'toy': return '🧸';
+        case 'medicine': return '💊';
         case 'accessory': return '💍';
+        case 'consumable': return '🧪';
+        case 'material': return '⚗️';
         default: return '📦';
     }
 };
 
 const getTypeColor = (type) => {
     switch (type.toLowerCase()) {
-        case 'weapon': return 'bg-red-100 text-red-800';
-        case 'armor': return 'bg-blue-100 text-blue-800';
-        case 'consumable': return 'bg-green-100 text-green-800';
         case 'food': return 'bg-yellow-100 text-yellow-800';
+        case 'toy': return 'bg-pink-100 text-pink-800';
+        case 'medicine': return 'bg-green-100 text-green-800';
         case 'accessory': return 'bg-purple-100 text-purple-800';
+        case 'consumable': return 'bg-blue-100 text-blue-800';
+        case 'material': return 'bg-gray-100 text-gray-800';
         default: return 'bg-gray-100 text-gray-800';
     }
 };
