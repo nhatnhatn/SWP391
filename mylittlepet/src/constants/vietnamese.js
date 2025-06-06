@@ -165,7 +165,7 @@ export const VIETNAMESE_TRANSLATIONS = {
     },    // Item Types
     itemTypes: {
         food: 'Thức ăn',
-        toy: 'Đồ chơi', 
+        toy: 'Đồ chơi',
         medicine: 'Thuốc',
         accessory: 'Phụ kiện',
         consumable: 'Tiêu hao',
@@ -241,6 +241,47 @@ export const VIETNAMESE_TRANSLATIONS = {
         filter: 'Lọc',
         sort: 'Sắp xếp',
         resetFilter: 'Đặt lại bộ lọc'
+    },
+
+    // Pet Care Abilities
+    abilities: {
+        warmBreath: 'Hơi Thở Ấm Áp',
+        protectiveRoar: 'Tiếng Gầm Bảo Vệ',
+        healingScales: 'Vảy Rồng Chữa Lành',
+        energyRecovery: 'Hồi Phục Năng Lượng',
+        brightCrystalWings: 'Cánh Pha Lê Sáng',
+        healingFire: 'Lửa Chữa Lành',
+        gentleCaress: 'Vỗ Về Dịu Dàng',
+        protectAllies: 'Bảo Vệ Đồng Đội',
+        nightVision: 'Tầm Nhìn Ban Đêm',
+        giftGems: 'Tặng Đá Quý',
+        gentleShaking: 'Rung Lắc Nhẹ Nhàng',
+        protectiveArmor: 'Giáp Bảo Vệ',
+        coolWater: 'Tưới Nước Mát',
+        healing: 'Hồi Máu',
+        comfortingMist: 'Sương Mù Dễ Chịu',
+        joyfulJump: 'Nhảy Vui Vẻ',
+        cuteTickle: 'Cù Lét Dễ Thương',
+        celestialDance: 'Nhảy Múa Thiên Thể',
+        starHealing: 'Ánh Sao Chữa Lành',
+        protectiveRoar2: 'Tiếng Gầm Bảo Vệ',
+        gentleCooling: 'Làm Mát Dịu Dàng',
+        protectiveIceShield: 'Khiên Băng Bảo Vệ',
+        cuteCurl: 'Cuộn Tròn Dễ Thương',
+        gracefulFlight: 'Bay Lượn Uyển Chuyển',
+        melodiousSong: 'Hót Véo Von',
+        gentleWingFlap: 'Cánh Đập Nhẹ Nhàng',
+        healingAura: 'Hào Quang Hồi Máu',
+        rainbow: 'Tia Cầu Vồng',
+        purification: 'Thanh Tẩy',
+        protectiveMagicShield: 'Khiên Phép Thuật Bảo Vệ',
+        comfortableWarmth: 'Hơi Ấm Dễ Chịu',
+        warmHeatWave: 'Sóng Nhiệt Ấm Áp',
+        coldResistance: 'Kháng Lạnh',
+        gentleStep: 'Bước Nhẹ Nhàng',
+        connectionPortal: 'Cổng Kết Nối',
+        warmEnergy: 'Năng Lượng Ấm Áp',
+        joyfulTeleport: 'Dịch Chuyển Vui Vẻ'
     },
 
     // Time and Date

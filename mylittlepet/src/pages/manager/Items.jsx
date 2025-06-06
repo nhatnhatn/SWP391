@@ -59,7 +59,7 @@ export default function Items() {
     const closeModal = () => {
         setShowModal(false);
         setSelectedItem(null);
-    };    const getTypeIcon = (type) => {
+    }; const getTypeIcon = (type) => {
         switch (type.toLowerCase()) {
             case 'food':
                 return '🍞';
@@ -76,7 +76,7 @@ export default function Items() {
             default:
                 return '📦';
         }
-    };    const getTypeColor = (type) => {
+    }; const getTypeColor = (type) => {
         switch (type.toLowerCase()) {
             case 'food':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -93,7 +93,7 @@ export default function Items() {
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-200';
         }
-    };    const getTypeIconBg = (type) => {
+    }; const getTypeIconBg = (type) => {
         switch (type.toLowerCase()) {
             case 'food':
                 return 'bg-yellow-200';
@@ -400,7 +400,8 @@ export default function Items() {
     );
 }
 
-function ItemModal({ item, onClose, onSave }) {    const [formData, setFormData] = useState({
+function ItemModal({ item, onClose, onSave }) {
+    const [formData, setFormData] = useState({
         name: item?.name || '',
         type: item?.type || 'Food',
         rarity: item?.rarity || RARITY_TYPES.COMMON,
