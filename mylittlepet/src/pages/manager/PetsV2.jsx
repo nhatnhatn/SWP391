@@ -517,8 +517,8 @@ export default function PetsV2() {
                                             key={page}
                                             onClick={() => goToPage(page)}
                                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${isActive
-                                                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                 }`}
                                         >
                                             {page}

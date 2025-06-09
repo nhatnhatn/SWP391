@@ -194,14 +194,13 @@ export default function Players() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">🎮 {t.players.title}</h1>
-                    <p className="text-gray-600 mt-1">
-                        Tổng cộng {pagination.totalElements} người chơi
-                        {searchTerm && ` • Kết quả tìm kiếm cho "${searchTerm}"`}
-                    </p>
-                </div>
+            <div className="flex justify-between items-center">                <div>
+                <h1 className="text-2xl font-bold text-gray-900">🎮 {t('players.title')}</h1>
+                <p className="text-gray-600 mt-1">
+                    Tổng cộng {pagination.totalElements} người chơi
+                    {searchTerm && ` • Kết quả tìm kiếm cho "${searchTerm}"`}
+                </p>
+            </div>
                 <button
                     onClick={refresh}
                     disabled={loading}
@@ -364,8 +363,8 @@ export default function Players() {
                                             <button
                                                 onClick={() => handleBanToggle(player.id)}
                                                 className={`p-1 rounded transition-colors ${player.status === 'Banned'
-                                                        ? 'text-green-600 hover:text-green-900 hover:bg-green-100'
-                                                        : 'text-red-600 hover:text-red-900 hover:bg-red-100'
+                                                    ? 'text-green-600 hover:text-green-900 hover:bg-green-100'
+                                                    : 'text-red-600 hover:text-red-900 hover:bg-red-100'
                                                     }`}
                                                 title={player.status === 'Banned' ? 'Bỏ cấm' : 'Cấm người dùng'}
                                             >
@@ -438,8 +437,8 @@ export default function Players() {
                                             key={page}
                                             onClick={() => goToPage(page)}
                                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${isActive
-                                                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                 }`}
                                         >
                                             {page}

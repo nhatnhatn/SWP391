@@ -2,7 +2,7 @@
 // This component monitors the backend connection status and provides user feedback
 
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
+import apiService from '../services/api';
 
 const ConnectionStatus = () => {
     const [connectionStatus, setConnectionStatus] = useState('checking'); // 'checking', 'connected', 'disconnected'
