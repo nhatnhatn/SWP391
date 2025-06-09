@@ -1,7 +1,7 @@
 // API service layer for communicating with Spring Boot backend
 // This service handles all HTTP requests to the backend API
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 class ApiService {
     constructor() {
@@ -42,9 +42,18 @@ class ApiService {
                 throw new Error(data.message || data || `HTTP ${response.status}`);
             }
 
-            return data;
-        } catch (error) {
+            return data;        } catch (error) {
             console.error(`API request failed: ${endpoint}`, error);
+            
+            // Handle different types of network errors
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra xem backend có đang chạy không (cổng 8080).');
+            } else if (error.name === 'AbortError') {
+                throw new Error('Yêu cầu đã bị hủy do quá thời gian chờ.');
+            } else if (error.message.includes('NetworkError')) {
+                throw new Error('Lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn.');
+            }
+            
             throw error;
         }
     }

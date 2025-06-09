@@ -12,312 +12,345 @@ This guide demonstrates how the React frontend integrates with the Spring Boot b
 - **Authentication**: JWT tokens
 - **Database**: MySQL with Vietnamese sample data
 
-### Frontend (React)
+### Frontend (React + Vite)
 - **Location**: `e:\Assignment\SWP391\mylittlepet\`
-- **Port**: `3000`
+- **Port**: `5173` (Vite development server)
 - **API Client**: Custom service layer
 - **State Management**: React hooks + context
 
-## 📁 New Integration Files Created
+## 📁 Integration Files Overview
 
-### 1. API Service Layer
+### Core Integration Layer
 ```
 src/services/
 ├── api.js                 # HTTP client for backend communication
 └── dataService.js         # Business logic layer with data transformation
-```
 
-### 2. React Hooks
-```
 src/hooks/
-└── useData.js             # Custom hooks for data management
-```
+└── useData.js             # Custom hooks (usePlayers, usePets, useItems)
 
-### 3. Updated Authentication
-```
 src/contexts/
 └── AuthContextV2.jsx      # Enhanced auth with backend integration
 ```
 
-### 4. Environment Configuration
+### Updated Components (Backend Integrated)
+```
+src/pages/manager/
+├── PlayersV2.jsx         # Players management with backend integration
+├── PetsV2.jsx            # Pets management with pet care actions
+└── ItemsV2.jsx           # Items management with shop functionality
+```
+
+### Configuration Files
 ```
 .env.development           # Development API settings
 .env.production           # Production API settings
 ```
 
-### 5. Example Updated Component
-```
-src/pages/manager/
-└── PlayersV2.jsx         # Players component with backend integration
-```
+## 🚀 Quick Start
 
-## 🚀 Step-by-Step Integration Process
-
-### Step 1: Start Backend Server
-
+### 1. Start Backend (Spring Boot)
 ```bash
 cd e:\Assignment\SWP391\mylittlepet_api
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-Backend will start on `http://localhost:8080`
-
-### Step 2: Update Frontend Dependencies
-
+### 2. Start Frontend (React + Vite)
 ```bash
 cd e:\Assignment\SWP391\mylittlepet
-npm install
+npm run dev
 ```
 
-### Step 3: Replace Authentication Context
+### 3. Open Application
+Navigate to: `http://localhost:5173`
 
-Update your main App.jsx to use the new authentication:
+## 🧪 Testing the Integration
 
-```jsx
-// Old import
-// import { AuthProvider } from './contexts/AuthContext';
+### Automated Integration Tests
 
-// New import
-import { AuthProvider } from './contexts/AuthContextV2';
-```
-
-### Step 4: Update Components to Use New Data Service
-
-Replace mock data imports with the new data service:
-
-```jsx
-// Old way
-import { mockPlayers } from '../../data/mockData';
-const [players, setPlayers] = useState(mockPlayers);
-
-// New way
-import { usePlayers } from '../../hooks/useData';
-const { players, loading, error, fetchPlayers } = usePlayers();
-```
-
-### Step 5: Test Integration
-
-1. **Login Flow**:
-   - Try backend authentication first
-   - Falls back to local auth if backend unavailable
-   - JWT tokens stored automatically
-
-2. **Data Loading**:
-   - Real-time data from MySQL database
-   - Automatic caching with 5-minute timeout
-   - Error handling with fallback data
-
-3. **CRUD Operations**:
-   - Create, read, update, delete operations
-   - Vietnamese error messages
-   - Optimistic updates with rollback
-
-## 🔧 Configuration Options
-
-### Environment Variables
+We've included a comprehensive test script to verify the integration:
 
 ```bash
-# Development (.env.development)
-REACT_APP_API_URL=http://localhost:8080/api
-REACT_APP_ENABLE_MOCK_DATA=false
-REACT_APP_ENABLE_CACHE=true
-
-# Production (.env.production)
-REACT_APP_API_URL=https://api.mylittlepet.com/api
-REACT_APP_ENABLE_MOCK_DATA=false
+cd e:\Assignment\SWP391
+node test-integration.js
 ```
 
-### API Service Configuration
+This script tests:
+- ✅ Backend API health and endpoints
+- ✅ Authentication system
+- ✅ CORS configuration
+- ✅ Frontend loading
+- ✅ Data flow between frontend and backend
+
+### Manual Testing Checklist
+
+#### 1. Authentication Flow
+- [ ] Navigate to login page (`/login`)
+- [ ] Try invalid credentials (should show error)
+- [ ] Login with valid credentials (check `Application.java` for demo users)
+- [ ] Verify JWT token is stored and used for requests
+- [ ] Test automatic logout on token expiry
+
+#### 2. Players Management
+- [ ] Navigate to Players page (`/players`)
+- [ ] Verify real data loads from backend
+- [ ] Test search functionality with Vietnamese text
+- [ ] Test pagination controls
+- [ ] Test player status filtering
+- [ ] Verify player details expansion works
+
+#### 3. Pets Management  
+- [ ] Navigate to Pets page (`/pets`)
+- [ ] Verify pets load with proper Vietnamese pet types
+- [ ] Test pet care actions (feed, play, rest, heal)
+- [ ] Test creating new pets
+- [ ] Test editing existing pets
+- [ ] Verify pet stats and abilities are displayed correctly
+
+#### 4. Items Management
+- [ ] Navigate to Items page (`/items`)
+- [ ] Verify items load with Vietnamese item types
+- [ ] Test item purchase functionality
+- [ ] Test creating new items with effects
+- [ ] Test editing existing items
+- [ ] Verify shop functionality works correctly
+
+#### 5. Error Handling
+- [ ] Disconnect backend and verify graceful fallback
+- [ ] Test network error scenarios
+- [ ] Verify Vietnamese error messages are displayed
+- [ ] Test loading states and skeleton screens
+
+## 🔧 Technical Implementation Details
+
+### API Integration Pattern
+
+The integration follows a 3-layer architecture:
 
 ```javascript
-// Customize timeout and retry settings
-const apiService = new ApiService({
-    baseURL: process.env.REACT_APP_API_URL,
-    timeout: 30000,
-    retries: 3
+// 1. HTTP Client Layer (api.js)
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_URL,
+  headers: { 'Content-Type': 'application/json' }
 });
-```
 
-## 📊 Data Flow Examples
+// 2. Data Service Layer (dataService.js)
+export const playerService = {
+  async getPlayers(params) {
+    const response = await apiClient.get('/users', { params });
+    return transformPlayersResponse(response.data);
+  }
+};
 
-### 1. Player Management Flow
-
-```
-Frontend Component → usePlayer Hook → DataService → API Service → Spring Boot → MySQL
-                                                                        ↓
-Frontend UI ← Transformed Data ← Data Transformation ← JSON Response ← JPA Entities
-```
-
-### 2. Pet Care Action Flow
-
-```
-User Action (Feed Pet) → usePets.feedPet() → dataService.feedPet() → apiService.feedPet()
-                                                                           ↓
-Backend PetController.feedPet() → PetService.feedPet() → Update Database
-                                                              ↓
-Return Updated Pet Data → Transform to DTO → JSON Response → Update Frontend State
-```
-
-### 3. Authentication Flow
-
-```
-Login Form → AuthContext.login() → apiService.login() → AuthController.login()
-                                                              ↓
-JWT Token Generation ← AuthService.login() ← User Validation ← Database Check
-            ↓
-Store Token + User Data → Update UI State → Enable Protected Routes
-```
-
-## 🎯 Integration Benefits
-
-### 1. **Real-time Data**
-- Live data from MySQL database
-- Vietnamese sample data automatically seeded
-- No more mock data limitations
-
-### 2. **Robust Error Handling**
-- Graceful fallback to cached/mock data
-- Vietnamese error messages
-- Network failure resilience
-
-### 3. **Performance Optimization**
-- Intelligent caching system
-- Pagination for large datasets
-- Optimistic UI updates
-
-### 4. **Security**
-- JWT-based authentication
-- Role-based access control
-- CORS protection
-
-### 5. **Vietnamese Localization**
-- Backend returns Vietnamese content
-- Error messages in Vietnamese
-- Proper date/time formatting
-
-## 🧪 Testing Integration
-
-### 1. Test Backend Connectivity
-
-```javascript
-// Check if backend is running
-import apiService from './services/api';
-
-apiService.healthCheck()
-    .then(() => console.log('✅ Backend connected'))
-    .catch(() => console.log('❌ Backend unavailable'));
-```
-
-### 2. Test Authentication
-
-```javascript
-// Test login flow
-const { login } = useAuth();
-
-const testLogin = async () => {
-    try {
-        const result = await login('admin@mylittlepet.com', 'admin123');
-        if (result.success) {
-            console.log('✅ Authentication successful');
-        }
-    } catch (error) {
-        console.log('❌ Authentication failed:', error.message);
-    }
+// 3. React Hook Layer (useData.js)
+export const usePlayers = () => {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  // ... implementation
 };
 ```
 
-### 3. Test Data Operations
+### Authentication Integration
+
+The authentication system tries backend first, then falls back to local storage:
 
 ```javascript
-// Test data loading
-const { players, loading, error } = usePlayers();
-
-useEffect(() => {
-    if (!loading && !error && players.length > 0) {
-        console.log('✅ Players loaded:', players.length);
-    } else if (error) {
-        console.log('❌ Error loading players:', error);
+const login = async (email, password) => {
+  try {
+    // Try backend authentication
+    const response = await authService.login(email, password);
+    if (response.token) {
+      setUser(response.user);
+      setToken(response.token);
+      return response;
     }
-}, [players, loading, error]);
+  } catch (error) {
+    // Fallback to local authentication
+    return localAuthFallback(email, password);
+  }
+};
 ```
 
-## 🔄 Migration Strategy
+### Data Transformation
 
-### Phase 1: Parallel Implementation
-1. Keep existing mock data system
-2. Add new backend integration
-3. Use feature flags to switch between systems
+Vietnamese data is properly transformed between backend DTOs and frontend models:
 
-### Phase 2: Gradual Migration
-1. Migrate one component at a time
-2. Test thoroughly before moving to next component
-3. Keep fallback mechanisms
-
-### Phase 3: Full Migration
-1. Remove mock data dependencies
-2. Remove feature flags
-3. Optimize performance
+```javascript
+const transformPetResponse = (backendPet) => ({
+  id: backendPet.id,
+  name: backendPet.name,
+  type: backendPet.petType,
+  level: backendPet.level,
+  happiness: backendPet.happiness,
+  health: backendPet.health,
+  energy: backendPet.energy,
+  // Transform Vietnamese pet care abilities
+  abilities: backendPet.abilities?.map(transformAbility) || []
+});
+```
 
 ## 🛠️ Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-1. **CORS Errors**
+#### ❌ Backend Connection Failed
+**Symptoms**: "Network Error" or "Connection refused"
+**Solutions**:
+1. Verify backend is running on port 8080
+2. Check if MySQL database is running
+3. Verify CORS configuration allows frontend origin
+4. Check `.env.development` has correct API URL
+
+#### ❌ Authentication Issues
+**Symptoms**: "Unauthorized" errors or infinite login loops
+**Solutions**:
+1. Clear browser local storage and cookies
+2. Verify JWT token format and expiry
+3. Check backend authentication endpoints
+4. Verify user exists in database
+
+#### ❌ Vietnamese Text Display Issues
+**Symptoms**: Broken characters or missing translations
+**Solutions**:
+1. Verify UTF-8 encoding in all files
+2. Check `vietnamese.js` contains all required translations
+3. Verify database collation supports Vietnamese characters
+4. Check API response encoding
+
+#### ❌ CORS Errors
+**Symptoms**: "Access to fetch blocked by CORS policy"
+**Solutions**:
+1. Add frontend URL to backend CORS configuration
+2. Verify `@CrossOrigin` annotations on controllers
+3. Check security configuration allows preflight requests
+
+#### ❌ Build/Compilation Errors
+**Symptoms**: Import/export errors or TypeScript issues
+**Solutions**:
+1. Verify all file paths are correct
+2. Check imports use correct file extensions
+3. Clear node_modules and reinstall: `npm ci`
+4. Verify all dependencies are installed
+
+### Environment Setup Issues
+
+#### Backend Requirements
+- Java 11+ installed
+- Maven 3.6+ installed
+- MySQL 8.0+ running
+- Port 8080 available
+
+#### Frontend Requirements  
+- Node.js 16+ installed
+- npm 7+ installed
+- Port 5173 available (Vite default)
+
+### Development Tips
+
+#### Hot Reload Issues
+If changes aren't reflecting:
+1. Restart Vite development server
+2. Clear browser cache (Ctrl+Shift+R)
+3. Check for syntax errors in console
+
+#### API Testing
+Use tools like Postman or curl to test backend endpoints:
+```bash
+# Test users endpoint
+curl -X GET http://localhost:8080/api/users
+
+# Test authentication
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@mylittlepet.com","password":"admin123"}'
+```
+
+#### Database Issues
+If data isn't loading:
+1. Check MySQL connection settings in `application.properties`
+2. Verify database and tables exist
+3. Check if sample data was seeded properly
+4. Look for foreign key constraint issues
+
+## 📊 Performance Optimization
+
+### Caching Strategy
+The integration includes intelligent caching:
+- 5-minute cache timeout for static data
+- Automatic cache invalidation on mutations
+- Optimistic updates for better UX
+
+### Pagination
+All list views support server-side pagination:
+- Configurable page sizes
+- Efficient data loading
+- Search and filter preservation
+
+### Error Recovery
+Robust error handling includes:
+- Automatic retry on network failures
+- Graceful degradation to cached data
+- User-friendly Vietnamese error messages
+
+## 🔄 Development Workflow
+
+### Making Changes
+
+1. **Backend Changes**:
    ```bash
-   # Backend CORS is configured for http://localhost:3000
-   # Make sure frontend runs on correct port
-   npm start
+   cd mylittlepet_api
+   mvn spring-boot:run
+   # Backend auto-reloads on Java file changes
    ```
 
-2. **Authentication Issues**
-   ```javascript
-   // Clear invalid tokens
-   localStorage.removeItem('authToken');
-   localStorage.removeItem('adminUser');
-   ```
-
-3. **Database Connection**
+2. **Frontend Changes**:
    ```bash
-   # Check MySQL is running and database exists
-   mysql -u root -p
-   USE mylittlepet_db;
-   SHOW TABLES;
+   cd mylittlepet
+   npm run dev
+   # Vite provides instant hot module replacement
    ```
 
-4. **API Endpoints**
-   ```bash
-   # Test backend endpoints directly
-   curl http://localhost:8080/api/health
-   curl http://localhost:8080/api/docs
-   ```
+3. **Database Changes**:
+   - Update entity classes
+   - Run migrations or restart with `spring.jpa.hibernate.ddl-auto=create-drop`
+   - Verify sample data is seeded correctly
 
-## 📈 Performance Monitoring
+### Testing Changes
 
-### Frontend Metrics
-- API response times
-- Cache hit rates
-- Error rates
-- User interaction latency
+1. Run the integration test script
+2. Manually test affected functionality
+3. Check browser console for errors
+4. Verify Vietnamese localization works correctly
 
-### Backend Metrics
-- Database query performance
-- JWT token validation time
-- Memory usage
-- Request throughput
+## 📝 Next Steps
 
-## 🎉 Next Steps
+### Production Deployment
+1. Build frontend for production: `npm run build`
+2. Configure production API URLs
+3. Set up proper database with persistent data
+4. Configure reverse proxy (nginx) for serving
+5. Set up SSL certificates for HTTPS
 
-1. **Testing**: Add comprehensive integration tests
-2. **Monitoring**: Implement error tracking and analytics
-3. **Optimization**: Add performance monitoring
-4. **Deployment**: Set up production environment
-5. **Documentation**: Create user guide for Vietnamese features
+### Additional Features
+- Real-time updates with WebSockets
+- Advanced search and filtering
+- Export/import functionality
+- Advanced pet care simulation
+- Achievement system integration
+
+## 🆘 Getting Help
+
+If you encounter issues:
+1. Check this troubleshooting guide
+2. Review browser console errors
+3. Check backend logs for errors
+4. Test API endpoints directly
+5. Verify environment configuration
 
 ---
 
 **Integration Status**: ✅ Complete
-**Backend-Frontend Communication**: ✅ Functional
-**Vietnamese Localization**: ✅ Implemented
-**Authentication**: ✅ JWT-based
-**Data Operations**: ✅ Full CRUD support
-**Error Handling**: ✅ Robust fallbacks
+**Components Integrated**: Players, Pets, Items
+**Authentication**: JWT + Local Fallback
+**Database**: MySQL with Vietnamese Sample Data
+**Testing**: Automated + Manual Test Suites Available
