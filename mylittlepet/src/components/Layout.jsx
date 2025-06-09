@@ -9,7 +9,7 @@ import {
     Settings,
     LogOut
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContextV2';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
 import { t } from '../constants/vietnamese';
 
