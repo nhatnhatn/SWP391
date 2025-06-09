@@ -1,0 +1,23 @@
+{
+    "name": "mylittlepet-integration-tests",
+    "version": "1.0.0",
+    "description": "Integration tests for My Little Pet Vietnamese Management System",
+    "main": "test-integration.js",
+    "scripts": {
+        "test": "node test-integration.js",
+        "test:backend": "node test-integration.js --backend-only",
+        "test:frontend": "node test-integration.js --frontend-only"
+    },
+    "dependencies": {
+        "axios": "^1.6.0"
+    },
+    "keywords": [
+        "integration",
+        "testing",
+        "vietnamese",
+        "pet",
+        "management"
+    ],
+    "author": "My Little Pet Team",
+    "license": "MIT"
+}
