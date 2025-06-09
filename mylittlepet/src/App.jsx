@@ -15,7 +15,9 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <Router>
-          <Routes>            <Route path="/login" element={<Login />} />
+          <ConnectionStatus />
+          <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/*" element={
               <ProtectedRoute>
