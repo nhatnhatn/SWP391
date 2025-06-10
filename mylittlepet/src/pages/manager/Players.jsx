@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Edit2, Ban, CheckCircle, X, User, Mail, Heart, Trophy, ChevronUp, ChevronDown, Package, Star, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { mockPlayers } from '../../data/mockData';
-import { formatDate, formatTimeAgo, getStatusColor, formatNumber } from '../../utils/helpers';
+import { formatDate, getStatusColor, formatNumber } from '../../utils/helpers';
 import { t } from '../../constants/vietnamese';
 
 // Helper functions for item type display

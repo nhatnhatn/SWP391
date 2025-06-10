@@ -39,7 +39,10 @@ let players = [
         joinDate: '2024-01-15',
         level: 15,
         coins: 2500,
-        status: 'active'
+        status: 'active',
+        totalPets: 8,
+        totalItems: 45,
+        totalAchievements: 12
     },
     {
         id: 2,
@@ -48,7 +51,10 @@ let players = [
         joinDate: '2024-02-20',
         level: 12,
         coins: 1800,
-        status: 'active'
+        status: 'active',
+        totalPets: 5,
+        totalItems: 28,
+        totalAchievements: 8
     },
     {
         id: 3,
@@ -57,7 +63,10 @@ let players = [
         joinDate: '2024-03-10',
         level: 8,
         coins: 1200,
-        status: 'inactive'
+        status: 'inactive',
+        totalPets: 3,
+        totalItems: 15,
+        totalAchievements: 4
     }
 ];
 
@@ -109,7 +118,10 @@ let items = [
         name: 'Thức ăn cho chó',
         description: 'Thức ăn chất lượng cao cho chó',
         category: 'food',
+        type: 'Food',
+        rarity: 'common',
         price: 150,
+        quantity: 50,
         stock: 50,
         image: '/images/dog-food.jpg'
     },
@@ -118,7 +130,10 @@ let items = [
         name: 'Đồ chơi bóng',
         description: 'Bóng cao su cho thú cưng',
         category: 'toy',
+        type: 'Toy',
+        rarity: 'common',
         price: 75,
+        quantity: 30,
         stock: 30,
         image: '/images/ball-toy.jpg'
     },
@@ -127,9 +142,48 @@ let items = [
         name: 'Thuốc vitamin',
         description: 'Vitamin tổng hợp cho thú cưng',
         category: 'medicine',
+        type: 'Medicine',
+        rarity: 'uncommon',
         price: 200,
+        quantity: 25,
         stock: 25,
         image: '/images/vitamins.jpg'
+    },
+    {
+        id: 4,
+        name: 'Thức ăn cao cấp',
+        description: 'Thức ăn premium cho thú cưng',
+        category: 'food',
+        type: 'Food',
+        rarity: 'rare',
+        price: 500,
+        quantity: 15,
+        stock: 15,
+        image: '/images/premium-food.jpg'
+    },
+    {
+        id: 5,
+        name: 'Đồ chơi thông minh',
+        description: 'Đồ chơi tương tác giúp phát triển trí tuệ',
+        category: 'toy',
+        type: 'Toy',
+        rarity: 'epic',
+        price: 1200,
+        quantity: 8,
+        stock: 8,
+        image: '/images/smart-toy.jpg'
+    },
+    {
+        id: 6,
+        name: 'Thuốc hồi phục',
+        description: 'Thuốc hồi phục sức khỏe nhanh chóng',
+        category: 'medicine',
+        type: 'Medicine',
+        rarity: 'legendary',
+        price: 2500,
+        quantity: 3,
+        stock: 3,
+        image: '/images/healing-potion.jpg'
     }
 ];
 
@@ -248,6 +302,209 @@ app.post('/api/auth/register', (req, res) => {
     });
 });
 
+// Users endpoints (what the frontend expects)
+app.get('/api/users/paginated', verifyToken, (req, res) => {
+    const { page = 0, size = 10, search = '' } = req.query;    // Convert players data to users format for frontend compatibility
+    let filteredUsers = players.map(player => ({
+        id: player.id,
+        email: player.email,
+        name: player.name,
+        username: player.name, // Use name as username for compatibility
+        level: player.level,
+        coins: player.coins,
+        status: player.status,
+        registeredAt: player.joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user',
+        totalPets: player.totalPets || 0,
+        totalItems: player.totalItems || 0,
+        totalAchievements: player.totalAchievements || 0
+    }));
+
+    if (search) {
+        filteredUsers = filteredUsers.filter(user =>
+            user.name.toLowerCase().includes(search.toLowerCase()) ||
+            user.email.toLowerCase().includes(search.toLowerCase()) ||
+            user.username.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+
+    const startIndex = page * size;
+    const endIndex = startIndex + parseInt(size);
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+    res.json({
+        content: paginatedUsers,
+        totalElements: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / size),
+        size: parseInt(size),
+        number: parseInt(page)
+    });
+});
+
+app.get('/api/users', verifyToken, (req, res) => {
+    // Return all users in the expected format
+    const allUsers = players.map(player => ({
+        id: player.id,
+        email: player.email,
+        name: player.name,
+        username: player.name,
+        level: player.level,
+        coins: player.coins,
+        status: player.status,
+        registeredAt: player.joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+    }));
+
+    res.json(allUsers);
+});
+
+app.get('/api/users/:id', verifyToken, (req, res) => {
+    const userId = parseInt(req.params.id);
+    const player = players.find(p => p.id === userId);
+
+    if (!player) {
+        return res.status(404).json({
+            message: 'Không tìm thấy người dùng',
+            error: 'USER_NOT_FOUND'
+        });
+    }
+
+    const user = {
+        id: player.id,
+        email: player.email,
+        name: player.name,
+        username: player.name,
+        level: player.level,
+        coins: player.coins,
+        status: player.status,
+        registeredAt: player.joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+    };
+
+    res.json(user);
+});
+
+app.get('/api/users/search', verifyToken, (req, res) => {
+    const { keyword = '', page = 0, size = 10 } = req.query;
+
+    let filteredUsers = players.map(player => ({
+        id: player.id,
+        email: player.email,
+        name: player.name,
+        username: player.name,
+        level: player.level,
+        coins: player.coins,
+        status: player.status,
+        registeredAt: player.joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+    }));
+
+    if (keyword) {
+        filteredUsers = filteredUsers.filter(user =>
+            user.name.toLowerCase().includes(keyword.toLowerCase()) ||
+            user.email.toLowerCase().includes(keyword.toLowerCase()) ||
+            user.username.toLowerCase().includes(keyword.toLowerCase())
+        );
+    }
+
+    const startIndex = page * size;
+    const endIndex = startIndex + parseInt(size);
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+    res.json({
+        content: paginatedUsers,
+        totalElements: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / size),
+        size: parseInt(size),
+        number: parseInt(page)
+    });
+});
+
+app.post('/api/users', verifyToken, (req, res) => {
+    const newPlayer = {
+        id: players.length + 1,
+        name: req.body.name || req.body.username,
+        email: req.body.email,
+        joinDate: new Date().toISOString().split('T')[0],
+        level: req.body.level || 1,
+        coins: req.body.coins || 100,
+        status: req.body.status || 'active'
+    };
+
+    players.push(newPlayer);
+
+    const newUser = {
+        id: newPlayer.id,
+        email: newPlayer.email,
+        name: newPlayer.name,
+        username: newPlayer.name,
+        level: newPlayer.level,
+        coins: newPlayer.coins,
+        status: newPlayer.status,
+        registeredAt: newPlayer.joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+    };
+
+    res.status(201).json(newUser);
+});
+
+app.put('/api/users/:id', verifyToken, (req, res) => {
+    const userId = parseInt(req.params.id);
+    const playerIndex = players.findIndex(p => p.id === userId);
+
+    if (playerIndex === -1) {
+        return res.status(404).json({
+            message: 'Không tìm thấy người dùng',
+            error: 'USER_NOT_FOUND'
+        });
+    }
+
+    // Update the player data
+    players[playerIndex] = {
+        ...players[playerIndex],
+        name: req.body.name || req.body.username || players[playerIndex].name,
+        email: req.body.email || players[playerIndex].email,
+        level: req.body.level || players[playerIndex].level,
+        coins: req.body.coins || players[playerIndex].coins,
+        status: req.body.status || players[playerIndex].status
+    };
+
+    const updatedUser = {
+        id: players[playerIndex].id,
+        email: players[playerIndex].email,
+        name: players[playerIndex].name,
+        username: players[playerIndex].name,
+        level: players[playerIndex].level,
+        coins: players[playerIndex].coins,
+        status: players[playerIndex].status,
+        registeredAt: players[playerIndex].joinDate,
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+    };
+
+    res.json(updatedUser);
+});
+
+app.delete('/api/users/:id', verifyToken, (req, res) => {
+    const userId = parseInt(req.params.id);
+    const playerIndex = players.findIndex(p => p.id === userId);
+
+    if (playerIndex === -1) {
+        return res.status(404).json({
+            message: 'Không tìm thấy người dùng',
+            error: 'USER_NOT_FOUND'
+        });
+    }
+
+    players.splice(playerIndex, 1);
+    res.json({ message: 'Xóa người dùng thành công' });
+});
+
 // Players endpoints
 app.get('/api/players', verifyToken, (req, res) => {
     const { page = 1, limit = 10, search = '' } = req.query;
@@ -319,6 +576,31 @@ app.delete('/api/players/:id', verifyToken, (req, res) => {
 });
 
 // Pets endpoints
+app.get('/api/pets/paginated', verifyToken, (req, res) => {
+    const { page = 0, size = 10, search = '' } = req.query;
+
+    let filteredPets = pets;
+    if (search) {
+        filteredPets = pets.filter(pet =>
+            pet.name.toLowerCase().includes(search.toLowerCase()) ||
+            pet.type.toLowerCase().includes(search.toLowerCase()) ||
+            pet.species.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+
+    const startIndex = page * size;
+    const endIndex = startIndex + parseInt(size);
+    const paginatedPets = filteredPets.slice(startIndex, endIndex);
+
+    res.json({
+        content: paginatedPets,
+        totalElements: filteredPets.length,
+        totalPages: Math.ceil(filteredPets.length / size),
+        size: parseInt(size),
+        number: parseInt(page)
+    });
+});
+
 app.get('/api/pets', verifyToken, (req, res) => {
     const { page = 1, limit = 10, search = '' } = req.query;
 
@@ -452,6 +734,33 @@ app.post('/api/pets/:id/rest', verifyToken, (req, res) => {
 });
 
 // Items endpoints
+app.get('/api/items/paginated', verifyToken, (req, res) => {
+    const { page = 0, size = 10, search = '', category = '' } = req.query;
+
+    let filteredItems = items;
+    if (search) {
+        filteredItems = items.filter(item =>
+            item.name.toLowerCase().includes(search.toLowerCase()) ||
+            item.description.toLowerCase().includes(search.toLowerCase())
+        );
+    }
+    if (category) {
+        filteredItems = filteredItems.filter(item => item.category === category);
+    }
+
+    const startIndex = page * size;
+    const endIndex = startIndex + parseInt(size);
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+    res.json({
+        content: paginatedItems,
+        totalElements: filteredItems.length,
+        totalPages: Math.ceil(filteredItems.length / size),
+        size: parseInt(size),
+        number: parseInt(page)
+    });
+});
+
 app.get('/api/items', verifyToken, (req, res) => {
     const { page = 1, limit = 10, search = '', category = '' } = req.query;
 

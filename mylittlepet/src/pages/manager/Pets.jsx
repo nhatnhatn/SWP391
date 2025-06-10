@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { mockPets, RARITY_TYPES, PET_TYPES } from '../../data/mockData';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
+import { getRarityColor, getRarityClass, formatNumber } from '../../utils/helpers';
 import { t } from '../../constants/vietnamese';
 
 export default function Pets() {

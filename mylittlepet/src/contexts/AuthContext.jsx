@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
                 };
             }
         } catch (error) {
+            console.error('Login error:', error);
             return {
                 success: false,
                 error: 'Login failed. Please try again.'
@@ -118,6 +119,7 @@ export const AuthProvider = ({ children }) => {
 
             return { success: true };
         } catch (error) {
+            console.error('Registration error:', error);
             return {
                 success: false,
                 error: 'Registration failed. Please try again.'
