@@ -10,14 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -25,22 +17,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/pets")
 @CrossOrigin(origins = "http://localhost:3000")
-@Tag(name = "Pets", description = "Pet management and care operations for Vietnamese Pet System")
-@SecurityRequirement(name = "Bearer Authentication")
 public class PetController {
 
     @Autowired
     private PetService petService;
 
-    @Operation(
-        summary = "Get all pets",
-        description = "Retrieve all pets including Dogs, Cats, Birds, Fish, and other Vietnamese pets"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pets retrieved successfully",
-            content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "400", description = "Bad request")
-    })
     @GetMapping
     public ResponseEntity<List<PetDTO>> getAllPets() {
         try {
@@ -61,17 +42,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get pet by ID",
-        description = "Retrieve a specific pet by its unique identifier"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet found successfully"),
-        @ApiResponse(responseCode = "404", description = "Pet not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid pet ID")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<PetDTO> getPetById(@PathVariable Long id) {
         try {
@@ -80,16 +53,9 @@ public class PetController {
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get pets by owner",
-        description = "Retrieve all pets belonging to a specific user/owner"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pets retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid owner ID")
-    })
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<PetDTO>> getPetsByOwner(@PathVariable Long ownerId) {
         try {
@@ -97,16 +63,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get pets by type",
-        description = "Retrieve all pets of a specific type (DRAGON, BIRD, BEAST, ELEMENTAL, etc.)"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pets retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid pet type")
-    })
     @GetMapping("/type/{type}")
     public ResponseEntity<List<PetDTO>> getPetsByType(@PathVariable Pet.PetType type) {
         try {
@@ -114,16 +73,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get pets by rarity",
-        description = "Retrieve all pets of a specific rarity level (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC)"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pets retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid rarity type")
-    })
     @GetMapping("/rarity/{rarity}")
     public ResponseEntity<List<PetDTO>> getPetsByRarity(@PathVariable Pet.RarityType rarity) {
         try {
@@ -131,16 +83,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Search pets",
-        description = "Search pets by keyword (name, type, or abilities)"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Search completed successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid search parameters")
-    })
     @GetMapping("/search")
     public ResponseEntity<List<PetDTO>> searchPets(@RequestParam String keyword) {
         try {
@@ -148,16 +93,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get available pets",
-        description = "Retrieve all pets that are available for adoption or interaction"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Available pets retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Error retrieving pets")
-    })
     @GetMapping("/available")
     public ResponseEntity<List<PetDTO>> getAvailablePets() {
         try {
@@ -165,16 +103,9 @@ public class PetController {
             return ResponseEntity.ok(pets);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Create new pet",
-        description = "Create a new pet in the Vietnamese Pet Management System"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid pet data")
-    })
     @PostMapping
     public ResponseEntity<?> createPet(@Valid @RequestBody PetDTO petDTO) {
         try {
@@ -182,17 +113,9 @@ public class PetController {
             return ResponseEntity.ok(createdPet);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Update pet",
-        description = "Update an existing pet's information"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet updated successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid pet data"),
-        @ApiResponse(responseCode = "404", description = "Pet not found")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePet(@PathVariable Long id, @Valid @RequestBody PetDTO petDTO) {
         try {
@@ -200,17 +123,9 @@ public class PetController {
             return ResponseEntity.ok(updatedPet);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Delete pet",
-        description = "Remove a pet from the system permanently"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet deleted successfully"),
-        @ApiResponse(responseCode = "400", description = "Cannot delete pet"),
-        @ApiResponse(responseCode = "404", description = "Pet not found")
-    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePet(@PathVariable Long id) {
         try {
@@ -219,75 +134,40 @@ public class PetController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
-    }    @Operation(
-        summary = "Feed pet",
-        description = "Feed a pet to increase happiness and reduce hunger"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet fed successfully",
-            content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "400", description = "Cannot feed pet - may be full or invalid pet")
-    })
+    }
+
     @PostMapping("/{id}/feed")
-    public ResponseEntity<?> feedPet(
-            @Parameter(description = "Pet ID to feed", required = true)
-            @PathVariable Long id) {
+    public ResponseEntity<?> feedPet(@PathVariable Long id) {
         try {
             PetDTO updatedPet = petService.feedPet(id);
             return ResponseEntity.ok(updatedPet);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
-    }    @Operation(
-        summary = "Play with pet",
-        description = "Play with a pet to increase happiness and energy"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Played with pet successfully"),
-        @ApiResponse(responseCode = "400", description = "Cannot play - pet may be tired or invalid pet")
-    })
+    }
+
     @PostMapping("/{id}/play")
-    public ResponseEntity<?> playWithPet(
-            @Parameter(description = "Pet ID to play with", required = true)
-            @PathVariable Long id) {
+    public ResponseEntity<?> playWithPet(@PathVariable Long id) {
         try {
             PetDTO updatedPet = petService.playWithPet(id);
             return ResponseEntity.ok(updatedPet);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Rest pet",
-        description = "Let a pet rest to restore energy and reduce stress"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet rested successfully"),
-        @ApiResponse(responseCode = "400", description = "Cannot rest pet - invalid pet or already rested")
-    })
     @PostMapping("/{id}/rest")
-    public ResponseEntity<?> restPet(
-        @Parameter(description = "Pet ID to rest", required = true)
-        @PathVariable Long id) {
+    public ResponseEntity<?> restPet(@PathVariable Long id) {
         try {
             PetDTO updatedPet = petService.restPet(id);
             return ResponseEntity.ok(updatedPet);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Heal pet",
-        description = "Heal a pet to restore health and cure any ailments"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Pet healed successfully"),
-        @ApiResponse(responseCode = "400", description = "Cannot heal pet - invalid pet or already healthy")
-    })
     @PostMapping("/{id}/heal")
-    public ResponseEntity<?> healPet(
-        @Parameter(description = "Pet ID to heal", required = true)
-        @PathVariable Long id) {
+    public ResponseEntity<?> healPet(@PathVariable Long id) {
         try {
             PetDTO updatedPet = petService.healPet(id);
             return ResponseEntity.ok(updatedPet);
