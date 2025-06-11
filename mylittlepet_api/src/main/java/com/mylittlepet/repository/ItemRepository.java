@@ -1,6 +1,7 @@
 package com.mylittlepet.repository;
 
 import com.mylittlepet.entity.Item;
+import com.mylittlepet.entity.Pet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,27 +9,37 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    @Query("SELECT i FROM Item i WHERE " +
-            "LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(i.description) LIKE LOWER(CONCAT('%', :search, '%'))")
-    Page<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
-            @Param("search") String search, Pageable pageable);
+        List<Item> findByType(Item.ItemType type);
 
-    Page<Item> findByType(Item.ItemType type, Pageable pageable);
+        List<Item> findByRarity(Item.RarityType rarity);
 
-    Page<Item> findByRarity(Item.RarityType rarity, Pageable pageable);
+        List<Item> findByNameContainingIgnoreCase(String name);
 
-    @Query("SELECT i FROM Item i WHERE " +
-            "(LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(i.description) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-            "(:type IS NULL OR i.type = :type) AND " +
-            "(:rarity IS NULL OR i.rarity = :rarity)")
-    Page<Item> findItemsWithFilters(
-            @Param("search") String search,
-            @Param("type") Item.ItemType type,
-            @Param("rarity") Item.RarityType rarity,
-            Pageable pageable);
+        List<Item> findByIsInShopTrue();
+
+        @Query("SELECT i FROM Item i WHERE " +
+                        "LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(i.description) LIKE LOWER(CONCAT('%', :search, '%'))")
+        Page<Item> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                        @Param("search") String search, Pageable pageable);
+
+        Page<Item> findByType(Item.ItemType type, Pageable pageable);
+
+        Page<Item> findByRarity(Item.RarityType rarity, Pageable pageable);
+
+        @Query("SELECT i FROM Item i WHERE " +
+                        "(LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(i.description) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+                        "(:type IS NULL OR i.type = :type) AND " +
+                        "(:rarity IS NULL OR i.rarity = :rarity)")
+        Page<Item> findItemsWithFilters(
+                        @Param("search") String search,
+                        @Param("type") Item.ItemType type,
+                        @Param("rarity") Item.RarityType rarity,
+                        Pageable pageable);
 }

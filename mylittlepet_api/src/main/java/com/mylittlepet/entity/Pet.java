@@ -40,10 +40,46 @@ public class Pet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-
     @Column(nullable = false)
     @Min(value = 1, message = "HP must be at least 1")
     private Integer hp = 100;
+
+    // Pet status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PetStatus status = PetStatus.HEALTHY;
+
+    // Pet description and image
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    // Pet stats
+    @Column(nullable = false)
+    private Integer attack = 50;
+
+    @Column(nullable = false)
+    private Integer defense = 50;
+
+    @Column(nullable = false)
+    private Integer speed = 50;
+
+    @Column(name = "max_health", nullable = false)
+    private Integer maxHealth = 100;
+
+    @Column(nullable = false)
+    private Integer health = 100;
+
+    @Column(nullable = false)
+    private Integer happiness = 100;
+
+    @Column(nullable = false)
+    private Integer energy = 100;
+
+    @Column(nullable = false)
+    private Integer hunger = 0;
 
     @ElementCollection
     @CollectionTable(name = "pet_abilities", joinColumns = @JoinColumn(name = "pet_id"))
@@ -162,7 +198,114 @@ public class Pet {
         this.updatedAt = updatedAt;
     }
 
+    public PetStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PetStatus status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Integer getAttack() {
+        return attack;
+    }
+
+    public void setAttack(Integer attack) {
+        this.attack = attack;
+    }
+
+    public Integer getDefense() {
+        return defense;
+    }
+
+    public void setDefense(Integer defense) {
+        this.defense = defense;
+    }
+
+    public Integer getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Integer speed) {
+        this.speed = speed;
+    }
+
+    public Integer getMaxHealth() {
+        return maxHealth;
+    }
+
+    public void setMaxHealth(Integer maxHealth) {
+        this.maxHealth = maxHealth;
+    }
+
+    public Integer getHealth() {
+        return health;
+    }
+
+    public void setHealth(Integer health) {
+        this.health = health;
+    }
+
+    public Integer getHappiness() {
+        return happiness;
+    }
+
+    public void setHappiness(Integer happiness) {
+        this.happiness = happiness;
+    }
+
+    public Integer getEnergy() {
+        return energy;
+    }
+
+    public void setEnergy(Integer energy) {
+        this.energy = energy;
+    }
+
+    public Integer getHunger() {
+        return hunger;
+    }
+
+    public void setHunger(Integer hunger) {
+        this.hunger = hunger;
+    }
+
     // Enums
+    public enum PetStatus {
+        HEALTHY("Healthy"),
+        SICK("Sick"),
+        TIRED("Tired"),
+        HUNGRY("Hungry"),
+        HAPPY("Happy"),
+        SAD("Sad");
+
+        private final String displayName;
+
+        PetStatus(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
     public enum PetType {
         DRAGON("Dragon"),
         BIRD("Bird"),

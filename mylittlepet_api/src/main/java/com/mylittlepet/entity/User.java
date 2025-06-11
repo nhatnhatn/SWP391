@@ -29,14 +29,32 @@ public class User {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
-
     @Column(nullable = false)
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column
+    private String phone;
+
+    @Column
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.USER;
+
     @Column(nullable = false)
     private Integer level = 1;
+
+    @Column(nullable = false)
+    private Integer experience = 0;
+
+    @Column(nullable = false)
+    private Integer coins = 1000;
 
     @Column(name = "registered_at", nullable = false, updatable = false)
     @CreatedDate
@@ -131,6 +149,54 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public Integer getExperience() {
+        return experience;
+    }
+
+    public void setExperience(Integer experience) {
+        this.experience = experience;
+    }
+
+    public Integer getCoins() {
+        return coins;
+    }
+
+    public void setCoins(Integer coins) {
+        this.coins = coins;
     }
 
     public Integer getLevel() {
@@ -267,10 +333,26 @@ public class User {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    } // Enum for user status
+
+    public enum UserStatus {
+        ACTIVE, INACTIVE, BANNED, SUSPENDED, DELETED
     }
 
-    // Enum for user status
-    public enum UserStatus {
-        ACTIVE, INACTIVE, BANNED, SUSPENDED
+    // Enum for user role
+    public enum UserRole {
+        USER("User"),
+        ADMIN("Admin"),
+        MANAGER("Manager");
+
+        private final String displayName;
+
+        UserRole(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }

@@ -28,13 +28,21 @@ public class Item {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ItemType type;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Pet.RarityType rarity;
-
+    private RarityType rarity;
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "sell_price")
+    @Min(value = 0, message = "Sell price must be non-negative")
+    private Integer sellPrice = 0;
+
+    @Column(name = "is_in_shop", nullable = false)
+    private Boolean isInShop = true;
 
     @ElementCollection
     @CollectionTable(name = "item_stats", joinColumns = @JoinColumn(name = "item_id"))
@@ -68,7 +76,7 @@ public class Item {
     public Item() {
     }
 
-    public Item(String name, ItemType type, Pet.RarityType rarity, String description, Integer price,
+    public Item(String name, ItemType type, RarityType rarity, String description, Integer price,
             Integer quantity) {
         this.name = name;
         this.type = type;
@@ -103,11 +111,11 @@ public class Item {
         this.type = type;
     }
 
-    public Pet.RarityType getRarity() {
+    public RarityType getRarity() {
         return rarity;
     }
 
-    public void setRarity(Pet.RarityType rarity) {
+    public void setRarity(RarityType rarity) {
         this.rarity = rarity;
     }
 
@@ -117,6 +125,30 @@ public class Item {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Integer getSellPrice() {
+        return sellPrice;
+    }
+
+    public void setSellPrice(Integer sellPrice) {
+        this.sellPrice = sellPrice;
+    }
+
+    public Boolean getIsInShop() {
+        return isInShop;
+    }
+
+    public void setIsInShop(Boolean isInShop) {
+        this.isInShop = isInShop;
     }
 
     public Map<String, String> getStats() {
@@ -179,6 +211,25 @@ public class Item {
         private final String displayName;
 
         ItemType(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
+    public enum RarityType {
+        COMMON("Common"),
+        UNCOMMON("Uncommon"),
+        RARE("Rare"),
+        EPIC("Epic"),
+        LEGENDARY("Legendary"),
+        MYTHIC("Mythic");
+
+        private final String displayName;
+
+        RarityType(String displayName) {
             this.displayName = displayName;
         }
 

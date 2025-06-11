@@ -117,13 +117,12 @@ public class ItemService {
         if (itemDTO.getImageUrl() != null) {
             existingItem.setImageUrl(itemDTO.getImageUrl());
         }
-
         if (itemDTO.getPrice() != null) {
-            existingItem.setPrice(itemDTO.getPrice());
+            existingItem.setPrice(itemDTO.getPrice().intValue());
         }
 
         if (itemDTO.getSellPrice() != null) {
-            existingItem.setSellPrice(itemDTO.getSellPrice());
+            existingItem.setSellPrice(itemDTO.getSellPrice().intValue());
         }
 
         if (itemDTO.getIsInShop() != null) {
@@ -146,7 +145,7 @@ public class ItemService {
     public void deleteItem(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vật phẩm"));
-        
+
         itemRepository.delete(item);
     }
 
@@ -251,8 +250,8 @@ public class ItemService {
     }
 
     private void addItemToInventory(User user, Item item, int quantity) {
-        Optional<UserInventory> existingInventory = 
-            userInventoryRepository.findByUserIdAndItemId(user.getId(), item.getId());
+        Optional<UserInventory> existingInventory = userInventoryRepository.findByUserIdAndItemId(user.getId(),
+                item.getId());
 
         if (existingInventory.isPresent()) {
             UserInventory inventory = existingInventory.get();
@@ -307,8 +306,8 @@ public class ItemService {
         dto.setRarity(item.getRarity());
         dto.setDescription(item.getDescription());
         dto.setImageUrl(item.getImageUrl());
-        dto.setPrice(item.getPrice());
-        dto.setSellPrice(item.getSellPrice());
+        dto.setPrice(item.getPrice() != null ? item.getPrice().doubleValue() : null);
+        dto.setSellPrice(item.getSellPrice() != null ? item.getSellPrice().doubleValue() : null);
         dto.setIsInShop(item.getIsInShop());
         dto.setStats(item.getStats());
         dto.setEffects(item.getEffects());
@@ -325,8 +324,8 @@ public class ItemService {
         item.setRarity(dto.getRarity());
         item.setDescription(dto.getDescription());
         item.setImageUrl(dto.getImageUrl());
-        item.setPrice(dto.getPrice());
-        item.setSellPrice(dto.getSellPrice());
+        item.setPrice(dto.getPrice() != null ? dto.getPrice().intValue() : null);
+        item.setSellPrice(dto.getSellPrice() != null ? dto.getSellPrice().intValue() : null);
         item.setIsInShop(dto.getIsInShop());
         item.setStats(dto.getStats());
         item.setEffects(dto.getEffects());

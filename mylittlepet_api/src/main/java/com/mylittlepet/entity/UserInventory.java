@@ -23,10 +23,12 @@ public class UserInventory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
-
     @Column(nullable = false)
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity = 1;
+
+    @Column(name = "obtained_at")
+    private LocalDateTime obtainedAt;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -93,5 +95,13 @@ public class UserInventory {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getObtainedAt() {
+        return obtainedAt;
+    }
+
+    public void setObtainedAt(LocalDateTime obtainedAt) {
+        this.obtainedAt = obtainedAt;
     }
 }

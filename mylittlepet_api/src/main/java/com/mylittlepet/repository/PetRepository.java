@@ -13,37 +13,48 @@ import java.util.List;
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long> {
+        List<Pet> findByOwner(User owner);
 
-    List<Pet> findByOwner(User owner);
+        List<Pet> findByOwnerId(Long ownerId);
 
-    Page<Pet> findByOwner(User owner, Pageable pageable);
+        Page<Pet> findByOwner(User owner, Pageable pageable);
 
-    @Query("SELECT p FROM Pet p WHERE " +
-            "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))")
-    Page<Pet> findByNameContainingIgnoreCaseOrTypeContainingIgnoreCase(
-            @Param("search") String search, Pageable pageable);
+        List<Pet> findByType(Pet.PetType type);
 
-    Page<Pet> findByType(Pet.PetType type, Pageable pageable);
+        List<Pet> findByRarity(Pet.RarityType rarity);
 
-    Page<Pet> findByRarity(Pet.RarityType rarity, Pageable pageable);
+        List<Pet> findByStatus(Pet.PetStatus status);
 
-    @Query("SELECT p FROM Pet p WHERE p.type = :type AND p.rarity = :rarity")
-    Page<Pet> findByTypeAndRarity(
-            @Param("type") Pet.PetType type,
-            @Param("rarity") Pet.RarityType rarity,
-            Pageable pageable);
+        List<Pet> findByNameContainingIgnoreCase(String name);
 
-    @Query("SELECT p FROM Pet p WHERE " +
-            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-            "(:type IS NULL OR p.type = :type) AND " +
-            "(:rarity IS NULL OR p.rarity = :rarity)")
-    Page<Pet> findPetsWithFilters(
-            @Param("search") String search,
-            @Param("type") Pet.PetType type,
-            @Param("rarity") Pet.RarityType rarity,
-            Pageable pageable);
+        Long countByOwnerId(Long ownerId);
 
-    long countByOwner(User owner);
+        @Query("SELECT p FROM Pet p WHERE " +
+                        "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))")
+        Page<Pet> findByNameContainingIgnoreCaseOrTypeContainingIgnoreCase(
+                        @Param("search") String search, Pageable pageable);
+
+        Page<Pet> findByType(Pet.PetType type, Pageable pageable);
+
+        Page<Pet> findByRarity(Pet.RarityType rarity, Pageable pageable);
+
+        @Query("SELECT p FROM Pet p WHERE p.type = :type AND p.rarity = :rarity")
+        Page<Pet> findByTypeAndRarity(
+                        @Param("type") Pet.PetType type,
+                        @Param("rarity") Pet.RarityType rarity,
+                        Pageable pageable);
+
+        @Query("SELECT p FROM Pet p WHERE " +
+                        "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+                        "(:type IS NULL OR p.type = :type) AND " +
+                        "(:rarity IS NULL OR p.rarity = :rarity)")
+        Page<Pet> findPetsWithFilters(
+                        @Param("search") String search,
+                        @Param("type") Pet.PetType type,
+                        @Param("rarity") Pet.RarityType rarity,
+                        Pageable pageable);
+
+        long countByOwner(User owner);
 }
