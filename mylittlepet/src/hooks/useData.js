@@ -87,10 +87,11 @@ export const usePlayers = (initialPage = 0, initialSize = 10) => {
             console.error('Failed to delete player:', err);
             throw err;
         }
-    }, [fetchPlayers, pagination.page, pagination.size]);    // Initial load
+    }, [fetchPlayers, pagination.page, pagination.size]);
+
+    // Initial load
     useEffect(() => {
         fetchPlayers();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return {
@@ -237,9 +238,10 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
             console.error('Failed to heal pet:', err);
             throw err;
         }
-    }, [fetchPets, pagination.page, pagination.size]); useEffect(() => {
+    }, [fetchPets, pagination.page, pagination.size]);
+
+    useEffect(() => {
         fetchPets();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return {
@@ -265,31 +267,20 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filters, setFilters] = useState({
-        type: null,
-        rarity: null
-    });
     const [pagination, setPagination] = useState({
         page: initialPage,
         size: initialSize,
         totalElements: 0,
         totalPages: 0
-    }); const fetchItems = useCallback(async (page = pagination.page, size = pagination.size, useCache = true) => {
+    });
+
+    const fetchItems = useCallback(async (page = pagination.page, size = pagination.size, useCache = true) => {
         setLoading(true);
         setError(null);
 
         try {
             const response = await dataService.getItems(page, size, useCache);
-            // Ensure all items have valid types
-            const validItems = (response.content || []).map(item => ({
-                ...item,
-                type: item.type || 'unknown', // Fallback for undefined types
-                price: item.price || 0,
-                quantity: item.quantity || 0
-            }));
-
-            setItems(validItems);
+            setItems(response.content || []);
             setPagination({
                 page: response.number || page,
                 size: response.size || size,
@@ -299,7 +290,6 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
         } catch (err) {
             console.error('Failed to fetch items:', err);
             setError(err.message || 'Lỗi tải dữ liệu vật phẩm');
-            setItems([]); // Set empty array on error to prevent undefined access
         } finally {
             setLoading(false);
         }
@@ -338,26 +328,8 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
         }
     }, [fetchItems, pagination.page, pagination.size]);
 
-    // Refresh items with current filters and search
-    const refreshItems = useCallback(() => {
-        fetchItems(pagination.page, pagination.size, false);
-    }, [fetchItems, pagination.page, pagination.size]);
-
-    // Purchase item functionality
-    const purchaseItem = useCallback(async (itemId, quantity = 1) => {
-        try {
-            // This would be implemented when the purchase functionality is needed
-            console.log(`Purchasing item ${itemId}, quantity: ${quantity}`);
-            return { success: true };
-        } catch (err) {
-            console.error('Failed to purchase item:', err);
-            throw err;
-        }
-    }, []);
-
     useEffect(() => {
         fetchItems();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return {
@@ -365,16 +337,10 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
         loading,
         error,
         pagination,
-        searchTerm,
-        setSearchTerm,
-        filters,
-        setFilters,
         fetchItems,
-        refreshItems,
         createItem,
         updateItem,
         deleteItem,
-        purchaseItem,
         refresh: () => fetchItems(pagination.page, pagination.size, false)
     };
 };

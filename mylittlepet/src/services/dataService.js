@@ -349,7 +349,9 @@ class DataService {
             level: pet.level || 1,
             rarity: pet.rarity
         };
-    }    // Items Data Service
+    }
+
+    // Items Data Service
     async getItems(page = 0, size = 10, useCache = true) {
         try {
             if (useCache && this.isCacheValid('items')) {
@@ -358,16 +360,12 @@ class DataService {
 
             const response = await apiService.getItems(page, size);
 
-            // Handle different API response structures
-            const itemsData = response.data || response.content || response || [];
-            const paginationData = response.pagination || {};
-
             const items = {
-                content: itemsData.map(this.transformItem) || [],
-                totalElements: paginationData.count || response.totalElements || itemsData.length,
-                totalPages: paginationData.total || response.totalPages || 1,
-                size: size,
-                number: paginationData.current ? paginationData.current - 1 : page // API uses 1-based, we use 0-based
+                content: response.content?.map(this.transformItem) || [],
+                totalElements: response.totalElements || 0,
+                totalPages: response.totalPages || 0,
+                size: response.size || size,
+                number: response.number || page
             };
 
             this.setCache('items', items);
@@ -377,11 +375,11 @@ class DataService {
             console.error('Failed to fetch items:', error);
             return this.getFallbackItems();
         }
-    } async getAllItems() {
+    }
+
+    async getAllItems() {
         try {
-            const response = await apiService.getAllItems();
-            // Handle different API response structures - the response might be in response.data
-            const items = response.data || response || [];
+            const items = await apiService.getAllItems();
             return items.map(this.transformItem);
         } catch (error) {
             console.error('Failed to fetch all items:', error);
@@ -452,20 +450,21 @@ class DataService {
             console.error(`Failed to use item ${itemId} on pet ${petId}:`, error);
             throw error;
         }
-    }    // Transform backend Item to frontend format
+    }
+
+    // Transform backend Item to frontend format
     transformItem(item) {
         if (!item) return null;
 
         return {
             id: item.id,
             name: item.name,
-            type: item.type || item.itemType, // Handle both possible field names
+            type: item.itemType,
             rarity: item.rarity,
             description: item.description || '',
             price: item.price || 0,
-            quantity: item.quantity || 0, // Add quantity field
             sellPrice: item.sellPrice || Math.floor((item.price || 0) * 0.7),
-            imageUrl: item.imageUrl || item.image || '', // Handle both image field names
+            imageUrl: item.imageUrl || '',
             effects: item.effects || {},
             stats: item.stats || {},
             isStackable: item.isStackable !== false,
