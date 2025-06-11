@@ -22,14 +22,14 @@ export const NotificationProvider = ({ children }) => {
             ...notification,
         };
 
-        setNotifications(prev => [...prev, newNotification]);
-
-        // Auto-remove notification after duration
+        setNotifications(prev => [...prev, newNotification]);        // Auto-remove notification after duration
         if (newNotification.duration > 0) {
             setTimeout(() => {
                 removeNotification(id);
             }, newNotification.duration);
-        } return id;
+        }
+        
+        return id;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
