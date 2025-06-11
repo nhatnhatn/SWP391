@@ -2,20 +2,20 @@
 // This component monitors the backend connection status and provides user feedback
 
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
+import apiService from '../services/api';
 
 const ConnectionStatus = () => {
     const [connectionStatus, setConnectionStatus] = useState('checking'); // 'checking', 'connected', 'disconnected'
-    const [lastChecked, setLastChecked] = useState(null);
-
-    const checkConnection = async () => {
+    const [lastChecked, setLastChecked] = useState(null); const checkConnection = async () => {
         try {
             setConnectionStatus('checking');
-            await apiService.request('/health', { 
-                method: 'GET',
-                signal: AbortSignal.timeout(5000) // 5 second timeout
-            });
-            setConnectionStatus('connected');
+            const result = await apiService.checkHealth();
+
+            if (result.status === 'connected') {
+                setConnectionStatus('connected');
+            } else {
+                setConnectionStatus('disconnected');
+            }
         } catch (error) {
             console.warn('Backend connection check failed:', error.message);
             setConnectionStatus('disconnected');
@@ -25,7 +25,7 @@ const ConnectionStatus = () => {
 
     useEffect(() => {
         checkConnection();
-        
+
         // Check connection every 30 seconds
         const interval = setInterval(checkConnection, 30000);
         return () => clearInterval(interval);

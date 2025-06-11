@@ -39,12 +39,14 @@ export const AuthProvider = ({ children }) => {
         };
 
         initAuth();
-    }, []);
-
-    const login = async (email, password) => {
+    }, []); const login = async (email, password) => {
         try {
+            console.log('🔐 AuthContextV2: Starting login process', { email });
+            console.log('🌐 AuthContextV2: Current user state before login:', user);
+
             // Try backend authentication first
             const response = await apiService.login(email, password);
+            console.log('✅ AuthContextV2: Backend login successful:', response);
 
             const userData = {
                 id: response.userId,
@@ -56,13 +58,15 @@ export const AuthProvider = ({ children }) => {
                 token: response.token
             };
 
+            console.log('📝 AuthContextV2: Setting user data:', userData);
             setUser(userData);
             localStorage.setItem('adminUser', JSON.stringify(userData));
+            console.log('✅ AuthContextV2: User state updated successfully');
 
             return { success: true, user: userData };
 
         } catch (error) {
-            console.error('Backend login failed, trying fallback:', error);
+            console.error('❌ AuthContextV2: Backend login failed, trying fallback:', error);
 
             // Fallback to local authentication for development
             return await fallbackLogin(email, password);
@@ -71,6 +75,8 @@ export const AuthProvider = ({ children }) => {
 
     const fallbackLogin = async (email, password) => {
         try {
+            console.log('🔄 Attempting fallback login');
+
             // Get stored admin users from localStorage
             const storedAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
 
@@ -91,6 +97,7 @@ export const AuthProvider = ({ children }) => {
 
                 setUser(userData);
                 localStorage.setItem('adminUser', JSON.stringify(userData));
+                console.log('✅ Fallback login successful (stored admin):', userData);
                 return { success: true, user: userData };
             }
 
@@ -107,13 +114,15 @@ export const AuthProvider = ({ children }) => {
 
                 setUser(userData);
                 localStorage.setItem('adminUser', JSON.stringify(userData));
+                console.log('✅ Fallback login successful (default admin):', userData);
                 return { success: true, user: userData };
             }
 
+            console.log('❌ Fallback login failed: Invalid credentials');
             return { success: false, error: 'Thông tin đăng nhập không chính xác' };
 
         } catch (error) {
-            console.error('Fallback login error:', error);
+            console.error('❌ Fallback login error:', error);
             return { success: false, error: 'Lỗi đăng nhập. Vui lòng thử lại.' };
         }
     };
@@ -154,7 +163,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        apiService.logout();
+        console.log('🚪 Logging out user');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('adminUser');
         setUser(null);
     };
 

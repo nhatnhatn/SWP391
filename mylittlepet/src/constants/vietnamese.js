@@ -171,7 +171,8 @@ export const VIETNAMESE_TRANSLATIONS = {
         medicine: 'Thuốc',
         accessory: 'Phụ kiện',
         consumable: 'Tiêu hao',
-        material: 'Nguyên liệu'
+        material: 'Nguyên liệu',
+        unknown: 'Không xác định'
     },
 
     // Pet Types

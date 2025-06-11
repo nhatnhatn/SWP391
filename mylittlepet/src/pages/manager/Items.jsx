@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Package, DollarSign, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { mockItems, RARITY_TYPES } from '../../data/mockData';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
+import { getRarityColor, getRarityClass, formatNumber } from '../../utils/helpers';
 import { t } from '../../constants/vietnamese';
 
 export default function Items() {
@@ -432,7 +432,7 @@ function ItemModal({ item, onClose, onSave }) {
     };
 
     const removeStat = (key) => {
-        const { [key]: removed, ...rest } = formData.stats;
+        const { [key]: _removed, ...rest } = formData.stats;
         setFormData({ ...formData, stats: rest });
     };
 

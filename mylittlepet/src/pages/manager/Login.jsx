@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation, Link } from 'react-router-dom';
+import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Heart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
@@ -9,27 +9,34 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-
-    const { login, isAuthenticated } = useAuth();
+    const [error, setError] = useState(''); const { login, isAuthenticated } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Redirect if already logged in
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
-    }
-
-    const handleSubmit = async (e) => {
+    } const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
+        console.log('🔑 Login: Starting login submission', { email });
+
         const result = await login(email, password);
 
+        console.log('🔑 Login: Login result received', result);
+
         if (result.success) {
-            // Navigation will be handled by the AuthProvider
+            console.log('✅ Login: Login successful, preparing navigation');
+            // Navigate to the debug page first to test routing
+            const from = location.state?.from?.pathname || '/debug';
+            console.log('🧭 Login: Navigating to:', from);
+            navigate(from, { replace: true });
+            console.log('🧭 Login: Navigation called');
         } else {
+            console.log('❌ Login: Login failed', result.error);
             setError(result.error);
         }
 

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Package, DollarSign, ChevronLeft, ChevronRight, Eye, EyeOff, RefreshCw, ShoppingCart } from 'lucide-react';
 import { useItems } from '../../hooks/useData';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
+import { getRarityColor, getRarityClass, formatNumber } from '../../utils/helpers';
 import { t } from '../../constants/vietnamese';
 
 const RARITY_TYPES = {
@@ -134,8 +134,6 @@ export default function ItemsV2() {
                 return 'bg-gray-200';
         }
     };
-
-    const uniqueTypes = [...new Set(items.map(item => item.type))];
 
     return (
         <div>
@@ -491,7 +489,7 @@ function ItemModal({ item, onClose, onSave }) {
     };
 
     const removeEffect = (key) => {
-        const { [key]: removed, ...rest } = formData.effects;
+        const { [key]: _removed, ...rest } = formData.effects;
         setFormData({ ...formData, effects: rest });
     };
 

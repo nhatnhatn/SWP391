@@ -42,9 +42,10 @@ class ApiService {
                 throw new Error(data.message || data || `HTTP ${response.status}`);
             }
 
-            return data;        } catch (error) {
+            return data;
+        } catch (error) {
             console.error(`API request failed: ${endpoint}`, error);
-            
+
             // Handle different types of network errors
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                 throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra xem backend có đang chạy không (cổng 8080).');
@@ -53,7 +54,7 @@ class ApiService {
             } else if (error.message.includes('NetworkError')) {
                 throw new Error('Lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn.');
             }
-            
+
             throw error;
         }
     }
@@ -81,9 +82,7 @@ class ApiService {
         return this.request(endpoint, {
             method: 'DELETE'
         });
-    }
-
-    // Authentication API
+    }    // Authentication API
     async login(email, password) {
         const response = await this.post('/auth/login', { email, password });
         if (response.token) {
@@ -98,6 +97,20 @@ class ApiService {
             localStorage.setItem('authToken', response.token);
         }
         return response;
+    }
+
+    // Health check API
+    async checkHealth() {
+        try {
+            // Try to hit a simple endpoint to check if backend is alive
+            const response = await this.request('/auth/health', {
+                method: 'GET',
+                signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+            return { status: 'connected', response };
+        } catch (error) {
+            return { status: 'disconnected', error: error.message };
+        }
     }
 
     async changePassword(oldPassword, newPassword) {

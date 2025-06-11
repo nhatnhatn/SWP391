@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, Filter, Heart, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff, RefreshCw, Play, Utensils, Moon, Shield } from 'lucide-react';
 import { usePets } from '../../hooks/useData';
 import { RARITY_TYPES, PET_TYPES, RARITY_COLORS, RARITY_TRANSLATIONS, PET_TYPE_TRANSLATIONS } from '../../services/dataService';
-import { getRarityColor, getRarityClass, capitalize, formatNumber } from '../../utils/helpers';
-import { t } from '../../constants/vietnamese';
+import { formatNumber } from '../../utils/helpers';
 
-export default function PetsV2() {
-    // Use the custom hook for pets data
+export default function PetsV2() {    // Use the custom hook for pets data
     const {
         pets,
         loading,
@@ -14,8 +12,6 @@ export default function PetsV2() {
         pagination,
         fetchPets,
         searchPets,
-        createPet,
-        updatePet,
         deletePet,
         feedPet,
         playWithPet,
@@ -44,9 +40,8 @@ export default function PetsV2() {
             } else {
                 fetchPets(0, 6);
             }
-        }, 500);
-
-        return () => clearTimeout(timeoutId);
+        }, 500); return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchTerm, typeFilter, rarityFilter]);
 
     // Filter pets by type and rarity (client-side after API call)
@@ -517,8 +512,8 @@ export default function PetsV2() {
                                             key={page}
                                             onClick={() => goToPage(page)}
                                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${isActive
-                                                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                                                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                 }`}
                                         >
                                             {page}
