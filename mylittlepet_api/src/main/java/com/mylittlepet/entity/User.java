@@ -4,127 +4,82 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import jakarta.validation.constraints.Min;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "[User]") // Using brackets because User is a reserved word in SQL Server
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "UserID")
+    private Integer userId;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "Username", nullable = false, unique = true, length = 50)
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "Email", nullable = false, unique = true, length = 100)
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
-    @Column(nullable = false)
+
+    @Column(name = "PasswordHash", nullable = false, length = 255)
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
-    private String password;
+    private String passwordHash;
 
-    @Column(name = "full_name")
-    private String fullName;
-
-    @Column
-    private String phone;
-
-    @Column
-    private String address;
-
+    @Column(name = "Role", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role = UserRole.USER;
+    private UserRole role = UserRole.Player;
 
-    @Column(nullable = false)
-    private Integer level = 1;
+    @Column(name = "Coins", nullable = false)
+    @Min(value = 0, message = "Coins cannot be negative")
+    private Integer coins = 0;
 
-    @Column(nullable = false)
+    @Column(name = "Experience", nullable = false)
+    @Min(value = 0, message = "Experience cannot be negative")
     private Integer experience = 0;
 
-    @Column(nullable = false)
-    private Integer coins = 1000;
+    @Column(name = "Level", nullable = false)
+    @Min(value = 1, message = "Level must be at least 1")
+    private Integer level = 1;
 
-    @Column(name = "registered_at", nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDateTime registeredAt;
+    @Column(name = "IsActive", nullable = false)
+    private Boolean isActive = true;
 
-    @Column(name = "last_login")
-    private LocalDateTime lastLogin;
+    @Column(name = "CreatedDate", nullable = false)
+    private LocalDateTime createdDate = LocalDateTime.now();
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
-
-    @Column(name = "total_pets")
-    private Integer totalPets = 0;
-
-    @Column(name = "total_items")
-    private Integer totalItems = 0;
-
-    @Column(name = "total_achievements")
-    private Integer totalAchievements = 0;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Pet> pets = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CareHistory> careHistory = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserInventory> inventory = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Achievement> achievements = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ActivityLog> activityLogs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "reportedUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Report> reports = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AdminNote> adminNotes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AdminHistory> adminHistory = new ArrayList<>();
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "LastLoginDate")
+    private LocalDateTime lastLoginDate;
 
     // Constructors
     public User() {
     }
 
-    public User(String username, String email, String password) {
+    public User(String username, String email, String passwordHash) {
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.passwordHash = passwordHash;
+    }
+
+    public User(String username, String email, String passwordHash, UserRole role) {
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -143,36 +98,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public UserRole getRole() {
@@ -183,20 +114,20 @@ public class User {
         this.role = role;
     }
 
-    public Integer getExperience() {
-        return experience;
-    }
-
-    public void setExperience(Integer experience) {
-        this.experience = experience;
-    }
-
     public Integer getCoins() {
         return coins;
     }
 
     public void setCoins(Integer coins) {
         this.coins = coins;
+    }
+
+    public Integer getExperience() {
+        return experience;
+    }
+
+    public void setExperience(Integer experience) {
+        this.experience = experience;
     }
 
     public Integer getLevel() {
@@ -207,152 +138,173 @@ public class User {
         this.level = level;
     }
 
-    public LocalDateTime getRegisteredAt() {
-        return registeredAt;
+    public Boolean getIsActive() {
+        return isActive;
     }
 
-    public void setRegisteredAt(LocalDateTime registeredAt) {
-        this.registeredAt = registeredAt;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
-    public LocalDateTime getLastLogin() {
-        return lastLogin;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
-    public void setLastLogin(LocalDateTime lastLogin) {
-        this.lastLogin = lastLogin;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(LocalDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    } // Legacy methods for compatibility with existing code
+
+    public Integer getId() {
+        return userId;
+    }
+
+    public void setId(Integer id) {
+        this.userId = id;
+    }
+
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    public void setPassword(String password) {
+        this.passwordHash = password;
+    }
+
+    public String getFullName() {
+        return username; // Using username as full name for now
+    }
+
+    public void setFullName(String fullName) {
+        // Optional: could store in separate field if needed
     }
 
     public UserStatus getStatus() {
-        return status;
+        return isActive ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
     public void setStatus(UserStatus status) {
-        this.status = status;
+        this.isActive = (status == UserStatus.ACTIVE);
     }
 
     public Integer getTotalPets() {
-        return totalPets;
+        return 0; // Placeholder - could be calculated from relationships
     }
 
     public void setTotalPets(Integer totalPets) {
-        this.totalPets = totalPets;
+        // Placeholder for compatibility
     }
 
     public Integer getTotalItems() {
-        return totalItems;
+        return 0; // Placeholder - could be calculated from relationships
     }
 
     public void setTotalItems(Integer totalItems) {
-        this.totalItems = totalItems;
-    }
-
-    public Integer getTotalAchievements() {
-        return totalAchievements;
-    }
-
-    public void setTotalAchievements(Integer totalAchievements) {
-        this.totalAchievements = totalAchievements;
-    }
-
-    public List<Pet> getPets() {
-        return pets;
-    }
-
-    public void setPets(List<Pet> pets) {
-        this.pets = pets;
-    }
-
-    public List<CareHistory> getCareHistory() {
-        return careHistory;
-    }
-
-    public void setCareHistory(List<CareHistory> careHistory) {
-        this.careHistory = careHistory;
-    }
-
-    public List<UserInventory> getInventory() {
-        return inventory;
-    }
-
-    public void setInventory(List<UserInventory> inventory) {
-        this.inventory = inventory;
-    }
-
-    public List<Achievement> getAchievements() {
-        return achievements;
-    }
-
-    public void setAchievements(List<Achievement> achievements) {
-        this.achievements = achievements;
-    }
-
-    public List<ActivityLog> getActivityLogs() {
-        return activityLogs;
-    }
-
-    public void setActivityLogs(List<ActivityLog> activityLogs) {
-        this.activityLogs = activityLogs;
-    }
-
-    public List<Report> getReports() {
-        return reports;
-    }
-
-    public void setReports(List<Report> reports) {
-        this.reports = reports;
-    }
-
-    public List<AdminNote> getAdminNotes() {
-        return adminNotes;
-    }
-
-    public void setAdminNotes(List<AdminNote> adminNotes) {
-        this.adminNotes = adminNotes;
-    }
-
-    public List<AdminHistory> getAdminHistory() {
-        return adminHistory;
-    }
-
-    public void setAdminHistory(List<AdminHistory> adminHistory) {
-        this.adminHistory = adminHistory;
+        // Placeholder for compatibility
     }
 
     public LocalDateTime getCreatedAt() {
-        return createdAt;
+        return createdDate;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        this.createdDate = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+        return createdDate; // Using created date as placeholder
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    } // Enum for user status
-
-    public enum UserStatus {
-        ACTIVE, INACTIVE, BANNED, SUSPENDED, DELETED
+        // Placeholder for compatibility
     }
 
-    // Enum for user role
+    public LocalDateTime getLastLogin() {
+        return lastLoginDate;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLoginDate = lastLogin;
+    }
+
+    // Utility methods
+    public void addCoins(Integer amount) {
+        this.coins += amount;
+    }
+
+    public boolean subtractCoins(Integer amount) {
+        if (this.coins >= amount) {
+            this.coins -= amount;
+            return true;
+        }
+        return false;
+    }
+
+    public void addExperience(Integer exp) {
+        this.experience += exp;
+        // Simple level calculation (every 100 exp = 1 level)
+        int newLevel = (this.experience / 100) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+        }
+    }
+
+    public boolean isAdmin() {
+        return role == UserRole.Admin;
+    }
+
+    public boolean isManager() {
+        return role == UserRole.Manager || role == UserRole.Admin;
+    }
+
+    public boolean isPlayer() {
+        return role == UserRole.Player;
+    }
+
+    // toString, equals, and hashCode
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                ", coins=" + coins +
+                ", experience=" + experience +
+                ", level=" + level +
+                ", isActive=" + isActive +
+                ", createdDate=" + createdDate +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof User))
+            return false;
+        User user = (User) o;
+        return userId != null && userId.equals(user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    } // User Role Enum
+
     public enum UserRole {
-        USER("User"),
-        ADMIN("Admin"),
-        MANAGER("Manager");
+        Player, Manager, Admin, USER, ADMIN // Added legacy values for compatibility
+    }
 
-        private final String displayName;
-
-        UserRole(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
+    // User Status Enum
+    public enum UserStatus {
+        ACTIVE, INACTIVE, BANNED, PENDING
     }
 }

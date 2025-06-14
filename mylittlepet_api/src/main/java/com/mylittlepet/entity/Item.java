@@ -1,98 +1,94 @@
 package com.mylittlepet.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
-@Table(name = "items")
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "ShopProduct")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "ShopProductID")
+    private Integer itemId;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Item name is required")
-    @Size(min = 1, max = 100, message = "Item name must be between 1 and 100 characters")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ShopID", nullable = false)
+    private Shop shop;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AdminID", nullable = false)
+    private User admin;
+
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "Name", nullable = false)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ItemType type;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RarityType rarity;
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @NotBlank
+    @Size(max = 20)
+    @Column(name = "Type", nullable = false)
+    private String type;
+
+    @Size(max = 255)
+    @Column(name = "Description")
     private String description;
 
-    @Column(name = "image_url")
+    @Size(max = 255)
+    @Column(name = "ImageUrl")
     private String imageUrl;
 
-    @Column(name = "sell_price")
-    @Min(value = 0, message = "Sell price must be non-negative")
-    private Integer sellPrice = 0;
+    @NotNull
+    @Column(name = "Price", nullable = false)
+    private Integer price;
 
-    @Column(name = "is_in_shop", nullable = false)
-    private Boolean isInShop = true;
+    @NotBlank
+    @Size(max = 20)
+    @Column(name = "CurrencyType", nullable = false)
+    private String currencyType;
 
-    @ElementCollection
-    @CollectionTable(name = "item_stats", joinColumns = @JoinColumn(name = "item_id"))
-    @MapKeyColumn(name = "stat_name")
-    @Column(name = "stat_value")
-    private Map<String, String> stats = new HashMap<>();
-
-    @ElementCollection
-    @CollectionTable(name = "item_effects", joinColumns = @JoinColumn(name = "item_id"))
-    @MapKeyColumn(name = "effect_name")
-    @Column(name = "effect_value")
-    private Map<String, Integer> effects = new HashMap<>();
-
-    @Column(nullable = false)
-    @Min(value = 0, message = "Price must be non-negative")
-    private Integer price = 0;
-
-    @Column(nullable = false)
-    @Min(value = 0, message = "Quantity must be non-negative")
-    private Integer quantity = 0;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "Quality")
+    private Integer quality = 100;
 
     // Constructors
     public Item() {
     }
 
-    public Item(String name, ItemType type, RarityType rarity, String description, Integer price,
-            Integer quantity) {
+    public Item(String name, String type, String description, String imageUrl,
+            Integer price, String currencyType, Integer quality) {
         this.name = name;
         this.type = type;
-        this.rarity = rarity;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.price = price;
-        this.quantity = quantity;
+        this.currencyType = currencyType;
+        this.quality = quality;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Integer getItemId() {
+        return itemId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setItemId(Integer itemId) {
+        this.itemId = itemId;
+    }
+
+    public Shop getShop() {
+        return shop;
+    }
+
+    public void setShop(Shop shop) {
+        this.shop = shop;
+    }
+
+    public User getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(User admin) {
+        this.admin = admin;
     }
 
     public String getName() {
@@ -103,20 +99,12 @@ public class Item {
         this.name = name;
     }
 
-    public ItemType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(ItemType type) {
+    public void setType(String type) {
         this.type = type;
-    }
-
-    public RarityType getRarity() {
-        return rarity;
-    }
-
-    public void setRarity(RarityType rarity) {
-        this.rarity = rarity;
     }
 
     public String getDescription() {
@@ -135,38 +123,6 @@ public class Item {
         this.imageUrl = imageUrl;
     }
 
-    public Integer getSellPrice() {
-        return sellPrice;
-    }
-
-    public void setSellPrice(Integer sellPrice) {
-        this.sellPrice = sellPrice;
-    }
-
-    public Boolean getIsInShop() {
-        return isInShop;
-    }
-
-    public void setIsInShop(Boolean isInShop) {
-        this.isInShop = isInShop;
-    }
-
-    public Map<String, String> getStats() {
-        return stats;
-    }
-
-    public void setStats(Map<String, String> stats) {
-        this.stats = stats;
-    }
-
-    public Map<String, Integer> getEffects() {
-        return effects;
-    }
-
-    public void setEffects(Map<String, Integer> effects) {
-        this.effects = effects;
-    }
-
     public Integer getPrice() {
         return price;
     }
@@ -175,66 +131,32 @@ public class Item {
         this.price = price;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public String getCurrencyType() {
+        return currencyType;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setCurrencyType(String currencyType) {
+        this.currencyType = currencyType;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Integer getQuality() {
+        return quality;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setQuality(Integer quality) {
+        this.quality = quality;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    // Enums
-    public enum ItemType {
-        FOOD("Food"),
-        MEDICINE("Medicine"),
-        ACCESSORY("Accessory"),
-        CONSUMABLE("Consumable"),
-        MATERIAL("Material"),
-        TOY("Toy");
-
-        private final String displayName;
-
-        ItemType(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
-
-    public enum RarityType {
-        COMMON("Common"),
-        UNCOMMON("Uncommon"),
-        RARE("Rare"),
-        EPIC("Epic"),
-        LEGENDARY("Legendary"),
-        MYTHIC("Mythic");
-
-        private final String displayName;
-
-        RarityType(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
+    @Override
+    public String toString() {
+        return "Item{" +
+                "itemId=" + itemId +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", currencyType='" + currencyType + '\'' +
+                ", quality=" + quality +
+                '}';
     }
 }
