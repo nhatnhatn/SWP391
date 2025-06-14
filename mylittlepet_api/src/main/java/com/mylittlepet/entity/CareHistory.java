@@ -144,4 +144,18 @@ public class CareHistory {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    // Enum definition
+    public enum CareType {
+        FEEDING,
+        PLAYING,
+        CLEANING,
+        MEDICINE,
+        TRAINING,
+        EXERCISE,
+        GROOMING,
+        RESTING,
+        SOCIALIZING,
+        CHECKUP
+    }
 }

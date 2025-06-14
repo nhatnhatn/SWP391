@@ -56,6 +56,12 @@ public class User {
     @Column(name = "LastLoginDate")
     private LocalDateTime lastLoginDate;
 
+    @Column(name = "Phone", length = 20)
+    private String phone;
+
+    @Column(name = "Address", length = 255)
+    private String address;
+
     // Constructors
     public User() {
     }
@@ -160,6 +166,22 @@ public class User {
 
     public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     } // Legacy methods for compatibility with existing code
 
     public Integer getId() {
@@ -301,10 +323,9 @@ public class User {
 
     public enum UserRole {
         Player, Manager, Admin, USER, ADMIN // Added legacy values for compatibility
-    }
+    } // User Status Enum
 
-    // User Status Enum
     public enum UserStatus {
-        ACTIVE, INACTIVE, BANNED, PENDING
+        ACTIVE, INACTIVE, BANNED, PENDING, DELETED
     }
 }

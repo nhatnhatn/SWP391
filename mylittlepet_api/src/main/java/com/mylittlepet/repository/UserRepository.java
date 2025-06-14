@@ -24,6 +24,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
         List<User> findByRole(String role);
 
+        List<User> findByStatus(User.UserStatus status);
+
         @Query("SELECT u FROM User u WHERE " +
                         "LOWER(u.userName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
                         "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))")
