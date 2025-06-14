@@ -100,11 +100,11 @@ public class PetService {
         generateRandomStats(pet);
 
         Pet savedPet = petRepository.save(pet);
-        
+
         // Update user's pet count
-        userService.updateUserStats(owner.getId(), 
-            petRepository.countByOwnerId(owner.getId()).intValue(), 
-            owner.getTotalItems());
+        userService.updateUserStats(owner.getId(),
+                petRepository.countByOwnerId(owner.getId()).intValue(),
+                owner.getTotalItems());
 
         // Add experience for getting a new pet
         userService.addExperience(owner.getId(), 50);
@@ -153,14 +153,14 @@ public class PetService {
     public void deletePet(Long id) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thú cưng"));
-        
+
         Long ownerId = pet.getOwner().getId();
         petRepository.delete(pet);
 
         // Update user's pet count
-        userService.updateUserStats(ownerId, 
-            petRepository.countByOwnerId(ownerId).intValue(), 
-            pet.getOwner().getTotalItems());
+        userService.updateUserStats(ownerId,
+                petRepository.countByOwnerId(ownerId).intValue(),
+                pet.getOwner().getTotalItems());
     }
 
     public PetDTO feedPet(Long petId) {
@@ -262,6 +262,7 @@ public class PetService {
             case RARE -> 90;
             case EPIC -> 110;
             case LEGENDARY -> 130;
+            case MYTHIC -> 150;
         };
 
         pet.setAttack(baseStats + random.nextInt(20));
@@ -303,15 +304,12 @@ public class PetService {
         dto.setOwnerId(pet.getOwner().getId());
         dto.setOwnerName(pet.getOwner().getUsername());
         dto.setCreatedAt(pet.getCreatedAt());
-        dto.setUpdatedAt(pet.getUpdatedAt());
-
-        // Create summary DTO
+        dto.setUpdatedAt(pet.getUpdatedAt()); // Create summary DTO
         PetSummaryDTO summary = new PetSummaryDTO();
         summary.setId(pet.getId());
         summary.setName(pet.getName());
-        summary.setType(pet.getType());
-        summary.setRarity(pet.getRarity());
-        summary.setLevel(pet.getLevel());
+        summary.setType(pet.getType().getDisplayName());
+        summary.setAge(pet.getLevel()); // Using level as age for summary
         summary.setImageUrl(pet.getImageUrl());
         dto.setSummary(summary);
 

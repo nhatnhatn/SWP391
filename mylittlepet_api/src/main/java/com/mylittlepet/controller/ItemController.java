@@ -34,14 +34,10 @@ public class ItemController {
     @Autowired
     private ItemService itemService;
 
-    @Operation(
-        summary = "Get all items",
-        description = "Retrieve all items including Food (🍞), Medicine (💊), Toy (🧸), and Accessory items"
-    )
+    @Operation(summary = "Get all items", description = "Retrieve all items including Food (🍞), Medicine (💊), Toy (🧸), and Accessory items")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Items retrieved successfully",
-            content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "400", description = "Bad request")
+            @ApiResponse(responseCode = "200", description = "Items retrieved successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @GetMapping
     public ResponseEntity<List<ItemDTO>> getAllItems() {
@@ -63,16 +59,14 @@ public class ItemController {
             return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get item by ID",
-        description = "Retrieve a specific item by its unique identifier"
-    )
+    @Operation(summary = "Get item by ID", description = "Retrieve a specific item by its unique identifier")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item found successfully"),
-        @ApiResponse(responseCode = "404", description = "Item not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid item ID")
+            @ApiResponse(responseCode = "200", description = "Item found successfully"),
+            @ApiResponse(responseCode = "404", description = "Item not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid item ID")
     })
     @GetMapping("/{id}")
     public ResponseEntity<ItemDTO> getItemById(@PathVariable Long id) {
@@ -82,15 +76,13 @@ public class ItemController {
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get items by type",
-        description = "Retrieve all items of a specific type (FOOD, TOY, MEDICINE, ACCESSORY, etc.)"
-    )
+    @Operation(summary = "Get items by type", description = "Retrieve all items of a specific type (FOOD, TOY, MEDICINE, ACCESSORY, etc.)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid item type")
+            @ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid item type")
     })
     @GetMapping("/type/{type}")
     public ResponseEntity<List<ItemDTO>> getItemsByType(@PathVariable Item.ItemType type) {
@@ -99,32 +91,28 @@ public class ItemController {
             return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get items by rarity",
-        description = "Retrieve all items of a specific rarity level (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC)"
-    )
+    @Operation(summary = "Get items by rarity", description = "Retrieve all items of a specific rarity level (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid rarity type")
+            @ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid rarity type")
     })
     @GetMapping("/rarity/{rarity}")
-    public ResponseEntity<List<ItemDTO>> getItemsByRarity(@PathVariable Pet.RarityType rarity) {
+    public ResponseEntity<List<ItemDTO>> getItemsByRarity(@PathVariable Item.RarityType rarity) {
         try {
             List<ItemDTO> items = itemService.getItemsByRarity(rarity);
             return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Search items",
-        description = "Search items by keyword (name or description)"
-    )
+    @Operation(summary = "Search items", description = "Search items by keyword (name or description)")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Search completed successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid search parameters")
+            @ApiResponse(responseCode = "200", description = "Search completed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid search parameters")
     })
     @GetMapping("/search")
     public ResponseEntity<List<ItemDTO>> searchItems(@RequestParam String keyword) {
@@ -143,15 +131,13 @@ public class ItemController {
             return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Get user inventory",
-        description = "Retrieve all items in a specific user's inventory"
-    )
+    @Operation(summary = "Get user inventory", description = "Retrieve all items in a specific user's inventory")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User inventory retrieved successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid user ID")
+            @ApiResponse(responseCode = "200", description = "User inventory retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid user ID")
     })
     @GetMapping("/inventory/{userId}")
     public ResponseEntity<List<ItemDTO>> getUserInventory(@PathVariable Long userId) {
@@ -160,15 +146,13 @@ public class ItemController {
             return ResponseEntity.ok(items);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Create new item",
-        description = "Create a new item for the Vietnamese Pet Shop System"
-    )
+    @Operation(summary = "Create new item", description = "Create a new item for the Vietnamese Pet Shop System")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item created successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid item data")
+            @ApiResponse(responseCode = "200", description = "Item created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid item data")
     })
     @PostMapping
     public ResponseEntity<?> createItem(@Valid @RequestBody ItemDTO itemDTO) {
@@ -177,16 +161,14 @@ public class ItemController {
             return ResponseEntity.ok(createdItem);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Update item",
-        description = "Update an existing item's information"
-    )
+    @Operation(summary = "Update item", description = "Update an existing item's information")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item updated successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid item data"),
-        @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(responseCode = "200", description = "Item updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid item data"),
+            @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateItem(@PathVariable Long id, @Valid @RequestBody ItemDTO itemDTO) {
@@ -195,16 +177,14 @@ public class ItemController {
             return ResponseEntity.ok(updatedItem);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
-        }    }
+        }
+    }
 
-    @Operation(
-        summary = "Delete item",
-        description = "Remove an item from the system permanently"
-    )
+    @Operation(summary = "Delete item", description = "Remove an item from the system permanently")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item deleted successfully"),
-        @ApiResponse(responseCode = "400", description = "Cannot delete item"),
-        @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(responseCode = "200", description = "Item deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Cannot delete item"),
+            @ApiResponse(responseCode = "404", description = "Item not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable Long id) {
@@ -214,23 +194,18 @@ public class ItemController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
-    }    @Operation(
-        summary = "Purchase item",
-        description = "Buy an item from the Vietnamese Pet Shop using coins"
-    )
+    }
+
+    @Operation(summary = "Purchase item", description = "Buy an item from the Vietnamese Pet Shop using coins")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Item purchased successfully",
-            content = @Content(mediaType = "application/json")),
-        @ApiResponse(responseCode = "400", description = "Purchase failed - insufficient coins or invalid item")
+            @ApiResponse(responseCode = "200", description = "Item purchased successfully", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Purchase failed - insufficient coins or invalid item")
     })
     @PostMapping("/{itemId}/purchase")
     public ResponseEntity<?> purchaseItem(
-            @Parameter(description = "Item ID to purchase", required = true)
-            @PathVariable Long itemId,
-            @Parameter(description = "User ID making the purchase", required = true)
-            @RequestParam Long userId,
-            @Parameter(description = "Quantity to purchase", example = "1")
-            @RequestParam(required = false) Integer quantity) {
+            @Parameter(description = "Item ID to purchase", required = true) @PathVariable Long itemId,
+            @Parameter(description = "User ID making the purchase", required = true) @RequestParam Long userId,
+            @Parameter(description = "Quantity to purchase", example = "1") @RequestParam(required = false) Integer quantity) {
         try {
             ItemDTO item = itemService.purchaseItem(userId, itemId, quantity);
             return ResponseEntity.ok(new PurchaseResponse("Mua vật phẩm thành công", item));

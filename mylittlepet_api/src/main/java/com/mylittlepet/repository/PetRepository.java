@@ -1,49 +1,25 @@
 package com.mylittlepet.repository;
 
 import com.mylittlepet.entity.Pet;
-import com.mylittlepet.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface PetRepository extends JpaRepository<Pet, Long> {
+public interface PetRepository extends JpaRepository<Pet, Integer> {
 
-    List<Pet> findByOwner(User owner);
+        List<Pet> findByPetType(String petType);
 
-    Page<Pet> findByOwner(User owner, Pageable pageable);
+        @Query("SELECT p FROM Pet p WHERE p.admin.id = :adminId")
+        List<Pet> findByAdminId(@Param("adminId") Integer adminId);
 
-    @Query("SELECT p FROM Pet p WHERE " +
-            "LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))")
-    Page<Pet> findByNameContainingIgnoreCaseOrTypeContainingIgnoreCase(
-            @Param("search") String search, Pageable pageable);
+        @Query("SELECT p FROM Pet p WHERE p.petType = :petType AND p.admin.id = :adminId")
+        List<Pet> findByPetTypeAndAdminId(@Param("petType") String petType, @Param("adminId") Integer adminId);
 
-    Page<Pet> findByType(Pet.PetType type, Pageable pageable);
-
-    Page<Pet> findByRarity(Pet.RarityType rarity, Pageable pageable);
-
-    @Query("SELECT p FROM Pet p WHERE p.type = :type AND p.rarity = :rarity")
-    Page<Pet> findByTypeAndRarity(
-            @Param("type") Pet.PetType type,
-            @Param("rarity") Pet.RarityType rarity,
-            Pageable pageable);
-
-    @Query("SELECT p FROM Pet p WHERE " +
-            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.type) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-            "(:type IS NULL OR p.type = :type) AND " +
-            "(:rarity IS NULL OR p.rarity = :rarity)")
-    Page<Pet> findPetsWithFilters(
-            @Param("search") String search,
-            @Param("type") Pet.PetType type,
-            @Param("rarity") Pet.RarityType rarity,
-            Pageable pageable);
-
-    long countByOwner(User owner);
+        @Query("SELECT p FROM Pet p ORDER BY p.createdDate DESC")
+        List<Pet> findAllOrderByCreatedDateDesc();
 }

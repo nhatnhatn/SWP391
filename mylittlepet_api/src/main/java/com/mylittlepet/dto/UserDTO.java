@@ -19,6 +19,13 @@ public class UserDTO {
     @Email(message = "Email should be valid")
     private String email;
 
+    private String password;
+    private String fullName;
+    private String phone;
+    private String address;
+    private User.UserRole role;
+    private Integer experience;
+    private Integer coins;
     private Integer level;
     private LocalDateTime registeredAt;
     private LocalDateTime lastLogin;
@@ -26,6 +33,8 @@ public class UserDTO {
     private Integer totalPets;
     private Integer totalItems;
     private Integer totalAchievements;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     // For detailed view
     private List<PetSummaryDTO> pets;
@@ -64,6 +73,62 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public User.UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(User.UserRole role) {
+        this.role = role;
+    }
+
+    public Integer getExperience() {
+        return experience;
+    }
+
+    public void setExperience(Integer experience) {
+        this.experience = experience;
+    }
+
+    public Integer getCoins() {
+        return coins;
+    }
+
+    public void setCoins(Integer coins) {
+        this.coins = coins;
     }
 
     public Integer getLevel() {
@@ -184,5 +249,21 @@ public class UserDTO {
 
     public void setAdminHistory(List<AdminHistoryDTO> adminHistory) {
         this.adminHistory = adminHistory;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

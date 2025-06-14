@@ -1,109 +1,161 @@
 package com.mylittlepet.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import jakarta.validation.constraints.Min;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "care_history")
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "CareHistory")
 public class CareHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "CareHistoryID")
+    private Integer careHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "PlayerPetID", nullable = false)
+    private PlayerPet playerPet;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ActivityID", nullable = false)
+    private CareActivity careActivity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_id", nullable = false)
-    private Pet pet;
+    @JoinColumn(name = "PlayerID", nullable = false)
+    private User player;
+    @Column(name = "PerformedAt", nullable = false)
+    private LocalDateTime performedAt = LocalDateTime.now();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ItemUsedID")
+    private Item itemUsed;
 
-    @Column(name = "pet_name", nullable = false)
-    @NotBlank(message = "Pet name is required")
-    private String petName;
+    @Column(name = "CoinsSpent")
+    @Min(value = 0, message = "Coins spent cannot be negative")
+    private Integer coinsSpent = 0;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Action is required")
-    private String action;
-
-    @Column(columnDefinition = "TEXT")
-    private String details;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime date;
+    @Column(name = "ExperienceGained")
+    @Min(value = 0, message = "Experience gained cannot be negative")
+    private Integer experienceGained = 0;
 
     // Constructors
     public CareHistory() {
     }
 
-    public CareHistory(User user, Pet pet, String petName, String action, String details) {
-        this.user = user;
-        this.pet = pet;
-        this.petName = petName;
-        this.action = action;
-        this.details = details;
+    public CareHistory(PlayerPet playerPet, CareActivity careActivity) {
+        this.playerPet = playerPet;
+        this.careActivity = careActivity;
+    }
+
+    public CareHistory(PlayerPet playerPet, CareActivity careActivity, Item itemUsed, Integer coinsSpent,
+            Integer experienceGained) {
+        this.playerPet = playerPet;
+        this.careActivity = careActivity;
+        this.itemUsed = itemUsed;
+        this.coinsSpent = coinsSpent;
+        this.experienceGained = experienceGained;
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
+    public Integer getCareHistoryId() {
+        return careHistoryId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCareHistoryId(Integer careHistoryId) {
+        this.careHistoryId = careHistoryId;
     }
 
-    public User getUser() {
-        return user;
+    public PlayerPet getPlayerPet() {
+        return playerPet;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setPlayerPet(PlayerPet playerPet) {
+        this.playerPet = playerPet;
     }
 
-    public Pet getPet() {
-        return pet;
+    public CareActivity getCareActivity() {
+        return careActivity;
     }
 
-    public void setPet(Pet pet) {
-        this.pet = pet;
+    public void setCareActivity(CareActivity careActivity) {
+        this.careActivity = careActivity;
     }
 
-    public String getPetName() {
-        return petName;
+    public LocalDateTime getPerformedAt() {
+        return performedAt;
     }
 
-    public void setPetName(String petName) {
-        this.petName = petName;
+    public void setPerformedAt(LocalDateTime performedAt) {
+        this.performedAt = performedAt;
     }
 
-    public String getAction() {
-        return action;
+    public User getPlayer() {
+        return player;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setPlayer(User player) {
+        this.player = player;
     }
 
-    public String getDetails() {
-        return details;
+    public Item getItemUsed() {
+        return itemUsed;
     }
 
-    public void setDetails(String details) {
-        this.details = details;
+    public void setItemUsed(Item itemUsed) {
+        this.itemUsed = itemUsed;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public Integer getCoinsSpent() {
+        return coinsSpent;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setCoinsSpent(Integer coinsSpent) {
+        this.coinsSpent = coinsSpent;
+    }
+
+    public Integer getExperienceGained() {
+        return experienceGained;
+    }
+
+    public void setExperienceGained(Integer experienceGained) {
+        this.experienceGained = experienceGained;
+    }
+
+    @Override
+    public String toString() {
+        return "CareHistory{" +
+                "careHistoryId=" + careHistoryId +
+                ", performedAt=" + performedAt +
+                ", coinsSpent=" + coinsSpent +
+                ", experienceGained=" + experienceGained +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof CareHistory))
+            return false;
+        CareHistory that = (CareHistory) o;
+        return careHistoryId != null && careHistoryId.equals(that.careHistoryId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    // Enum definition
+    public enum CareType {
+        FEEDING,
+        PLAYING,
+        CLEANING,
+        MEDICINE,
+        TRAINING,
+        EXERCISE,
+        GROOMING,
+        RESTING,
+        SOCIALIZING,
+        CHECKUP
     }
 }

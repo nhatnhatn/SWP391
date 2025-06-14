@@ -48,7 +48,7 @@ public class UserService {
     }
 
     public List<UserDTO> searchUsers(String keyword) {
-        return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword)
+        return userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
-        
+
         user.setStatus(User.UserStatus.DELETED);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -149,7 +149,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
         user.setExperience(user.getExperience() + experience);
-        
+
         // Level up logic
         int newLevel = calculateLevel(user.getExperience());
         if (newLevel > user.getLevel()) {
