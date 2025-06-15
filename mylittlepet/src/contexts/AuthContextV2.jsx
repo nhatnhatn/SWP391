@@ -52,17 +52,15 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             console.log('🔐 AuthContextV2: Starting login process', { email });
-            console.log('🌐 AuthContextV2: Current user state before login:', user);
-
-            // Try backend authentication first
+            console.log('🌐 AuthContextV2: Current user state before login:', user);            // Try backend authentication first
             const response = await apiService.login(email, password);
             console.log('✅ AuthContextV2: Backend login successful:', response);
 
             const userData = {
-                id: response.userId,
-                email: response.email || email,
-                name: response.name || response.username || 'Admin User',
-                role: response.role || 'admin',
+                id: response.adminInfo?.id || response.userId,
+                email: response.adminInfo?.email || response.email || email,
+                name: response.adminInfo?.username || response.name || response.username || 'Admin User',
+                role: response.adminInfo?.role || response.role || 'admin',
                 avatar: response.avatar || null,
                 loginTime: new Date().toISOString(),
                 token: response.token

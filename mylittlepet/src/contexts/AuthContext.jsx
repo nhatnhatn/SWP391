@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import apiService from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,22 +13,76 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    // Check for existing authentication on app load
+    const [loading, setLoading] = useState(true);// Check for existing authentication on app load
     useEffect(() => {
-        const storedUser = localStorage.getItem('adminUser');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error('Error parsing stored user:', error);
-                localStorage.removeItem('adminUser');
+        const initAuth = async () => {
+            const token = localStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('adminUser');
+
+            console.log('🔍 AuthContext: Initial auth check', {
+                hasToken: !!token,
+                hasStoredUser: !!storedUser,
+                tokenPreview: token ? token.substring(0, 20) + '...' : null,
+                storedUserPreview: storedUser ? storedUser.substring(0, 50) + '...' : null
+            }); if (token && storedUser) {
+                try {
+                    const userData = JSON.parse(storedUser); console.log('🔍 AuthContext: Validating stored user data', userData);
+
+                    // Skip token validation for now to prevent loops
+                    // await apiService.healthCheck();
+                    console.log('✅ AuthContext: Using stored user data without validation');
+                    setUser(userData);
+                } catch (error) {
+                    console.error('❌ AuthContext: Token validation failed:', error);
+                    // Clear invalid token and user data
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('adminUser');
+                    setUser(null);
+                }
+            } else {
+                console.log('❌ AuthContext: No stored auth data found');
             }
-        }
-        setLoading(false);
-    }, []); const login = async (email, password) => {
+            setLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const login = async (email, password) => {
         try {
+            console.log('🔐 AuthContext: Starting login process', { email });
+            console.log('🌐 AuthContext: Current user state before login:', user);
+
+            // Try backend authentication first
+            const response = await apiService.login(email, password);
+            console.log('✅ AuthContext: Backend login successful:', response);
+
+            const userData = {
+                id: response.adminInfo?.id || response.userId,
+                email: response.adminInfo?.email || response.email || email,
+                name: response.adminInfo?.username || response.name || response.username || 'Admin User',
+                role: response.adminInfo?.role || response.role || 'admin',
+                avatar: response.avatar || null,
+                loginTime: new Date().toISOString(),
+                token: response.token
+            }; console.log('📝 AuthContext: Setting user data:', userData);
+            setUser(userData);
+            localStorage.setItem('adminUser', JSON.stringify(userData));
+            console.log('✅ AuthContext: User state updated successfully');
+
+            return { success: true, user: userData };
+        } catch (error) {
+            console.error('❌ AuthContext: Backend login failed, trying fallback:', error);
+
+            // Fallback to local authentication for development
+            return await fallbackLogin(email, password);
+        }
+    };
+
+    const fallbackLogin = async (email, password) => {
+        try {
+            console.log('🔄 Attempting fallback login');
+
             // Get stored admin users from localStorage
             const storedAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
 
@@ -36,7 +91,23 @@ export const AuthProvider = ({ children }) => {
                 admin.email === email && admin.password === password
             );
 
-            // Also check default admin
+            if (adminUser) {
+                const userData = {
+                    id: adminUser.id,
+                    email: adminUser.email,
+                    name: adminUser.name,
+                    role: 'admin',
+                    avatar: adminUser.avatar || null,
+                    loginTime: new Date().toISOString()
+                };
+
+                setUser(userData);
+                localStorage.setItem('adminUser', JSON.stringify(userData));
+                console.log('✅ Fallback login successful (stored admin):', userData);
+                return { success: true, user: userData };
+            }
+
+            // Check default admin
             if (email === 'admin@mylittlepet.com' && password === 'admin123') {
                 const userData = {
                     id: 'default-admin',
@@ -49,94 +120,73 @@ export const AuthProvider = ({ children }) => {
 
                 setUser(userData);
                 localStorage.setItem('adminUser', JSON.stringify(userData));
-                return { success: true };
-            } else if (adminUser) {
-                const userData = {
-                    id: adminUser.id,
-                    email: adminUser.email,
-                    name: adminUser.name,
-                    role: 'admin',
-                    avatar: null,
-                    loginTime: new Date().toISOString()
-                };
-
-                setUser(userData);
-                localStorage.setItem('adminUser', JSON.stringify(userData));
-                return { success: true };
-            } else {
-                return {
-                    success: false,
-                    error: 'Invalid email or password'
-                };
+                console.log('✅ Fallback login successful (default admin):', userData);
+                return { success: true, user: userData };
             }
+
+            console.log('❌ Fallback login failed: Invalid credentials');
+            return { success: false, error: 'Thông tin đăng nhập không chính xác' };
+
         } catch (error) {
-            console.error('Login error:', error);
-            return {
-                success: false,
-                error: 'Login failed. Please try again.'
-            };
+            console.error('❌ Fallback login error:', error);
+            return { success: false, error: 'Lỗi đăng nhập. Vui lòng thử lại.' };
         }
     };
 
-    const register = async (email, password, fullName) => {
+    const register = async (userData) => {
         try {
-            // Get existing admin users
-            const storedAdmins = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+            const response = await apiService.register(userData);
 
-            // Check if email already exists
-            const emailExists = storedAdmins.some(admin => admin.email === email) ||
-                email === 'admin@mylittlepet.com';
-
-            if (emailExists) {
-                return {
-                    success: false,
-                    error: 'Email already exists'
-                };
-            }
-
-            // Validate password strength
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-            if (!passwordRegex.test(password)) {
-                return {
-                    success: false,
-                    error: 'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers'
-                };
-            }
-
-            // Create new admin user
-            const newAdmin = {
-                id: `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                email: email,
-                password: password,
-                name: fullName,
-                role: 'admin',
-                createdAt: new Date().toISOString()
+            const newUser = {
+                id: response.userId,
+                email: response.email || userData.email,
+                name: response.name || userData.name,
+                role: response.role || 'user',
+                avatar: response.avatar || null,
+                loginTime: new Date().toISOString(),
+                token: response.token
             };
 
-            // Save to localStorage
-            const updatedAdmins = [...storedAdmins, newAdmin];
-            localStorage.setItem('adminUsers', JSON.stringify(updatedAdmins));
+            setUser(newUser);
+            localStorage.setItem('adminUser', JSON.stringify(newUser));
 
-            return { success: true };
+            return { success: true, user: newUser };
+
         } catch (error) {
-            console.error('Registration error:', error);
-            return {
-                success: false,
-                error: 'Registration failed. Please try again.'
-            };
+            console.error('Registration failed:', error);
+            return { success: false, error: error.message || 'Đăng ký thất bại' };
         }
     };
 
-    const logout = () => {
-        setUser(null);
+    const changePassword = async (oldPassword, newPassword) => {
+        try {
+            await apiService.changePassword(oldPassword, newPassword);
+            return { success: true, message: 'Đổi mật khẩu thành công' };
+        } catch (error) {
+            console.error('Change password failed:', error);
+            return { success: false, error: error.message || 'Đổi mật khẩu thất bại' };
+        }
+    }; const logout = () => {
+        console.log('🚪 Logging out user');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('adminUser');
-    }; const value = {
+        setUser(null);
+    };    // Debug function to clear all auth data
+    const clearAuthData = () => {
+        console.log('🧹 Clearing all auth data');
+        localStorage.clear(); // Clear everything
+        setUser(null);
+    };
+
+    const value = {
         user,
         login,
         register,
         logout,
-        loading,
-        isAuthenticated: !!user
+        changePassword,
+        clearAuthData,
+        isAuthenticated: !!user,
+        loading
     };
 
     return (
@@ -145,3 +195,5 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
+export default AuthContext;

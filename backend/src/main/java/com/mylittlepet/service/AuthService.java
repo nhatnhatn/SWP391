@@ -57,19 +57,31 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         try {
+            System.out.println("🔍 DEBUG: Login attempt for email: " + request.getEmail());
+            System.out.println("🔍 DEBUG: Login attempt for password: " + request.getPassword());
+
             // Find user by email
             Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
 
+            System.out.println("🔍 DEBUG: User found: " + !userOptional.isEmpty());
+
             if (userOptional.isEmpty()) {
+                System.out.println("❌ DEBUG: Email not found in database");
                 return new LoginResponse(false, "Email not found");
             }
-
             User user = userOptional.get();
+
+            System.out.println("🔍 DEBUG: Retrieved user email: " + user.getEmail());
+            System.out.println("🔍 DEBUG: Retrieved user password: " + user.getPassword());
+            System.out.println("🔍 DEBUG: Input password: " + request.getPassword());
 
             // Check password (plain text comparison for development)
             if (!user.getPassword().equals(request.getPassword())) {
+                System.out.println("❌ DEBUG: Password mismatch!");
                 return new LoginResponse(false, "Invalid password");
             }
+
+            System.out.println("✅ DEBUG: Login successful for user: " + user.getUserName());
 
             // Create admin info
             AdminInfo adminInfo = new AdminInfo(

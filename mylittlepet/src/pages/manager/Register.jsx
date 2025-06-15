@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, Heart, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContextV2';
+import { useAuth } from '../../contexts/AuthContext';
 import { t } from '../../constants/vietnamese';
 
 export default function Register() {
