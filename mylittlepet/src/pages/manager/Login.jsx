@@ -11,9 +11,12 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(''); const { login, isAuthenticated } = useAuth();
     const location = useLocation();
-    const navigate = useNavigate();
+<<<<<<< Updated upstream
 
     // Redirect if already logged in
+=======
+    const navigate = useNavigate();    // Redirect if already logged in
+>>>>>>> Stashed changes
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
@@ -26,15 +29,18 @@ export default function Login() {
 
         const result = await login(email, password);
 
-        console.log('🔑 Login: Login result received', result);
-
+<<<<<<< Updated upstream
         if (result.success) {
+            // Navigation will be handled by the AuthProvider
+=======
+        console.log('🔑 Login: Login result received', result); if (result.success) {
             console.log('✅ Login: Login successful, preparing navigation');
-            // Navigate to the debug page first to test routing
-            const from = location.state?.from?.pathname || '/debug';
+            // Navigate to the players page (main admin dashboard)
+            const from = location.state?.from?.pathname || '/players';
             console.log('🧭 Login: Navigating to:', from);
             navigate(from, { replace: true });
             console.log('🧭 Login: Navigation called');
+>>>>>>> Stashed changes
         } else {
             console.log('❌ Login: Login failed', result.error);
             setError(result.error);

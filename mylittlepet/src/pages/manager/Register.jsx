@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation, Link } from 'react-router-dom';
+import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, Heart, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
@@ -13,10 +13,9 @@ export default function Register() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-
-    const { register, isAuthenticated } = useAuth();
+    const [success, setSuccess] = useState(''); const { register, logout, isAuthenticated } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Redirect if already logged in
     if (isAuthenticated) {
@@ -71,15 +70,27 @@ export default function Register() {
             return;
         }
 
-        const result = await register(email, password, fullName);
+        const userData = {
+            username: fullName,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword
+        };
 
-        if (result.success) {
+        const result = await register(userData); if (result.success) {
             setSuccess(t('auth.registrationSuccess'));
             // Clear form
             setEmail('');
             setPassword('');
             setConfirmPassword('');
             setFullName('');
+            // Clear localStorage and logout to ensure fresh login
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminUser');
+            // Use logout function to clear all auth state
+            logout();
+            // Navigate to login page immediately after successful registration
+            navigate('/login');
         } else {
             if (result.error === 'Email already exists') {
                 setError(t('auth.emailAlreadyExists'));
