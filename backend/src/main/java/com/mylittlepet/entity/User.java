@@ -16,7 +16,7 @@ public class User {
 
     @NotBlank(message = "Role is required")
     @Column(name = "Role", nullable = false, length = 50)
-    private String role = "ADMIN";
+    private String role = "Admin";
 
     @Column(name = "UserName", length = 100)
     private String userName;
