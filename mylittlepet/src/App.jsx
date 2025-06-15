@@ -6,10 +6,9 @@ import Layout from './components/Layout';
 // import ConnectionStatus from './components/ConnectionStatus'; // Removed as requested
 import Login from './pages/manager/Login';
 import Register from './pages/manager/Register';
-import Players from './pages/manager/Players';
-import Pets from './pages/manager/Pets';
-import Items from './pages/manager/Items';
-
+import PlayersV2 from './pages/manager/PlayersV2';
+import PetsV2 from './pages/manager/PetsV2';
+import ItemsV2 from './pages/manager/ItemsV2';
 
 // Simple debug component to test routing
 const DebugPage = () => {
