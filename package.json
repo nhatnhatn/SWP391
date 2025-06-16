@@ -1,22 +1,18 @@
 {
     "name": "mylittlepet-workspace",
     "version": "1.0.0",
-    "description": "My Little Pet - Full Stack Pet Management System",
+    "description": "My Little Pet - Frontend Pet Management System",
     "private": true,
     "scripts": {
-        "start:frontend": "cd mylittlepet && npm run dev",
-        "start:backend": "cd backend && mvn spring-boot:run",
-        "start:backend:jar": "cd backend && java -jar target/backend-0.0.1-SNAPSHOT.jar",
-        "build:backend": "cd backend && mvn clean package -DskipTests",
-        "build:frontend": "cd mylittlepet && npm run build",
+        "start": "cd mylittlepet && npm run dev",
+        "build": "cd mylittlepet && npm run build",
         "install:frontend": "cd mylittlepet && npm install",
-        "clean:backend": "cd backend && mvn clean",
-        "dev": "echo 'Run npm run start:frontend and npm run start:backend in separate terminals'"
+        "preview": "cd mylittlepet && npm run preview"
     },
     "keywords": [
         "pet-management",
-        "spring-boot",
         "react",
+        "vite",
         "vietnamese",
         "admin-system"
     ],

@@ -1,33 +1,35 @@
-// Connection Status Component
-// This component monitors the backend connection status and provides user feedback
+// Mock Connection Status Component
+// This component simulates connection status in the UI
 
 import React, { useState, useEffect } from 'react';
-import apiService from '../services/api';
 
 const ConnectionStatus = () => {
-    const [connectionStatus, setConnectionStatus] = useState('checking'); // 'checking', 'connected', 'disconnected'
-    const [lastChecked, setLastChecked] = useState(null); const checkConnection = async () => {
-        try {
-            setConnectionStatus('checking');
-            const result = await apiService.checkHealth();
+    // In mock mode, we're always "connected" to our mock API
+    const [connectionStatus, setConnectionStatus] = useState('connected');
+    const [lastChecked, setLastChecked] = useState(new Date());
 
-            if (result.status === 'connected') {
-                setConnectionStatus('connected');
-            } else {
-                setConnectionStatus('disconnected');
-            }
-        } catch (error) {
-            console.warn('Backend connection check failed:', error.message);
-            setConnectionStatus('disconnected');
-        }
+    // Simulate occasional connection status changes (just for visual feedback)
+    const checkConnection = () => {
+        // 99% of the time, show as connected
+        const isConnected = Math.random() < 0.99;
+        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
         setLastChecked(new Date());
+
+        // If "disconnected", automatically reconnect after 3 seconds
+        if (!isConnected) {
+            setTimeout(() => {
+                setConnectionStatus('connected');
+                setLastChecked(new Date());
+            }, 3000);
+        }
     };
 
     useEffect(() => {
-        checkConnection();
+        // Initial "connection"
+        setConnectionStatus('connected');
 
-        // Check connection every 30 seconds
-        const interval = setInterval(checkConnection, 30000);
+        // Simulate connection check every 60 seconds
+        const interval = setInterval(checkConnection, 60000);
         return () => clearInterval(interval);
     }, []);
 

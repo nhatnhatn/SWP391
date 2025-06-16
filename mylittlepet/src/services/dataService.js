@@ -1,37 +1,18 @@
-// Data service layer that integrates frontend with backend API
-// This replaces mockData.js with real API calls
+// Data service layer that works with mock data
+// This service provides data access without backend dependency
 
 import apiService from './api';
+import {
+    RARITY_TYPES,
+    PET_TYPES,
+    ITEM_TYPES,
+    mockPlayers,
+    mockPets,
+    mockItems
+} from '../data/mockData';
 
-// Constants from backend (these should match backend enums)
-export const RARITY_TYPES = {
-    COMMON: 'COMMON',
-    UNCOMMON: 'UNCOMMON',
-    RARE: 'RARE',
-    EPIC: 'EPIC',
-    LEGENDARY: 'LEGENDARY',
-    MYTHIC: 'MYTHIC'
-};
-
-export const PET_TYPES = {
-    DRAGON: 'DRAGON',
-    BIRD: 'BIRD',
-    BEAST: 'BEAST',
-    ELEMENTAL: 'ELEMENTAL',
-    FAIRY: 'FAIRY',
-    REPTILE: 'REPTILE',
-    MAGICAL: 'MAGICAL',
-    SPIRIT: 'SPIRIT',
-    GOLEM: 'GOLEM'
-};
-
-export const ITEM_TYPES = {
-    FOOD: 'FOOD',
-    TOY: 'TOY',
-    MEDICINE: 'MEDICINE',
-    ACCESSORY: 'ACCESSORY',
-    SPECIAL: 'SPECIAL'
-};
+// Re-export the constants for convenience
+export { RARITY_TYPES, PET_TYPES, ITEM_TYPES };
 
 export const RARITY_COLORS = {
     [RARITY_TYPES.COMMON]: '#9ca3af',
