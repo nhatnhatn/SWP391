@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { RARITY_TYPES, RARITY_COLORS } from '../data/mockData';
+import { RARITY_TYPES, RARITY_COLORS } from '../constants/gameConstants';
 
 // Utility function for combining class names
 export function cn(...inputs) {

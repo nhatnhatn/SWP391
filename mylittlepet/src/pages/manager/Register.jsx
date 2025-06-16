@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, Heart, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
 
 export default function Register() {
@@ -91,6 +91,7 @@ export default function Register() {
             logout();
             // Navigate to login page immediately after successful registration
             navigate('/login');
+
         } else {
             if (result.error === 'Email already exists') {
                 setError(t('auth.emailAlreadyExists'));

@@ -1,17 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContextV2';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/manager/Login';
 import Register from './pages/manager/Register';
-<<<<<<< Updated upstream
 import Players from './pages/manager/Players';
 import Pets from './pages/manager/Pets';
 import Items from './pages/manager/Items';
-=======
-import PlayersV2 from './pages/manager/PlayersV2';
-import PetsV2 from './pages/manager/PetsV2';
-import ItemsV2 from './pages/manager/ItemsV2';
+import { useLocation } from 'react-router-dom';
 
 // Simple debug component to test routing
 const DebugPage = () => {
@@ -67,59 +63,38 @@ const DebugPage = () => {
     </div>
   );
 };
->>>>>>> Stashed changes
 
 function App() {
   return (
     <AuthProvider>
-<<<<<<< Updated upstream
+
       <Router>
-        <Routes>
+        {/* <ConnectionStatus /> */}          <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/*" element={<ProtectedRoute>
-            <Layout>
-              <Routes>
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <Layout>                <Routes>
                 <Route path="/" element={<Navigate to="/players" replace />} />
-                <Route path="/players" element={<Players />} />
-                <Route path="/pets" element={<Pets />} />
-                <Route path="/items" element={<Items />} />
+                <Route path="players" element={<Players />} />
+                <Route path="pets" element={<Pets />} />
+                <Route path="items" element={<Items />} />
+                <Route path="*" element={
+                  <div className="p-8 text-center">
+                    <h1 className="text-2xl font-bold text-red-600">404 - Page Not Found</h1>
+                    <p className="mt-4">Current path: {window.location.pathname}</p>
+                    <Link to="/players" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">
+                      Go to Players
+                    </Link>
+                  </div>} />
               </Routes>
-            </Layout>
-          </ProtectedRoute>
+              </Layout>
+            </ProtectedRoute>
           } />
         </Routes>
       </Router>
-=======
-      <NotificationProvider>
-        <Router>
-          {/* <ConnectionStatus /> */}          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/*" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/players" replace />} />
-                    <Route path="players" element={<PlayersV2 />} />
-                    <Route path="pets" element={<PetsV2 />} />
-                    <Route path="items" element={<ItemsV2 />} />
-                    <Route path="*" element={
-                      <div className="p-8 text-center">
-                        <h1 className="text-2xl font-bold text-red-600">404 - Page Not Found</h1>
-                        <p className="mt-4">Current path: {window.location.pathname}</p>
-                        <Link to="/players" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded">
-                          Go to Players
-                        </Link>
-                      </div>} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            } />
-          </Routes>
-        </Router>
-      </NotificationProvider>
->>>>>>> Stashed changes
+
+
     </AuthProvider>
   );
 }

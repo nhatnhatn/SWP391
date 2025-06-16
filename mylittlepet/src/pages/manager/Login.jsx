@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Navigate, useLocation, Link } from 'react-router-dom';
+import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Heart } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
 
 export default function Login() {
@@ -13,41 +13,40 @@ export default function Login() {
 
     const { login, isAuthenticated } = useAuth();
     const location = useLocation();
-<<<<<<< Updated upstream
+    const navigate = useNavigate();
 
     // Redirect if already logged in
-=======
-    const navigate = useNavigate();    // Redirect if already logged in
->>>>>>> Stashed changes
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
-    }
-
-    const handleSubmit = async (e) => {
+    } const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        const result = await login(email, password);
+        try {
+            console.log('🔍 Debug: Attempting to login with:', { email, password });
 
-<<<<<<< Updated upstream
-        if (result.success) {
-            // Navigation will be handled by the AuthProvider
-=======
-        console.log('🔑 Login: Login result received', result); if (result.success) {
-            console.log('✅ Login: Login successful, preparing navigation');
-            // Navigate to the players page (main admin dashboard)
-            const from = location.state?.from?.pathname || '/players';
-            console.log('🧭 Login: Navigating to:', from);
-            navigate(from, { replace: true });
-            console.log('🧭 Login: Navigation called');
->>>>>>> Stashed changes
-        } else {
-            setError(result.error);
+            const result = await login(email, password);
+            console.log('🔑 Login: Login result received', result);
+
+            if (result.success) {
+                console.log('✅ Login: Login successful, preparing navigation');
+                // Navigate to the players page (main admin dashboard)
+                const from = location.state?.from?.pathname || '/players';
+                console.log('🧭 Login: Navigating to:', from);
+                navigate(from, { replace: true });
+                console.log('🧭 Login: Navigation called');
+            } else {
+                console.error('❌ Login failed:', result.error);
+                setError(result.error || 'Đăng nhập thất bại');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
 
     return (

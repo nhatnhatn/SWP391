@@ -1,46 +1,8 @@
 // Data service layer that integrates frontend with backend API
-// This replaces mockData.js with real API calls
+// Handles API calls and data transformation
 
 import apiService from './api';
-
-// Constants from backend (these should match backend enums)
-export const RARITY_TYPES = {
-    COMMON: 'COMMON',
-    UNCOMMON: 'UNCOMMON',
-    RARE: 'RARE',
-    EPIC: 'EPIC',
-    LEGENDARY: 'LEGENDARY',
-    MYTHIC: 'MYTHIC'
-};
-
-export const PET_TYPES = {
-    DRAGON: 'DRAGON',
-    BIRD: 'BIRD',
-    BEAST: 'BEAST',
-    ELEMENTAL: 'ELEMENTAL',
-    FAIRY: 'FAIRY',
-    REPTILE: 'REPTILE',
-    MAGICAL: 'MAGICAL',
-    SPIRIT: 'SPIRIT',
-    GOLEM: 'GOLEM'
-};
-
-export const ITEM_TYPES = {
-    FOOD: 'FOOD',
-    TOY: 'TOY',
-    MEDICINE: 'MEDICINE',
-    ACCESSORY: 'ACCESSORY',
-    SPECIAL: 'SPECIAL'
-};
-
-export const RARITY_COLORS = {
-    [RARITY_TYPES.COMMON]: '#9ca3af',
-    [RARITY_TYPES.UNCOMMON]: '#22c55e',
-    [RARITY_TYPES.RARE]: '#3b82f6',
-    [RARITY_TYPES.EPIC]: '#8b5cf6',
-    [RARITY_TYPES.LEGENDARY]: '#f59e0b',
-    [RARITY_TYPES.MYTHIC]: '#ec4899'
-};
+import { RARITY_TYPES, PET_TYPES, ITEM_TYPES, RARITY_COLORS } from '../constants/gameConstants';
 
 // Vietnamese translations for types
 export const PET_TYPE_TRANSLATIONS = {

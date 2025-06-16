@@ -89,8 +89,8 @@ export const usePlayers = (initialPage = 0, initialSize = 10) => {
         }
     }, [fetchPlayers, pagination.page, pagination.size]);    // Initial load
     useEffect(() => {
-        // Commented out for auth-only testing
-        // fetchPlayers();
+        // Load players on component mount
+        fetchPlayers();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -238,11 +238,9 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
             console.error('Failed to heal pet:', err);
             throw err;
         }
-    }, [fetchPets, pagination.page, pagination.size]);
-
-    useEffect(() => {
-        // Commented out for auth-only testing
-        // fetchPets();
+    }, [fetchPets, pagination.page, pagination.size]); useEffect(() => {
+        // Load pets on component mount
+        fetchPets();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -358,8 +356,8 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
             throw err;
         }
     }, []); useEffect(() => {
-        // Commented out for auth-only testing
-        // fetchItems();
+        // Load items on component mount
+        fetchItems();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -447,8 +445,8 @@ export const useShop = () => {
             throw err;
         }
     }, []); useEffect(() => {
-        // Commented out for auth-only testing
-        // fetchShopItems();
+        // Load shop items on component mount
+        fetchShopItems();
     }, [fetchShopItems]);
 
     return {
@@ -498,8 +496,10 @@ export const usePlayer = (playerId) => {
             setLoading(false);
         }
     }, [playerId]); useEffect(() => {
-        // Commented out for auth-only testing
-        // fetchPlayer();
+        // Load player data if playerId is available
+        if (playerId) {
+            fetchPlayer();
+        }
     }, [fetchPlayer]);
 
     return {

@@ -2,6 +2,7 @@
 // This service handles all HTTP requests to the backend API
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+console.log('🌐 API Service: Using API base URL:', API_BASE_URL);
 
 class ApiService {
     constructor() {
@@ -119,11 +120,18 @@ class ApiService {
         });
     }    // Authentication API
     async login(email, password) {
-        const response = await this.post('/auth/login', { email, password });
-        if (response.token) {
-            localStorage.setItem('authToken', response.token);
+        console.log('🌐 ApiService: Attempting to login with backend:', { email });
+        try {
+            const response = await this.post('/auth/login', { email, password });
+            console.log('✅ ApiService: Backend login response:', response);
+            if (response.token) {
+                localStorage.setItem('authToken', response.token);
+            }
+            return response;
+        } catch (error) {
+            console.error('❌ ApiService: Backend login error:', error.message);
+            throw error;
         }
-        return response;
     } async register(userData) {
         console.log('🔧 Register request data:', userData);
         const response = await this.post('/auth/register', userData);
@@ -154,25 +162,19 @@ class ApiService {
     logout() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('adminUser');
-    }    // Users API - Commented out for auth-only testing
+    }    // Users API
     async getUsers(page = 0, size = 10) {
-        // return this.get(`/users/paginated?page=${page}&size=${size}`);
-        return { content: [], totalElements: 0, totalPages: 0, size: size, number: page };
+        return this.get(`/users/paginated?page=${page}&size=${size}`);
     }
 
     async getAllUsers() {
-        // return this.get('/users');
-        return [];
-    }
-
-    async getUserById(id) {
-        // return this.get(`/users/${id}`);
-        return null;
+        return this.get('/users');
+    } async getUserById(id) {
+        return this.get(`/users/${id}`);
     }
 
     async getUserByEmail(email) {
-        // return this.get(`/users/email/${email}`);
-        return null;
+        return this.get(`/users/email/${email}`);
     }
 
     async searchUsers(keyword, page = 0, size = 10) {
@@ -197,25 +199,21 @@ class ApiService {
 
     async addExperience(userId, experience) {
         return this.post(`/users/${userId}/experience`, { experience });
-    }    // Pets API - Commented out for auth-only testing
+    }    // Pets API
     async getPets(page = 0, size = 10) {
-        // return this.get(`/pets/paginated?page=${page}&size=${size}`);
-        return { content: [], totalElements: 0, totalPages: 0, size: size, number: page };
+        return this.get(`/pets/paginated?page=${page}&size=${size}`);
     }
 
     async getAllPets() {
-        // return this.get('/pets');
-        return [];
+        return this.get('/pets');
     }
 
     async getPetById(id) {
-        // return this.get(`/pets/${id}`);
-        return null;
+        return this.get(`/pets/${id}`);
     }
 
     async getPetsByOwner(ownerId) {
-        // return this.get(`/pets/owner/${ownerId}`);
-        return [];
+        return this.get(`/pets/owner/${ownerId}`);
     }
 
     async searchPets(keyword, petType, rarity, page = 0, size = 10) {
@@ -256,29 +254,25 @@ class ApiService {
 
     async healPet(petId) {
         return this.post(`/pets/${petId}/heal`);
-    }    // Items API - Commented out for auth-only testing
+    }    // Items API
     async getItems(page = 0, size = 10) {
-        // return this.get(`/items/paginated?page=${page}&size=${size}`);
-        return { content: [], totalElements: 0, totalPages: 0, size: size, number: page };
+        return this.get(`/items/paginated?page=${page}&size=${size}`);
     }
 
     async getAllItems() {
-        // return this.get('/items');
-        return [];
+        return this.get('/items');
     }
 
     async getItemById(id) {
-        // return this.get(`/items/${id}`);
-        return null;
+        return this.get(`/items/${id}`);
     } async searchItems(keyword, itemType, rarity, page = 0, size = 10) {
-        // const params = new URLSearchParams();
-        // if (keyword) params.append('keyword', keyword);
-        // if (itemType) params.append('itemType', itemType);
-        // if (rarity) params.append('rarity', rarity);
-        // params.append('page', page);
-        // params.append('size', size);
-        // return this.get(`/items/search?${params.toString()}`);
-        return { content: [], totalElements: 0, totalPages: 0, size: size, number: page };
+        const params = new URLSearchParams();
+        if (keyword) params.append('keyword', keyword);
+        if (itemType) params.append('itemType', itemType);
+        if (rarity) params.append('rarity', rarity);
+        params.append('page', page);
+        params.append('size', size);
+        return this.get(`/items/search?${params.toString()}`);
     }
 
     async createItem(itemData) {
