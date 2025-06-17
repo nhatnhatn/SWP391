@@ -35,14 +35,12 @@ export default function Players() {
         players: backendPlayers,
         loading,
         error,
-        pagination,
         fetchPlayers,
-        searchPlayers,
         updatePlayer,
-        deletePlayer
+        getPlayerById
     } = usePlayers();
 
-    // State
+    // Local state for UI management
     const [statusFilter, setStatusFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -55,25 +53,27 @@ export default function Players() {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Load data from backend when component mounts
-    useEffect(() => {
-        fetchPlayers();
-    }, [fetchPlayers]);
+    // Local pagination state for frontend pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
-    // Handle search with backend
+    // Handle search locally in frontend
     const handleSearch = (event) => {
         const term = event.target.value;
         setSearchTerm(term);
-        if (term.trim()) {
-            searchPlayers(term);
-        } else {
-            fetchPlayers();
-        }
+        setCurrentPage(1); // Reset to first page when searching
     };
 
-    // Filter players locally by status
+    // Filter and search players locally
     const filteredPlayers = backendPlayers?.filter(player => {
-        return statusFilter === 'all' || player.status === statusFilter;
+        const matchesSearch = !searchTerm ||
+            player.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            player.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            player.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesStatus = statusFilter === 'all' || player.userStatus === statusFilter;
+
+        return matchesSearch && matchesStatus;
     }) || [];
 
     // Sort filtered players
@@ -102,12 +102,14 @@ export default function Players() {
         return 0;
     });
 
-    // Pagination data from backend
-    const apiTotalPages = pagination?.totalPages || 1;
-    const apiCurrentPage = pagination?.page !== undefined ? pagination.page + 1 : 1; // API returns 0-based index
+    // Frontend pagination calculation
+    const totalPages = Math.ceil(sortedPlayers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPlayers = sortedPlayers.slice(startIndex, endIndex);
 
     const handlePageChange = (page) => {
-        fetchPlayers(page - 1); // Convert to 0-based for API
+        setCurrentPage(page);
         setSelectedPlayerDetails(null);
     };
 
@@ -126,33 +128,28 @@ export default function Players() {
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="h-4 w-4" /> :
             <ChevronDown className="h-4 w-4" />;
-    };
-
-    const handleStatusChange = async (playerId, newStatus) => {
+    }; const handleStatusChange = async (playerId, newStatus) => {
         if (window.confirm(`Are you sure you want to change this player's status to ${newStatus}?`)) {
             try {
-                await updatePlayer(playerId, { status: newStatus });
-                // Backend data will be refreshed by fetchPlayers after update
+                await updatePlayer(playerId, { userStatus: newStatus });
+                // Backend data will be refreshed automatically by the hook
             } catch (error) {
                 console.error('Failed to update player status:', error);
-            }
-        }
-    };
-
-    const handleDeletePlayer = async (playerId) => {
-        if (window.confirm('Are you sure you want to delete this player? This action cannot be undone.')) {
-            try {
-                await deletePlayer(playerId);
-                // Backend data will be refreshed by fetchPlayers after delete
-            } catch (error) {
-                console.error('Failed to delete player:', error);
+                alert('Failed to update player status. Please try again.');
             }
         }
     };
 
     // View player details
-    const viewPlayerDetails = (player) => {
-        setSelectedPlayerDetails(player);
+    const viewPlayerDetails = async (player) => {
+        try {
+            // Optionally fetch fresh data for this player
+            const freshPlayerData = await getPlayerById(player.id);
+            setSelectedPlayerDetails(freshPlayerData || player);
+        } catch (error) {
+            console.error('Failed to fetch player details:', error);
+            setSelectedPlayerDetails(player); // Fallback to existing data
+        }
     };
 
     const closePlayerDetails = () => {
@@ -213,11 +210,10 @@ export default function Players() {
                         className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                    >
-                        <option value="all">{t('players.allStatuses')}</option>
-                        <option value="Active">{t('players.active')}</option>
-                        <option value="Inactive">{t('players.inactive')}</option>
-                        <option value="Banned">{t('players.banned')}</option>
+                    >                        <option value="all">{t('players.allStatuses')}</option>
+                        <option value="ACTIVE">{t('players.active')}</option>
+                        <option value="INACTIVE">{t('players.inactive')}</option>
+                        <option value="BANNED">{t('players.banned')}</option>
                     </select>
                 </div>
             </div>
@@ -248,24 +244,23 @@ export default function Players() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-6">
-                                <div className="bg-gray-50 p-4 rounded-md">
-                                    <h3 className="text-sm text-gray-500 mb-1">{t('players.level')}</h3>
-                                    <p className="text-lg font-medium">{selectedPlayerDetails.level}</p>
-                                </div>
+                            <div className="grid grid-cols-2 gap-4 mb-6">                                <div className="bg-gray-50 p-4 rounded-md">
+                                <h3 className="text-sm text-gray-500 mb-1">{t('players.level')}</h3>
+                                <p className="text-lg font-medium">{selectedPlayerDetails.level || 1}</p>
+                            </div>
                                 <div className="bg-gray-50 p-4 rounded-md">
                                     <h3 className="text-sm text-gray-500 mb-1">{t('players.status')}</h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(selectedPlayerDetails.status)}`}>
-                                        {selectedPlayerDetails.status}
+                                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(selectedPlayerDetails.userStatus)}`}>
+                                        {selectedPlayerDetails.userStatus}
                                     </span>
                                 </div>
                                 <div className="bg-gray-50 p-4 rounded-md">
                                     <h3 className="text-sm text-gray-500 mb-1">{t('players.registered')}</h3>
-                                    <p className="text-sm">{formatDate(selectedPlayerDetails.registeredAt)}</p>
+                                    <p className="text-sm">{formatDate(selectedPlayerDetails.createdAt)}</p>
                                 </div>
                                 <div className="bg-gray-50 p-4 rounded-md">
                                     <h3 className="text-sm text-gray-500 mb-1">{t('players.lastLogin')}</h3>
-                                    <p className="text-sm">{formatDate(selectedPlayerDetails.lastLogin)}</p>
+                                    <p className="text-sm">{formatDate(selectedPlayerDetails.lastLoginAt)}</p>
                                 </div>
                             </div>
 
@@ -437,8 +432,8 @@ export default function Players() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {sortedPlayers.length > 0 ? (
-                                    sortedPlayers.map(player => (
+                                {currentPlayers.length > 0 ? (
+                                    currentPlayers.map(player => (
                                         <tr key={player.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
@@ -450,21 +445,20 @@ export default function Players() {
                                                         <div className="text-sm text-gray-500">{player.email}</div>
                                                     </div>
                                                 </div>
+                                            </td>                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-900">{player.level || 1}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{player.level}</div>
+                                                <div className="text-sm text-gray-900">{formatDate(player.createdAt)}</div>
+                                                <div className="text-xs text-gray-500">{formatTimeAgo(player.createdAt)}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{formatDate(player.registeredAt)}</div>
-                                                <div className="text-xs text-gray-500">{formatTimeAgo(player.registeredAt)}</div>
+                                                <div className="text-sm text-gray-900">{formatDate(player.lastLoginAt)}</div>
+                                                <div className="text-xs text-gray-500">{formatTimeAgo(player.lastLoginAt)}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{formatDate(player.lastLogin)}</div>
-                                                <div className="text-xs text-gray-500">{formatTimeAgo(player.lastLogin)}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(player.status)}`}>
-                                                    {player.status}
+                                                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(player.userStatus)}`}>
+                                                    {player.userStatus}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -475,32 +469,24 @@ export default function Players() {
                                                         title={t('common.view')}
                                                     >
                                                         <Eye className="h-4 w-4" />
-                                                    </button>
-                                                    {player.status !== 'Active' && (
+                                                    </button>                                                    {player.userStatus !== 'ACTIVE' && (
                                                         <button
-                                                            onClick={() => handleStatusChange(player.id, 'Active')}
+                                                            onClick={() => handleStatusChange(player.id, 'ACTIVE')}
                                                             className="text-green-600 hover:text-green-900 border border-green-300 hover:bg-green-50 p-1 rounded"
                                                             title={t('players.activateAccount')}
                                                         >
                                                             <CheckCircle className="h-4 w-4" />
                                                         </button>
                                                     )}
-                                                    {player.status !== 'Banned' && (
+                                                    {player.userStatus !== 'BANNED' && (
                                                         <button
-                                                            onClick={() => handleStatusChange(player.id, 'Banned')}
+                                                            onClick={() => handleStatusChange(player.id, 'BANNED')}
                                                             className="text-red-600 hover:text-red-900 border border-red-300 hover:bg-red-50 p-1 rounded"
                                                             title={t('players.banAccount')}
                                                         >
                                                             <Ban className="h-4 w-4" />
                                                         </button>
                                                     )}
-                                                    <button
-                                                        onClick={() => handleDeletePlayer(player.id)}
-                                                        className="text-red-600 hover:text-red-900 border border-red-300 hover:bg-red-50 p-1 rounded"
-                                                        title={t('common.delete')}
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -519,17 +505,15 @@ export default function Players() {
                     {/* Pagination */}
                     <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
                         <div className="flex-1 flex justify-between sm:hidden">
-                            <button
-                                onClick={() => handlePageChange(apiCurrentPage - 1)}
-                                disabled={apiCurrentPage <= 1}
-                                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${apiCurrentPage <= 1 ? 'text-gray-400 bg-gray-100' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
+                            <button onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage <= 1}
+                                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage <= 1 ? 'text-gray-400 bg-gray-100' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
                             >
                                 {t('common.previous')}
                             </button>
-                            <button
-                                onClick={() => handlePageChange(apiCurrentPage + 1)}
-                                disabled={apiCurrentPage >= apiTotalPages}
-                                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${apiCurrentPage >= apiTotalPages ? 'text-gray-400 bg-gray-100' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
+                            <button onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage >= totalPages}
+                                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${currentPage >= totalPages ? 'text-gray-400 bg-gray-100' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
                             >
                                 {t('common.next')}
                             </button>
@@ -537,37 +521,35 @@ export default function Players() {
                         <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm text-gray-700">
-                                    {t('common.showing')} <span className="font-medium">{(apiCurrentPage - 1) * pagination?.size + 1}</span> {t('common.to')} <span className="font-medium">{Math.min(apiCurrentPage * pagination?.size, pagination?.totalElements)}</span> {t('common.of')} <span className="font-medium">{pagination?.totalElements}</span> {t('common.results')}
+                                    {t('common.showing')} <span className="font-medium">{startIndex + 1}</span> {t('common.to')} <span className="font-medium">{Math.min(endIndex, sortedPlayers.length)}</span> {t('common.of')} <span className="font-medium">{sortedPlayers.length}</span> {t('common.results')}
                                 </p>
                             </div>
                             <div>
                                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                    <button
-                                        onClick={() => handlePageChange(apiCurrentPage - 1)}
-                                        disabled={apiCurrentPage <= 1}
-                                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${apiCurrentPage <= 1 ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    <button onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage <= 1}
+                                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage <= 1 ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'}`}
                                     >
                                         <span className="sr-only">{t('common.previous')}</span>
                                         <ChevronLeft className="h-5 w-5" />
                                     </button>
 
-                                    {[...Array(apiTotalPages).keys()].map((page) => {
+                                    {[...Array(totalPages).keys()].map((page) => {
                                         const pageNumber = page + 1;
                                         return (
                                             <button
                                                 key={pageNumber}
                                                 onClick={() => handlePageChange(pageNumber)}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${apiCurrentPage === pageNumber ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === pageNumber ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
                                             >
                                                 {pageNumber}
                                             </button>
                                         );
                                     })}
 
-                                    <button
-                                        onClick={() => handlePageChange(apiCurrentPage + 1)}
-                                        disabled={apiCurrentPage >= apiTotalPages}
-                                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${apiCurrentPage >= apiTotalPages ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    <button onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage >= totalPages}
+                                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage >= totalPages ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'}`}
                                     >
                                         <span className="sr-only">{t('common.next')}</span>
                                         <ChevronRight className="h-5 w-5" />

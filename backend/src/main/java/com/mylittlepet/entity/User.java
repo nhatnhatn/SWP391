@@ -1,8 +1,6 @@
 package com.mylittlepet.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,32 +12,32 @@ public class User {
     @Column(name = "ID")
     private Integer id;
 
-    @NotBlank(message = "Role is required")
     @Column(name = "Role", nullable = false, length = 50)
-    private String role = "ADMIN";
+    private String role;
 
     @Column(name = "UserName", length = 100)
     private String userName;
 
-    @Email(message = "Email should be valid")
     @Column(name = "Email", unique = true, length = 100)
     private String email;
 
-    @NotBlank(message = "Password is required")
     @Column(name = "Password", nullable = false, length = 100)
     private String password;
-    @Column(name = "Level", insertable = true)
-    private Integer level = null;
 
-    @Column(name = "Coin", insertable = true)
-    private Integer coin = null;
+    @Column(name = "UserStatus", length = 20)
+    private String userStatus = "ACTIVE";
 
-    @Column(name = "Diamond", insertable = true)
-    private Integer diamond = null;
+    @Column(name = "Level")
+    private Integer level = 1;
 
-    @Column(name = "Gem", insertable = true)
-    private Integer gem = null;
+    @Column(name = "Coin")
+    private Integer coin = 0;
 
+    @Column(name = "Diamond")
+    private Integer diamond = 0;
+
+    @Column(name = "Gem")
+    private Integer gem = 0;
     @Column(name = "JoinDate")
     private LocalDateTime joinDate;
 
@@ -47,22 +45,24 @@ public class User {
     public User() {
     }
 
-    public User(String userName, String password, String email) {
+    public User(String role, String userName, String email, String password) {
+        this.role = role;
         this.userName = userName;
-        this.password = password;
         this.email = email;
-        this.role = "ADMIN";
-        // Explicitly set null để override database DEFAULT values
-        this.level = null;
-        this.coin = null;
-        this.diamond = null;
-        this.gem = null;
+        this.password = password;
+        this.userStatus = "ACTIVE";
+        this.level = 1;
+        this.coin = 0;
+        this.diamond = 0;
+        this.gem = 0;
     }
 
     // Lifecycle callbacks
     @PrePersist
     public void prePersist() {
-        this.joinDate = LocalDateTime.now();
+        if (this.joinDate == null) {
+            this.joinDate = LocalDateTime.now();
+        }
     }
 
     // Getters and Setters
@@ -104,6 +104,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
     }
 
     public Integer getLevel() {

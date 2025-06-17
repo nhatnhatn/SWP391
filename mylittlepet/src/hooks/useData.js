@@ -1,110 +1,63 @@
 // Custom React hooks for data management with backend integration
 import { useState, useEffect, useCallback } from 'react';
-import dataService from '../services/dataService';
+import apiService from '../services/api';
 
 // Custom hook for players data management
-export const usePlayers = (initialPage = 0, initialSize = 10) => {
+export const usePlayers = () => {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({
-        page: initialPage,
-        size: initialSize,
-        totalElements: 0,
-        totalPages: 0
-    });
 
-    const fetchPlayers = useCallback(async (page = pagination.page, size = pagination.size, useCache = true) => {
+    const fetchPlayers = useCallback(async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await dataService.getPlayers(page, size, useCache);
-            setPlayers(response.content || []);
-            setPagination({
-                page: response.number || page,
-                size: response.size || size,
-                totalElements: response.totalElements || 0,
-                totalPages: response.totalPages || 0
-            });
+            const response = await apiService.getAllPlayers();
+            setPlayers(response || []);
         } catch (err) {
             console.error('Failed to fetch players:', err);
             setError(err.message || 'Lỗi tải dữ liệu người chơi');
         } finally {
             setLoading(false);
         }
-    }, [pagination.page, pagination.size]);
+    }, []);
 
-    const searchPlayers = useCallback(async (keyword, page = 0, size = pagination.size) => {
-        setLoading(true);
-        setError(null);
-
+    const getPlayerById = useCallback(async (id) => {
         try {
-            const response = await dataService.searchPlayers(keyword, page, size);
-            setPlayers(response.content || []);
-            setPagination({
-                page: response.number || page,
-                size: response.size || size,
-                totalElements: response.totalElements || 0,
-                totalPages: response.totalPages || 0
-            });
+            const player = await apiService.getPlayerById(id);
+            return player;
         } catch (err) {
-            console.error('Failed to search players:', err);
-            setError(err.message || 'Lỗi tìm kiếm người chơi');
-        } finally {
-            setLoading(false);
-        }
-    }, [pagination.size]);
-
-    const createPlayer = useCallback(async (playerData) => {
-        try {
-            const newPlayer = await dataService.createPlayer(playerData);
-            await fetchPlayers(0, pagination.size, false); // Refresh from server
-            return newPlayer;
-        } catch (err) {
-            console.error('Failed to create player:', err);
+            console.error('Failed to get player by id:', err);
             throw err;
         }
-    }, [fetchPlayers, pagination.size]);
+    }, []);
 
     const updatePlayer = useCallback(async (id, playerData) => {
         try {
-            const updatedPlayer = await dataService.updatePlayer(id, playerData);
-            await fetchPlayers(pagination.page, pagination.size, false); // Refresh current page
+            const updatedPlayer = await apiService.updatePlayer(id, playerData);
+            // Refresh players list after update
+            await fetchPlayers();
             return updatedPlayer;
         } catch (err) {
             console.error('Failed to update player:', err);
             throw err;
         }
-    }, [fetchPlayers, pagination.page, pagination.size]);
+    }, [fetchPlayers]);
 
-    const deletePlayer = useCallback(async (id) => {
-        try {
-            await dataService.deletePlayer(id);
-            await fetchPlayers(pagination.page, pagination.size, false); // Refresh current page
-            return true;
-        } catch (err) {
-            console.error('Failed to delete player:', err);
-            throw err;
-        }
-    }, [fetchPlayers, pagination.page, pagination.size]);    // Initial load
+    // Initial load
     useEffect(() => {
-        // Load players on component mount
         fetchPlayers();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchPlayers]);
 
     return {
         players,
         loading,
         error,
-        pagination,
         fetchPlayers,
-        searchPlayers,
-        createPlayer,
+        getPlayerById,
         updatePlayer,
-        deletePlayer,
-        refresh: () => fetchPlayers(pagination.page, pagination.size, false)
+        refresh: () => fetchPlayers()
     };
 };
 
@@ -125,7 +78,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
         setError(null);
 
         try {
-            const response = await dataService.getPets(page, size, useCache);
+            const response = await apiService.getAllPets();
             setPets(response.content || []);
             setPagination({
                 page: response.number || page,
@@ -146,7 +99,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
         setError(null);
 
         try {
-            const response = await dataService.searchPets(keyword, petType, rarity, page, size);
+            const response = await apiService.getAllPets(); // TODO: Implement search in frontend
             setPets(response.content || []);
             setPagination({
                 page: response.number || page,
@@ -164,7 +117,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const createPet = useCallback(async (petData) => {
         try {
-            const newPet = await dataService.createPet(petData);
+            const newPet = await apiService.createPet(petData);
             await fetchPets(0, pagination.size, false);
             return newPet;
         } catch (err) {
@@ -175,7 +128,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const updatePet = useCallback(async (id, petData) => {
         try {
-            const updatedPet = await dataService.updatePet(id, petData);
+            const updatedPet = await apiService.updatePet(id, petData);
             await fetchPets(pagination.page, pagination.size, false);
             return updatedPet;
         } catch (err) {
@@ -186,7 +139,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const deletePet = useCallback(async (id) => {
         try {
-            await dataService.deletePet(id);
+            await apiService.deletePet(id);
             await fetchPets(pagination.page, pagination.size, false);
             return true;
         } catch (err) {
@@ -198,7 +151,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
     // Pet care actions
     const feedPet = useCallback(async (petId) => {
         try {
-            const result = await dataService.feedPet(petId);
+            const result = await apiService.feedPet(petId);
             await fetchPets(pagination.page, pagination.size, false);
             return result;
         } catch (err) {
@@ -209,7 +162,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const playWithPet = useCallback(async (petId) => {
         try {
-            const result = await dataService.playWithPet(petId);
+            const result = await apiService.playWithPet(petId);
             await fetchPets(pagination.page, pagination.size, false);
             return result;
         } catch (err) {
@@ -220,7 +173,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const restPet = useCallback(async (petId) => {
         try {
-            const result = await dataService.restPet(petId);
+            const result = await apiService.restPet(petId);
             await fetchPets(pagination.page, pagination.size, false);
             return result;
         } catch (err) {
@@ -231,7 +184,7 @@ export const usePets = (initialPage = 0, initialSize = 10) => {
 
     const healPet = useCallback(async (petId) => {
         try {
-            const result = await dataService.healPet(petId);
+            const result = await apiService.healPet(petId);
             await fetchPets(pagination.page, pagination.size, false);
             return result;
         } catch (err) {
@@ -282,7 +235,7 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
         setError(null);
 
         try {
-            const response = await dataService.getItems(page, size, useCache);
+            const response = await apiService.getAllItems();
             // Ensure all items have valid types
             const validItems = (response.content || []).map(item => ({
                 ...item,
@@ -309,7 +262,7 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
 
     const createItem = useCallback(async (itemData) => {
         try {
-            const newItem = await dataService.createItem(itemData);
+            const newItem = await apiService.createItem(itemData);
             await fetchItems(0, pagination.size, false);
             return newItem;
         } catch (err) {
@@ -320,7 +273,7 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
 
     const updateItem = useCallback(async (id, itemData) => {
         try {
-            const updatedItem = await dataService.updateItem(id, itemData);
+            const updatedItem = await apiService.updateItem(id, itemData);
             await fetchItems(pagination.page, pagination.size, false);
             return updatedItem;
         } catch (err) {
@@ -331,7 +284,7 @@ export const useItems = (initialPage = 0, initialSize = 10) => {
 
     const deleteItem = useCallback(async (id) => {
         try {
-            await dataService.deleteItem(id);
+            await apiService.deleteItem(id);
             await fetchItems(pagination.page, pagination.size, false);
             return true;
         } catch (err) {
@@ -392,7 +345,7 @@ export const useShop = () => {
         setError(null);
 
         try {
-            const items = await dataService.getShopItems(useCache);
+            const items = await apiService.getShopItems();
             setShopItems(items);
         } catch (err) {
             console.error('Failed to fetch shop items:', err);
@@ -406,7 +359,7 @@ export const useShop = () => {
         if (!userId) return;
 
         try {
-            const inventory = await dataService.getUserInventory(userId);
+            const inventory = await apiService.getUserInventory(userId);
             setUserInventory(inventory);
         } catch (err) {
             console.error('Failed to fetch user inventory:', err);
@@ -416,7 +369,7 @@ export const useShop = () => {
 
     const buyItem = useCallback(async (itemId, quantity = 1) => {
         try {
-            const result = await dataService.buyItem(itemId, quantity);
+            const result = await apiService.buyItem(itemId, quantity);
             await fetchShopItems(false); // Refresh shop
             return result;
         } catch (err) {
@@ -427,7 +380,7 @@ export const useShop = () => {
 
     const sellItem = useCallback(async (itemId, quantity = 1) => {
         try {
-            const result = await dataService.sellItem(itemId, quantity);
+            const result = await apiService.sellItem(itemId, quantity);
             await fetchShopItems(false);
             return result;
         } catch (err) {
@@ -438,7 +391,7 @@ export const useShop = () => {
 
     const useItem = useCallback(async (itemId, petId) => {
         try {
-            const result = await dataService.useItem(itemId, petId);
+            const result = await apiService.useItem(itemId, petId);
             return result;
         } catch (err) {
             console.error('Failed to use item:', err);
@@ -478,13 +431,12 @@ export const usePlayer = (playerId) => {
         setError(null);
 
         try {
-            const playerData = await dataService.getPlayerById(playerId);
+            const playerData = await apiService.getPlayerById(playerId);
             setPlayer(playerData);
 
             // Fetch related data
-            const [playerPets, playerInventory] = await Promise.all([
-                dataService.getPetsByOwner(playerId),
-                dataService.getUserInventory(playerId)
+            const [playerPets, playerInventory] = await Promise.all([apiService.getAllPets(), // TODO: Filter by owner
+            apiService.getUserInventory(playerId)
             ]);
 
             setPets(playerPets);

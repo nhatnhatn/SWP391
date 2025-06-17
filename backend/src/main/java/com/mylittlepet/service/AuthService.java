@@ -36,9 +36,10 @@ public class AuthService {
                 return new RegisterResponse(false, "Email already exists");
             } // Create new user
             User user = new User(
-                    request.getUsername(),
-                    request.getPassword(), // Store plain password for development
-                    request.getEmail());
+                    "ADMIN", // role
+                    request.getUsername(), // userName
+                    request.getEmail(), // email
+                    request.getPassword()); // password
 
             // Save user
             User savedUser = userRepository.save(user); // Create admin info

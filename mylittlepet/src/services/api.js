@@ -16,17 +16,26 @@ class ApiService {
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         };
-    }
-
-    // Generic HTTP request method
+    }    // Generic HTTP request method
     async request(endpoint, options = {}) {
         const url = `${this.baseURL}${endpoint}`;
         const config = {
             headers: this.getAuthHeaders(),
             ...options
-        }; try {
+        };
+
+        try {
             console.log('🌐 Making API request to:', url);
-            console.log('🔧 Request config:', config);
+            console.log('🔧 Request config:', {
+                ...config,
+                body: config.body ? JSON.parse(config.body) : undefined
+            });
+
+            // Validate URL before making request
+            if (!url || !url.startsWith('http')) {
+                console.error('❌ Invalid API URL:', url);
+                throw new Error(`Invalid API URL: ${url}. Check your baseURL and endpoint.`);
+            }
 
             const response = await fetch(url, config);
 
@@ -35,62 +44,63 @@ class ApiService {
 
             // Handle non-JSON responses
             const contentType = response.headers.get('content-type');
-            let data; if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-            } else {
-                data = await response.text();
+            let data;
+            try {
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+            } catch (parseError) {
+                console.error('❌ Error parsing response:', parseError);
+                data = await response.text(); // Get raw response if parsing fails
             }
 
             console.log('📦 Response data:', data); if (!response.ok) {
                 console.error('❌ Request failed with status:', response.status);
                 console.error('❌ Response body:', data);
                 console.error('❌ Content-Type:', contentType);
+                console.error('❌ Request URL:', url);
+                console.error('❌ Request method:', config.method || 'GET');
+                if (config.body) {
+                    console.error('❌ Request body:', JSON.parse(config.body));
+                }
 
                 // Handle different error response formats
                 let errorMessage = `HTTP ${response.status}`;
+                let errorDetails = [];
 
-                if (typeof data === 'object' && data !== null) {
+                // Handle 404 specifically with better error message
+                if (response.status === 404) {
+                    errorMessage = `API not found: ${endpoint}. Verify that this endpoint exists on the server.`;
+                } else if (typeof data === 'object' && data !== null) {
                     if (data.message) {
                         errorMessage = data.message;
                     } else if (data.error) {
                         errorMessage = data.error;
                     } else if (data.details) {
                         errorMessage = data.details;
-                    } else {
-                        // If it's a validation error object
-                        const errors = Object.values(data).filter(v => typeof v === 'string');
-                        if (errors.length > 0) {
-                            errorMessage = errors.join(', ');
-                        } else {
-                            errorMessage = JSON.stringify(data);
-                        }
                     }
-                } else if (typeof data === 'string') {
-                    errorMessage = data;
+
+                    // Collect validation errors if any
+                    if (data.errors) {
+                        errorDetails = Array.isArray(data.errors) ? data.errors : [data.errors];
+                    }
                 }
 
-                console.error('🔍 Parsed error message:', errorMessage);
-                throw new Error(errorMessage);
+                const error = new Error(errorMessage);
+                error.status = response.status;
+                error.details = errorDetails;
+                error.response = data;
+                throw error;
             }
 
             return data;
         } catch (error) {
-            console.error(`API request failed: ${endpoint}`, error);
-            console.error('Full error details:', {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            });
-
-            // Handle different types of network errors
-            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra xem backend có đang chạy không (cổng 8080).');
-            } else if (error.name === 'AbortError') {
-                throw new Error('Yêu cầu đã bị hủy do quá thời gian chờ.');
-            } else if (error.message.includes('NetworkError')) {
-                throw new Error('Lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn.');
+            console.error('❌ API Error:', error);
+            if (error.stack) {
+                console.error('❌ Stack trace:', error.stack);
             }
-
             throw error;
         }
     }
@@ -199,71 +209,155 @@ class ApiService {
 
     async addExperience(userId, experience) {
         return this.post(`/users/${userId}/experience`, { experience });
-    }    // Pets API
-    async getPets(page = 0, size = 10) {
-        return this.get(`/pets/paginated?page=${page}&size=${size}`);
     }
 
+    // ===== PLAYER MANAGEMENT APIs =====
+    // Get all players (for admin management)
+    async getAllPlayers() {
+        try {
+            console.log('🔍 Fetching all players from backend');
+            const response = await this.get('/players');
+            console.log('✅ Players fetched successfully:', response);
+
+            // Ensure we always return an array
+            if (Array.isArray(response)) {
+                return response;
+            } else if (response && typeof response === 'object') {
+                // Handle different response formats
+                if (Array.isArray(response.content)) {
+                    return response.content;
+                } else if (Array.isArray(response.data)) {
+                    return response.data;
+                }
+            }
+
+            console.warn('⚠️ Unexpected response format, returning empty array');
+            return [];
+        } catch (error) {
+            console.error('❌ Failed to fetch players:', error);
+            // Return empty array instead of throwing to prevent app crashes
+            return [];
+        }
+    }
+
+    async getPlayerById(id) {
+        try {
+            console.log(`🔍 Fetching player with ID: ${id}`);
+            const response = await this.get(`/players/${id}`);
+            console.log('✅ Player fetched successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to fetch player ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async updatePlayer(id, playerData) {
+        try {
+            console.log(`📝 Updating player ${id}:`, playerData);
+            const response = await this.put(`/players/${id}`, playerData);
+            console.log('✅ Player updated successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to update player ${id}:`, error);
+            throw error;
+        }
+    }    // Pets API
     async getAllPets() {
-        return this.get('/pets');
+        try {
+            console.log('🔍 Fetching all pets');
+            // Verify endpoint
+            if (this.baseURL.endsWith('/')) {
+                console.warn('⚠️ Base URL has trailing slash, which might cause double-slash in URL');
+            }
+            console.log('🔍 Using URL:', `${this.baseURL}/pets`);
+
+            const response = await this.get('/pets');
+            console.log('✅ Raw pets response:', response);
+
+            // Ensure we always return an array
+            let pets = [];
+            if (Array.isArray(response)) {
+                pets = response;
+            } else if (response && typeof response === 'object') {
+                // Handle different response formats
+                if (Array.isArray(response.content)) {
+                    pets = response.content;
+                } else if (Array.isArray(response.data)) {
+                    pets = response.data;
+                } else if (response.pets && Array.isArray(response.pets)) {
+                    pets = response.pets;
+                }
+            }
+
+            console.log('✨ Normalized pets array:', pets);
+            console.log('🔢 Number of pets:', pets.length);
+            return pets;
+        } catch (error) {
+            console.error('❌ Failed to fetch pets:', error);
+            // Return empty array instead of throwing to prevent app crashes
+            return [];
+        }
     }
 
     async getPetById(id) {
-        return this.get(`/pets/${id}`);
-    }
-
-    async getPetsByOwner(ownerId) {
-        return this.get(`/pets/owner/${ownerId}`);
-    }
-
-    async searchPets(keyword, petType, rarity, page = 0, size = 10) {
-        const params = new URLSearchParams();
-        if (keyword) params.append('keyword', keyword);
-        if (petType) params.append('petType', petType);
-        if (rarity) params.append('rarity', rarity);
-        params.append('page', page);
-        params.append('size', size);
-
-        return this.get(`/pets/search?${params.toString()}`);
+        try {
+            console.log(`🔍 Fetching pet with ID: ${id}`);
+            const response = await this.get(`/pets/${id}`);
+            console.log('✅ Pet fetched successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to fetch pet ${id}:`, error);
+            throw error;
+        }
     }
 
     async createPet(petData) {
-        return this.post('/pets', petData);
+        try {
+            console.log('📝 Creating new pet:', petData);
+            const response = await this.post('/pets', petData);
+            console.log('✅ Pet created successfully:', response);
+            return response;
+        } catch (error) {
+            console.error('❌ Failed to create pet:', error);
+            throw error;
+        }
     }
 
     async updatePet(id, petData) {
-        return this.put(`/pets/${id}`, petData);
+        try {
+            console.log(`📝 Updating pet ${id}:`, petData);
+            const response = await this.put(`/pets/${id}`, petData);
+            console.log('✅ Pet updated successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to update pet ${id}:`, error);
+            throw error;
+        }
     }
 
-    async deletePet(id) {
-        return this.delete(`/pets/${id}`);
-    }
-
-    // Pet Care Actions
-    async feedPet(petId) {
-        return this.post(`/pets/${petId}/feed`);
-    }
-
-    async playWithPet(petId) {
-        return this.post(`/pets/${petId}/play`);
-    }
-
-    async restPet(petId) {
-        return this.post(`/pets/${petId}/rest`);
-    }
-
-    async healPet(petId) {
-        return this.post(`/pets/${petId}/heal`);
+    async deactivatePet(id) {
+        try {
+            console.log(`🚫 Deactivating pet ${id}`);
+            const response = await this.put(`/pets/${id}/deactivate`);
+            console.log('✅ Pet deactivated successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to deactivate pet ${id}:`, error);
+            throw error;
+        }
     }    // Items API
     async getItems(page = 0, size = 10) {
         return this.get(`/items/paginated?page=${page}&size=${size}`);
     }
 
     async getAllItems() {
+        console.log('📦 API: Fetching all items...');
         return this.get('/items');
     }
 
     async getItemById(id) {
+        console.log(`📦 API: Fetching item by ID: ${id}`);
         return this.get(`/items/${id}`);
     } async searchItems(keyword, itemType, rarity, page = 0, size = 10) {
         const params = new URLSearchParams();
@@ -276,36 +370,44 @@ class ApiService {
     }
 
     async createItem(itemData) {
+        console.log('📦 API: Creating new item:', itemData);
         return this.post('/items', itemData);
     }
 
     async updateItem(id, itemData) {
+        console.log(`📦 API: Updating item ${id}:`, itemData);
         return this.put(`/items/${id}`, itemData);
     }
 
     async deleteItem(id) {
+        console.log(`📦 API: Deleting item ${id}`);
         return this.delete(`/items/${id}`);
     }
 
-    // Shop & Inventory API
+    // Shop and inventory APIs
     async getShopItems() {
-        return this.get('/items/shop');
+        console.log('🛒 API: Fetching shop items...');
+        return this.get('/shop/items');
     }
 
     async getUserInventory(userId) {
-        return this.get(`/items/inventory/${userId}`);
+        console.log(`🎒 API: Fetching inventory for user ${userId}`);
+        return this.get(`/users/${userId}/inventory`);
     }
 
     async buyItem(itemId, quantity = 1) {
-        return this.post(`/items/${itemId}/buy`, { quantity });
+        console.log(`🛒 API: Buying item ${itemId}, quantity: ${quantity}`);
+        return this.post('/shop/buy', { itemId, quantity });
     }
 
     async sellItem(itemId, quantity = 1) {
-        return this.post(`/items/${itemId}/sell`, { quantity });
+        console.log(`💰 API: Selling item ${itemId}, quantity: ${quantity}`);
+        return this.post('/shop/sell', { itemId, quantity });
     }
 
-    async useItem(itemId, petId) {
-        return this.post(`/items/${itemId}/use`, { petId });
+    async useItem(itemId, petId = null) {
+        console.log(`🧪 API: Using item ${itemId} on pet ${petId}`);
+        return this.post('/items/use', { itemId, petId });
     }
 
     // API Documentation & Health Check
