@@ -1,32 +1,52 @@
-package com.mylittlepet.dto;
+package com.mylittlepet.entity;
 
-public class ShopProductDTO {
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "ShopProduct")
+public class ShopProduct {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ShopProductID")
     private Integer shopProductId;
-    private Integer shopId;
-    private String shopName;
-    private Integer adminId;
-    private String adminName;
-    private String name;
-    private String type;
-    private String description;
-    private String imageUrl;
-    private Integer price;
-    private String currencyType;
-    private Integer quality; // Số lượng sản phẩm (quantity)
-    private Integer status;
 
-    // Constructors
-    public ShopProductDTO() {
+    @Column(name = "ShopID", nullable = false)
+    private Integer shopId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AdminID", nullable = false)
+    private User admin;
+
+    @Column(name = "Name", nullable = false, length = 100)
+    private String name;
+
+    @Column(name = "Type", nullable = false, length = 20)
+    private String type;
+
+    @Column(name = "Description", length = 255)
+    private String description;
+
+    @Column(name = "ImageUrl", length = 255)
+    private String imageUrl;
+
+    @Column(name = "Price", nullable = false)
+    private Integer price;
+    @Column(name = "CurrencyType", nullable = false, length = 20)
+    private String currencyType;
+
+    @Column(name = "Quality") // Số lượng sản phẩm (quantity)
+    private Integer quality = 100;
+
+    @Column(name = "Status")
+    private Integer status = 1;// Constructors
+
+    public ShopProduct() {
     }
 
-    public ShopProductDTO(Integer shopProductId, Integer shopId, String shopName, Integer adminId, String adminName,
-            String name, String type, String description, String imageUrl, Integer price,
-            String currencyType, Integer quality, Integer status) {
-        this.shopProductId = shopProductId;
+    public ShopProduct(Integer shopId, User admin, String name, String type, String description,
+            String imageUrl, Integer price, String currencyType, Integer quality, Integer status) {
         this.shopId = shopId;
-        this.shopName = shopName;
-        this.adminId = adminId;
-        this.adminName = adminName;
+        this.admin = admin;
         this.name = name;
         this.type = type;
         this.description = description;
@@ -54,28 +74,12 @@ public class ShopProductDTO {
         this.shopId = shopId;
     }
 
-    public String getShopName() {
-        return shopName;
+    public User getAdmin() {
+        return admin;
     }
 
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
-    }
-
-    public Integer getAdminId() {
-        return adminId;
-    }
-
-    public void setAdminId(Integer adminId) {
-        this.adminId = adminId;
-    }
-
-    public String getAdminName() {
-        return adminName;
-    }
-
-    public void setAdminName(String adminName) {
-        this.adminName = adminName;
+    public void setAdmin(User admin) {
+        this.admin = admin;
     }
 
     public String getName() {
@@ -141,24 +145,5 @@ public class ShopProductDTO {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    @Override
-    public String toString() {
-        return "ShopProductDTO{" +
-                "shopProductId=" + shopProductId +
-                ", shopId=" + shopId +
-                ", shopName='" + shopName + '\'' +
-                ", adminId=" + adminId +
-                ", adminName='" + adminName + '\'' +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", description='" + description + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", price=" + price +
-                ", currencyType='" + currencyType + '\'' +
-                ", quality=" + quality +
-                ", status=" + status +
-                '}';
     }
 }

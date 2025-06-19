@@ -10,13 +10,17 @@ export const useSimplePlayers = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [stats, setStats] = useState({});
-    const [pagination, setPagination] = useState({
+    const [stats, setStats] = useState({}); const [pagination, setPagination] = useState({
         currentPage: 0,
         totalPages: 1,
         totalElements: 0,
-        size: 10
-    });    // Load players - simple version
+        size: 10,
+        hasNext: false,
+        hasPrevious: false
+    });
+
+    // Paginated players state for display
+    const [paginatedPlayers, setPaginatedPlayers] = useState([]);    // Load players - simple version with pagination support
     const loadPlayers = useCallback(async (page = 0) => {
         try {
             setLoading(true);
@@ -27,16 +31,43 @@ export const useSimplePlayers = () => {
             console.log('✅ Players loaded:', response);
 
             // Handle response - always expect array from our API
-            setPlayers(Array.isArray(response) ? response : []);
+            const allPlayers = Array.isArray(response) ? response : [];
+            setPlayers(allPlayers);
+
+            // Calculate pagination for client-side pagination
+            const totalElements = allPlayers.length;
+            const totalPages = Math.ceil(totalElements / pagination.size);
+            const startIndex = page * pagination.size;
+            const endIndex = startIndex + pagination.size;
+            const currentPageData = allPlayers.slice(startIndex, endIndex);
+
+            // Update pagination state
+            setPagination(prev => ({
+                ...prev,
+                currentPage: page,
+                totalPages,
+                totalElements,
+                hasNext: page < totalPages - 1,
+                hasPrevious: page > 0
+            }));
+
+            // Set paginated data
+            setPaginatedPlayers(currentPageData);
 
         } catch (error) {
             console.error('Load players error:', error);
             setError('Không thể tải danh sách người chơi');
             setPlayers([]); // Empty array on error
+            setPaginatedPlayers([]);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [pagination.size]);
+
+    // Simple refresh function for pagination
+    const refreshCurrentPage = useCallback(async () => {
+        await loadPlayers(pagination.currentPage);
+    }, [loadPlayers, pagination.currentPage]);
 
     // Load stats - simple version
     const loadStats = useCallback(async () => {
@@ -88,16 +119,14 @@ export const useSimplePlayers = () => {
         } finally {
             setLoading(false);
         }
-    }, [loadPlayers]);
-
-    // Delete player - simple version
+    }, [loadPlayers]);    // Delete player - simple version
     const deletePlayer = useCallback(async (id) => {
         try {
             setLoading(true);
 
             await apiService.deletePlayer(id);
             console.log('✅ Player deleted:', id);
-            await loadPlayers(); // Refresh list
+            await refreshCurrentPage(); // Refresh current page
 
         } catch (error) {
             console.error('Delete player error:', error);
@@ -105,83 +134,29 @@ export const useSimplePlayers = () => {
         } finally {
             setLoading(false);
         }
-    }, [loadPlayers]);    // Search players - enhanced version with multiple search options
-    const searchPlayers = useCallback(async (term, searchBy = 'all') => {
+    }, [refreshCurrentPage]);    // Ban player - simple version with pagination refresh and duration support
+    const banPlayer = useCallback(async (id, banEndDate = null) => {
         try {
-            setLoading(true);
-            setSearchTerm(term);
-
-            if (!term.trim()) {
-                await loadPlayers();
-                return;
-            }
-
-            let results = [];
-
-            // Search by different criteria
-            switch (searchBy) {
-                case 'email':
-                    try {
-                        const player = await apiService.getPlayerByEmail(term);
-                        results = [player];
-                    } catch (error) {
-                        results = []; // Player not found
-                    }
-                    break;
-                case 'username':
-                    try {
-                        const player = await apiService.getPlayerByUserName(term);
-                        results = [player];
-                    } catch (error) {
-                        results = []; // Player not found
-                    }
-                    break;
-                case 'status':
-                    results = await apiService.getPlayersByStatus(term);
-                    break;
-                default:
-                    // Search all players and filter locally
-                    const allPlayers = await apiService.getAllPlayers();
-                    results = allPlayers.filter(player =>
-                        player.userName.toLowerCase().includes(term.toLowerCase()) ||
-                        player.userEmail.toLowerCase().includes(term.toLowerCase()) ||
-                        player.userStatus.toLowerCase().includes(term.toLowerCase())
-                    );
-            }
-
-            setPlayers(Array.isArray(results) ? results : []);
-
-        } catch (error) {
-            console.error('Search players error:', error);
-            setError('Lỗi khi tìm kiếm');
-        } finally {
-            setLoading(false);
-        }
-    }, [loadPlayers]);
-
-    // Ban player - simple version
-    const banPlayer = useCallback(async (id) => {
-        try {
-            await apiService.banPlayer(id);
-            console.log('✅ Player banned:', id);
-            await loadPlayers();
+            await apiService.banPlayer(id, banEndDate);
+            console.log('✅ Player banned:', id, banEndDate ? `until ${banEndDate.toLocaleDateString('vi-VN')}` : '');
+            await refreshCurrentPage();
         } catch (error) {
             console.error('Ban player error:', error);
             throw error;
         }
-    }, [loadPlayers]);
+    }, [refreshCurrentPage]);
 
-    // Unban player - simple version
+    // Unban player - simple version with pagination refresh
     const unbanPlayer = useCallback(async (id) => {
         try {
             await apiService.unbanPlayer(id);
             console.log('✅ Player unbanned:', id);
-            await loadPlayers();
+            await refreshCurrentPage();
         } catch (error) {
             console.error('Unban player error:', error);
             throw error;
         }
-    }, [loadPlayers]);
+    }, [refreshCurrentPage]);
 
     // Get player by ID - new function
     const getPlayerById = useCallback(async (id) => {
@@ -226,25 +201,64 @@ export const useSimplePlayers = () => {
             console.error('❌ API connection test failed:', error);
             return false;
         }
-    }, []);    // Filter players locally - simple version
-    const filteredPlayers = players.filter(player => {
-        if (!searchTerm) return true;
-        return player.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            player.userEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            player.userStatus.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    }, []);    // Reset password - new function
+    const resetPassword = useCallback(async (id) => {
+        try {
+            // TODO: Implement reset password API call when backend is ready
+            console.log('🔄 Reset password for player:', id);
+            // For now, just simulate success
+            return { success: true, message: 'Password reset successfully' };
+        } catch (error) {
+            console.error('Reset password error:', error);
+            throw error;
+        }
+    }, []);    // Pagination actions
+    const goToPage = useCallback(async (page) => {
+        if (page >= 0 && page < pagination.totalPages) {
+            await loadPlayers(page);
+        }
+    }, [pagination.totalPages, loadPlayers]);
+
+    const nextPage = useCallback(async () => {
+        if (pagination.hasNext) {
+            await goToPage(pagination.currentPage + 1);
+        }
+    }, [pagination.hasNext, pagination.currentPage, goToPage]);
+
+    const previousPage = useCallback(async () => {
+        if (pagination.hasPrevious) {
+            await goToPage(pagination.currentPage - 1);
+        }
+    }, [pagination.hasPrevious, pagination.currentPage, goToPage]);
+
+    const setPageSize = useCallback(async (newSize) => {
+        setPagination(prev => ({ ...prev, size: newSize, currentPage: 0 }));
+        // Reload with new page size
+        await loadPlayers(0);
+    }, [loadPlayers]);
+
+    // Get player pets
+    const getPlayerPets = useCallback(async (playerId) => {
+        try {
+            const pets = await apiService.getPlayerPets(playerId);
+            return pets;
+        } catch (error) {
+            console.error('Get player pets error:', error);
+            throw error;
+        }
+    }, []);
 
     // Auto-load on mount
     useEffect(() => {
-        loadPlayers();
+        loadPlayers(0);
         loadStats();
     }, []);
 
-    // Return all functions and state - enhanced version
+    // Return all functions and state - simplified version
     return {
         // Data
-        players: filteredPlayers,
-        allPlayers: players, // Unfiltered
+        players: paginatedPlayers, // Show paginated data
+        allPlayers: players, // All unfiltered players
         loading,
         error,
         stats,
@@ -257,26 +271,23 @@ export const useSimplePlayers = () => {
         updatePlayer,
         deletePlayer,
 
-        // Search & Filter Actions
-        searchPlayers,
-        getPlayerById,
-        getPlayerByEmail,
-        getPlayersByStatus,
-
         // Status Actions
         banPlayer,
         unbanPlayer,
+        resetPassword,
 
-        // Stats & Utils
+        // Pagination Actions
+        goToPage,
+        nextPage,
+        previousPage,
+        setPageSize,        // Stats & Utils
         loadStats,
         testConnection,
         setSearchTerm,
+        getPlayerPets,
 
         // Utils
-        refreshData: () => {
-            loadPlayers();
-            loadStats();
-        },
+        refreshData: refreshCurrentPage,
         clearError: () => setError(null)
     };
 };

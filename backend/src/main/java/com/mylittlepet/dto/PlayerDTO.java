@@ -14,6 +14,7 @@ public class PlayerDTO {
     private Integer diamond;
     private Integer gem;
     private LocalDateTime joinDate;
+    private Integer totalPets;
 
     // Constructors
     public PlayerDTO() {
@@ -21,7 +22,7 @@ public class PlayerDTO {
 
     public PlayerDTO(Integer id, String userName, String email, String userStatus,
             Integer level, Integer coin, Integer diamond, Integer gem,
-            LocalDateTime joinDate) {
+            LocalDateTime joinDate, Integer totalPets) {
         this.id = id;
         this.userName = userName;
         this.email = email;
@@ -31,9 +32,9 @@ public class PlayerDTO {
         this.diamond = diamond;
         this.gem = gem;
         this.joinDate = joinDate;
-    }
+        this.totalPets = totalPets;
+    } // Convert from User entity to PlayerDTO
 
-    // Convert from User entity to PlayerDTO
     public static PlayerDTO fromUser(User user) {
         if (user == null) {
             return null;
@@ -49,6 +50,28 @@ public class PlayerDTO {
         playerDTO.setDiamond(user.getDiamond());
         playerDTO.setGem(user.getGem());
         playerDTO.setJoinDate(user.getJoinDate());
+        playerDTO.setTotalPets(0); // Default value, will be set by service
+
+        return playerDTO;
+    }
+
+    // Convert from User entity to PlayerDTO with totalPets
+    public static PlayerDTO fromUser(User user, Integer totalPets) {
+        if (user == null) {
+            return null;
+        }
+
+        PlayerDTO playerDTO = new PlayerDTO();
+        playerDTO.setId(user.getId());
+        playerDTO.setUserName(user.getUserName());
+        playerDTO.setEmail(user.getEmail());
+        playerDTO.setUserStatus(user.getUserStatus());
+        playerDTO.setLevel(user.getLevel());
+        playerDTO.setCoin(user.getCoin());
+        playerDTO.setDiamond(user.getDiamond());
+        playerDTO.setGem(user.getGem());
+        playerDTO.setJoinDate(user.getJoinDate());
+        playerDTO.setTotalPets(totalPets != null ? totalPets : 0);
 
         return playerDTO;
     }
@@ -141,5 +164,13 @@ public class PlayerDTO {
 
     public void setJoinDate(LocalDateTime joinDate) {
         this.joinDate = joinDate;
+    }
+
+    public Integer getTotalPets() {
+        return totalPets;
+    }
+
+    public void setTotalPets(Integer totalPets) {
+        this.totalPets = totalPets;
     }
 }

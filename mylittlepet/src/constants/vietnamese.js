@@ -82,17 +82,18 @@ export const VIETNAMESE_TRANSLATIONS = {
         registrationSuccess: 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.',
         registrationFailed: 'Đăng ký thất bại. Vui lòng thử lại.',
         weakPassword: 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số'
-    },
-
-    // Navigation
+    },    // Navigation
     nav: {
         players: 'Người chơi',
         pets: 'Thú cưng',
-        items: 'Vật phẩm',
         analytics: 'Phân tích',
         settings: 'Cài đặt',
         myLittlePet: 'Thú Cưng Bé Nhỏ Của Tôi',
         admin: 'Quản trị viên'
+    },    // Navigation
+    nav: {
+        players: 'Người chơi',
+        pets: 'Thú cưng'
     },
 
     // Players
@@ -102,12 +103,10 @@ export const VIETNAMESE_TRANSLATIONS = {
         playerDetails: 'Chi Tiết Người Chơi',
         searchPlayers: 'Tìm kiếm người chơi...',
         allStatus: 'Tất Cả Trạng Thái',
-        active: 'Hoạt động',
-        banned: 'Bị cấm',
+        active: 'Hoạt động', banned: 'Bị cấm',
         inactive: 'Không hoạt động',
         player: 'Người chơi',
         pets: 'Thú cưng',
-        items: 'Vật phẩm',
         achievements: 'Thành tích',
         registeredAt: 'Ngày đăng ký',
         lastActive: 'Hoạt động cuối',
@@ -116,12 +115,10 @@ export const VIETNAMESE_TRANSLATIONS = {
         editPlayer: 'Chỉnh sửa người chơi',
         username: 'Tên người dùng',
         totalPets: 'Tổng Thú Cưng',
-        totalItems: 'Tổng Vật Phẩm',
         totalAchievements: 'Tổng Thành Tích',
         registered: 'Đã đăng ký',
         inventory: 'Kho đồ',
         noPetsFound: 'Không tìm thấy thú cưng',
-        noItemsFound: 'Không tìm thấy vật phẩm',
         noAchievementsFound: 'Không tìm thấy thành tích',
         unlocked: 'Đã mở khóa'
     },
@@ -142,37 +139,7 @@ export const VIETNAMESE_TRANSLATIONS = {
         hp: 'HP',
         noPetsFound: 'Không tìm thấy thú cưng',
         noPetsFoundMessage: 'Không có thú cưng nào phù hợp với tiêu chí lọc hiện tại.', confirmDelete: 'Bạn có chắc chắn muốn xóa thú cưng này không?'
-    },
-
-    // Items
-    items: {
-        title: 'Quản Lý Vật Phẩm',
-        management: 'Quản Lý Vật Phẩm',
-        addItem: 'Thêm Vật Phẩm',
-        editItem: 'Chỉnh Sửa Vật Phẩm',
-        addNewItem: 'Thêm Vật Phẩm Mới',
-        searchItems: 'Tìm kiếm vật phẩm...',
-        allTypes: 'Tất Cả Loại',
-        item: 'Vật phẩm',
-        statName: 'Tên thuộc tính...',
-        value: 'Giá trị...',
-        totalItems: 'Số Vật Phẩm',
-        totalQuantity: 'Tổng Số Lượng Vật Phẩm',
-        totalValue: 'Tổng Giá Trị',
-        noItemsFound: 'Không tìm thấy vật phẩm',
-        noItemsFoundMessage: 'Không có vật phẩm nào phù hợp với tiêu chí lọc hiện tại.',
-        confirmDelete: 'Bạn có chắc chắn muốn xóa vật phẩm này không?'
-    },    // Item Types
-    itemTypes: {
-        food: 'Thức ăn',
-        toy: 'Đồ chơi',
-        medicine: 'Thuốc',
-        accessory: 'Phụ kiện',
-        consumable: 'Tiêu hao',
-        material: 'Nguyên liệu'
-    },
-
-    // Pet Types
+    },    // Pet Types
     petTypes: {
         dragon: 'Rồng',
         bird: 'Chim',
