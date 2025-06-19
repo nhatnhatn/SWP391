@@ -1,0 +1,15 @@
+com\mylittlepet\BackendApplication.class
+com\mylittlepet\dto\LoginResponse.class
+com\mylittlepet\entity\User.class
+com\mylittlepet\config\CorsConfig.class
+com\mylittlepet\repository\UserRepository.class
+com\mylittlepet\service\AuthService.class
+com\mylittlepet\dto\RegisterRequest.class
+com\mylittlepet\dto\AdminInfo.class
+com\mylittlepet\repository\PlayerRepository.class
+com\mylittlepet\dto\LoginRequest.class
+com\mylittlepet\dto\PlayerDTO.class
+com\mylittlepet\util\PasswordUtil.class
+com\mylittlepet\dto\RegisterResponse.class
+com\mylittlepet\service\PlayerService.class
+com\mylittlepet\controller\AuthController.class
