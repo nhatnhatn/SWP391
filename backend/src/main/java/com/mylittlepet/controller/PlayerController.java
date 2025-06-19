@@ -1,9 +1,12 @@
 package com.mylittlepet.controller;
 
-import com.mylittlepet.dto.PlayerDTO;
+/*
+// COMMENTED OUT - Will be replaced by SimpleController for Player Management
+// This file is kept for reference but disabled to avoid compilation errors
+
+import com.mylittlepet.entity.User;
 import com.mylittlepet.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,38 +15,32 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/players")
 public class PlayerController {
-
-    private final PlayerService playerService;
-
     @Autowired
-    public PlayerController(PlayerService playerService) {
-        this.playerService = playerService;
-    } // GET /api/players - Get all players
+    private PlayerService playerService;
 
     @GetMapping
-    public ResponseEntity<List<PlayerDTO>> getAllPlayers() {
-        List<PlayerDTO> players = playerService.getAllPlayers();
-        return ResponseEntity.ok(players);
+    public List<User> getAllPlayers() {
+        return playerService.getAllPlayers();
     }
 
-    // GET /api/players/{id} - Get player by ID
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable Integer id) {
-        Optional<PlayerDTO> player = playerService.getPlayerById(id);
-        return player.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public Optional<User> getPlayerById(@PathVariable Integer id) {
+        return playerService.getPlayerById(id);
     }
 
-    // PUT /api/players/{id} - Update player
+    @PostMapping
+    public User createPlayer(@RequestBody User player) {
+        return playerService.createPlayer(player);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<PlayerDTO> updatePlayer(@PathVariable Integer id, @RequestBody PlayerDTO playerDTO) {
-        // Set ID from URL path, not from request body
-        playerDTO.setId(id);
-
-        PlayerDTO updatedPlayer = playerService.updatePlayer(id, playerDTO);
-        if (updatedPlayer != null) {
-            return ResponseEntity.ok(updatedPlayer);
-        }
-        return ResponseEntity.notFound().build();
+    public User updatePlayer(@PathVariable Integer id, @RequestBody User player) {
+        return playerService.updatePlayer(id, player);
     }
-}
+
+    @DeleteMapping("/{id}")
+    public void deletePlayer(@PathVariable Integer id) {
+        playerService.deletePlayer(id);
+    }
+} 
+*/

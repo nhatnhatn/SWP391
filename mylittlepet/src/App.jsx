@@ -4,7 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/manager/Login';
 import Register from './pages/manager/Register';
-import Players from './pages/manager/Players';
+import PlayersSimple from './pages/manager/PlayersSimple';
 import Pets from './pages/manager/Pets';
 import Items from './pages/manager/Items';
 import { useLocation } from 'react-router-dom';
@@ -76,7 +76,7 @@ function App() {
             <ProtectedRoute>
               <Layout>                <Routes>
                 <Route path="/" element={<Navigate to="/players" replace />} />
-                <Route path="players" element={<Players />} />
+                <Route path="players" element={<PlayersSimple />} />
                 <Route path="pets" element={<Pets />} />
                 <Route path="items" element={<Items />} />
                 <Route path="*" element={

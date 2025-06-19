@@ -209,9 +209,7 @@ class ApiService {
 
     async addExperience(userId, experience) {
         return this.post(`/users/${userId}/experience`, { experience });
-    }
-
-    // ===== PLAYER MANAGEMENT APIs =====
+    }    // ===== PLAYER MANAGEMENT APIs =====
     // Get all players (for admin management)
     async getAllPlayers() {
         try {
@@ -252,6 +250,68 @@ class ApiService {
         }
     }
 
+    async getPlayerByEmail(email) {
+        try {
+            console.log(`🔍 Fetching player with email: ${email}`);
+            const response = await this.get(`/players/email/${encodeURIComponent(email)}`);
+            console.log('✅ Player fetched by email successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to fetch player by email ${email}:`, error);
+            throw error;
+        }
+    }
+
+    async getPlayerByUserName(username) {
+        try {
+            console.log(`🔍 Fetching player with username: ${username}`);
+            const response = await this.get(`/players/username/${encodeURIComponent(username)}`);
+            console.log('✅ Player fetched by username successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to fetch player by username ${username}:`, error);
+            throw error;
+        }
+    }
+
+    async getPlayersByStatus(status) {
+        try {
+            console.log(`🔍 Fetching players with status: ${status}`);
+            const response = await this.get(`/players/status/${encodeURIComponent(status)}`);
+            console.log('✅ Players fetched by status successfully:', response);
+
+            // Ensure we always return an array
+            if (Array.isArray(response)) {
+                return response;
+            } else if (response && typeof response === 'object') {
+                if (Array.isArray(response.content)) {
+                    return response.content;
+                } else if (Array.isArray(response.data)) {
+                    return response.data;
+                }
+            }
+
+            console.warn('⚠️ Unexpected response format, returning empty array');
+            return [];
+        } catch (error) {
+            console.error(`❌ Failed to fetch players by status ${status}:`, error);
+            // Return empty array instead of throwing to prevent app crashes
+            return [];
+        }
+    }
+
+    async createPlayer(playerData) {
+        try {
+            console.log('📝 Creating new player:', playerData);
+            const response = await this.post('/players', playerData);
+            console.log('✅ Player created successfully:', response);
+            return response;
+        } catch (error) {
+            console.error('❌ Failed to create player:', error);
+            throw error;
+        }
+    }
+
     async updatePlayer(id, playerData) {
         try {
             console.log(`📝 Updating player ${id}:`, playerData);
@@ -262,7 +322,55 @@ class ApiService {
             console.error(`❌ Failed to update player ${id}:`, error);
             throw error;
         }
-    }    // Pets API
+    }
+
+    async deletePlayer(id) {
+        try {
+            console.log(`🗑️ Deleting player ${id}`);
+            const response = await this.delete(`/players/${id}`);
+            console.log('✅ Player deleted successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to delete player ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async banPlayer(id) {
+        try {
+            console.log(`🚫 Banning player ${id}`);
+            const response = await this.put(`/players/${id}/ban`);
+            console.log('✅ Player banned successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to ban player ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async unbanPlayer(id) {
+        try {
+            console.log(`✅ Unbanning player ${id}`);
+            const response = await this.put(`/players/${id}/unban`);
+            console.log('✅ Player unbanned successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to unban player ${id}:`, error);
+            throw error;
+        }
+    }
+
+    async testPlayerApi() {
+        try {
+            console.log('🧪 Testing player API connection');
+            const response = await this.get('/players/test');
+            console.log('✅ Player API test successful:', response);
+            return response;
+        } catch (error) {
+            console.error('❌ Player API test failed:', error);
+            throw error;
+        }
+    }// Pets API
     async getAllPets() {
         try {
             console.log('🔍 Fetching all pets');
