@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, Edit, Users, UserPlus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Eye, Edit, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
 // Simple Players component - Updated with Backend Integration
@@ -231,11 +231,10 @@ const PlayersSimple = () => {
 
     return (
         <div className="p-6">
-            {/* Simple Header */}
-            <div className="mb-6">
+            {/* Simple Header */}            <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center">
                     <Users className="w-8 h-8 mr-2 text-blue-600" />
-                    Quản lý người chơi (Version sinh viên - Tuần 1)
+                    Quản lý người chơi
                 </h1>
                 <p className="text-gray-600">Danh sách người chơi trong game</p>
             </div>
@@ -256,7 +255,7 @@ const PlayersSimple = () => {
                 <div className="bg-white p-4 rounded-lg shadow border">
                     <div className="flex items-center">
                         <div className="p-2 bg-green-100 rounded-lg">
-                            <UserPlus className="w-6 h-6 text-green-600" />
+                            <Users className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-3">
                             <p className="text-sm text-gray-600">Đang hoạt động</p>
@@ -307,12 +306,7 @@ const PlayersSimple = () => {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-                    </div>                    <button
-                        onClick={() => alert('Thêm người chơi mới (Làm tuần sau)')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                        Thêm mới
-                    </button>
+                    </div>
                 </div>
             </div>
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 
 // Simple Shop Product Management Component
@@ -44,9 +44,45 @@ const ShopProductManagement = () => {
         description: '',
         imageUrl: '',
         price: '',
-        currencyType: 'COIN', quality: 10,
+        currencyType: 'COIN',
+        quality: 10,
         status: 1
-    });    // Handle search
+    });
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Calculate pagination
+    const totalItems = shopProducts.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProducts = shopProducts.slice(startIndex, endIndex);
+
+    // Reset to page 1 when products data changes (search, filter)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [shopProducts.length, searchTerm, typeFilter, statusFilter, shopFilter, currencyFilter]);
+
+    // Pagination handlers
+    const goToPage = (page) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const goToPrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    // Handle search
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
@@ -226,88 +262,13 @@ const ShopProductManagement = () => {
     }
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            {/* Header */}
+        <div className="p-6 bg-gray-50 min-h-screen">            {/* Header */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-3">
-                        <Package className="h-8 w-8 text-purple-600" />
-                        <div>                            <h1 className="text-2xl font-bold text-gray-800">Quản lý Sản phẩm Cửa Hàng</h1>
-                            <p className="text-gray-600">Quản lý danh sách sản phẩm trong các cửa hàng</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleCreate}
-                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2 transition-colors"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Thêm Sản phẩm
-                    </button>
-                </div>
-
-                {/* Search and Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div className="md:col-span-2 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm sản phẩm..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Store className="h-4 w-4 text-gray-500" />
-                        <select
-                            value={shopFilter}
-                            onChange={(e) => handleShopFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        >
-                            <option value="">Tất cả cửa hàng</option>
-                            {shops.map(shop => (
-                                <option key={shop.shopId} value={shop.shopId}>{shop.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Filter className="h-4 w-4 text-gray-500" />                        <select
-                            value={typeFilter}
-                            onChange={(e) => handleTypeFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        >
-                            <option value="">Tất cả loại</option>
-                            <option value="Pet">Pet</option>
-                            <option value="Item">Item</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-gray-500" />
-                        <select
-                            value={currencyFilter}
-                            onChange={(e) => handleCurrencyFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        >
-                            <option value="">Tất cả tiền tệ</option>
-                            {getUniqueCurrencies().map(currency => (
-                                <option key={currency} value={currency}>{currency}</option>
-                            ))}
-                        </select>
-                    </div>
-
+                <div className="flex items-center gap-3">
+                    <Package className="h-8 w-8 text-purple-600" />
                     <div>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => handleStatusFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                        >
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="1">Hoạt động</option>
-                            <option value="0">Tắt</option>
-                        </select>
+                        <h1 className="text-2xl font-bold text-gray-800">Quản lý Sản phẩm Cửa Hàng</h1>
+                        <p className="text-gray-600">Quản lý danh sách sản phẩm trong các cửa hàng</p>
                     </div>
                 </div>
             </div>
@@ -366,37 +327,102 @@ const ShopProductManagement = () => {
                             <p className="text-2xl font-bold text-gray-900">{getUniqueCurrencies().length}</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>            </div>            {/* Search and Filters */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="flex flex-col gap-4">
+                    {/* Top row: Search and Add button */}
+                    <div className="flex gap-4 items-center">
+                        <div className="flex-1 relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm sản phẩm..."
+                                value={searchTerm}
+                                onChange={handleSearch}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                        </div>
+                        <button
+                            onClick={handleCreate}
+                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2 transition-colors whitespace-nowrap"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Thêm Sản phẩm
+                        </button>
+                    </div>
 
-            {/* Product Table */}
+                    {/* Bottom row: Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="flex items-center gap-2">
+                            <Store className="h-4 w-4 text-gray-500" />
+                            <select
+                                value={shopFilter}
+                                onChange={(e) => handleShopFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">Tất cả cửa hàng</option>
+                                {shops.map(shop => (
+                                    <option key={shop.shopId} value={shop.shopId}>{shop.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Filter className="h-4 w-4 text-gray-500" />
+                            <select
+                                value={typeFilter}
+                                onChange={(e) => handleTypeFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">Tất cả loại</option>
+                                <option value="Pet">Pet</option>
+                                <option value="Item">Item</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4 text-gray-500" />
+                            <select
+                                value={currencyFilter}
+                                onChange={(e) => handleCurrencyFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">Tất cả tiền tệ</option>
+                                {getUniqueCurrencies().map(currency => (
+                                    <option key={currency} value={currency}>{currency}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => handleStatusFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Tắt</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>            {/* Product Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-900">
-                        Danh sách Sản phẩm Cửa Hàng ({shopProducts.length})
-                    </h3>
-                </div>
-
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cửa Hàng</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {shopProducts.map((product) => (
+                    <table className="min-w-full divide-y divide-gray-200">                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cửa Hàng</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                    </thead>                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentProducts.map((product) => (
                                 <tr key={product.shopProductId} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #{product.shopProductId}
-                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
                                             {product.imageUrl && (
@@ -464,9 +490,7 @@ const ShopProductManagement = () => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
-
-                    {shopProducts.length === 0 && !loading && (
+                    </table>                    {currentProducts.length === 0 && !loading && (
                         <div className="text-center py-12">
                             <Package className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">Không có sản phẩm nào</h3>
@@ -476,7 +500,59 @@ const ShopProductManagement = () => {
                         </div>
                     )}
                 </div>
-            </div>
+            </div>            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between">
+                    {/* Page Info and Items per page */}
+                    <div className="flex items-center gap-4">
+                        <div className="text-sm text-gray-700">
+                            Hiển thị từ {startIndex + 1} đến {Math.min(endIndex, totalItems)} của {totalItems} sản phẩm
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">Hiển thị:</span>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setItemsPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <span className="text-sm text-gray-600">sản phẩm/trang</span>
+                        </div>
+                    </div>
+
+                    {/* Page Controls */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={goToPrevPage}
+                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            disabled={currentPage === 1}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Trước
+                        </button>
+
+                        <span className="text-sm text-gray-600">
+                            Trang {currentPage} / {totalPages}
+                        </span>
+
+                        <button
+                            onClick={goToNextPage}
+                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            disabled={currentPage === totalPages}
+                        >
+                            Tiếp
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* View Product Detail Modal */}
             {selectedProduct && (

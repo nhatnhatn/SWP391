@@ -307,21 +307,7 @@ class ApiService {
             // Return empty array instead of throwing to prevent app crashes
             return [];
         }
-    }
-
-    async createPlayer(playerData) {
-        try {
-            console.log('📝 Creating new player:', playerData);
-            const response = await this.post('/players', playerData);
-            console.log('✅ Player created successfully:', response);
-            return response;
-        } catch (error) {
-            console.error('❌ Failed to create player:', error);
-            throw error;
-        }
-    }
-
-    async updatePlayer(id, playerData) {
+    } async updatePlayer(id, playerData) {
         try {
             console.log(`📝 Updating player ${id}:`, playerData);
             const response = await this.put(`/players/${id}`, playerData);

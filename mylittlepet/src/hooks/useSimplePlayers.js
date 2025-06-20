@@ -85,25 +85,7 @@ export const useSimplePlayers = () => {
             console.error('Load stats error:', error);
             setStats({ total: 0, active: 0, banned: 0, inactive: 0 });
         }
-    }, []);    // Create player - simple version
-    const createPlayer = useCallback(async (playerData) => {
-        try {
-            setLoading(true);
-
-            const newPlayer = await apiService.createPlayer(playerData);
-            console.log('✅ Player created:', newPlayer);
-            await loadPlayers(); // Refresh list
-            return newPlayer;
-
-        } catch (error) {
-            console.error('Create player error:', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }, [loadPlayers]);
-
-    // Update player - simple version
+    }, []);    // Update player - simple version
     const updatePlayer = useCallback(async (id, playerData) => {
         try {
             setLoading(true);
@@ -263,11 +245,8 @@ export const useSimplePlayers = () => {
         error,
         stats,
         pagination,
-        searchTerm,
-
-        // CRUD Actions
+        searchTerm,        // CRUD Actions
         loadPlayers,
-        createPlayer,
         updatePlayer,
         deletePlayer,
 

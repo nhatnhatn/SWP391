@@ -15,15 +15,14 @@ public class AuthService {
     private UserRepository userRepository;
 
     public RegisterResponse register(RegisterRequest request) {
-        try {
-            // Check if passwords match
+        try { // Check if passwords match
             if (!request.isPasswordMatching()) {
                 return new RegisterResponse(false, "Passwords do not match");
             }
 
-            // Validate username format (only letters, numbers, underscore)
-            if (!request.getUsername().matches("^[a-zA-Z0-9_]+$")) {
-                return new RegisterResponse(false, "Username can only contain letters, numbers, and underscores");
+            // Check if username is null or empty (after trim)
+            if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+                return new RegisterResponse(false, "Username cannot be empty");
             }
 
             // Check if username already exists
@@ -57,14 +56,11 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        try {
-            // Find user by email
-            Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-
+        try { // Find admin user by email (exclude players)
+            Optional<User> userOptional = userRepository.findAdminByEmail(request.getEmail());
             if (userOptional.isEmpty()) {
-                return new LoginResponse(false, "Email not found");
+                return new LoginResponse(false, "Email not found or not authorized for admin access");
             }
-
             User user = userOptional.get();
 
             // Check password (plain text comparison for development)

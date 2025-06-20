@@ -86,14 +86,11 @@ export const VIETNAMESE_TRANSLATIONS = {
     nav: {
         players: 'Người chơi',
         pets: 'Thú cưng',
+        shops: 'Cửa Hàng',
         analytics: 'Phân tích',
         settings: 'Cài đặt',
         myLittlePet: 'Thú Cưng Bé Nhỏ Của Tôi',
         admin: 'Quản trị viên'
-    },    // Navigation
-    nav: {
-        players: 'Người chơi',
-        pets: 'Thú cưng'
     },
 
     // Players

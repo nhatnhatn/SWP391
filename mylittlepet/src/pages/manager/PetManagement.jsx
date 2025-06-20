@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Filter } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSimplePets } from '../../hooks/useSimplePets';
 
 // Simple Pet Management Component
@@ -34,6 +34,39 @@ const PetManagement = () => {
         description: '',
         petStatus: 1
     });
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Calculate pagination
+    const totalItems = pets.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPets = pets.slice(startIndex, endIndex);
+
+    // Reset to page 1 when pets data changes (search, filter)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [pets.length, searchTerm, typeFilter, statusFilter]);
+
+    // Pagination handlers
+    const goToPage = (page) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const goToPrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
 
     // Handle search
     const handleSearch = (e) => {
@@ -266,104 +299,148 @@ const PetManagement = () => {
 
             {/* Pet Table */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200">                    <thead className="bg-gray-50">
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Tên
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Loại
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Mô tả
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                            Trạng thái
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                            Thao tác
+                        </th>
+                    </tr>
+                </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">                        {loading ? (
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                Tên
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                Loại
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                Mô tả
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                Trạng thái
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                Thao tác
-                            </th>
+                            <td colSpan="5" className="px-6 py-4 text-center">
+                                <div className="flex items-center justify-center">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                                    <span className="ml-2">Đang tải...</span>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {loading ? (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-4 text-center">
-                                    <div className="flex items-center justify-center">
-                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                                        <span className="ml-2">Đang tải...</span>
+                    ) : currentPets.length === 0 ? (
+                        <tr>
+                            <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                <div className="text-4xl mb-2">🐾</div>
+                                <p>Không có thú cưng nào</p>
+                            </td>
+                        </tr>
+                    ) : (
+                        currentPets.map((pet) => (
+                            <tr key={pet.petId} className="hover:bg-gray-50">
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center">
+                                        <div className="text-2xl mr-3">🐾</div>
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {pet.petDefaultName || 'Chưa đặt tên'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {pet.petType || 'N/A'}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-500">
+                                    <div className="max-w-xs truncate">
+                                        {pet.description || 'Không có mô tả'}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    {getStatusBadge(pet.petStatus)}
+                                </td>
+                                <td className="px-6 py-4 text-right text-sm">
+                                    <div className="flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => handleView(pet)}
+                                            className="text-blue-600 hover:text-blue-800 p-1"
+                                            title="Xem chi tiết"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleEdit(pet)}
+                                            className="text-green-600 hover:text-green-800 p-1"
+                                            title="Chỉnh sửa"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(pet.petId)}
+                                            className="text-red-600 hover:text-red-800 p-1"
+                                            title="Xóa"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
-                        ) : pets.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                    <div className="text-4xl mb-2">🐾</div>
-                                    <p>Không có thú cưng nào</p>
-                                </td>
-                            </tr>
-                        ) : (
-                            pets.map((pet) => (
-                                <tr key={pet.petId} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {pet.petId}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center">
-                                            <div className="text-2xl mr-3">🐾</div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {pet.petDefaultName || 'Chưa đặt tên'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {pet.petType || 'N/A'}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        <div className="max-w-xs truncate">
-                                            {pet.description || 'Không có mô tả'}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {getStatusBadge(pet.petStatus)}
-                                    </td>
-                                    <td className="px-6 py-4 text-right text-sm">
-                                        <div className="flex justify-end space-x-2">
-                                            <button
-                                                onClick={() => handleView(pet)}
-                                                className="text-blue-600 hover:text-blue-800 p-1"
-                                                title="Xem chi tiết"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleEdit(pet)}
-                                                className="text-green-600 hover:text-green-800 p-1"
-                                                title="Chỉnh sửa"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(pet.petId)}
-                                                className="text-red-600 hover:text-red-800 p-1"
-                                                title="Xóa"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
+                        ))
+                    )}
                     </tbody>
                 </table>
-            </div>
+            </div>            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="mt-4 flex items-center justify-between">
+                    {/* Page Info and Items per page */}
+                    <div className="flex items-center gap-4">
+                        <div className="text-sm text-gray-700">
+                            Hiển thị từ {startIndex + 1} đến {Math.min(endIndex, totalItems)} của {totalItems} thú cưng
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">Hiển thị:</span>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setItemsPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                            <span className="text-sm text-gray-600">thú cưng/trang</span>
+                        </div>
+                    </div>
+
+                    {/* Page Controls */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={goToPrevPage}
+                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            disabled={currentPage === 1}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                            Trước
+                        </button>
+
+                        <span className="text-sm text-gray-600">
+                            Trang {currentPage} / {totalPages}
+                        </span>
+
+                        <button
+                            onClick={goToNextPage}
+                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            disabled={currentPage === totalPages}
+                        >
+                            Tiếp
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Create Pet Modal */}
             {createModal && (
