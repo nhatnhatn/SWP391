@@ -128,7 +128,16 @@ class ApiService {
         return this.request(endpoint, {
             method: 'DELETE'
         });
-    }    // Authentication API
+    }
+
+    async patch(endpoint, data = null) {
+        return this.request(endpoint, {
+            method: 'PATCH',
+            ...(data ? { body: JSON.stringify(data) } : {})
+        });
+    }
+
+    // Authentication API
     async login(email, password) {
         console.log('🌐 ApiService: Attempting to login with backend:', { email });
         try {
@@ -298,21 +307,7 @@ class ApiService {
             // Return empty array instead of throwing to prevent app crashes
             return [];
         }
-    }
-
-    async createPlayer(playerData) {
-        try {
-            console.log('📝 Creating new player:', playerData);
-            const response = await this.post('/players', playerData);
-            console.log('✅ Player created successfully:', response);
-            return response;
-        } catch (error) {
-            console.error('❌ Failed to create player:', error);
-            throw error;
-        }
-    }
-
-    async updatePlayer(id, playerData) {
+    } async updatePlayer(id, playerData) {
         try {
             console.log(`📝 Updating player ${id}:`, playerData);
             const response = await this.put(`/players/${id}`, playerData);
@@ -334,12 +329,21 @@ class ApiService {
             console.error(`❌ Failed to delete player ${id}:`, error);
             throw error;
         }
-    }
-
-    async banPlayer(id) {
+    } async banPlayer(id, banEndDate = null) {
         try {
-            console.log(`🚫 Banning player ${id}`);
-            const response = await this.put(`/players/${id}/ban`);
+            console.log(`🚫 Banning player ${id}${banEndDate ? ` until ${banEndDate.toISOString()}` : ''}`);
+
+            let response;
+            if (banEndDate) {
+                // Send ban with end date
+                response = await this.put(`/players/${id}/ban`, {
+                    banEndDate: banEndDate.toISOString()
+                });
+            } else {
+                // Permanent ban (fallback)
+                response = await this.put(`/players/${id}/ban`);
+            }
+
             console.log('✅ Player banned successfully:', response);
             return response;
         } catch (error) {
@@ -358,9 +362,7 @@ class ApiService {
             console.error(`❌ Failed to unban player ${id}:`, error);
             throw error;
         }
-    }
-
-    async testPlayerApi() {
+    } async testPlayerApi() {
         try {
             console.log('🧪 Testing player API connection');
             const response = await this.get('/players/test');
@@ -370,152 +372,74 @@ class ApiService {
             console.error('❌ Player API test failed:', error);
             throw error;
         }
-    }// Pets API
+    }
+
+    async getPlayerPets(playerId) {
+        try {
+            console.log(`🐾 Fetching pets for player ${playerId}`);
+            const response = await this.get(`/players/${playerId}/pets`);
+            console.log('✅ Player pets fetched successfully:', response);
+            return response;
+        } catch (error) {
+            console.error(`❌ Failed to fetch pets for player ${playerId}:`, error);
+            throw error;
+        }
+    }
+
+    // ===== PET MANAGEMENT API =====
+
+    // Get all pets
     async getAllPets() {
-        try {
-            console.log('🔍 Fetching all pets');
-            // Verify endpoint
-            if (this.baseURL.endsWith('/')) {
-                console.warn('⚠️ Base URL has trailing slash, which might cause double-slash in URL');
-            }
-            console.log('🔍 Using URL:', `${this.baseURL}/pets`);
-
-            const response = await this.get('/pets');
-            console.log('✅ Raw pets response:', response);
-
-            // Ensure we always return an array
-            let pets = [];
-            if (Array.isArray(response)) {
-                pets = response;
-            } else if (response && typeof response === 'object') {
-                // Handle different response formats
-                if (Array.isArray(response.content)) {
-                    pets = response.content;
-                } else if (Array.isArray(response.data)) {
-                    pets = response.data;
-                } else if (response.pets && Array.isArray(response.pets)) {
-                    pets = response.pets;
-                }
-            }
-
-            console.log('✨ Normalized pets array:', pets);
-            console.log('🔢 Number of pets:', pets.length);
-            return pets;
-        } catch (error) {
-            console.error('❌ Failed to fetch pets:', error);
-            // Return empty array instead of throwing to prevent app crashes
-            return [];
-        }
+        console.log('🐕 API: Getting all pets');
+        return this.get('/pets');
     }
 
+    // Get pet by ID
     async getPetById(id) {
-        try {
-            console.log(`🔍 Fetching pet with ID: ${id}`);
-            const response = await this.get(`/pets/${id}`);
-            console.log('✅ Pet fetched successfully:', response);
-            return response;
-        } catch (error) {
-            console.error(`❌ Failed to fetch pet ${id}:`, error);
-            throw error;
-        }
+        console.log(`🐕 API: Getting pet ${id}`);
+        return this.get(`/pets/${id}`);
     }
 
+    // Get pets by type
+    async getPetsByType(type) {
+        console.log(`🐕 API: Getting pets by type: ${type}`);
+        return this.get(`/pets/type/${encodeURIComponent(type)}`);
+    }
+
+    // Get pets by status
+    async getPetsByStatus(status) {
+        console.log(`🐕 API: Getting pets by status: ${status}`);
+        return this.get(`/pets/status/${status}`);
+    }
+
+    // Search pets
+    async searchPets(keyword) {
+        console.log(`🐕 API: Searching pets with keyword: ${keyword}`);
+        return this.get(`/pets/search?keyword=${encodeURIComponent(keyword)}`);
+    }
+
+    // Create pet
     async createPet(petData) {
-        try {
-            console.log('📝 Creating new pet:', petData);
-            const response = await this.post('/pets', petData);
-            console.log('✅ Pet created successfully:', response);
-            return response;
-        } catch (error) {
-            console.error('❌ Failed to create pet:', error);
-            throw error;
-        }
+        console.log('🐕 API: Creating pet:', petData);
+        return this.post('/pets', petData);
     }
 
+    // Update pet
     async updatePet(id, petData) {
-        try {
-            console.log(`📝 Updating pet ${id}:`, petData);
-            const response = await this.put(`/pets/${id}`, petData);
-            console.log('✅ Pet updated successfully:', response);
-            return response;
-        } catch (error) {
-            console.error(`❌ Failed to update pet ${id}:`, error);
-            throw error;
-        }
+        console.log(`🐕 API: Updating pet ${id}:`, petData);
+        return this.put(`/pets/${id}`, petData);
     }
 
-    async deactivatePet(id) {
-        try {
-            console.log(`🚫 Deactivating pet ${id}`);
-            const response = await this.put(`/pets/${id}/deactivate`);
-            console.log('✅ Pet deactivated successfully:', response);
-            return response;
-        } catch (error) {
-            console.error(`❌ Failed to deactivate pet ${id}:`, error);
-            throw error;
-        }
-    }    // Items API
-    async getItems(page = 0, size = 10) {
-        return this.get(`/items/paginated?page=${page}&size=${size}`);
+    // Delete pet (soft delete)
+    async deletePet(id) {
+        console.log(`🐕 API: Deleting pet ${id}`);
+        return this.delete(`/pets/${id}`);
     }
 
-    async getAllItems() {
-        console.log('📦 API: Fetching all items...');
-        return this.get('/items');
-    }
-
-    async getItemById(id) {
-        console.log(`📦 API: Fetching item by ID: ${id}`);
-        return this.get(`/items/${id}`);
-    } async searchItems(keyword, itemType, rarity, page = 0, size = 10) {
-        const params = new URLSearchParams();
-        if (keyword) params.append('keyword', keyword);
-        if (itemType) params.append('itemType', itemType);
-        if (rarity) params.append('rarity', rarity);
-        params.append('page', page);
-        params.append('size', size);
-        return this.get(`/items/search?${params.toString()}`);
-    }
-
-    async createItem(itemData) {
-        console.log('📦 API: Creating new item:', itemData);
-        return this.post('/items', itemData);
-    }
-
-    async updateItem(id, itemData) {
-        console.log(`📦 API: Updating item ${id}:`, itemData);
-        return this.put(`/items/${id}`, itemData);
-    }
-
-    async deleteItem(id) {
-        console.log(`📦 API: Deleting item ${id}`);
-        return this.delete(`/items/${id}`);
-    }
-
-    // Shop and inventory APIs
-    async getShopItems() {
-        console.log('🛒 API: Fetching shop items...');
-        return this.get('/shop/items');
-    }
-
-    async getUserInventory(userId) {
-        console.log(`🎒 API: Fetching inventory for user ${userId}`);
-        return this.get(`/users/${userId}/inventory`);
-    }
-
-    async buyItem(itemId, quantity = 1) {
-        console.log(`🛒 API: Buying item ${itemId}, quantity: ${quantity}`);
-        return this.post('/shop/buy', { itemId, quantity });
-    }
-
-    async sellItem(itemId, quantity = 1) {
-        console.log(`💰 API: Selling item ${itemId}, quantity: ${quantity}`);
-        return this.post('/shop/sell', { itemId, quantity });
-    }
-
-    async useItem(itemId, petId = null) {
-        console.log(`🧪 API: Using item ${itemId} on pet ${petId}`);
-        return this.post('/items/use', { itemId, petId });
+    // Test pet API
+    async testPetApi() {
+        console.log('🐕 API: Testing pet API');
+        return this.get('/pets/test');
     }
 
     // API Documentation & Health Check
@@ -525,6 +449,98 @@ class ApiService {
 
     async healthCheck() {
         return this.get('/health');
+    }
+
+    // ===== SHOP PRODUCT MANAGEMENT API =====
+
+    // Get all shop products
+    async getAllShopProducts() {
+        console.log('🛒 API: Getting all shop products');
+        return this.get('/shop-products');
+    }
+
+    // Get shop product by ID
+    async getShopProductById(id) {
+        console.log(`🛒 API: Getting shop product ${id}`);
+        return this.get(`/shop-products/${id}`);
+    }
+
+    // Get shop products by shop ID
+    async getShopProductsByShopId(shopId) {
+        console.log(`🛒 API: Getting shop products by shop ID: ${shopId}`);
+        return this.get(`/shop-products/shop/${shopId}`);
+    }
+
+    // Get shop products by type
+    async getShopProductsByType(type) {
+        console.log(`🛒 API: Getting shop products by type: ${type}`);
+        return this.get(`/shop-products/type/${encodeURIComponent(type)}`);
+    }
+
+    // Get shop products by status
+    async getShopProductsByStatus(status) {
+        console.log(`🛒 API: Getting shop products by status: ${status}`);
+        return this.get(`/shop-products/status/${status}`);
+    }
+
+    // Get shop products by currency type
+    async getShopProductsByCurrencyType(currencyType) {
+        console.log(`🛒 API: Getting shop products by currency: ${currencyType}`);
+        return this.get(`/shop-products/currency/${encodeURIComponent(currencyType)}`);
+    }
+
+    // Get shop products by admin ID
+    async getShopProductsByAdminId(adminId) {
+        console.log(`🛒 API: Getting shop products by admin ID: ${adminId}`);
+        return this.get(`/shop-products/admin/${adminId}`);
+    }
+
+    // Get shop products by price range
+    async getShopProductsByPriceRange(minPrice, maxPrice) {
+        console.log(`🛒 API: Getting shop products by price range: ${minPrice}-${maxPrice}`);
+        return this.get(`/shop-products/price-range?min=${minPrice}&max=${maxPrice}`);
+    }
+
+    // Search shop products
+    async searchShopProducts(keyword) {
+        console.log(`🛒 API: Searching shop products with keyword: ${keyword}`);
+        return this.get(`/shop-products/search?keyword=${encodeURIComponent(keyword)}`);
+    }
+
+    // Get active shop products
+    async getActiveShopProducts() {
+        console.log('🛒 API: Getting active shop products');
+        return this.get('/shop-products/active');
+    }
+
+    // Create shop product
+    async createShopProduct(shopProductData) {
+        console.log('🛒 API: Creating shop product:', shopProductData);
+        return this.post('/shop-products', shopProductData);
+    }
+
+    // Update shop product
+    async updateShopProduct(id, shopProductData) {
+        console.log(`🛒 API: Updating shop product ${id}:`, shopProductData);
+        return this.put(`/shop-products/${id}`, shopProductData);
+    }
+
+    // Delete shop product
+    async deleteShopProduct(id) {
+        console.log(`🛒 API: Deleting shop product ${id}`);
+        return this.delete(`/shop-products/${id}`);
+    }
+
+    // Update shop product status
+    async updateShopProductStatus(id, status) {
+        console.log(`🛒 API: Updating shop product ${id} status to: ${status}`);
+        return this.patch(`/shop-products/${id}/status?status=${status}`);
+    }
+
+    // Test shop product API
+    async testShopProductApi() {
+        console.log('🛒 API: Testing shop product API');
+        return this.get('/shop-products/test');
     }
 }
 

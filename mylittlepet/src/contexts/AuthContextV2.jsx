@@ -59,13 +59,11 @@ export const AuthProvider = ({ children }) => {
 
             // Backend authentication
             const response = await apiService.login(email, password);
-            console.log('✅ AuthContextV2: Backend login successful:', response);
-
-            const userData = {
-                id: response.userId,
-                email: response.email || email,
-                name: response.name || response.username || 'Admin User',
-                role: response.role || 'admin',
+            console.log('✅ AuthContextV2: Backend login successful:', response); const userData = {
+                id: response.adminInfo?.id || response.userId,
+                email: response.adminInfo?.email || email,
+                name: response.adminInfo?.username || 'Admin User',
+                role: response.adminInfo?.role || 'admin',
                 avatar: response.avatar || null,
                 loginTime: new Date().toISOString(),
                 token: response.token

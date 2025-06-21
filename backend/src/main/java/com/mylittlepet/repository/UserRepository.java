@@ -14,9 +14,16 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     // Auth related methods
     Optional<User> findByEmail(String email);
+
     Optional<User> findByUserName(String userName);
+
     boolean existsByEmail(String email);
+
     boolean existsByUserName(String userName);
+
+    // Find admin by email for login (exclude players)
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.role != 'Player'")
+    Optional<User> findAdminByEmail(@Param("email") String email);
 
     // Player management related methods
     @Query("SELECT u FROM User u WHERE u.role = 'Player'")
@@ -26,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findPlayersByStatus(@Param("status") String status);
 
     @Query("SELECT u FROM User u WHERE u.role = 'Player' AND " +
-           "(u.userName LIKE %:keyword% OR u.email LIKE %:keyword%)")
+            "(u.userName LIKE %:keyword% OR u.email LIKE %:keyword%)")
     List<User> searchPlayers(@Param("keyword") String keyword);
 
     // Admin related methods

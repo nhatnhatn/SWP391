@@ -16,7 +16,7 @@ import { t } from '../constants/vietnamese';
 const navigation = [
     { name: t('nav.players'), href: '/players', icon: Users },
     { name: t('nav.pets'), href: '/pets', icon: Heart },
-    { name: t('nav.items'), href: '/items', icon: Package },
+    { name: t('nav.shops'), href: '/shop-products', icon: Package },
 ];
 
 export default function Layout({ children }) {

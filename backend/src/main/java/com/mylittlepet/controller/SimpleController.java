@@ -173,11 +173,21 @@ public class SimpleController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
+    } // GET /api/players/test - Test endpoint
 
-    // GET /api/players/test - Test endpoint
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("Player Management API is working!");
+    }
+
+    // GET /api/players/{id}/pets - Get all pets owned by a specific player
+    @GetMapping("/{id}/pets")
+    public ResponseEntity<List<com.mylittlepet.dto.PlayerPetDTO>> getPlayerPets(@PathVariable Integer id) {
+        try {
+            List<com.mylittlepet.dto.PlayerPetDTO> playerPets = playerService.getPlayerPets(id);
+            return ResponseEntity.ok(playerPets);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

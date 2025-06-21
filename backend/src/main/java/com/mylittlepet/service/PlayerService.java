@@ -25,8 +25,10 @@ public interface PlayerService {
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 
     // Update player
-    PlayerDTO updatePlayer(Integer id, PlayerDTO playerDTO);
+    PlayerDTO updatePlayer(Integer id, PlayerDTO playerDTO); // Delete player (soft delete by changing status)
 
-    // Delete player (soft delete by changing status)
     boolean deletePlayer(Integer id);
+
+    // Get all pets owned by a specific player
+    List<com.mylittlepet.dto.PlayerPetDTO> getPlayerPets(Integer playerId);
 }

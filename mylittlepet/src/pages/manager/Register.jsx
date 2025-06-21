@@ -21,11 +21,14 @@ export default function Register() {
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
-    }
-
-    const validateForm = () => {
-        if (!fullName.trim()) {
+    } const validateForm = () => {
+        if (!fullName || fullName.trim().length === 0) {
             setError('Họ và tên là bắt buộc');
+            return false;
+        }
+
+        if (fullName.length > 50) {
+            setError('Họ và tên không được vượt quá 50 ký tự');
             return false;
         }
 

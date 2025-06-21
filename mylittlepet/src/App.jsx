@@ -5,8 +5,8 @@ import Layout from './components/Layout';
 import Login from './pages/manager/Login';
 import Register from './pages/manager/Register';
 import PlayersSimple from './pages/manager/PlayersSimple';
-import Pets from './pages/manager/Pets';
-import Items from './pages/manager/Items';
+import PetManagement from './pages/manager/PetManagement';
+import ShopProductManagement from './pages/manager/ShopProductManagement';
 import { useLocation } from 'react-router-dom';
 
 // Simple debug component to test routing
@@ -75,10 +75,9 @@ function App() {
           <Route path="/*" element={
             <ProtectedRoute>
               <Layout>                <Routes>
-                <Route path="/" element={<Navigate to="/players" replace />} />
-                <Route path="players" element={<PlayersSimple />} />
-                <Route path="pets" element={<Pets />} />
-                <Route path="items" element={<Items />} />
+                <Route path="/" element={<Navigate to="/shop-products" replace />} />                <Route path="players" element={<PlayersSimple />} />
+                <Route path="pets" element={<PetManagement />} />
+                <Route path="shop-products" element={<ShopProductManagement />} />
                 <Route path="*" element={
                   <div className="p-8 text-center">
                     <h1 className="text-2xl font-bold text-red-600">404 - Page Not Found</h1>
