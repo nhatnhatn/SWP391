@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { RARITY_TYPES, RARITY_COLORS } from '../constants/gameConstants';
+
 
 // Utility function for combining class names
 export function cn(...inputs) {
@@ -90,4 +90,66 @@ export function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+// Google Drive utilities
+export function extractGoogleDriveFileId(url) {
+    if (!url || typeof url !== 'string') return null;
+
+    // Clean the URL and remove any extra parameters
+    const cleanUrl = url.trim();
+
+    // Match various Google Drive URL formats
+    // Google Drive file IDs can contain: letters, numbers, underscore, hyphens (including multiple consecutive)
+    const patterns = [
+        /\/file\/d\/([a-zA-Z0-9_-]+)/,                    // /file/d/FILE_ID (sharing links)
+        /[?&]id=([a-zA-Z0-9_-]+)/,                        // ?id=FILE_ID or &id=FILE_ID (uc/open links)
+        /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,    // uc?id=FILE_ID (direct uc links)
+        /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,  // open?id=FILE_ID (open links)
+        /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/   // full file URL (view links)
+    ];
+
+    for (const pattern of patterns) {
+        const match = cleanUrl.match(pattern);
+        if (match && match[1]) {
+            // Return the file ID, removing any trailing parameters that might be captured
+            let fileId = match[1];
+            // Clean up any accidentally captured parameters (stop at first & or ?)
+            fileId = fileId.split('&')[0].split('?')[0];
+            return fileId;
+        }
+    }
+
+    return null;
+}
+
+export function convertGoogleDriveLink(url) {
+    if (!url || typeof url !== 'string') return url;
+
+    // If it's already in the correct format, return as is
+    if (url.includes('drive.google.com/uc?id=') && !url.includes('export=view')) {
+        return url;
+    }
+
+    // Extract file ID
+    const fileId = extractGoogleDriveFileId(url);
+    if (!fileId) return url; // Return original if can't extract ID
+
+    // Return the correct format for direct image display
+    return `https://drive.google.com/uc?id=${fileId}`;
+}
+
+// Format currency with Vietnamese formatting
+export function formatCurrency(amount, type) {
+    const formatAmount = new Intl.NumberFormat('vi-VN').format(amount);
+    const symbols = {
+        'COIN': '🪙',
+        'DIAMOND': '💎',
+        'GEM': '🔷',
+        // Support database case variations
+        'Coin': '🪙',
+        'Diamond': '💎',
+        'Gem': '🔷'
+    };
+    return `${symbols[type] || '💰'} ${formatAmount}`;
 }
