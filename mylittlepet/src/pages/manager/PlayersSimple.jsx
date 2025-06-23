@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Eye, Edit, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
 // Simple Players component - Updated with Backend Integration
@@ -18,8 +18,7 @@ const PlayersSimple = () => {
         previousPage,
         getPlayerPets,
         updatePlayer,
-        refreshData: refreshCurrentPage
-    } = useSimplePlayers();// Local UI state
+        refreshData: refreshCurrentPage } = useSimplePlayers();    // Local UI state
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [selectedPlayerPets, setSelectedPlayerPets] = useState([]);
     const [loadingPets, setLoadingPets] = useState(false);
@@ -32,7 +31,16 @@ const PlayersSimple = () => {
         coin: 0,
         diamond: 0,
         gem: 0
-    }); const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
+    });
+
+    const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
+
+    // Sort state
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+    // Filter states
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [levelFilter, setLevelFilter] = useState('all');
 
     // Hidden timer check - auto unban when time expires (no UI display)
     useEffect(() => {
@@ -145,15 +153,90 @@ const PlayersSimple = () => {
         }
     };
 
-    // Filter players locally for display - Simple username only search
-    const filteredPlayers = players.filter(player => {
-        if (!searchTerm.trim()) return true;
+    // Sort function
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
 
-        const searchLower = searchTerm.toLowerCase();
-        const userName = (player.userName || '').toLowerCase();
+    // Get sort icon
+    const getSortIcon = (columnKey) => {
+        if (sortConfig.key !== columnKey) {
+            return null;
+        }
+        return sortConfig.direction === 'asc' ?
+            <ChevronUp className="w-4 h-4 inline ml-1" /> :
+            <ChevronDown className="w-4 h-4 inline ml-1" />;
+    };    // Filter and sort players locally for display
+    const filteredPlayers = useMemo(() => {
+        let filtered = players.filter(player => {
+            // Search filter
+            if (searchTerm.trim()) {
+                const searchLower = searchTerm.toLowerCase();
+                const userName = (player.userName || '').toLowerCase();
+                if (!userName.includes(searchLower)) return false;
+            }
 
-        return userName.includes(searchLower);
-    });    // Basic functions - updated for backend
+            // Status filter
+            if (statusFilter !== 'all') {
+                const playerStatus = player.userStatus || 'ACTIVE';
+                if (playerStatus !== statusFilter) return false;
+            }
+
+            // Level filter
+            if (levelFilter !== 'all') {
+                const playerLevel = player.level || 1;
+                switch (levelFilter) {
+                    case 'low':
+                        if (playerLevel >= 10) return false;
+                        break;
+                    case 'medium':
+                        if (playerLevel < 10 || playerLevel >= 50) return false;
+                        break;
+                    case 'high':
+                        if (playerLevel < 50) return false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return true;
+        });
+
+        // Apply sorting
+        if (sortConfig.key) {
+            filtered.sort((a, b) => {
+                let aValue = a[sortConfig.key];
+                let bValue = b[sortConfig.key];
+
+                // Handle string comparisons
+                if (typeof aValue === 'string') {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                // Handle null/undefined values
+                if (aValue == null) aValue = '';
+                if (bValue == null) bValue = '';
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+
+        return filtered;
+    }, [players, searchTerm, sortConfig, statusFilter, levelFilter]);
+
+    // Basic functions - updated for backend
     const handleView = async (player) => {
         setSelectedPlayer(player);
         setLoadingPets(true);
@@ -169,7 +252,10 @@ const PlayersSimple = () => {
         } finally {
             setLoadingPets(false);
         }
-    }; const handleEdit = (player) => {
+    };
+
+    // Edit functions
+    const handleEdit = (player) => {
         setEditForm({
             userName: player.userName || '',
             email: player.email || '',
@@ -177,8 +263,11 @@ const PlayersSimple = () => {
             coin: player.coin || 0,
             diamond: player.diamond || 0,
             gem: player.gem || 0
-        }); setEditModal({ isOpen: true, player: player });
-    }; const handleEditSubmit = async () => {
+        });
+        setEditModal({ isOpen: true, player: player });
+    };
+
+    const handleEditSubmit = async () => {
         try {
             const updatedData = {
                 ...editForm,
@@ -300,218 +389,394 @@ const PlayersSimple = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Search */}
+            </div>            {/* Search & Filters */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="flex items-center space-x-4">
-                    <div className="flex-1">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />                            <input
-                                type="text"
-                                placeholder="Tìm kiếm theo tên người chơi..."
-                                value={searchTerm}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+                <div className="space-y-6">
+                    {/* Top row: Search only */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex-1 max-w-md">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Tìm kiếm theo tên người chơi..."
+                                    value={searchTerm}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    {/* Bottom row: Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="flex items-center gap-2">
+                            <Filter className="h-4 w-4 text-gray-500" />                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">Tất cả trạng thái</option>
+                                <option value="ACTIVE">Hoạt động</option>
+                                <option value="BANNED">Bị cấm</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-gray-500" />
+                            <select
+                                value={levelFilter}
+                                onChange={(e) => setLevelFilter(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">Tất cả level</option>
+                                <option value="low">Thấp (1-9)</option>
+                                <option value="medium">Trung bình (10-49)</option>
+                                <option value="high">Cao (50+)</option>
+                            </select>
+                        </div>
+
+                        <div className="col-span-2">
+                            {(statusFilter !== 'all' || levelFilter !== 'all') && (
+                                <button
+                                    onClick={() => {
+                                        setStatusFilter('all');
+                                        setLevelFilter('all');
+                                    }}
+                                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                                >
+                                    Xóa tất cả bộ lọc
+                                </button>
+                            )}
+                        </div>
+                    </div>                </div>
             </div>
 
-            {/* Player Details Display - Above Search */}
+            {/* Player Details Modal */}
             {selectedPlayer && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                            <h4 className="text-lg font-semibold text-blue-800 mb-3">
-                                Chi tiết người chơi: {selectedPlayer.userName || 'N/A'}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                <div className="space-y-2">
-                                    <h5 className="font-medium text-blue-700">Thông tin cơ bản</h5>
-                                    <p><strong>📧 Email:</strong> {selectedPlayer.email || 'N/A'}</p>
-                                    <p><strong>📅 Ngày đăng ký:</strong> {selectedPlayer.joinDate ? new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN') : 'N/A'}</p>
-                                    <p><strong>🎮 Trạng thái:</strong> {selectedPlayer.userStatus || 'ACTIVE'}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h5 className="font-medium text-blue-700">Tiến độ</h5>
-                                    <p><strong>⭐ Level:</strong> {selectedPlayer.level || 1}</p>
-                                </div>                                <div className="space-y-2">
-                                    <h5 className="font-medium text-blue-700">Tài sản</h5>
-                                    <p><strong>💰 Coins:</strong> {(selectedPlayer.coin || 0).toLocaleString()}</p>
-                                    <p><strong>💎 Diamonds:</strong> {(selectedPlayer.diamond || 0).toLocaleString()}</p>
-                                    <p><strong>💜 Gems:</strong> {(selectedPlayer.gem || 0).toLocaleString()}</p>
-                                    <p><strong>🐾 Tổng thú cưng:</strong> {selectedPlayer.totalPets || 0}</p>
-                                </div>
-                            </div>
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+                    <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+                        {/* Header */}
+                        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
+                            <h3 className="text-xl font-bold text-gray-900">Chi tiết Người chơi</h3>
+                            <button
+                                onClick={() => {
+                                    setSelectedPlayer(null);
+                                    setSelectedPlayerPets([]);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
 
-                            {/* Pets Section */}
-                            <div className="mt-6 border-t border-blue-200 pt-4">
-                                <h5 className="font-medium text-blue-700 mb-3">🐾 Danh sách thú cưng</h5>
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
+                            {/* Basic Info Grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                                {/* Column 1: Personal Info */}
+                                <div className="space-y-3">
+                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Thông tin cá nhân</h4>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">ID</label>
+                                        <p className="text-sm text-gray-900 font-mono">#{selectedPlayer.id}</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tên người chơi</label>
+                                        <p className="text-sm text-gray-900 font-semibold">{selectedPlayer.userName || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Email</label>
+                                        <p className="text-sm text-gray-900">{selectedPlayer.email || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Level</label>
+                                        <p className="text-lg font-bold text-blue-600">Lv. {selectedPlayer.level || 1}</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Ngày đăng ký</label>
+                                        <p className="text-sm text-gray-900">
+                                            {selectedPlayer.joinDate ? new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN') : 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Column 2: Game Resources */}
+                                <div className="space-y-3">
+                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Tài nguyên</h4>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Coins</label>
+                                        <p className="text-sm text-yellow-600 font-bold flex items-center">
+                                            <span className="text-base mr-1">💰</span>
+                                            {(selectedPlayer.coin || 0).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Diamonds</label>
+                                        <p className="text-sm text-blue-500 font-bold flex items-center">
+                                            <span className="text-base mr-1">💎</span>
+                                            {(selectedPlayer.diamond || 0).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Gems</label>
+                                        <p className="text-sm text-purple-600 font-bold flex items-center">
+                                            <span className="text-base mr-1">💜</span>
+                                            {(selectedPlayer.gem || 0).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tổng thú cưng</label>
+                                        <p className="text-sm text-green-600 font-bold flex items-center">
+                                            <span className="text-base mr-1">🐾</span>
+                                            {selectedPlayer.totalPets || 0}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Column 3: Status */}
+                                <div className="space-y-3">
+                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Trạng thái</h4>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tình trạng tài khoản</label>
+                                        <div className="mt-1">
+                                            {getStatusBadge(selectedPlayer.userStatus || 'ACTIVE')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            {/* Pets Section */}
+                            <div className="border-t border-gray-200 pt-6">
+                                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
+                                    <span className="text-lg mr-2">🐾</span>
+                                    Danh sách thú cưng ({selectedPlayerPets.length})
+                                </h4>
                                 {loadingPets ? (
-                                    <div className="flex items-center space-x-2 text-blue-600">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                    <div className="flex items-center justify-center space-x-2 text-blue-600 py-8">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                         <span>Đang tải danh sách thú cưng...</span>
                                     </div>
                                 ) : selectedPlayerPets.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">                                        {selectedPlayerPets.map((pet, index) => (
-                                        <div key={pet.playerPetId || index} className="bg-white border border-blue-100 rounded-lg p-3 shadow-sm">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="text-2xl">🐾</div>
-                                                    <div>
-                                                        <h6 className="font-medium text-gray-900">
-                                                            {pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}
-                                                        </h6>
-                                                        {pet.adoptedAt && (
-                                                            <p className="text-xs text-gray-400">
-                                                                {new Date(pet.adoptedAt).toLocaleDateString('vi-VN')}
-                                                            </p>
-                                                        )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                                        {selectedPlayerPets.map((pet, index) => (
+                                            <div key={pet.playerPetId || index} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center space-x-2">
+                                                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                                            🐾
+                                                        </div>
+                                                        <div>
+                                                            <h6 className="font-medium text-gray-900 text-xs">
+                                                                {pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}
+                                                            </h6>
+                                                            {pet.adoptedAt && (
+                                                                <p className="text-xs text-gray-500">
+                                                                    {new Date(pet.adoptedAt).toLocaleDateString('vi-VN')}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-xs font-medium text-blue-600 bg-white px-2 py-1 rounded-full">
+                                                        Lv.{pet.level || 1}
                                                     </div>
                                                 </div>
-                                                <div className="text-sm font-medium text-blue-600">
-                                                    Lv.{pet.level || 1}
-                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-gray-500">
-                                        <div className="text-4xl mb-2">🐾</div>
-                                        <p>Người chơi này chưa có thú cưng nào</p>
+                                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                                        <div className="text-3xl mb-2">🐾</div>
+                                        <p className="text-sm font-medium text-gray-600">Chưa có thú cưng</p>
+                                        <p className="text-xs text-gray-500">Người chơi này chưa có thú cưng nào</p>
                                     </div>
                                 )}
                             </div>
-                        </div>                        <button
+                        </div>                        {/* Footer */}
+                        <div className="flex justify-between p-6 border-t border-gray-200 bg-gray-50">                            <button
                             onClick={() => {
-                                setSelectedPlayer(null);
+                                handleEdit(selectedPlayer);
+                                setSelectedPlayer(null); // Đóng modal chi tiết
                                 setSelectedPlayerPets([]);
                             }}
-                            className="ml-4 text-blue-600 hover:text-blue-800 p-1"
-                            title="Đóng"
+                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center"
                         >
-                            ✕
+                            <Save className="w-4 h-4 mr-2" />
+                            Cập nhật
                         </button>
+                            <button
+                                onClick={() => {
+                                    setSelectedPlayer(null);
+                                    setSelectedPlayerPets([]);
+                                }}
+                                className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors font-medium"
+                            >
+                                Đóng
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )}
-
-            {/* Player Table */}
+            )}            {/* Player Table */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         <p className="mt-2 text-gray-600">Đang tải...</p>
                     </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Người chơi
-                                </th>                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Level
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Coin
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Diamond
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Gem
-                                    </th>                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Password
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Trạng thái
-                                    </th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                        Thao tác
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">                                {filteredPlayers.map((player) => (
-                                <tr key={player.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center">
-                                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                                {player.userName?.charAt(0).toUpperCase() || 'U'}
-                                            </div>                                            <div className="ml-4">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {player.userName || 'N/A'}
-                                                </div>
+                ) : (<div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('userName')}
+                                    title="Nhấp để sắp xếp theo tên người chơi"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Người chơi</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('userName')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('level')}
+                                    title="Nhấp để sắp xếp theo level"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Level</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('level')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('coin')}
+                                    title="Nhấp để sắp xếp theo số coin"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Coin</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('coin')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('diamond')}
+                                    title="Nhấp để sắp xếp theo số diamond"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Diamond</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('diamond')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('gem')}
+                                    title="Nhấp để sắp xếp theo số gem"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Gem</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('gem')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('password')}
+                                    title="Nhấp để sắp xếp theo password"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Password</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('password')}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
+                                    onClick={() => handleSort('userStatus')}
+                                    title="Nhấp để sắp xếp theo trạng thái"
+                                >
+                                    <div className="flex items-center space-x-1">
+                                        <span>Trạng thái</span>
+                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
+                                        {getSortIcon('userStatus')}
+                                    </div>
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                    Thao tác
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">                                {filteredPlayers.map((player) => (
+                            <tr key={player.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4">
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                            {player.userName?.charAt(0).toUpperCase() || 'U'}
+                                        </div>                                            <div className="ml-4">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {player.userName || 'N/A'}
                                             </div>
                                         </div>
-                                    </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {player.level || 1}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="flex items-center">
-                                            <span className="mr-1">💰</span>
-                                            <span>{(player.coin || 0).toLocaleString()}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="flex items-center">
-                                            <span className="mr-1">💎</span>
-                                            <span>{(player.diamond || 0).toLocaleString()}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="flex items-center">
-                                            <span className="mr-1">💜</span>
-                                            <span>{(player.gem || 0).toLocaleString()}</span>
-                                        </div>
-                                    </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <span className="text-gray-400">••••••••</span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {getStatusBadge(player.userStatus || 'ACTIVE')}
-                                    </td>
-                                    <td className="px-6 py-4 text-right text-sm">
-                                        <div className="flex justify-end space-x-2">
-                                            <button
-                                                onClick={() => handleView(player)}
-                                                className="text-blue-600 hover:text-blue-900 p-1"
-                                                title="Xem chi tiết"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleEdit(player)}
-                                                className="text-green-600 hover:text-green-900 p-1"
-                                                title="Chỉnh sửa"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            {player.userStatus === 'BANNED' ? (
-                                                <button
-                                                    onClick={() => handleUnbanPlayer(player.id)}
-                                                    className="text-green-600 hover:text-green-900 p-1"
-                                                    title="Bỏ cấm"
-                                                >
-                                                    ✅
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() => handleBanPlayer(player.id)}
-                                                    className="text-red-600 hover:text-red-900 p-1"
-                                                    title="Cấm"
-                                                >
-                                                    🚫
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                    {player.level || 1}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <div className="flex items-center">
+                                        <span className="mr-1">💰</span>
+                                        <span>{(player.coin || 0).toLocaleString()}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <div className="flex items-center">
+                                        <span className="mr-1">💎</span>
+                                        <span>{(player.diamond || 0).toLocaleString()}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <div className="flex items-center">
+                                        <span className="mr-1">💜</span>
+                                        <span>{(player.gem || 0).toLocaleString()}</span>
+                                    </div>
+                                </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                    <span className="text-gray-400">••••••••</span>
+                                </td>
+                                <td className="px-6 py-4">
+                                    {getStatusBadge(player.userStatus || 'ACTIVE')}
+                                </td>
+                                <td className="px-6 py-4 text-right text-sm">                                        <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => handleView(player)}
+                                        className="text-blue-600 hover:text-blue-900 p-1"
+                                        title="Xem chi tiết"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                    </button>
+                                    {player.userStatus === 'BANNED' ? (
+                                        <button
+                                            onClick={() => handleUnbanPlayer(player.id)}
+                                            className="text-green-600 hover:text-green-900 p-1"
+                                            title="Bỏ cấm"
+                                        >
+                                            ✅
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleBanPlayer(player.id)}
+                                            className="text-red-600 hover:text-red-900 p-1"
+                                            title="Cấm"
+                                        >
+                                            🚫
+                                        </button>
+                                    )}
+                                </div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
                 )}
             </div>
 
@@ -542,8 +807,7 @@ const PlayersSimple = () => {
                             <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
-                </div>
-            )}
+                </div>)}
 
             {/* Edit Player Modal */}
             {editModal.isOpen && (

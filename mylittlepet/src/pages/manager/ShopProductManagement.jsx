@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save } from 'lucide-react';
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 
 // Simple Shop Product Management Component
@@ -47,18 +47,43 @@ const ShopProductManagement = () => {
         currencyType: 'COIN',
         quality: 10,
         status: 1
-    });
+    });    // Sort state
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(10);    // Apply sorting to products (must be before pagination)
+    const sortedProducts = useMemo(() => {
+        if (!sortConfig.key) return shopProducts;
 
-    // Calculate pagination
-    const totalItems = shopProducts.length;
+        return [...shopProducts].sort((a, b) => {
+            let aValue = a[sortConfig.key];
+            let bValue = b[sortConfig.key];
+
+            // Special handling for numeric fields
+            if (sortConfig.key === 'price' || sortConfig.key === 'quality') {
+                aValue = Number(aValue) || 0;
+                bValue = Number(bValue) || 0;
+            }
+
+            // Special handling for status (ensure numeric comparison)
+            if (sortConfig.key === 'status') {
+                aValue = Number(aValue);
+                bValue = Number(bValue);
+            }
+
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [shopProducts, sortConfig]);
+
+    // Calculate pagination (use sortedProducts instead of shopProducts)
+    const totalItems = sortedProducts.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentProducts = shopProducts.slice(startIndex, endIndex);
+    const currentProducts = sortedProducts.slice(startIndex, endIndex);
 
     // Reset to page 1 when products data changes (search, filter)
     useEffect(() => {
@@ -128,6 +153,15 @@ const ShopProductManagement = () => {
         } else {
             refreshData();
         }
+    };
+
+    // Sort function
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
     };
 
     // View product details
@@ -235,20 +269,22 @@ const ShopProductManagement = () => {
         } catch (error) {
             alert('Lỗi khi cập nhật trạng thái: ' + error.message);
         }
-    };
-
-    // Get unique values for filters
+    };    // Get unique values for filters
     const getUniqueCurrencies = () => {
-        return [...new Set(shopProducts.map(product => product.currencyType).filter(Boolean))];
-    };
-
-    // Format currency
+        const currencies = [...new Set(shopProducts.map(product => product.currencyType).filter(Boolean))];
+        // Filter out uppercase variants as they are database errors
+        return currencies.filter(currency => currency !== 'DIAMOND' && currency !== 'GEM');
+    };// Format currency
     const formatCurrency = (amount, type) => {
         const formatAmount = new Intl.NumberFormat('vi-VN').format(amount);
         const symbols = {
             'COIN': '🪙',
             'DIAMOND': '💎',
-            'GEM': '💰'
+            'GEM': '🔷',
+            // Support database case variations
+            'Coin': '🪙',
+            'Diamond': '💎',
+            'Gem': '🔷'
         };
         return `${symbols[type] || '💰'} ${formatAmount}`;
     };
@@ -412,15 +448,59 @@ const ShopProductManagement = () => {
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">                        <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                                onClick={() => handleSort('name')}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span>Sản phẩm</span>
+                                    <div className="flex flex-col">
+                                        <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'name' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                        <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'name' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    </div>
+                                </div>
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cửa Hàng</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá</th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                                onClick={() => handleSort('type')}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span>Loại</span>
+                                    <div className="flex flex-col">
+                                        <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'type' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                        <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'type' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    </div>
+                                </div>
+                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                                onClick={() => handleSort('price')}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span>Giá</span>
+                                    <div className="flex flex-col">
+                                        <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'price' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                        <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'price' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    </div>
+                                </div>
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                                onClick={() => handleSort('status')}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span>Trạng thái</span>
+                                    <div className="flex flex-col">
+                                        <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'status' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                        <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'status' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    </div>
+                                </div>
+                            </th>
                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                         </tr>
-                    </thead>                        <tbody className="bg-white divide-y divide-gray-200">
+                    </thead><tbody className="bg-white divide-y divide-gray-200">
                             {currentProducts.map((product) => (
                                 <tr key={product.shopProductId} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -698,11 +778,10 @@ const ShopProductManagement = () => {
                                         value={editForm.currencyType}
                                         onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                        required
-                                    >
+                                        required                                    >
                                         <option value="COIN">COIN (🪙)</option>
-                                        <option value="DIAMOND">DIAMOND (💎)</option>
-                                        <option value="GEM">GEM (💰)</option>
+                                        <option value="Diamond">Diamond (💎)</option>
+                                        <option value="Gem">Gem (🔷)</option>
                                     </select>
                                 </div>
                                 <div>
