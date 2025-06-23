@@ -3,12 +3,14 @@ import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, 
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
 // Simple Players component - Updated with Backend Integration
-const PlayersSimple = () => {
-    // Use hook for data management
+const PlayersSimple = () => {    // Use hook for data management
     const {
         players,
+        allPlayers, // All unfiltered players for proper filtering
         loading,
         error,
+        searchTerm,
+        setSearchTerm,
         banPlayer,
         unbanPlayer,
         stats,
@@ -17,13 +19,6 @@ const PlayersSimple = () => {
         getPlayerPets,
         updatePlayer,
         refreshData: refreshCurrentPage } = useSimplePlayers();
-
-    // Client-side pagination for filtered results
-    const [currentPage, setCurrentPage] = useState(0);
-    const pageSize = 10;
-
-    // Local search and filter states
-    const [searchTerm, setSearchTerm] = useState('');
 
     // Local UI state
     const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -75,13 +70,10 @@ const PlayersSimple = () => {
         }, 5000); // Check every 5 seconds
 
         return () => clearInterval(interval);
-    }, [banTimers]);
-
-    // Handle search - Simple frontend only
+    }, [banTimers]);    // Handle search - Use hook's setSearchTerm directly
     const handleSearch = (term) => {
         setSearchTerm(term);
-        // Just set search term, filtering will be done in filteredPlayers
-    };    // Handle player actions
+    };// Handle player actions
     const handleBanPlayer = async (playerId, duration = null) => {
         if (!duration) {
             // Open ban modal to select duration
@@ -177,9 +169,13 @@ const PlayersSimple = () => {
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="w-4 h-4 inline ml-1" /> :
             <ChevronDown className="w-4 h-4 inline ml-1" />;
-    };    // Filter and sort players locally for display
+    };    // Filter and sort all players, then paginate (proper client-side pagination)
+    const [currentFilterPage, setCurrentFilterPage] = useState(0);
+    const itemsPerPage = 10;
+
     const filteredPlayers = useMemo(() => {
-        let filtered = players.filter(player => {
+        // Start with all players from the hook
+        let filtered = allPlayers.filter(player => {
             // Search filter
             if (searchTerm.trim()) {
                 const searchLower = searchTerm.toLowerCase();
@@ -241,35 +237,29 @@ const PlayersSimple = () => {
         }
 
         return filtered;
-    }, [players, searchTerm, sortConfig, statusFilter, levelFilter]);
+    }, [allPlayers, searchTerm, sortConfig, statusFilter, levelFilter]);
 
-    // Pagination calculations for filtered results
-    const totalFilteredPages = Math.ceil(filteredPlayers.length / pageSize);
-    const startIndex = currentPage * pageSize;
-    const endIndex = startIndex + pageSize;
-    const currentPagePlayers = filteredPlayers.slice(startIndex, endIndex);
+    // Calculate pagination for filtered results
+    const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
+    const startIndex = currentFilterPage * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const displayPlayers = filteredPlayers.slice(startIndex, endIndex);
 
     // Reset to first page when filters change
     useEffect(() => {
-        setCurrentPage(0);
+        setCurrentFilterPage(0);
     }, [searchTerm, statusFilter, levelFilter]);
 
     // Pagination handlers for filtered results
-    const handlePreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage(currentPage - 1);
+    const handleFilterPreviousPage = () => {
+        if (currentFilterPage > 0) {
+            setCurrentFilterPage(currentFilterPage - 1);
         }
     };
 
-    const handleNextPage = () => {
-        if (currentPage < totalFilteredPages - 1) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handleGoToPage = (page) => {
-        if (page >= 0 && page < totalFilteredPages) {
-            setCurrentPage(page);
+    const handleFilterNextPage = () => {
+        if (currentFilterPage < totalFilteredPages - 1) {
+            setCurrentFilterPage(currentFilterPage + 1);
         }
     };
 
@@ -443,12 +433,11 @@ const PlayersSimple = () => {
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
-                    {/* Search Section */}
-                    <div className="space-y-3">
+                    {/* Search Section */}                    <div className="space-y-3">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             🔍 Tìm kiếm người chơi
                         </label>
-                        <div className="relative max-w-md">
+                        <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                             <input
                                 type="text"
@@ -480,7 +469,7 @@ const PlayersSimple = () => {
                             <Filter className="h-4 w-4 text-gray-500" />
                             <span className="text-sm font-medium text-gray-700">Bộ lọc nâng cao</span>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {/* Status Filter */}
                             <div className="space-y-2">
@@ -528,49 +517,32 @@ const PlayersSimple = () => {
                                     <p className="text-xs text-gray-500">
                                         Lọc theo: {
                                             levelFilter === 'low' ? 'Level thấp (1-9)' :
-                                            levelFilter === 'medium' ? 'Level trung bình (10-49)' :
-                                            'Level cao (50+)'
+                                                levelFilter === 'medium' ? 'Level trung bình (10-49)' :
+                                                    'Level cao (50+)'
                                         }
                                     </p>
                                 )}
-                            </div>
-
-                            {/* Clear Filters */}
+                            </div>                            {/* Clear Filters */}
                             <div className="space-y-2">
                                 <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
                                     Thao tác
                                 </label>
                                 <div className="space-y-2">
-                                    {(statusFilter !== 'all' || levelFilter !== 'all') ? (
-                                        <button
-                                            onClick={() => {
+                                    <button
+                                        onClick={() => {
+                                            if (statusFilter !== 'all' || levelFilter !== 'all') {
                                                 setStatusFilter('all');
                                                 setLevelFilter('all');
-                                            }}
-                                            className="w-full px-4 py-2.5 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 rounded-lg hover:from-red-100 hover:to-red-200 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
-                                        >
-                                            <X className="h-4 w-4" />
-                                            Xóa bộ lọc
-                                        </button>
-                                    ) : (
-                                        <div className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-400 rounded-lg text-sm font-medium text-center">
-                                            Không có bộ lọc nào
-                                        </div>
-                                    )}
-                                                      {/* Results summary */}
-                    <div className="text-center p-2 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm font-medium text-blue-700">
-                            {filteredPlayers.length} / {players.length}
-                        </p>
-                        <p className="text-xs text-blue-600">
-                            người chơi{filteredPlayers.length !== players.length ? ' (đã lọc)' : ''}
-                        </p>
-                        {totalFilteredPages > 1 && (
-                            <p className="text-xs text-blue-500 mt-1">
-                                Trang {currentPage + 1}/{totalFilteredPages} • {pageSize} người chơi/trang
-                            </p>
-                        )}
-                    </div>
+                                            }
+                                        }}
+                                        disabled={statusFilter === 'all' && levelFilter === 'all'}
+                                        className={`w-full px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 ${statusFilter === 'all' && levelFilter === 'all'
+                                                ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 hover:from-red-100 hover:to-red-200 cursor-pointer'
+                                            }`}                                    >
+                                        <X className="h-4 w-4" />
+                                        Xóa bộ lọc
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -832,133 +804,118 @@ const PlayersSimple = () => {
                                     Thao tác
                                 </th>
                             </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {currentPagePlayers.length === 0 ? (
+                        </thead>                        <tbody className="bg-white divide-y divide-gray-200">
+                            {displayPlayers.length === 0 ? (
                                 <tr>
                                     <td colSpan="8" className="px-6 py-12 text-center">
                                         <div className="text-gray-500">
                                             <div className="text-4xl mb-4">👥</div>
                                             <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>
                                             <p className="text-sm text-gray-500">
-                                                {searchTerm || statusFilter !== 'all' || levelFilter !== 'all' 
-                                                    ? 'Thử thay đổi điều kiện tìm kiếm hoặc bộ lọc' 
-                                                    : 'Chưa có người chơi nào trong hệ thống'}
+                                                {searchTerm || statusFilter !== 'all' || levelFilter !== 'all'
+                                                    ? 'Không có người chơi nào phù hợp với bộ lọc trong trang này'
+                                                    : 'Không có người chơi nào trong trang này'}
                                             </p>
                                         </div>
                                     </td>
-                                </tr>
-                            ) : (
-                                currentPagePlayers.map((player) => (
-                            <tr key={player.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center">
-                                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                            {player.userName?.charAt(0).toUpperCase() || 'U'}
-                                        </div>                                            <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {player.userName || 'N/A'}
+                                </tr>) : (
+                                displayPlayers.map((player) => (
+                                    <tr key={player.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                                    {player.userName?.charAt(0).toUpperCase() || 'U'}
+                                                </div>                                            <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                        {player.userName || 'N/A'}
+                                                    </div>
+                                                </div>
                                             </div>
+                                        </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                            {player.level || 1}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            <div className="flex items-center">
+                                                <span className="mr-1">💰</span>
+                                                <span>{(player.coin || 0).toLocaleString()}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            <div className="flex items-center">
+                                                <span className="mr-1">💎</span>
+                                                <span>{(player.diamond || 0).toLocaleString()}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-900">
+                                            <div className="flex items-center">
+                                                <span className="mr-1">💜</span>
+                                                <span>{(player.gem || 0).toLocaleString()}</span>
+                                            </div>
+                                        </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                            <span className="text-gray-400">••••••••</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {getStatusBadge(player.userStatus || 'ACTIVE')}
+                                        </td>
+                                        <td className="px-6 py-4 text-right text-sm">                                        <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={() => handleView(player)}
+                                                className="text-blue-600 hover:text-blue-900 p-1"
+                                                title="Xem chi tiết"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                            {player.userStatus === 'BANNED' ? (
+                                                <button
+                                                    onClick={() => handleUnbanPlayer(player.id)}
+                                                    className="text-green-600 hover:text-green-900 p-1"
+                                                    title="Bỏ cấm"
+                                                >
+                                                    ✅
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleBanPlayer(player.id)}
+                                                    className="text-red-600 hover:text-red-900 p-1"
+                                                    title="Cấm"
+                                                >
+                                                    🚫
+                                                </button>
+                                            )}
                                         </div>
-                                    </div>
-                                </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                    {player.level || 1}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    <div className="flex items-center">
-                                        <span className="mr-1">💰</span>
-                                        <span>{(player.coin || 0).toLocaleString()}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    <div className="flex items-center">
-                                        <span className="mr-1">💎</span>
-                                        <span>{(player.diamond || 0).toLocaleString()}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    <div className="flex items-center">
-                                        <span className="mr-1">💜</span>
-                                        <span>{(player.gem || 0).toLocaleString()}</span>
-                                    </div>
-                                </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                    <span className="text-gray-400">••••••••</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    {getStatusBadge(player.userStatus || 'ACTIVE')}
-                                </td>
-                                <td className="px-6 py-4 text-right text-sm">                                        <div className="flex justify-end space-x-2">
-                                    <button
-                                        onClick={() => handleView(player)}
-                                        className="text-blue-600 hover:text-blue-900 p-1"
-                                        title="Xem chi tiết"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </button>
-                                    {player.userStatus === 'BANNED' ? (
-                                        <button
-                                            onClick={() => handleUnbanPlayer(player.id)}
-                                            className="text-green-600 hover:text-green-900 p-1"
-                                            title="Bỏ cấm"
-                                        >
-                                            ✅
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleBanPlayer(player.id)}
-                                            className="text-red-600 hover:text-red-900 p-1"
-                                            title="Cấm"
-                                        >
-                                            🚫
-                                        </button>
-                                    )}
-                                </div>
-                                </td>                            </tr>
-                        ))
-                        )}
+                                        </td>                            </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
                 )}
             </div>            {/* Pagination */}
             {totalFilteredPages > 1 && (
-                <div className="mt-4 flex items-center justify-between">
-                    {/* Results info */}
-                    <div className="text-sm text-gray-600">
-                        Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredPlayers.length)} trong tổng số {filteredPlayers.length} người chơi
-                    </div>
-                    
+                <div className="mt-4 flex items-center justify-center">
                     {/* Page Controls */}
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={handlePreviousPage}
+                            onClick={handleFilterPreviousPage}
                             className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={currentPage === 0}
+                            disabled={currentFilterPage === 0}
                         >
                             <ChevronLeft className="h-4 w-4" />
                             Trước
                         </button>
 
                         <span className="text-sm text-gray-600">
-                            Trang {currentPage + 1} / {totalFilteredPages}
+                            Trang {currentFilterPage + 1} / {totalFilteredPages}
                         </span>
 
                         <button
-                            onClick={handleNextPage}
+                            onClick={handleFilterNextPage}
                             className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={currentPage >= totalFilteredPages - 1}
+                            disabled={currentFilterPage >= totalFilteredPages - 1}
                         >
                             Tiếp
                             <ChevronRight className="h-4 w-4" />
                         </button>
-                    </div>
-                </div>)}
-
-            {/* Always show pagination info when there are filtered results */}
-            {filteredPlayers.length > 0 && totalFilteredPages <= 1 && (
-                <div className="mt-4 text-center">
-                    <div className="text-sm text-gray-600">
-                        Hiển thị tất cả {filteredPlayers.length} người chơi
                     </div>
                 </div>
             )}

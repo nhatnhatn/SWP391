@@ -396,60 +396,151 @@ const PetManagement = () => {
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* Search and Controls */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="flex flex-col gap-4">
-                    {/* Top row: Search and Add button */}
-                    <div className="flex gap-4 items-center">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm sản phẩm..."
-                                value={searchTerm}
-                                onChange={handleSearch}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
+            )}            {/* Search & Filters */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-6">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <Search className="h-5 w-5 text-blue-600" />
                         </div>
-                        <button
-                            onClick={handleCreate}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors whitespace-nowrap"
-                        >
-                            <Plus className="h-4 w-4" />
-                            Thêm thú cưng
-                        </button>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800">Tìm kiếm & Bộ lọc</h3>
+                            <p className="text-sm text-gray-600">Tìm kiếm và lọc danh sách thú cưng</p>
+                        </div>
+                    </div>
+                </div>
+                {/* Content */}
+                <div className="p-6 space-y-6">
+                    {/* Search Section */}
+                    <div className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            🔍 Tìm kiếm thú cưng
+                        </label>
+                        <div className="flex gap-4 items-center">
+                            <div className="flex-1 relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Nhập tên thú cưng để tìm kiếm..."
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400"
+                                />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => handleSearch({ target: { value: '' } })}
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        title="Xóa tìm kiếm"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleCreate}
+                                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors font-medium shadow-sm whitespace-nowrap"
+                            >
+                                <Plus className="h-5 w-5" />
+                                Thêm thú cưng
+                            </button>
+                        </div>
+                        {searchTerm && (
+                            <p className="text-sm text-blue-600 font-medium">
+                                Đang hiển thị kết quả cho: "{searchTerm}"
+                            </p>
+                        )}
                     </div>
 
-                    {/* Bottom row: Filters */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center gap-2">
+                    {/* Filters Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
                             <Filter className="h-4 w-4 text-gray-500" />
-                            <select
-                                value={typeFilter}
-                                onChange={(e) => handleTypeFilter(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Tất cả loại</option>
-                                <option value="Cat">Mèo</option>
-                                <option value="Dog">Chó</option>
-                                <option value="Bird">Chim</option>
-                                <option value="Fish">Cá</option>
-                                <option value="Other">Khác</option>
-                            </select>
+                            <span className="text-sm font-medium text-gray-700">Bộ lọc nâng cao</span>
                         </div>
 
-                        <div>
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => handleStatusFilter(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="1">Hoạt động</option>
-                                <option value="0">Vô hiệu hóa</option>
-                            </select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {/* Type Filter */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Loại thú cưng
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={typeFilter}
+                                        onChange={(e) => handleTypeFilter(e.target.value)}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                    >
+                                        <option value="">🐾 Tất cả loại</option>
+                                        <option value="Cat">🐱 Mèo</option>
+                                        <option value="Dog">🐶 Chó</option>
+                                        <option value="Bird">🐦 Chim</option>
+                                        <option value="Fish">🐠 Cá</option>
+                                        <option value="Other">🔄 Khác</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                {typeFilter && (
+                                    <p className="text-xs text-gray-500">
+                                        Lọc theo: {
+                                            typeFilter === 'Cat' ? 'Mèo' :
+                                                typeFilter === 'Dog' ? 'Chó' :
+                                                    typeFilter === 'Bird' ? 'Chim' :
+                                                        typeFilter === 'Fish' ? 'Cá' :
+                                                            'Khác'
+                                        }
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Status Filter */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Trạng thái
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={statusFilter}
+                                        onChange={(e) => handleStatusFilter(e.target.value)}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                    >
+                                        <option value="">📋 Tất cả trạng thái</option>
+                                        <option value="1">✅ Hoạt động</option>
+                                        <option value="0">🚫 Vô hiệu hóa</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                {statusFilter !== '' && (
+                                    <p className="text-xs text-gray-500">
+                                        Lọc theo: {statusFilter === '1' ? 'Hoạt động' : 'Vô hiệu hóa'}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Clear Filters */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Thao tác
+                                </label>
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => {
+                                            if (typeFilter || statusFilter !== '') {
+                                                handleTypeFilter('');
+                                                handleStatusFilter('');
+                                            }
+                                        }}
+                                        disabled={!typeFilter && statusFilter === ''}
+                                        className={`w-full px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 ${!typeFilter && statusFilter === ''
+                                                ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 hover:from-red-100 hover:to-red-200 cursor-pointer'
+                                            }`}
+                                    >
+                                        <X className="h-4 w-4" />
+                                        Xóa bộ lọc
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
