@@ -9,8 +9,6 @@ const PlayersSimple = () => {
         players,
         loading,
         error,
-        searchTerm,
-        setSearchTerm,
         banPlayer,
         unbanPlayer,
         stats,
@@ -18,7 +16,16 @@ const PlayersSimple = () => {
         previousPage,
         getPlayerPets,
         updatePlayer,
-        refreshData: refreshCurrentPage } = useSimplePlayers();    // Local UI state
+        refreshData: refreshCurrentPage } = useSimplePlayers();
+
+    // Client-side pagination for filtered results
+    const [currentPage, setCurrentPage] = useState(0);
+    const pageSize = 10;
+
+    // Local search and filter states
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Local UI state
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [selectedPlayerPets, setSelectedPlayerPets] = useState([]);
     const [loadingPets, setLoadingPets] = useState(false);
@@ -236,6 +243,36 @@ const PlayersSimple = () => {
         return filtered;
     }, [players, searchTerm, sortConfig, statusFilter, levelFilter]);
 
+    // Pagination calculations for filtered results
+    const totalFilteredPages = Math.ceil(filteredPlayers.length / pageSize);
+    const startIndex = currentPage * pageSize;
+    const endIndex = startIndex + pageSize;
+    const currentPagePlayers = filteredPlayers.slice(startIndex, endIndex);
+
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(0);
+    }, [searchTerm, statusFilter, levelFilter]);
+
+    // Pagination handlers for filtered results
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalFilteredPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handleGoToPage = (page) => {
+        if (page >= 0 && page < totalFilteredPages) {
+            setCurrentPage(page);
+        }
+    };
+
     // Basic functions - updated for backend
     const handleView = async (player) => {
         setSelectedPlayer(player);
@@ -390,66 +427,155 @@ const PlayersSimple = () => {
                     </div>
                 </div>
             </div>            {/* Search & Filters */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="space-y-6">
-                    {/* Top row: Search only */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex-1 max-w-md">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input
-                                    type="text"
-                                    placeholder="Tìm kiếm theo tên người chơi..."
-                                    value={searchTerm}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-6">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <Search className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800">Tìm kiếm & Bộ lọc</h3>
+                            <p className="text-sm text-gray-600">Tìm kiếm và lọc danh sách người chơi</p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Bottom row: Filters */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="flex items-center gap-2">
-                            <Filter className="h-4 w-4 text-gray-500" />                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="all">Tất cả trạng thái</option>
-                                <option value="ACTIVE">Hoạt động</option>
-                                <option value="BANNED">Bị cấm</option>
-                            </select>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-gray-500" />
-                            <select
-                                value={levelFilter}
-                                onChange={(e) => setLevelFilter(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="all">Tất cả level</option>
-                                <option value="low">Thấp (1-9)</option>
-                                <option value="medium">Trung bình (10-49)</option>
-                                <option value="high">Cao (50+)</option>
-                            </select>
-                        </div>
-
-                        <div className="col-span-2">
-                            {(statusFilter !== 'all' || levelFilter !== 'all') && (
+                {/* Content */}
+                <div className="p-6 space-y-6">
+                    {/* Search Section */}
+                    <div className="space-y-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            🔍 Tìm kiếm người chơi
+                        </label>
+                        <div className="relative max-w-md">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                            <input
+                                type="text"
+                                placeholder="Nhập tên người chơi để tìm kiếm..."
+                                value={searchTerm}
+                                onChange={(e) => handleSearch(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400"
+                            />
+                            {searchTerm && (
                                 <button
-                                    onClick={() => {
-                                        setStatusFilter('all');
-                                        setLevelFilter('all');
-                                    }}
-                                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                                    onClick={() => handleSearch('')}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    title="Xóa tìm kiếm"
                                 >
-                                    Xóa tất cả bộ lọc
+                                    <X className="h-4 w-4" />
                                 </button>
                             )}
                         </div>
-                    </div>                </div>
+                        {searchTerm && (
+                            <p className="text-sm text-blue-600 font-medium">
+                                Đang hiển thị kết quả cho: "{searchTerm}" ({filteredPlayers.length} người chơi)
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Filters Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Filter className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm font-medium text-gray-700">Bộ lọc nâng cao</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {/* Status Filter */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Trạng thái tài khoản
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={statusFilter}
+                                        onChange={(e) => setStatusFilter(e.target.value)}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                    >
+                                        <option value="all">📋 Tất cả trạng thái</option>
+                                        <option value="ACTIVE">✅ Hoạt động</option>
+                                        <option value="BANNED">🚫 Bị cấm</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                {statusFilter !== 'all' && (
+                                    <p className="text-xs text-gray-500">
+                                        Lọc theo: {statusFilter === 'ACTIVE' ? 'Hoạt động' : 'Bị cấm'}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Level Filter */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Mức độ Level
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={levelFilter}
+                                        onChange={(e) => setLevelFilter(e.target.value)}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                    >
+                                        <option value="all">⭐ Tất cả level</option>
+                                        <option value="low">🥉 Thấp (1-9)</option>
+                                        <option value="medium">🥈 Trung bình (10-49)</option>
+                                        <option value="high">🥇 Cao (50+)</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                {levelFilter !== 'all' && (
+                                    <p className="text-xs text-gray-500">
+                                        Lọc theo: {
+                                            levelFilter === 'low' ? 'Level thấp (1-9)' :
+                                            levelFilter === 'medium' ? 'Level trung bình (10-49)' :
+                                            'Level cao (50+)'
+                                        }
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Clear Filters */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                    Thao tác
+                                </label>
+                                <div className="space-y-2">
+                                    {(statusFilter !== 'all' || levelFilter !== 'all') ? (
+                                        <button
+                                            onClick={() => {
+                                                setStatusFilter('all');
+                                                setLevelFilter('all');
+                                            }}
+                                            className="w-full px-4 py-2.5 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 rounded-lg hover:from-red-100 hover:to-red-200 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
+                                        >
+                                            <X className="h-4 w-4" />
+                                            Xóa bộ lọc
+                                        </button>
+                                    ) : (
+                                        <div className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-400 rounded-lg text-sm font-medium text-center">
+                                            Không có bộ lọc nào
+                                        </div>
+                                    )}
+                                                      {/* Results summary */}
+                    <div className="text-center p-2 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm font-medium text-blue-700">
+                            {filteredPlayers.length} / {players.length}
+                        </p>
+                        <p className="text-xs text-blue-600">
+                            người chơi{filteredPlayers.length !== players.length ? ' (đã lọc)' : ''}
+                        </p>
+                        {totalFilteredPages > 1 && (
+                            <p className="text-xs text-blue-500 mt-1">
+                                Trang {currentPage + 1}/{totalFilteredPages} • {pageSize} người chơi/trang
+                            </p>
+                        )}
+                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Player Details Modal */}
@@ -707,7 +833,23 @@ const PlayersSimple = () => {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">                                {filteredPlayers.map((player) => (
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentPagePlayers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="8" className="px-6 py-12 text-center">
+                                        <div className="text-gray-500">
+                                            <div className="text-4xl mb-4">👥</div>
+                                            <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>
+                                            <p className="text-sm text-gray-500">
+                                                {searchTerm || statusFilter !== 'all' || levelFilter !== 'all' 
+                                                    ? 'Thử thay đổi điều kiện tìm kiếm hoặc bộ lọc' 
+                                                    : 'Chưa có người chơi nào trong hệ thống'}
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                currentPagePlayers.map((player) => (
                             <tr key={player.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center">
@@ -771,43 +913,55 @@ const PlayersSimple = () => {
                                         </button>
                                     )}
                                 </div>
-                                </td>
-                            </tr>
-                        ))}
+                                </td>                            </tr>
+                        ))
+                        )}
                         </tbody>
                     </table>
                 </div>
                 )}
-            </div>
-
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-center">
+            </div>            {/* Pagination */}
+            {totalFilteredPages > 1 && (
+                <div className="mt-4 flex items-center justify-between">
+                    {/* Results info */}
+                    <div className="text-sm text-gray-600">
+                        Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredPlayers.length)} trong tổng số {filteredPlayers.length} người chơi
+                    </div>
+                    
                     {/* Page Controls */}
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={previousPage}
+                            onClick={handlePreviousPage}
                             className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={!pagination.hasPrevious}
+                            disabled={currentPage === 0}
                         >
                             <ChevronLeft className="h-4 w-4" />
                             Trước
                         </button>
 
                         <span className="text-sm text-gray-600">
-                            Trang {pagination.currentPage + 1} / {pagination.totalPages}
+                            Trang {currentPage + 1} / {totalFilteredPages}
                         </span>
 
                         <button
-                            onClick={nextPage}
+                            onClick={handleNextPage}
                             className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={!pagination.hasNext}
+                            disabled={currentPage >= totalFilteredPages - 1}
                         >
                             Tiếp
                             <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
                 </div>)}
+
+            {/* Always show pagination info when there are filtered results */}
+            {filteredPlayers.length > 0 && totalFilteredPages <= 1 && (
+                <div className="mt-4 text-center">
+                    <div className="text-sm text-gray-600">
+                        Hiển thị tất cả {filteredPlayers.length} người chơi
+                    </div>
+                </div>
+            )}
 
             {/* Edit Player Modal */}
             {editModal.isOpen && (
