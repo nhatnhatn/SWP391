@@ -734,11 +734,6 @@ const PetManagement = () => {
                         <tr>
                             <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-blue-500 border-opacity-30">
                                 <span className="flex items-center justify-center gap-2">
-                                    ID
-                                </span>
-                            </th>
-                            <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-blue-500 border-opacity-30">
-                                <span className="flex items-center justify-center gap-2">
                                     Tên thú cưng
                                 </span>
                             </th>
@@ -746,7 +741,8 @@ const PetManagement = () => {
                                 <span className="flex items-center justify-center gap-2">
                                     Loại thú cưng
                                 </span>
-                            </th>                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-blue-500 border-opacity-30">
+                            </th>
+                            <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-blue-500 border-opacity-30">
                                 <span className="flex items-center justify-center gap-2">
                                     Mô tả
                                 </span>
@@ -764,21 +760,20 @@ const PetManagement = () => {
                         </tr>
                     </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center">
-                                        <div className="flex flex-col items-center justify-center space-y-4">
-                                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
-                                            <div className="text-center">
-                                                <p className="text-lg font-medium text-gray-900">Đang tải dữ liệu...</p>
-                                                <p className="text-sm text-gray-500">Vui lòng chờ trong giây lát</p>
-                                            </div>
+                            {loading ? (<tr>
+                                <td colSpan="5" className="px-6 py-12 text-center">
+                                    <div className="flex flex-col items-center justify-center space-y-4">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+                                        <div className="text-center">
+                                            <p className="text-lg font-medium text-gray-900">Đang tải dữ liệu...</p>
+                                            <p className="text-sm text-gray-500">Vui lòng chờ trong giây lát</p>
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </td>
+                            </tr>
                             ) : currentPets.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="px-6 py-12 text-center">
+                                    <td colSpan="5" className="px-6 py-12 text-center">
                                         <div className="flex flex-col items-center justify-center space-y-4">
                                             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                 <PawPrint className="h-8 w-8 text-gray-400" />
@@ -802,125 +797,117 @@ const PetManagement = () => {
                                             </div>
                                         </div>
                                     </td>
-                                </tr>
-                            ) : (currentPets.map((pet) => (
-                                <tr key={pet.petId} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all duration-200">
-                                    {/* ID Column */}
-                                    <td className="px-6 py-6 whitespace-nowrap text-center">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
-                                            #{pet.petId}
-                                        </span>
-                                    </td>
-
-                                    {/* Name Column */}
-                                    <td className="px-6 py-6 whitespace-nowrap text-center">
-                                        <p className="text-sm font-bold text-gray-900">
-                                            {pet.petDefaultName || 'Chưa đặt tên'}
-                                        </p>
-                                    </td>                                        {/* Pet Type Column */}
-                                    <td className="px-6 py-6 whitespace-nowrap text-center">
-                                        <div className="flex justify-center">
-                                            {pet.petType === 'Cat' && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 border border-pink-200 shadow-sm">
-                                                    Cat
-                                                </span>
-                                            )}
-                                            {pet.petType === 'Dog' && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200 shadow-sm">
-                                                    Dog
-                                                </span>
-                                            )}
-                                            {pet.petType === 'Bird' && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-sky-100 to-blue-100 text-sky-800 border border-sky-200 shadow-sm">
-                                                    Bird
-                                                </span>
-                                            )}
-                                            {pet.petType === 'Fish' && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-cyan-100 to-teal-100 text-cyan-800 border border-cyan-200 shadow-sm">
-                                                    Fish
-                                                </span>
-                                            )}
-                                            {pet.petType === 'Chicken' && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                    Chicken
-                                                </span>
-                                            )}
-                                            {pet.petType && !['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(pet.petType) && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
-                                                    {pet.petType}
-                                                </span>
-                                            )}
-                                            {!pet.petType && (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300 shadow-sm">
-                                                    N/A
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>{/* Description Column */}
-                                    <td className="px-6 py-6">
-                                        <div className="max-w-xs">
-                                            <p className="text-sm text-gray-900 line-clamp-2">
-                                                {pet.description || 'Không có mô tả'}
+                                </tr>) : (currentPets.map((pet) => (
+                                    <tr key={pet.petId} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all duration-200">
+                                        {/* Name Column */}
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <p className="text-sm font-bold text-gray-900">
+                                                {pet.petDefaultName || 'Chưa đặt tên'}
                                             </p>
-                                        </div>
-                                    </td>                                        {/* Status Column */}
-                                    <td className="px-6 py-6 whitespace-nowrap text-center">
-                                        <div className="flex justify-center">
-                                            {pet.petStatus === 1 ? (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                                                    Hoạt động
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                                                    <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
-                                                    Không hoạt động
-                                                </span>
-                                            )}
-                                        </div>
-                                    </td>{/* Actions Column */}
-                                    <td className="px-6 py-6 whitespace-nowrap text-center">
-                                        <div className="flex justify-center space-x-3">
-                                            {/* Detail View Button */}
-                                            <button
-                                                onClick={() => handleView(pet)}
-                                                className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                title="Xem chi tiết"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-
-                                            {/* Edit Button */}
-                                            <button
-                                                onClick={() => handleEdit(pet)}
-                                                className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                title="Chỉnh sửa"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-
-                                            {/* Delete/Enable Toggle Button */}
-                                            {pet.petStatus === 1 ? (
+                                        </td>{/* Pet Type Column */}
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex justify-center">
+                                                {pet.petType === 'Cat' && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 border border-pink-200 shadow-sm">
+                                                        Cat
+                                                    </span>
+                                                )}
+                                                {pet.petType === 'Dog' && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200 shadow-sm">
+                                                        Dog
+                                                    </span>
+                                                )}
+                                                {pet.petType === 'Bird' && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-sky-100 to-blue-100 text-sky-800 border border-sky-200 shadow-sm">
+                                                        Bird
+                                                    </span>
+                                                )}
+                                                {pet.petType === 'Fish' && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-cyan-100 to-teal-100 text-cyan-800 border border-cyan-200 shadow-sm">
+                                                        Fish
+                                                    </span>
+                                                )}
+                                                {pet.petType === 'Chicken' && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200 shadow-sm">
+                                                        Chicken
+                                                    </span>
+                                                )}
+                                                {pet.petType && !['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(pet.petType) && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                        {pet.petType}
+                                                    </span>
+                                                )}
+                                                {!pet.petType && (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300 shadow-sm">
+                                                        N/A
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>{/* Description Column */}
+                                        <td className="px-6 py-6">
+                                            <div className="max-w-xs">
+                                                <p className="text-sm text-gray-900 line-clamp-2">
+                                                    {pet.description || 'Không có mô tả'}
+                                                </p>
+                                            </div>
+                                        </td>                                        {/* Status Column */}
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex justify-center">
+                                                {pet.petStatus === 1 ? (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                        <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                                        Hoạt động
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                        <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                                                        Không hoạt động
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>{/* Actions Column */}
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex justify-center space-x-3">
+                                                {/* Detail View Button */}
                                                 <button
-                                                    onClick={() => handleDelete(pet.petId)}
-                                                    className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                    title="Vô hiệu hóa"
+                                                    onClick={() => handleView(pet)}
+                                                    className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    title="Xem chi tiết"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Eye className="w-4 h-4" />
                                                 </button>
-                                            ) : (
+
+                                                {/* Edit Button */}
                                                 <button
-                                                    onClick={() => handleEnable(pet.petId)}
-                                                    className="text-green-600 hover:text-green-900 hover:bg-green-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                    title="Kích hoạt"
+                                                    onClick={() => handleEdit(pet)}
+                                                    className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    title="Chỉnh sửa"
                                                 >
-                                                    <RotateCcw className="w-4 h-4" />
+                                                    <Edit className="w-4 h-4" />
                                                 </button>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
+
+                                                {/* Delete/Enable Toggle Button */}
+                                                {pet.petStatus === 1 ? (
+                                                    <button
+                                                        onClick={() => handleDelete(pet.petId)}
+                                                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Vô hiệu hóa"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleEnable(pet.petId)}
+                                                        className="text-green-600 hover:text-green-900 hover:bg-green-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Kích hoạt"
+                                                    >
+                                                        <RotateCcw className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>

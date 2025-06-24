@@ -13,11 +13,33 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    // Check for existing authentication on app load
+    const [loading, setLoading] = useState(true);    // Check for existing authentication on app load
     useEffect(() => {
-        const initAuth = async () => {
+        const initAuth = async () => {            // OPTION 2: Check for session timeout (uncomment to use)
+            /*
+            const token = localStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('adminUser');
+            const lastActivity = localStorage.getItem('lastActivity');
+            
+            // Session timeout: 30 minutes (1800000 ms)
+            const SESSION_TIMEOUT = 30 * 60 * 1000;
+            const now = Date.now();
+            
+            if (lastActivity && (now - parseInt(lastActivity)) > SESSION_TIMEOUT) {
+                console.log('🕐 AuthContextV2: Session expired due to timeout');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('adminUser');
+                localStorage.removeItem('lastActivity');
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+            
+            // Update last activity
+            localStorage.setItem('lastActivity', now.toString());
+            */
+
+            // PERSISTENT AUTHENTICATION - Restore user session on reload
             const token = localStorage.getItem('authToken');
             const storedUser = localStorage.getItem('adminUser');
 
@@ -31,7 +53,7 @@ export const AuthProvider = ({ children }) => {
             if (token && storedUser) {
                 try {
                     const userData = JSON.parse(storedUser);
-                    console.log('🔍 AuthContextV2: Validating stored user data', userData);
+                    console.log('✅ AuthContextV2: Restoring user session from localStorage', userData);
 
                     // Validate token with backend
                     await apiService.healthCheck();
@@ -45,7 +67,7 @@ export const AuthProvider = ({ children }) => {
                     setUser(null);
                 }
             } else {
-                console.log('❌ AuthContextV2: No stored auth data found');
+                console.log('ℹ️ AuthContextV2: No stored auth data found');
             }
             setLoading(false);
         };

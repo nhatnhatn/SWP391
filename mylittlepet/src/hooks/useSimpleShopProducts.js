@@ -5,14 +5,10 @@ import apiService from '../services/api';
 export const useSimpleShopProducts = () => {
     // Basic state management
     const [shopProducts, setShopProducts] = useState([]);
+    const [allShopProducts, setAllShopProducts] = useState([]); // All unfiltered products
     const [shops, setShops] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [shopFilter, setShopFilter] = useState('');
-    const [currencyFilter, setCurrencyFilter] = useState('');
 
     // Load shop products from backend
     const loadShopProducts = useCallback(async () => {
@@ -23,17 +19,19 @@ export const useSimpleShopProducts = () => {
             const response = await apiService.getAllShopProducts();
             console.log('✅ Shop products loaded:', response);
 
-            const allShopProducts = Array.isArray(response) ? response : [];
-            setShopProducts(allShopProducts);
+            const allProducts = Array.isArray(response) ? response : [];
+            setShopProducts(allProducts);
+            setAllShopProducts(allProducts); // Keep original unfiltered data
 
         } catch (error) {
             console.error('Load shop products error:', error);
             setError('Không thể tải danh sách sản phẩm cửa hàng');
             setShopProducts([]);
+            setAllShopProducts([]);
         } finally {
             setLoading(false);
         }
-    }, []);    // Load shops for dropdown (static data since we removed shop management)
+    }, []);// Load shops for dropdown (static data since we removed shop management)
     const loadShops = useCallback(async () => {
         try {
             // Static shops data for dropdown - only Pet and Item shops
@@ -268,39 +266,18 @@ export const useSimpleShopProducts = () => {
     useEffect(() => {
         loadShopProducts();
         loadShops();
-    }, [loadShopProducts, loadShops]);
-
-    return {
-        // Data
+    }, [loadShopProducts, loadShops]); return {        // Data
         shopProducts,
+        allShopProducts, // All unfiltered products for client-side filtering
         shops,
         loading,
         error,
 
-        // Search & Filter
-        searchTerm,
-        setSearchTerm,
-        typeFilter,
-        setTypeFilter,
-        statusFilter,
-        setStatusFilter,
-        shopFilter,
-        setShopFilter,
-        currencyFilter,
-        setCurrencyFilter,
-
         // Actions
         createShopProduct,
         updateShopProduct,
-        deleteShopProduct,
-        updateShopProductStatus,
+        deleteShopProduct, updateShopProductStatus,
         getShopProductById,
-        searchShopProducts,
-        filterByType,
-        filterByStatus,
-        filterByShop,
-        filterByCurrency,
-        filterByPriceRange,
         refreshData,
 
         // Helpers

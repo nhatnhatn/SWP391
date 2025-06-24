@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
@@ -9,8 +9,6 @@ const PlayersSimple = () => {    // Use hook for data management
         allPlayers, // All unfiltered players for proper filtering
         loading,
         error,
-        searchTerm,
-        setSearchTerm,
         banPlayer,
         unbanPlayer,
         stats,
@@ -19,6 +17,19 @@ const PlayersSimple = () => {    // Use hook for data management
         getPlayerPets,
         updatePlayer,
         refreshData: refreshCurrentPage } = useSimplePlayers();
+
+    // Local search state - separated from hook for debouncing
+    const [localSearchTerm, setLocalSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+    // Debounce search term to prevent excessive filtering
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(localSearchTerm);
+        }, 300); // Wait 300ms after user stops typing
+
+        return () => clearTimeout(timer);
+    }, [localSearchTerm]);
 
     // Local UI state
     const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -69,10 +80,16 @@ const PlayersSimple = () => {    // Use hook for data management
         }, 5000); // Check every 5 seconds
 
         return () => clearInterval(interval);
-    }, [banTimers]);    // Handle search - Use hook's setSearchTerm directly
-    const handleSearch = (term) => {
-        setSearchTerm(term);
-    };// Handle player actions
+    }, [banTimers]);    // Handle search - Use local state with debouncing
+    const handleSearch = useCallback((term) => {
+        setLocalSearchTerm(term);
+    }, []);
+
+    // Clear search with debouncing reset
+    const clearSearch = useCallback(() => {
+        setLocalSearchTerm('');
+        setDebouncedSearchTerm('');
+    }, []);// Handle player actions
     const handleBanPlayer = async (playerId, duration = null) => {
         if (!duration) {
             // Open ban modal to select duration
@@ -175,11 +192,12 @@ const PlayersSimple = () => {    // Use hook for data management
     const filteredPlayers = useMemo(() => {
         // Start with all players from the hook
         let filtered = allPlayers.filter(player => {
-            // Search filter
-            if (searchTerm.trim()) {
-                const searchLower = searchTerm.toLowerCase();
+            // Search filter - use debounced search term
+            if (debouncedSearchTerm.trim()) {
+                const searchLower = debouncedSearchTerm.toLowerCase();
                 const userName = (player.userName || '').toLowerCase();
-                if (!userName.includes(searchLower)) return false;
+                const email = (player.email || '').toLowerCase();
+                if (!userName.includes(searchLower) && !email.includes(searchLower)) return false;
             }
 
             // Status filter
@@ -236,18 +254,16 @@ const PlayersSimple = () => {    // Use hook for data management
         }
 
         return filtered;
-    }, [allPlayers, searchTerm, sortConfig, statusFilter, levelFilter]);
+    }, [allPlayers, debouncedSearchTerm, sortConfig, statusFilter, levelFilter]);
 
     // Calculate pagination for filtered results
     const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
     const startIndex = currentFilterPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const displayPlayers = filteredPlayers.slice(startIndex, endIndex);
-
-    // Reset to first page when filters change
+    const displayPlayers = filteredPlayers.slice(startIndex, endIndex);    // Reset to first page when filters change
     useEffect(() => {
         setCurrentFilterPage(0);
-    }, [searchTerm, statusFilter, levelFilter]);
+    }, [debouncedSearchTerm, statusFilter, levelFilter]);
 
     // Pagination handlers for filtered results
     const handleFilterPreviousPage = () => {
@@ -464,17 +480,16 @@ const PlayersSimple = () => {    // Use hook for data management
                                 Tìm kiếm người chơi
                             </label>
                             <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-green-500 transition-colors duration-200" />
-                                <input
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-green-500 transition-colors duration-200" />                                <input
                                     type="text"
                                     placeholder="Nhập tên người chơi để tìm kiếm..."
-                                    value={searchTerm}
+                                    value={localSearchTerm}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
                                 />
-                                {searchTerm && (
+                                {localSearchTerm && (
                                     <button
-                                        onClick={() => handleSearch('')}
+                                        onClick={clearSearch}
                                         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
                                         title="Xóa tìm kiếm"
                                     >
@@ -483,15 +498,18 @@ const PlayersSimple = () => {    // Use hook for data management
                                 )}
                             </div>
 
-                            {searchTerm && (
+                            {(localSearchTerm || debouncedSearchTerm) && (
                                 <div className="bg-green-100 rounded-md p-3 border border-green-200">
                                     <div className="flex items-center gap-2">
                                         <div className="h-2 w-2 bg-green-600 rounded-full animate-pulse"></div>
                                         <p className="text-sm text-green-800 font-medium">
-                                            🔍 Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-green-900">{searchTerm}</span>"
+                                            🔍 Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-green-900">{debouncedSearchTerm || localSearchTerm}</span>"
+                                            {localSearchTerm !== debouncedSearchTerm && localSearchTerm && (
+                                                <span className="text-xs text-green-600 ml-2">(đang nhập...)</span>
+                                            )}
                                         </p>
                                         <button
-                                            onClick={() => handleSearch('')}
+                                            onClick={clearSearch}
                                             className="ml-auto text-green-600 hover:text-green-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                         >
                                             Xóa tìm kiếm
@@ -683,33 +701,32 @@ const PlayersSimple = () => {    // Use hook for data management
                                         <span className="text-sm font-medium text-gray-700"> Thao tác</span>
                                     </div>
 
-                                    <div className="flex flex-wrap gap-3">
-                                        <button
-                                            onClick={() => {
-                                                setStatusFilter('all');
-                                                setLevelFilter('all');
-                                                setSortConfig({ key: null, direction: 'asc' });
-                                                handleSearch('');
-                                            }}
-                                            disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm}
-                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
-                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                                : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
-                                                }`}
-                                        >
-                                            <X className="h-4 w-4 mr-2" />
-                                            {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
-                                                ? 'Không có bộ lọc nào'
-                                                : 'Xóa tất cả bộ lọc'
-                                            }
-                                        </button>
+                                    <div className="flex flex-wrap gap-3">                                        <button
+                                        onClick={() => {
+                                            setStatusFilter('all');
+                                            setLevelFilter('all');
+                                            setSortConfig({ key: null, direction: 'asc' });
+                                            clearSearch();
+                                        }}
+                                        disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
+                                        className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
+                                            }`}
+                                    >
+                                        <X className="h-4 w-4 mr-2" />
+                                        {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            ? 'Không có bộ lọc nào'
+                                            : 'Xóa tất cả bộ lọc'
+                                        }
+                                    </button>
 
                                         {/* Filter Status Indicator */}
-                                        {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || searchTerm) && (
+                                        {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
-                                                    searchTerm && 'Tìm kiếm',
+                                                    (localSearchTerm || debouncedSearchTerm) && 'Tìm kiếm',
                                                     statusFilter !== 'all' && 'Trạng thái',
                                                     levelFilter !== 'all' && 'Level',
                                                     sortConfig.key && 'Sắp xếp'
@@ -945,9 +962,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <td colSpan="8" className="px-6 py-12 text-center">
                                         <div className="text-gray-500">
                                             <div className="text-4xl mb-4">👥</div>
-                                            <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>
-                                            <p className="text-sm text-gray-500">
-                                                {searchTerm || statusFilter !== 'all' || levelFilter !== 'all'
+                                            <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>                                            <p className="text-sm text-gray-500">
+                                                {(localSearchTerm || debouncedSearchTerm) || statusFilter !== 'all' || levelFilter !== 'all'
                                                     ? 'Không có người chơi nào phù hợp với bộ lọc trong trang này'
                                                     : 'Không có người chơi nào trong trang này'}
                                             </p>
