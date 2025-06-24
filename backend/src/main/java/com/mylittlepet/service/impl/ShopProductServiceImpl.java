@@ -164,8 +164,7 @@ public class ShopProductServiceImpl implements ShopProductService {
             shopProduct.setStatus(status);
             ShopProduct updatedShopProduct = shopProductRepository.save(shopProduct);
             return convertToDTO(updatedShopProduct);
-        }
-        return null;
+        }        return null;
     }
 
     // Helper methods to convert between Entity and DTO

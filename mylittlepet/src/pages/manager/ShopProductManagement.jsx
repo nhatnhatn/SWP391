@@ -156,8 +156,7 @@ const ShopProductManagement = () => {
     const [editModal, setEditModal] = useState({ isOpen: false, product: null });
     const [createModal, setCreateModal] = useState(false); const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
     const [linkConverted, setLinkConverted] = useState(false);
-    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false); const [editForm, setEditForm] = useState({
-        shopId: '',
+    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false);    const [editForm, setEditForm] = useState({        shopId: '',
         petID: null,
         name: '',
         type: '',
@@ -288,8 +287,7 @@ const ShopProductManagement = () => {
     };
 
     // Open edit modal
-    const handleEdit = (product) => {
-        setEditForm({
+    const handleEdit = (product) => {        setEditForm({
             shopId: product.shopId || '',
             petID: product.petID || null,
             name: product.name || '',
@@ -305,8 +303,7 @@ const ShopProductManagement = () => {
     };
 
     // Open create modal
-    const handleCreate = () => {
-        setEditForm({
+    const handleCreate = () => {        setEditForm({
             shopId: '',
             petID: null,
             name: '',
@@ -327,9 +324,7 @@ const ShopProductManagement = () => {
     };
 
     // Submit create
-    const handleCreateSubmit = async () => {
-        try {
-            const formData = {
+    const handleCreateSubmit = async () => {        try {            const formData = {
                 ...editForm,
                 price: parseInt(editForm.price),
                 quantity: parseInt(editForm.quantity),
@@ -337,7 +332,7 @@ const ShopProductManagement = () => {
                 shopId: parseInt(editForm.shopId),
                 petID: editForm.petID ? parseInt(editForm.petID) : null,
                 adminId: 1 // Default admin ID, you might want to get this from auth context
-            }; await createShopProduct(formData);
+            };await createShopProduct(formData);
             setCreateModal(false);
             setEditForm({
                 shopId: '', petID: null, name: '', type: '', description: '', imageUrl: '', price: '', currencyType: 'COIN', quantity: 10, status: 1
@@ -345,8 +340,7 @@ const ShopProductManagement = () => {
             alert('Tạo sản phẩm cửa hàng thành công!');
         } catch (error) {
             alert('Lỗi khi tạo sản phẩm cửa hàng: ' + error.message);
-        }
-    };
+        }    };
 
     // Submit edit
     const handleEditSubmit = async () => {

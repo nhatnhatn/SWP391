@@ -18,10 +18,7 @@ public class ShopProductDTO {
 
     // Constructors
     public ShopProductDTO() {
-    }
-
-    public ShopProductDTO(Integer shopProductId, Integer shopId, Integer petID, String shopName, Integer adminId,
-            String adminName,
+    }    public ShopProductDTO(Integer shopProductId, Integer shopId, Integer petID, String shopName, Integer adminId, String adminName,
             String name, String type, String description, String imageUrl, Integer price,
             String currencyType, Integer quantity, Integer status) {
         this.shopProductId = shopProductId;
@@ -62,8 +59,7 @@ public class ShopProductDTO {
     }
 
     public void setPetID(Integer petID) {
-        this.petID = petID;
-    }
+        this.petID = petID;    }
 
     public String getShopName() {
         return shopName;
@@ -151,9 +147,7 @@ public class ShopProductDTO {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    @Override
+    }    @Override
     public String toString() {
         return "ShopProductDTO{" +
                 "shopProductId=" + shopProductId +

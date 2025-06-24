@@ -89,8 +89,7 @@ public class ShopProductController {
 
     // PUT /api/shop-products/{id} - Update shop product
     @PutMapping("/{id}")
-    public ResponseEntity<ShopProductDTO> updateShopProduct(@PathVariable Integer id,
-            @RequestBody ShopProductDTO shopProductDTO) {
+    public ResponseEntity<ShopProductDTO> updateShopProduct(@PathVariable Integer id, @RequestBody ShopProductDTO shopProductDTO) {
         try {
             ShopProductDTO updatedProduct = shopProductService.updateShopProduct(id, shopProductDTO);
             if (updatedProduct != null) {

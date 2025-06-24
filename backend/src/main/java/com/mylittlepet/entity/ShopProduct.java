@@ -41,8 +41,7 @@ public class ShopProduct {
     @Column(name = "Quantity")
     private Integer quantity;
 
-    @Column(name = "Status")
-    private Integer status = 1;
+    @Column(name = "Status")    private Integer status = 1;
 
     // Constructors
     public ShopProduct() {
