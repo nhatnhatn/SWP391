@@ -661,7 +661,65 @@ const ShopProductManagement = () => {
                                             <div className="text-sm text-gray-500 max-w-xs truncate" title={product.description}>
                                                 {product.description}
                                             </div>
-                                        </div>
+                                        </div>                                    </div>                                </td>                                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${getShopName(product.shopId).toLowerCase().includes('pet')
+                                            ? 'bg-green-100 text-green-800 border border-green-200'
+                                            : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                        }`}>
+                                        {getShopName(product.shopId)}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm ${product.type === 'Pet' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200'
+                                        : 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200'
+                                        }`}>
+                                        {product.type === 'Pet' ? '' : ''}
+                                        {product.type}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
+                                    {formatCurrency(product.price, product.currencyType)}
+                                </td>                                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <span className="text-sm text-gray-900">{product.quality}</span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <button
+                                        onClick={() => handleToggleStatus(product)}
+                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.status === 1
+                                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                            : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                            } transition-colors cursor-pointer`}
+                                    >
+                                        {product.status === 1 ? 'Hoạt động' : 'Tắt'}
+                                    </button>
+                                </td>                                <td className="px-6 py-6 whitespace-nowrap text-center">
+                                    <div className="flex justify-center space-x-3">
+                                        {/* Detail View Button */}
+                                        <button
+                                            onClick={() => handleView(product)}
+                                            className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Xem chi tiết"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
+
+                                        {/* Edit Button */}
+                                        <button
+                                            onClick={() => handleEdit(product)}
+                                            className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Chỉnh sửa"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() => handleDelete(product)}
+                                            className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                            title="Xóa"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </td><td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm text-gray-900">{getShopName(product.shopId)}</div>
