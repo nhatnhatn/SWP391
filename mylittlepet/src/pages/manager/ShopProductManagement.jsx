@@ -805,29 +805,33 @@ const ShopProductManagement = () => {
                                     >
                                         {product.status === 1 ? 'Hoạt động' : 'Tắt'}
                                     </button>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div className="flex justify-end gap-2">
+                                </td>                                <td className="px-6 py-6 whitespace-nowrap text-center">
+                                    <div className="flex justify-center space-x-3">
+                                        {/* Detail View Button */}
                                         <button
                                             onClick={() => handleView(product)}
-                                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                                            className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                             title="Xem chi tiết"
                                         >
-                                            <Eye className="h-4 w-4" />
+                                            <Eye className="w-4 h-4" />
                                         </button>
+
+                                        {/* Edit Button */}
                                         <button
                                             onClick={() => handleEdit(product)}
-                                            className="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50"
+                                            className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                             title="Chỉnh sửa"
                                         >
-                                            <Edit className="h-4 w-4" />
+                                            <Edit className="w-4 h-4" />
                                         </button>
+
+                                        {/* Delete Button */}
                                         <button
                                             onClick={() => handleDelete(product)}
-                                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                                            className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                             title="Xóa"
                                         >
-                                            <Trash2 className="h-4 w-4" />
+                                            <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </td>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save } from 'lucide-react';
+import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
 // Simple Players component - Updated with Backend Integration
@@ -38,11 +38,10 @@ const PlayersSimple = () => {    // Use hook for data management
     const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
 
     // Sort state
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-
-    // Filter states
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Filter states
     const [statusFilter, setStatusFilter] = useState('all');
     const [levelFilter, setLevelFilter] = useState('all');
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
     // Hidden timer check - auto unban when time expires (no UI display)
     useEffect(() => {
@@ -347,17 +346,25 @@ const PlayersSimple = () => {    // Use hook for data management
                 {status}
             </span>
         );
-    };
-
-    return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+    }; return (
+        <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
             {/* Header */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div className="flex items-center gap-3">
-                    <Users className="w-8 h-8 text-blue-600" />
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Quản lý người chơi</h1>
-                        <p className="text-gray-600">Quản lý danh sách người chơi trong game</p>
+            <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl">
+                            <Users className="h-8 w-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-800">Quản lý Người Chơi</h1>
+                            <p className="text-gray-600 mt-1">Quản lý danh sách người chơi trong game một cách hiệu quả</p>
+                        </div>
+                    </div>
+                    <div className="hidden lg:flex items-center gap-4 text-gray-500">
+                        <div className="text-center">
+                            <p className="text-sm font-medium">Tổng người chơi</p>
+                            <p className="text-2xl font-bold text-green-600">{stats?.total || players.length}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -374,16 +381,15 @@ const PlayersSimple = () => {    // Use hook for data management
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* Statistics */}
+            )}            {/* Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Users className="w-6 h-6 text-blue-600" />
-                        </div>                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Tổng người chơi</p>
+                        <div className="p-2 bg-green-100 rounded-lg">
+                            <Users className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-600">Tổng Người chơi</p>
                             <p className="text-2xl font-bold text-gray-900">{stats?.total || players.length}</p>
                         </div>
                     </div>
@@ -391,11 +397,11 @@ const PlayersSimple = () => {    // Use hook for data management
 
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                            <Users className="w-6 h-6 text-green-600" />
+                        <div className="p-2 bg-emerald-100 rounded-lg">
+                            <span className="text-emerald-600 font-bold text-lg">✓</span>
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
+                            <p className="text-sm font-medium text-gray-600">Đang Hoạt động</p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {stats?.active || players.filter(p => p.userStatus === 'ACTIVE').length}
                             </p>
@@ -406,10 +412,10 @@ const PlayersSimple = () => {    // Use hook for data management
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
                         <div className="p-2 bg-red-100 rounded-lg">
-                            <Users className="w-6 h-6 text-red-600" />
+                            <span className="text-red-600 font-bold text-lg">✕</span>
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Bị cấm</p>
+                            <p className="text-sm font-medium text-gray-600">Bị Cấm</p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {stats?.banned || players.filter(p => p.userStatus === 'BANNED').length}
                             </p>
@@ -417,135 +423,297 @@ const PlayersSimple = () => {    // Use hook for data management
                     </div>
                 </div>
             </div>            {/* Search & Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Search className="h-5 w-5 text-blue-600" />
+                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-5 border-b border-green-100">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                                <Search className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Tìm kiếm & Bộ lọc</h3>
+                                <p className="text-green-100 text-sm">Tìm kiếm và lọc danh sách người chơi một cách thông minh</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-800">Tìm kiếm & Bộ lọc</h3>
-                            <p className="text-sm text-gray-600">Tìm kiếm và lọc danh sách người chơi</p>
+                        <div className="hidden md:flex items-center gap-2 text-white/80 text-sm">
+                            <Users className="h-4 w-4" />
+                            <span>Quản lý hiệu quả</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
-                    {/* Search Section */}                    <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            🔍 Tìm kiếm người chơi
-                        </label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                                type="text"
-                                placeholder="Nhập tên người chơi để tìm kiếm..."
-                                value={searchTerm}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400"
-                            />
+                    {/* Search Section */}
+                    <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 border border-green-100">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="h-4 w-4 bg-green-600 rounded-full flex items-center justify-center">
+                                <Search className="h-2 w-2 text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-700"> Tìm kiếm người chơi</span>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                Tìm kiếm người chơi
+                            </label>
+                            <div className="relative group">
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-green-500 transition-colors duration-200" />
+                                <input
+                                    type="text"
+                                    placeholder="Nhập tên người chơi để tìm kiếm..."
+                                    value={searchTerm}
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
+                                />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => handleSearch('')}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                                        title="Xóa tìm kiếm"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+
                             {searchTerm && (
-                                <button
-                                    onClick={() => handleSearch('')}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    title="Xóa tìm kiếm"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
+                                <div className="bg-green-100 rounded-md p-3 border border-green-200">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-2 w-2 bg-green-600 rounded-full animate-pulse"></div>
+                                        <p className="text-sm text-green-800 font-medium">
+                                            🔍 Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-green-900">{searchTerm}</span>"
+                                        </p>
+                                        <button
+                                            onClick={() => handleSearch('')}
+                                            className="ml-auto text-green-600 hover:text-green-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
+                                        >
+                                            Xóa tìm kiếm
+                                        </button>
+                                    </div>
+                                </div>)}
+                        </div>
+                    </div>                    {/* Filters Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <button
+                                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                                className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-lg border border-gray-200 transition-all duration-200 group"
+                            >
+                                <Filter className="h-5 w-5 text-gray-600 group-hover:text-gray-700" />
+                                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                                    Bộ lọc nâng cao
+                                </span>
+                                {showAdvancedFilters ? (
+                                    <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
+                                )}
+                                {/* Filter Status Indicator */}
+                                {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key) && (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
+                                        {[statusFilter !== 'all' ? statusFilter : null, levelFilter !== 'all' ? levelFilter : null, sortConfig.key].filter(Boolean).length}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Advanced Filters Content - Collapsible */}
+                        {showAdvancedFilters && (
+                            <div className="space-y-6 animate-in slide-in-from-top-2 duration-300"><div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-100">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
+                                    <Filter className="h-2 w-2 text-white" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-700"> Lọc theo nội dung</span>
+                            </div>                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                                {/* Status Filter */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                        Trạng thái tài khoản
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                        >
+                                            <option value="all"> Tất cả trạng thái</option>
+                                            <option value="ACTIVE"> Hoạt động</option>
+                                            <option value="BANNED"> Bị cấm</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                {/* Level Filter */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                        Mức độ Level
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={levelFilter}
+                                            onChange={(e) => setLevelFilter(e.target.value)}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                        >
+                                            <option value="all"> Tất cả level</option>
+                                            <option value="low"> Thấp (1-9)</option>
+                                            <option value="medium"> Trung bình (10-49)</option>
+                                            <option value="high"> Cao (50+)</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Filter Status Display */}
+                            {(statusFilter !== 'all' || levelFilter !== 'all') && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {statusFilter !== 'all' && (
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            {statusFilter === 'ACTIVE' ? ' Hoạt động' : ' Bị cấm'}
+                                        </span>
+                                    )}
+                                    {levelFilter !== 'all' && (
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            {levelFilter === 'low' ? ' Level thấp' :
+                                                levelFilter === 'medium' ? ' Level trung bình' :
+                                                    ' Level cao'}
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </div>
-                        {searchTerm && (
-                            <p className="text-sm text-blue-600 font-medium">
-                                Đang hiển thị kết quả cho: "{searchTerm}" ({filteredPlayers.length} người chơi)
-                            </p>
-                        )}
-                    </div>
 
-                    {/* Filters Section */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Filter className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm font-medium text-gray-700">Bộ lọc nâng cao</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {/* Status Filter */}
-                            <div className="space-y-2">
-                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                    Trạng thái tài khoản
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                    >
-                                        <option value="all">📋 Tất cả trạng thái</option>
-                                        <option value="ACTIVE">✅ Hoạt động</option>
-                                        <option value="BANNED">🚫 Bị cấm</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                        {/* Sorting Section */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <ChevronDown className="h-2 w-2 text-white rotate-180" />
                                 </div>
-                                {statusFilter !== 'all' && (
-                                    <p className="text-xs text-gray-500">
-                                        Lọc theo: {statusFilter === 'ACTIVE' ? 'Hoạt động' : 'Bị cấm'}
-                                    </p>
-                                )}
+                                <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
                             </div>
 
-                            {/* Level Filter */}
-                            <div className="space-y-2">
-                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                    Mức độ Level
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        value={levelFilter}
-                                        onChange={(e) => setLevelFilter(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                    >
-                                        <option value="all">⭐ Tất cả level</option>
-                                        <option value="low">🥉 Thấp (1-9)</option>
-                                        <option value="medium">🥈 Trung bình (10-49)</option>
-                                        <option value="high">🥇 Cao (50+)</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Sort by Name */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                        Sắp xếp theo tên
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={sortConfig.key === 'userName' ? sortConfig.direction : ''}
+                                            onChange={(e) => {
+                                                if (e.target.value === '') {
+                                                    setSortConfig({ key: null, direction: 'asc' });
+                                                } else {
+                                                    setSortConfig({ key: 'userName', direction: e.target.value });
+                                                }
+                                            }}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                        >
+                                            <option value=""> Không sắp xếp</option>
+                                            <option value="asc"> Tên A-Z</option>
+                                            <option value="desc"> Tên Z-A</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                    </div>
                                 </div>
-                                {levelFilter !== 'all' && (
-                                    <p className="text-xs text-gray-500">
-                                        Lọc theo: {
-                                            levelFilter === 'low' ? 'Level thấp (1-9)' :
-                                                levelFilter === 'medium' ? 'Level trung bình (10-49)' :
-                                                    'Level cao (50+)'
+
+                                {/* Sort by Currency */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                        Sắp xếp theo tài sản
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={['coin', 'diamond', 'gem'].includes(sortConfig.key) ? `${sortConfig.key}_${sortConfig.direction}` : ''}
+                                            onChange={(e) => {
+                                                if (e.target.value === '') {
+                                                    setSortConfig({ key: null, direction: 'asc' });
+                                                } else {
+                                                    const [key, direction] = e.target.value.split('_');
+                                                    setSortConfig({ key, direction });
+                                                }
+                                            }}
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                        >
+                                            <option value=""> Không sắp xếp</option>
+                                            <option value="coin_desc">💰 Coin cao đến thấp</option>
+                                            <option value="coin_asc">💰 Coin thấp đến cao</option>
+                                            <option value="diamond_desc">💎 Diamond cao đến thấp</option>
+                                            <option value="diamond_asc">💎 Diamond thấp đến cao</option>
+                                            <option value="gem_desc">💜 Gem cao đến thấp</option>
+                                            <option value="gem_asc">💜 Gem thấp đến cao</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sort Status Display */}
+                            {sortConfig.key && (
+                                <div className="mt-3 p-2 bg-blue-100 rounded-md">
+                                    <p className="text-xs text-blue-700 font-medium">
+                                        Đang sắp xếp theo: {
+                                            sortConfig.key === 'userName' ? `Tên (${sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})` :
+                                                sortConfig.key === 'coin' ? `💰 Coin (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                    sortConfig.key === 'diamond' ? `💎 Diamond (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                        sortConfig.key === 'gem' ? `💜 Gem (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                            sortConfig.key
                                         }
                                     </p>
-                                )}
-                            </div>                            {/* Clear Filters */}
-                            <div className="space-y-2">
-                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                    Thao tác
-                                </label>
-                                <div className="space-y-2">
-                                    <button
-                                        onClick={() => {
-                                            if (statusFilter !== 'all' || levelFilter !== 'all') {
-                                                setStatusFilter('all');
-                                                setLevelFilter('all');
-                                            }
-                                        }}
-                                        disabled={statusFilter === 'all' && levelFilter === 'all'}
-                                        className={`w-full px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 ${statusFilter === 'all' && levelFilter === 'all'
-                                                ? 'bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200'
-                                                : 'bg-gradient-to-r from-red-50 to-red-100 border border-red-200 text-red-700 hover:from-red-100 hover:to-red-200 cursor-pointer'
-                                            }`}                                    >
-                                        <X className="h-4 w-4" />
-                                        Xóa bộ lọc
-                                    </button>
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Actions Section - Separated */}
+                        <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-100">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
+                                    <X className="h-2 w-2 text-white" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-700"> Thao tác</span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    onClick={() => {
+                                        setStatusFilter('all');
+                                        setLevelFilter('all');
+                                        setSortConfig({ key: null, direction: 'asc' });
+                                        handleSearch('');
+                                    }}
+                                    disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm}
+                                    className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
+                                        }`}
+                                >
+                                    <X className="h-4 w-4 mr-2" />
+                                    {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
+                                        ? 'Không có bộ lọc nào'
+                                        : 'Xóa tất cả bộ lọc'
+                                    }
+                                </button>
+
+                                {/* Filter Status Indicator */}
+                                {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || searchTerm) && (
+                                    <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
+                                        {[
+                                            searchTerm && 'Tìm kiếm',
+                                            statusFilter !== 'all' && 'Trạng thái',
+                                            levelFilter !== 'all' && 'Level',
+                                            sortConfig.key && 'Sắp xếp'
+                                        ].filter(Boolean).length} bộ lọc đang áp dụng
+                                    </div>                                )}
                             </div>
                         </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -713,98 +881,58 @@ const PlayersSimple = () => {    // Use hook for data management
                     </div>
                 </div>
             )}            {/* Player Table */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 {loading ? (
                     <div className="p-8 text-center">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                         <p className="mt-2 text-gray-600">Đang tải...</p>
                     </div>
-                ) : (<div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                ) : (
+                    <div className="overflow-x-auto">                        <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gradient-to-r from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
                             <tr>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('userName')}
-                                    title="Nhấp để sắp xếp theo tên người chơi"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Người chơi</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('userName')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Người chơi
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('level')}
-                                    title="Nhấp để sắp xếp theo level"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Level</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('level')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Level
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('coin')}
-                                    title="Nhấp để sắp xếp theo số coin"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Coin</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('coin')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Coin
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('diamond')}
-                                    title="Nhấp để sắp xếp theo số diamond"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Diamond</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('diamond')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Diamond
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('gem')}
-                                    title="Nhấp để sắp xếp theo số gem"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Gem</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('gem')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Gem
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('password')}
-                                    title="Nhấp để sắp xếp theo password"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Password</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('password')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Password
+                                    </span>
                                 </th>
-                                <th
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:bg-gray-100 select-none transition-colors group"
-                                    onClick={() => handleSort('userStatus')}
-                                    title="Nhấp để sắp xếp theo trạng thái"
-                                >
-                                    <div className="flex items-center space-x-1">
-                                        <span>Trạng thái</span>
-                                        <span className="opacity-50 group-hover:opacity-100 transition-opacity">⇅</span>
-                                        {getSortIcon('userStatus')}
-                                    </div>
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Trạng thái
+                                    </span>
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    Thao tác
+                                <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider">
+                                    <span className="flex items-center justify-center gap-2">
+                                        Thao tác
+                                    </span>
                                 </th>
                             </tr>
-                        </thead>                        <tbody className="bg-white divide-y divide-gray-200">
+                        </thead>                            <tbody className="bg-white divide-y divide-gray-200">
                             {displayPlayers.length === 0 ? (
                                 <tr>
                                     <td colSpan="8" className="px-6 py-12 text-center">
@@ -818,104 +946,157 @@ const PlayersSimple = () => {    // Use hook for data management
                                             </p>
                                         </div>
                                     </td>
-                                </tr>) : (
-                                displayPlayers.map((player) => (
-                                    <tr key={player.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center">
-                                                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                                    {player.userName?.charAt(0).toUpperCase() || 'U'}
-                                                </div>                                            <div className="ml-4">
+                                </tr>) : (displayPlayers.map((player) => (
+                                    <tr key={player.id} className="hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 transition-all duration-200">
+                                        <td className="px-6 py-6 whitespace-nowrap">
+                                            <div className="flex items-center justify-center">
+
+                                                <div className="ml-4 text-center">
                                                     <div className="text-sm font-medium text-gray-900">
                                                         {player.userName || 'N/A'}
                                                     </div>
                                                 </div>
                                             </div>
-                                        </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                            {player.level || 1}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                            <div className="flex items-center">
+
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                                                {player.level || 1}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center">
                                                 <span className="mr-1">💰</span>
-                                                <span>{(player.coin || 0).toLocaleString()}</span>
+                                                <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                            <div className="flex items-center">
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center">
                                                 <span className="mr-1">💎</span>
-                                                <span>{(player.diamond || 0).toLocaleString()}</span>
+                                                <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                            <div className="flex items-center">
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex items-center justify-center">
                                                 <span className="mr-1">💜</span>
-                                                <span>{(player.gem || 0).toLocaleString()}</span>
+                                                <span className="font-medium text-purple-600">{(player.gem || 0).toLocaleString()}</span>
                                             </div>
-                                        </td>                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                            <span className="text-gray-400">••••••••</span>
                                         </td>
-                                        <td className="px-6 py-4">
+
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <span className="text-gray-400 font-mono">••••••••</span>
+                                        </td>
+                                        <td className="px-6 py-6 whitespace-nowrap text-center">
                                             {getStatusBadge(player.userStatus || 'ACTIVE')}
+                                        </td>                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            <div className="flex justify-center space-x-3">
+                                                {/* Detail View Button */}
+                                                <button
+                                                    onClick={() => handleView(player)}
+                                                    className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    title="Xem chi tiết"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+
+                                                {/* Edit Button */}
+                                                <button
+                                                    onClick={() => handleEdit(player)}
+                                                    className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    title="Chỉnh sửa thông tin"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+
+                                                {/* Ban/Unban Button */}
+                                                {player.userStatus === 'BANNED' ? (
+                                                    <button
+                                                        onClick={() => handleUnbanPlayer(player.id)}
+                                                        className="text-green-600 hover:text-green-900 hover:bg-green-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Bỏ cấm tài khoản"
+                                                    >
+                                                        <ShieldCheck className="w-4 h-4" />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleBanPlayer(player.id)}
+                                                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Cấm tài khoản"
+                                                    >
+                                                        <Shield className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-sm">                                        <div className="flex justify-end space-x-2">
-                                            <button
-                                                onClick={() => handleView(player)}
-                                                className="text-blue-600 hover:text-blue-900 p-1"
-                                                title="Xem chi tiết"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                            {player.userStatus === 'BANNED' ? (
-                                                <button
-                                                    onClick={() => handleUnbanPlayer(player.id)}
-                                                    className="text-green-600 hover:text-green-900 p-1"
-                                                    title="Bỏ cấm"
-                                                >
-                                                    ✅
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() => handleBanPlayer(player.id)}
-                                                    className="text-red-600 hover:text-red-900 p-1"
-                                                    title="Cấm"
-                                                >
-                                                    🚫
-                                                </button>
-                                            )}
-                                        </div>
-                                        </td>                            </tr>
+                                    </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
-                </div>
+                    </div>
                 )}
-            </div>            {/* Pagination */}
+            </div>            {/* Pagination - Blue-Cyan Gradient */}
             {totalFilteredPages > 1 && (
-                <div className="mt-4 flex items-center justify-center">
-                    {/* Page Controls */}
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleFilterPreviousPage}
-                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={currentFilterPage === 0}
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            Trước
-                        </button>
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
+                    <div className="flex items-center justify-center">
+                        <div className="flex items-center gap-2">
+                            {/* Previous Button */}
+                            <button
+                                onClick={handleFilterPreviousPage}
+                                disabled={currentFilterPage === 0}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                <span className="hidden sm:inline">Trước</span>
+                            </button>
 
-                        <span className="text-sm text-gray-600">
-                            Trang {currentFilterPage + 1} / {totalFilteredPages}
-                        </span>
+                            {/* Page Numbers */}
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
+                                    const shouldShow =
+                                        page === 0 ||
+                                        page === totalFilteredPages - 1 ||
+                                        Math.abs(page - currentFilterPage) <= 1;
 
-                        <button
-                            onClick={handleFilterNextPage}
-                            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            disabled={currentFilterPage >= totalFilteredPages - 1}
-                        >
-                            Tiếp
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
+                                    if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
+                                        return null;
+                                    }
+
+                                    if (
+                                        (page === 1 && currentFilterPage > 3) ||
+                                        (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
+                                    ) {
+                                        return (
+                                            <span key={page} className="px-2 text-blue-500">
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentFilterPage(page)}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
+                                                    ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-md'
+                                                    : 'bg-white border border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800'
+                                                }`}
+                                        >
+                                            {page + 1}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Next Button */}
+                            <button
+                                onClick={handleFilterNextPage}
+                                disabled={currentFilterPage >= totalFilteredPages - 1}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                            >
+                                <span className="hidden sm:inline">Tiếp</span>
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

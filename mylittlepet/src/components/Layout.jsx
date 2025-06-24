@@ -29,6 +29,43 @@ export default function Layout({ children }) {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
+    // Dynamic color themes based on current page
+    const getThemeColors = () => {
+        const path = location.pathname;
+        
+        if (path === '/players') {
+            // Green theme for PlayersSimple
+            return {
+                active: 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-r-2 border-green-500',
+                hover: 'hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700',
+                normal: 'text-gray-600'
+            };
+        } else if (path === '/shop-products') {
+            // Purple theme for ShopProductManagement
+            return {
+                active: 'bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 border-r-2 border-purple-500',
+                hover: 'hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 hover:text-purple-700',
+                normal: 'text-gray-600'
+            };
+        } else if (path === '/pets') {
+            // Cyan theme for PetManagement
+            return {
+                active: 'bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 border-r-2 border-cyan-500',
+                hover: 'hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-700',
+                normal: 'text-gray-600'
+            };
+        } else {
+            // Default blue theme
+            return {
+                active: 'bg-blue-50 text-blue-700 border-r-2 border-blue-500',
+                hover: 'hover:bg-gray-50 hover:text-gray-900',
+                normal: 'text-gray-600'
+            };
+        }
+    };
+
+    const themeColors = getThemeColors();
+
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -51,8 +88,7 @@ export default function Layout({ children }) {
                     </div>                    <div className="flex-1 h-0 pt-3 pb-3 overflow-y-auto">
                         <div className="flex-shrink-0 flex items-center px-3 mb-3">
                             <h1 className="text-base font-bold text-gray-900">My Little Pet</h1>
-                        </div>
-                        <nav className="mt-1 px-2 space-y-1">
+                        </div>                        <nav className="mt-1 px-2 space-y-1">
                             {navigation.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname === item.href;
@@ -60,9 +96,9 @@ export default function Layout({ children }) {
                                     <Link
                                         key={item.name}
                                         to={item.href}
-                                        className={`group flex items-center px-2 py-2 text-xs font-medium rounded-md transition-colors ${isActive
-                                            ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        className={`group flex items-center px-2 py-2 text-xs font-medium rounded-md transition-all duration-200 ${isActive
+                                            ? themeColors.active
+                                            : `${themeColors.normal} ${themeColors.hover}`
                                             }`}
                                         onClick={() => setSidebarOpen(false)}
                                     >
@@ -121,8 +157,7 @@ export default function Layout({ children }) {
                                 <div className="flex items-center flex-shrink-0 px-3 mb-3">
                                     <h1 className="text-base font-bold text-gray-900">My Little Pet</h1>
                                 </div>
-                            )}
-                            <nav className={`mt-1 flex-1 bg-white space-y-1 ${sidebarExpanded ? 'px-2' : 'px-1'}`}>
+                            )}                            <nav className={`mt-1 flex-1 bg-white space-y-1 ${sidebarExpanded ? 'px-2' : 'px-1'}`}>
                                 {navigation.map((item) => {
                                     const Icon = item.icon;
                                     const isActive = location.pathname === item.href;
@@ -130,10 +165,10 @@ export default function Layout({ children }) {
                                         <Link
                                             key={item.name}
                                             to={item.href}
-                                            className={`group flex items-center rounded-md transition-colors ${sidebarExpanded ? 'px-2 py-2' : 'px-2 py-2 justify-center'
+                                            className={`group flex items-center rounded-md transition-all duration-200 ${sidebarExpanded ? 'px-2 py-2' : 'px-2 py-2 justify-center'
                                                 } ${isActive
-                                                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                    ? themeColors.active
+                                                    : `${themeColors.normal} ${themeColors.hover}`
                                                 }`}
                                             title={!sidebarExpanded ? item.name : undefined}
                                         >
