@@ -3,6 +3,7 @@ package com.mylittlepet.dto;
 public class ShopProductDTO {
     private Integer shopProductId;
     private Integer shopId;
+    private Integer petID;
     private String shopName;
     private Integer adminId;
     private String adminName;
@@ -12,18 +13,20 @@ public class ShopProductDTO {
     private String imageUrl;
     private Integer price;
     private String currencyType;
-    private Integer quality; // Số lượng sản phẩm (quantity)
+    private Integer quantity;
     private Integer status;
 
     // Constructors
     public ShopProductDTO() {
     }
 
-    public ShopProductDTO(Integer shopProductId, Integer shopId, String shopName, Integer adminId, String adminName,
+    public ShopProductDTO(Integer shopProductId, Integer shopId, Integer petID, String shopName, Integer adminId,
+            String adminName,
             String name, String type, String description, String imageUrl, Integer price,
-            String currencyType, Integer quality, Integer status) {
+            String currencyType, Integer quantity, Integer status) {
         this.shopProductId = shopProductId;
         this.shopId = shopId;
+        this.petID = petID;
         this.shopName = shopName;
         this.adminId = adminId;
         this.adminName = adminName;
@@ -33,7 +36,7 @@ public class ShopProductDTO {
         this.imageUrl = imageUrl;
         this.price = price;
         this.currencyType = currencyType;
-        this.quality = quality;
+        this.quantity = quantity;
         this.status = status;
     }
 
@@ -52,6 +55,14 @@ public class ShopProductDTO {
 
     public void setShopId(Integer shopId) {
         this.shopId = shopId;
+    }
+
+    public Integer getPetID() {
+        return petID;
+    }
+
+    public void setPetID(Integer petID) {
+        this.petID = petID;
     }
 
     public String getShopName() {
@@ -126,13 +137,12 @@ public class ShopProductDTO {
         this.currencyType = currencyType;
     }
 
-    // Số lượng sản phẩm (quantity)
-    public Integer getQuality() {
-        return quality;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setQuality(Integer quality) {
-        this.quality = quality;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public Integer getStatus() {
@@ -148,6 +158,7 @@ public class ShopProductDTO {
         return "ShopProductDTO{" +
                 "shopProductId=" + shopProductId +
                 ", shopId=" + shopId +
+                ", petID=" + petID +
                 ", shopName='" + shopName + '\'' +
                 ", adminId=" + adminId +
                 ", adminName='" + adminName + '\'' +
@@ -157,7 +168,7 @@ public class ShopProductDTO {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", price=" + price +
                 ", currencyType='" + currencyType + '\'' +
-                ", quality=" + quality +
+                ", quantity=" + quantity +
                 ", status=" + status +
                 '}';
     }

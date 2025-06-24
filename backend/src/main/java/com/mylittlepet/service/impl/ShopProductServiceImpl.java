@@ -77,6 +77,14 @@ public class ShopProductServiceImpl implements ShopProductService {
     }
 
     @Override
+    public List<ShopProductDTO> getShopProductsByPetId(Integer petId) {
+        return shopProductRepository.findByPetID(petId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ShopProductDTO> getShopProductsByPriceRange(Integer minPrice, Integer maxPrice) {
         return shopProductRepository.findByPriceRange(minPrice, maxPrice)
                 .stream()
@@ -130,7 +138,7 @@ public class ShopProductServiceImpl implements ShopProductService {
             shopProduct.setImageUrl(shopProductDTO.getImageUrl());
             shopProduct.setPrice(shopProductDTO.getPrice());
             shopProduct.setCurrencyType(shopProductDTO.getCurrencyType());
-            shopProduct.setQuality(shopProductDTO.getQuality());
+            shopProduct.setQuantity(shopProductDTO.getQuantity());
             shopProduct.setStatus(shopProductDTO.getStatus());
 
             ShopProduct updatedShopProduct = shopProductRepository.save(shopProduct);
@@ -158,12 +166,14 @@ public class ShopProductServiceImpl implements ShopProductService {
             return convertToDTO(updatedShopProduct);
         }
         return null;
-    } // Helper methods to convert between Entity and DTO
+    }
 
+    // Helper methods to convert between Entity and DTO
     private ShopProductDTO convertToDTO(ShopProduct shopProduct) {
         return new ShopProductDTO(
                 shopProduct.getShopProductId(),
                 shopProduct.getShopId(),
+                shopProduct.getPetID(),
                 "Shop " + shopProduct.getShopId(), // Simple shop name placeholder
                 shopProduct.getAdmin() != null ? shopProduct.getAdmin().getId() : null,
                 shopProduct.getAdmin() != null ? shopProduct.getAdmin().getUserName() : null,
@@ -173,7 +183,7 @@ public class ShopProductServiceImpl implements ShopProductService {
                 shopProduct.getImageUrl(),
                 shopProduct.getPrice(),
                 shopProduct.getCurrencyType(),
-                shopProduct.getQuality(),
+                shopProduct.getQuantity(),
                 shopProduct.getStatus());
     }
 
@@ -191,13 +201,16 @@ public class ShopProductServiceImpl implements ShopProductService {
             admin.ifPresent(shopProduct::setAdmin);
         }
 
+        // Set pet ID
+        shopProduct.setPetID(shopProductDTO.getPetID());
+
         shopProduct.setName(shopProductDTO.getName());
         shopProduct.setType(shopProductDTO.getType());
         shopProduct.setDescription(shopProductDTO.getDescription());
         shopProduct.setImageUrl(shopProductDTO.getImageUrl());
         shopProduct.setPrice(shopProductDTO.getPrice());
         shopProduct.setCurrencyType(shopProductDTO.getCurrencyType());
-        shopProduct.setQuality(shopProductDTO.getQuality() != null ? shopProductDTO.getQuality() : 100);
+        shopProduct.setQuantity(shopProductDTO.getQuantity() != null ? shopProductDTO.getQuantity() : 0);
         shopProduct.setStatus(shopProductDTO.getStatus() != null ? shopProductDTO.getStatus() : 1);
 
         return shopProduct;

@@ -19,6 +19,7 @@ com\mylittlepet\controller\SimpleController.class
 com\mylittlepet\repository\PetRepository.class
 com\mylittlepet\entity\PlayerPet.class
 com\mylittlepet\dto\PlayerPetDTO.class
+com\mylittlepet\entity\Shop.class
 com\mylittlepet\controller\PetController.class
 com\mylittlepet\dto\PetDTO.class
 com\mylittlepet\dto\PlayerDTO.class

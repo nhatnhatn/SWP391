@@ -156,16 +156,16 @@ const ShopProductManagement = () => {
     const [editModal, setEditModal] = useState({ isOpen: false, product: null });
     const [createModal, setCreateModal] = useState(false); const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
     const [linkConverted, setLinkConverted] = useState(false);
-    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false);
-    const [editForm, setEditForm] = useState({
+    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false); const [editForm, setEditForm] = useState({
         shopId: '',
+        petID: null,
         name: '',
         type: '',
         description: '',
         imageUrl: '',
         price: '',
         currencyType: 'COIN',
-        quality: 10,
+        quantity: 10,
         status: 1
     });// Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -178,10 +178,8 @@ const ShopProductManagement = () => {
 
         return [...shopProducts].sort((a, b) => {
             let aValue = a[sortConfig.key];
-            let bValue = b[sortConfig.key];
-
-            // Special handling for numeric fields
-            if (sortConfig.key === 'price' || sortConfig.key === 'quality') {
+            let bValue = b[sortConfig.key];            // Special handling for numeric fields
+            if (sortConfig.key === 'price' || sortConfig.key === 'quantity') {
                 aValue = Number(aValue) || 0;
                 bValue = Number(bValue) || 0;
             }
@@ -293,13 +291,14 @@ const ShopProductManagement = () => {
     const handleEdit = (product) => {
         setEditForm({
             shopId: product.shopId || '',
+            petID: product.petID || null,
             name: product.name || '',
             type: product.type || '',
             description: product.description || '',
             imageUrl: product.imageUrl || '',
             price: product.price || '',
             currencyType: product.currencyType || 'COIN',
-            quality: product.quality || 100,
+            quantity: product.quantity || 100,
             status: product.status || 1
         });
         setEditModal({ isOpen: true, product: product });
@@ -309,12 +308,14 @@ const ShopProductManagement = () => {
     const handleCreate = () => {
         setEditForm({
             shopId: '',
+            petID: null,
             name: '',
-            type: '', description: '',
+            type: '',
+            description: '',
             imageUrl: '',
             price: '',
             currencyType: 'COIN',
-            quality: 10,
+            quantity: 10,
             status: 1
         });
         setCreateModal(true);
@@ -331,15 +332,15 @@ const ShopProductManagement = () => {
             const formData = {
                 ...editForm,
                 price: parseInt(editForm.price),
-                quality: parseInt(editForm.quality),
+                quantity: parseInt(editForm.quantity),
                 status: parseInt(editForm.status),
                 shopId: parseInt(editForm.shopId),
+                petID: editForm.petID ? parseInt(editForm.petID) : null,
                 adminId: 1 // Default admin ID, you might want to get this from auth context
-            };
-            await createShopProduct(formData);
+            }; await createShopProduct(formData);
             setCreateModal(false);
             setEditForm({
-                shopId: '', name: '', type: '', description: '', imageUrl: '', price: '', currencyType: 'COIN', quality: 10, status: 1
+                shopId: '', petID: null, name: '', type: '', description: '', imageUrl: '', price: '', currencyType: 'COIN', quantity: 10, status: 1
             });
             alert('Tạo sản phẩm cửa hàng thành công!');
         } catch (error) {
@@ -353,7 +354,7 @@ const ShopProductManagement = () => {
             const formData = {
                 ...editForm,
                 price: parseInt(editForm.price),
-                quality: parseInt(editForm.quality),
+                quantity: parseInt(editForm.quantity),
                 status: parseInt(editForm.status),
                 shopId: parseInt(editForm.shopId),
                 adminId: 1 // Default admin ID
@@ -361,7 +362,7 @@ const ShopProductManagement = () => {
             await updateShopProduct(editModal.product.shopProductId, formData);
             setEditModal({ isOpen: false, product: null });
             setEditForm({
-                shopId: '', name: '', type: '', description: '', imageUrl: '', price: '', currencyType: 'COIN', quality: 10, status: 1
+                shopId: '', name: '', type: '', description: '', imageUrl: '', price: '', currencyType: 'COIN', quantity: 10, status: 1
             });
             alert('Cập nhật sản phẩm cửa hàng thành công!');
         } catch (error) {
@@ -614,9 +615,19 @@ const ShopProductManagement = () => {
                                         <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'price' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
                                         <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'price' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
                                     </div>
+                                </div>                            </th>
+                            <th
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                                onClick={() => handleSort('quantity')}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span>Số lượng</span>
+                                    <div className="flex flex-col">
+                                        <ChevronUp className={`h-3 w-3 ${sortConfig.key === 'quantity' && sortConfig.direction === 'asc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                        <ChevronDown className={`h-3 w-3 ${sortConfig.key === 'quantity' && sortConfig.direction === 'desc' ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    </div>
                                 </div>
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
                             <th
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
                                 onClick={() => handleSort('status')}
@@ -663,7 +674,7 @@ const ShopProductManagement = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {formatCurrency(product.price, product.currencyType)}
                                     </td>                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="text-sm text-gray-900">{product.quality}</span>
+                                        <span className="text-sm text-gray-900">{product.quantity}</span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <button
@@ -787,9 +798,9 @@ const ShopProductManagement = () => {
                                         productName={selectedProduct.name}
                                         className="mt-1 h-32 w-32"
                                     />
-                                </div><div>
+                                </div>                                <div>
                                     <label className="block text-sm font-medium text-gray-700">Số lượng</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.quality}</p>
+                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.quantity}</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
@@ -986,12 +997,11 @@ const ShopProductManagement = () => {
                                         <option value="Diamond">Diamond (💎)</option>
                                         <option value="Gem">Gem (🔷)</option>
                                     </select>
-                                </div>
-                                <div>
+                                </div>                                <div>
                                     <label className="block text-sm font-medium text-gray-700">Số lượng</label>
                                     <input
-                                        type="number" value={editForm.quality}
-                                        onChange={(e) => setEditForm({ ...editForm, quality: e.target.value })}
+                                        type="number" value={editForm.quantity}
+                                        onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         placeholder="Nhập số lượng"
                                         min="0"

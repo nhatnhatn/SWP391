@@ -13,6 +13,9 @@ public class ShopProduct {
     @Column(name = "ShopID", nullable = false)
     private Integer shopId;
 
+    @Column(name = "PetID", nullable = true)
+    private Integer petID;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AdminID", nullable = false)
     private User admin;
@@ -31,21 +34,24 @@ public class ShopProduct {
 
     @Column(name = "Price", nullable = false)
     private Integer price;
+
     @Column(name = "CurrencyType", nullable = false, length = 20)
     private String currencyType;
 
-    @Column(name = "Quality") // Số lượng sản phẩm (quantity)
-    private Integer quality = 100;
+    @Column(name = "Quantity")
+    private Integer quantity;
 
     @Column(name = "Status")
-    private Integer status = 1;// Constructors
+    private Integer status = 1;
 
+    // Constructors
     public ShopProduct() {
     }
 
-    public ShopProduct(Integer shopId, User admin, String name, String type, String description,
-            String imageUrl, Integer price, String currencyType, Integer quality, Integer status) {
+    public ShopProduct(Integer shopId, Integer petID, User admin, String name, String type, String description,
+            String imageUrl, Integer price, String currencyType, Integer quantity, Integer status) {
         this.shopId = shopId;
+        this.petID = petID;
         this.admin = admin;
         this.name = name;
         this.type = type;
@@ -53,7 +59,7 @@ public class ShopProduct {
         this.imageUrl = imageUrl;
         this.price = price;
         this.currencyType = currencyType;
-        this.quality = quality;
+        this.quantity = quantity;
         this.status = status;
     }
 
@@ -72,6 +78,14 @@ public class ShopProduct {
 
     public void setShopId(Integer shopId) {
         this.shopId = shopId;
+    }
+
+    public Integer getPetID() {
+        return petID;
+    }
+
+    public void setPetID(Integer petID) {
+        this.petID = petID;
     }
 
     public User getAdmin() {
@@ -130,13 +144,12 @@ public class ShopProduct {
         this.currencyType = currencyType;
     }
 
-    // Số lượng sản phẩm (quantity)
-    public Integer getQuality() {
-        return quality;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setQuality(Integer quality) {
-        this.quality = quality;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public Integer getStatus() {

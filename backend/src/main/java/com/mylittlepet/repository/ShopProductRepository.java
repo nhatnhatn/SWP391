@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ShopProductRepository extends JpaRepository<ShopProduct, Integer> { // Find shop products by shop ID
+public interface ShopProductRepository extends JpaRepository<ShopProduct, Integer> {
+
+    // Find shop products by shop ID
     List<ShopProduct> findByShopId(Integer shopId);
 
     // Find shop products by type
@@ -23,6 +25,9 @@ public interface ShopProductRepository extends JpaRepository<ShopProduct, Intege
 
     // Find shop products by admin ID
     List<ShopProduct> findByAdmin_Id(Integer adminId);
+
+    // Find shop products by pet ID
+    List<ShopProduct> findByPetID(Integer petID);
 
     // Find shop products by price range
     @Query("SELECT sp FROM ShopProduct sp WHERE sp.price BETWEEN :minPrice AND :maxPrice")

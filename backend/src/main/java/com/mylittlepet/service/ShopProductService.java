@@ -28,6 +28,9 @@ public interface ShopProductService {
     // Get shop products by admin ID
     List<ShopProductDTO> getShopProductsByAdminId(Integer adminId);
 
+    // Get shop products by pet ID
+    List<ShopProductDTO> getShopProductsByPetId(Integer petId);
+
     // Get shop products by price range
     List<ShopProductDTO> getShopProductsByPriceRange(Integer minPrice, Integer maxPrice);
 

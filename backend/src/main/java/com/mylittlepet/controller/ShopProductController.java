@@ -54,6 +54,17 @@ public class ShopProductController {
         }
     }
 
+    // GET /api/shop-products/pet/{petId} - Get shop products by pet ID
+    @GetMapping("/pet/{petId}")
+    public ResponseEntity<List<ShopProductDTO>> getShopProductsByPetId(@PathVariable Integer petId) {
+        try {
+            List<ShopProductDTO> shopProducts = shopProductService.getShopProductsByPetId(petId);
+            return ResponseEntity.ok(shopProducts);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     // GET /api/shop-products/type/{type} - Get shop products by type
     @GetMapping("/type/{type}")
     public ResponseEntity<List<ShopProductDTO>> getShopProductsByType(@PathVariable String type) {
@@ -65,83 +76,12 @@ public class ShopProductController {
         }
     }
 
-    // GET /api/shop-products/status/{status} - Get shop products by status
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<ShopProductDTO>> getShopProductsByStatus(@PathVariable Integer status) {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.getShopProductsByStatus(status);
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/currency/{currencyType} - Get shop products by
-    // currency type
-    @GetMapping("/currency/{currencyType}")
-    public ResponseEntity<List<ShopProductDTO>> getShopProductsByCurrencyType(@PathVariable String currencyType) {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.getShopProductsByCurrencyType(currencyType);
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/admin/{adminId} - Get shop products by admin ID
-    @GetMapping("/admin/{adminId}")
-    public ResponseEntity<List<ShopProductDTO>> getShopProductsByAdminId(@PathVariable Integer adminId) {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.getShopProductsByAdminId(adminId);
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/price-range?min=&max= - Get shop products by price
-    // range
-    @GetMapping("/price-range")
-    public ResponseEntity<List<ShopProductDTO>> getShopProductsByPriceRange(
-            @RequestParam Integer min, @RequestParam Integer max) {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.getShopProductsByPriceRange(min, max);
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/search?keyword= - Search shop products
-    @GetMapping("/search")
-    public ResponseEntity<List<ShopProductDTO>> searchShopProducts(@RequestParam String keyword) {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.searchShopProducts(keyword);
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/active - Get active shop products
-    @GetMapping("/active")
-    public ResponseEntity<List<ShopProductDTO>> getActiveShopProducts() {
-        try {
-            List<ShopProductDTO> shopProducts = shopProductService.getActiveShopProducts();
-            return ResponseEntity.ok(shopProducts);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
     // POST /api/shop-products - Create new shop product
     @PostMapping
     public ResponseEntity<ShopProductDTO> createShopProduct(@RequestBody ShopProductDTO shopProductDTO) {
         try {
-            ShopProductDTO createdShopProduct = shopProductService.createShopProduct(shopProductDTO);
-            return ResponseEntity.ok(createdShopProduct);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            ShopProductDTO createdProduct = shopProductService.createShopProduct(shopProductDTO);
+            return ResponseEntity.ok(createdProduct);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -152,14 +92,12 @@ public class ShopProductController {
     public ResponseEntity<ShopProductDTO> updateShopProduct(@PathVariable Integer id,
             @RequestBody ShopProductDTO shopProductDTO) {
         try {
-            ShopProductDTO updatedShopProduct = shopProductService.updateShopProduct(id, shopProductDTO);
-            if (updatedShopProduct != null) {
-                return ResponseEntity.ok(updatedShopProduct);
+            ShopProductDTO updatedProduct = shopProductService.updateShopProduct(id, shopProductDTO);
+            if (updatedProduct != null) {
+                return ResponseEntity.ok(updatedProduct);
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -178,27 +116,5 @@ public class ShopProductController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
-    }
-
-    // PATCH /api/shop-products/{id}/status - Update shop product status
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ShopProductDTO> updateShopProductStatus(@PathVariable Integer id,
-            @RequestParam Integer status) {
-        try {
-            ShopProductDTO updatedShopProduct = shopProductService.updateShopProductStatus(id, status);
-            if (updatedShopProduct != null) {
-                return ResponseEntity.ok(updatedShopProduct);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // GET /api/shop-products/test - Test endpoint
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Shop Product Management API is working!");
     }
 }
