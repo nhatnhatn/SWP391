@@ -960,25 +960,13 @@ const ShopProductManagement = () => {
                                         <p className="mt-1 text-xs text-green-600 font-medium">
                                             ✅ Đã chuyển đổi link Google Drive thành công!
                                         </p>
-                                    )}
-                                    {editForm.imageUrl && (
+                                    )}                                    {editForm.imageUrl && (
                                         <div className="mt-2">
-                                            <img
-                                                src={convertGoogleDriveLink(editForm.imageUrl)}
-                                                alt="Preview"
-                                                className="w-20 h-20 object-cover rounded-md border"
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none';
-                                                    e.target.nextSibling.style.display = 'flex';
-                                                }}
-                                                onLoad={(e) => {
-                                                    e.target.style.display = 'block';
-                                                    e.target.nextSibling.style.display = 'none';
-                                                }}
+                                            <ProductImage
+                                                imageUrl={editForm.imageUrl}
+                                                productName="Preview"
+                                                className="w-20 h-20"
                                             />
-                                            <div className="w-20 h-20 bg-gray-100 rounded-md border flex items-center justify-center" style={{ display: 'none' }}>
-                                                <Package className="w-6 h-6 text-gray-400" />
-                                            </div>
                                         </div>
                                     )}
                                 </div>
