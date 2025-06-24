@@ -75,8 +75,7 @@ function App() {
           <Route path="/*" element={
             <ProtectedRoute>
               <Layout>                <Routes>
-                <Route path="/" element={<Navigate to="/shop-products" replace />} />                
-                <Route path="players" element={<PlayersSimple />} />
+                <Route path="/" element={<Navigate to="/shop-products" replace />} />                <Route path="players" element={<PlayersSimple />} />
                 <Route path="pets" element={<PetManagement />} />
                 <Route path="shop-products" element={<ShopProductManagement />} />
                 <Route path="*" element={

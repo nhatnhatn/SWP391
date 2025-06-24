@@ -346,7 +346,8 @@ const PlayersSimple = () => {    // Use hook for data management
                 {status}
             </span>
         );
-    }; return (
+    };
+    return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
             {/* Header */}
             <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
@@ -370,18 +371,20 @@ const PlayersSimple = () => {    // Use hook for data management
             </div>
 
             {/* Error Display */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
-                            <div className="mt-2 text-sm text-red-700">
-                                <p>{error}</p>
+            {
+                error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                        <div className="flex">
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
+                                <div className="mt-2 text-sm text-red-700">
+                                    <p>{error}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}            {/* Statistics */}
+                )
+            } {/* Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
@@ -422,7 +425,9 @@ const PlayersSimple = () => {    // Use hook for data management
                         </div>
                     </div>
                 </div>
-            </div>            {/* Search & Filters */}
+
+            </div>
+            {/* Search & Filters */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-5 border-b border-green-100">
@@ -522,196 +527,196 @@ const PlayersSimple = () => {    // Use hook for data management
                         {/* Advanced Filters Content - Collapsible */}
                         {showAdvancedFilters && (
                             <div className="space-y-6 animate-in slide-in-from-top-2 duration-300"><div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-100">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
-                                    <Filter className="h-2 w-2 text-white" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700"> Lọc theo nội dung</span>
-                            </div>                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                                {/* Status Filter */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                        Trạng thái tài khoản
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            value={statusFilter}
-                                            onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                        >
-                                            <option value="all"> Tất cả trạng thái</option>
-                                            <option value="ACTIVE"> Hoạt động</option>
-                                            <option value="BANNED"> Bị cấm</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
+                                        <Filter className="h-2 w-2 text-white" />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-700"> Lọc theo nội dung</span>
+                                </div>                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                                    {/* Status Filter */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                            Trạng thái tài khoản
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                value={statusFilter}
+                                                onChange={(e) => setStatusFilter(e.target.value)}
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                            >
+                                                <option value="all"> Tất cả trạng thái</option>
+                                                <option value="ACTIVE"> Hoạt động</option>
+                                                <option value="BANNED"> Bị cấm</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    {/* Level Filter */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                            Mức độ Level
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                value={levelFilter}
+                                                onChange={(e) => setLevelFilter(e.target.value)}
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                            >
+                                                <option value="all"> Tất cả level</option>
+                                                <option value="low"> Thấp (1-9)</option>
+                                                <option value="medium"> Trung bình (10-49)</option>
+                                                <option value="high"> Cao (50+)</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Level Filter */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                        Mức độ Level
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            value={levelFilter}
-                                            onChange={(e) => setLevelFilter(e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                        >
-                                            <option value="all"> Tất cả level</option>
-                                            <option value="low"> Thấp (1-9)</option>
-                                            <option value="medium"> Trung bình (10-49)</option>
-                                            <option value="high"> Cao (50+)</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                {/* Filter Status Display */}
+                                {(statusFilter !== 'all' || levelFilter !== 'all') && (
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        {statusFilter !== 'all' && (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                {statusFilter === 'ACTIVE' ? ' Hoạt động' : ' Bị cấm'}
+                                            </span>
+                                        )}
+                                        {levelFilter !== 'all' && (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                {levelFilter === 'low' ? ' Level thấp' :
+                                                    levelFilter === 'medium' ? ' Level trung bình' :
+                                                        ' Level cao'}
+                                            </span>
+                                        )}
                                     </div>
-                                </div>
+                                )}
                             </div>
 
-                            {/* Filter Status Display */}
-                            {(statusFilter !== 'all' || levelFilter !== 'all') && (
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    {statusFilter !== 'all' && (
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                            {statusFilter === 'ACTIVE' ? ' Hoạt động' : ' Bị cấm'}
-                                        </span>
-                                    )}
-                                    {levelFilter !== 'all' && (
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                            {levelFilter === 'low' ? ' Level thấp' :
-                                                levelFilter === 'medium' ? ' Level trung bình' :
-                                                    ' Level cao'}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                                {/* Sorting Section */}
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <ChevronDown className="h-2 w-2 text-white rotate-180" />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
+                                    </div>
 
-                        {/* Sorting Section */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
-                                    <ChevronDown className="h-2 w-2 text-white rotate-180" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
-                            </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Sort by Name */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Sắp xếp theo tên
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={sortConfig.key === 'userName' ? sortConfig.direction : ''}
+                                                    onChange={(e) => {
+                                                        if (e.target.value === '') {
+                                                            setSortConfig({ key: null, direction: 'asc' });
+                                                        } else {
+                                                            setSortConfig({ key: 'userName', direction: e.target.value });
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value=""> Không sắp xếp</option>
+                                                    <option value="asc"> Tên A-Z</option>
+                                                    <option value="desc"> Tên Z-A</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Sort by Name */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                        Sắp xếp theo tên
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            value={sortConfig.key === 'userName' ? sortConfig.direction : ''}
-                                            onChange={(e) => {
-                                                if (e.target.value === '') {
-                                                    setSortConfig({ key: null, direction: 'asc' });
-                                                } else {
-                                                    setSortConfig({ key: 'userName', direction: e.target.value });
+                                        {/* Sort by Currency */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Sắp xếp theo tài sản
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={['coin', 'diamond', 'gem'].includes(sortConfig.key) ? `${sortConfig.key}_${sortConfig.direction}` : ''}
+                                                    onChange={(e) => {
+                                                        if (e.target.value === '') {
+                                                            setSortConfig({ key: null, direction: 'asc' });
+                                                        } else {
+                                                            const [key, direction] = e.target.value.split('_');
+                                                            setSortConfig({ key, direction });
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value=""> Không sắp xếp</option>
+                                                    <option value="coin_desc">💰 Coin cao đến thấp</option>
+                                                    <option value="coin_asc">💰 Coin thấp đến cao</option>
+                                                    <option value="diamond_desc">💎 Diamond cao đến thấp</option>
+                                                    <option value="diamond_asc">💎 Diamond thấp đến cao</option>
+                                                    <option value="gem_desc">💜 Gem cao đến thấp</option>
+                                                    <option value="gem_asc">💜 Gem thấp đến cao</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sort Status Display */}
+                                    {sortConfig.key && (
+                                        <div className="mt-3 p-2 bg-blue-100 rounded-md">
+                                            <p className="text-xs text-blue-700 font-medium">
+                                                Đang sắp xếp theo: {
+                                                    sortConfig.key === 'userName' ? `Tên (${sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})` :
+                                                        sortConfig.key === 'coin' ? `💰 Coin (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                            sortConfig.key === 'diamond' ? `💎 Diamond (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                                sortConfig.key === 'gem' ? `💜 Gem (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
+                                                                    sortConfig.key
                                                 }
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Actions Section - Separated */}
+                                <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
+                                            <X className="h-2 w-2 text-white" />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700"> Thao tác</span>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-3">
+                                        <button
+                                            onClick={() => {
+                                                setStatusFilter('all');
+                                                setLevelFilter('all');
+                                                setSortConfig({ key: null, direction: 'asc' });
+                                                handleSearch('');
                                             }}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                            disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm}
+                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
+                                                }`}
                                         >
-                                            <option value=""> Không sắp xếp</option>
-                                            <option value="asc"> Tên A-Z</option>
-                                            <option value="desc"> Tên Z-A</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            <X className="h-4 w-4 mr-2" />
+                                            {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
+                                                ? 'Không có bộ lọc nào'
+                                                : 'Xóa tất cả bộ lọc'
+                                            }
+                                        </button>
+
+                                        {/* Filter Status Indicator */}
+                                        {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || searchTerm) && (
+                                            <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
+                                                <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
+                                                {[
+                                                    searchTerm && 'Tìm kiếm',
+                                                    statusFilter !== 'all' && 'Trạng thái',
+                                                    levelFilter !== 'all' && 'Level',
+                                                    sortConfig.key && 'Sắp xếp'
+                                                ].filter(Boolean).length} bộ lọc đang áp dụng
+                                            </div>)}
                                     </div>
                                 </div>
-
-                                {/* Sort by Currency */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                        Sắp xếp theo tài sản
-                                    </label>
-                                    <div className="relative">
-                                        <select
-                                            value={['coin', 'diamond', 'gem'].includes(sortConfig.key) ? `${sortConfig.key}_${sortConfig.direction}` : ''}
-                                            onChange={(e) => {
-                                                if (e.target.value === '') {
-                                                    setSortConfig({ key: null, direction: 'asc' });
-                                                } else {
-                                                    const [key, direction] = e.target.value.split('_');
-                                                    setSortConfig({ key, direction });
-                                                }
-                                            }}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                        >
-                                            <option value=""> Không sắp xếp</option>
-                                            <option value="coin_desc">💰 Coin cao đến thấp</option>
-                                            <option value="coin_asc">💰 Coin thấp đến cao</option>
-                                            <option value="diamond_desc">💎 Diamond cao đến thấp</option>
-                                            <option value="diamond_asc">💎 Diamond thấp đến cao</option>
-                                            <option value="gem_desc">💜 Gem cao đến thấp</option>
-                                            <option value="gem_asc">💜 Gem thấp đến cao</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Sort Status Display */}
-                            {sortConfig.key && (
-                                <div className="mt-3 p-2 bg-blue-100 rounded-md">
-                                    <p className="text-xs text-blue-700 font-medium">
-                                        Đang sắp xếp theo: {
-                                            sortConfig.key === 'userName' ? `Tên (${sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})` :
-                                                sortConfig.key === 'coin' ? `💰 Coin (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
-                                                    sortConfig.key === 'diamond' ? `💎 Diamond (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
-                                                        sortConfig.key === 'gem' ? `💜 Gem (${sortConfig.direction === 'asc' ? 'Thấp→Cao' : 'Cao→Thấp'})` :
-                                                            sortConfig.key
-                                        }
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Actions Section - Separated */}
-                        <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-100">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
-                                    <X className="h-2 w-2 text-white" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700"> Thao tác</span>
-                            </div>
-
-                            <div className="flex flex-wrap gap-3">
-                                <button
-                                    onClick={() => {
-                                        setStatusFilter('all');
-                                        setLevelFilter('all');
-                                        setSortConfig({ key: null, direction: 'asc' });
-                                        handleSearch('');
-                                    }}
-                                    disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm}
-                                    className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                                            : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
-                                        }`}
-                                >
-                                    <X className="h-4 w-4 mr-2" />
-                                    {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !searchTerm
-                                        ? 'Không có bộ lọc nào'
-                                        : 'Xóa tất cả bộ lọc'
-                                    }
-                                </button>
-
-                                {/* Filter Status Indicator */}
-                                {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || searchTerm) && (
-                                    <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
-                                        <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
-                                        {[
-                                            searchTerm && 'Tìm kiếm',
-                                            statusFilter !== 'all' && 'Trạng thái',
-                                            levelFilter !== 'all' && 'Level',
-                                            sortConfig.key && 'Sắp xếp'
-                                        ].filter(Boolean).length} bộ lọc đang áp dụng
-                                    </div>                                )}
-                            </div>
-                        </div>
                             </div>
                         )}
                     </div>
@@ -719,168 +724,170 @@ const PlayersSimple = () => {    // Use hook for data management
             </div>
 
             {/* Player Details Modal */}
-            {selectedPlayer && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-                    <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
-                        {/* Header */}
-                        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
-                            <h3 className="text-xl font-bold text-gray-900">Chi tiết Người chơi</h3>
-                            <button
-                                onClick={() => {
-                                    setSelectedPlayer(null);
-                                    setSelectedPlayerPets([]);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+            {
+                selectedPlayer && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+                        <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+                            {/* Header */}
+                            <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
+                                <h3 className="text-xl font-bold text-gray-900">Chi tiết Người chơi</h3>
+                                <button
+                                    onClick={() => {
+                                        setSelectedPlayer(null);
+                                        setSelectedPlayerPets([]);
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
 
-                        {/* Content */}
-                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
-                            {/* Basic Info Grid */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                                {/* Column 1: Personal Info */}
-                                <div className="space-y-3">
-                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Thông tin cá nhân</h4>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">ID</label>
-                                        <p className="text-sm text-gray-900 font-mono">#{selectedPlayer.id}</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tên người chơi</label>
-                                        <p className="text-sm text-gray-900 font-semibold">{selectedPlayer.userName || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Email</label>
-                                        <p className="text-sm text-gray-900">{selectedPlayer.email || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Level</label>
-                                        <p className="text-lg font-bold text-blue-600">Lv. {selectedPlayer.level || 1}</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Ngày đăng ký</label>
-                                        <p className="text-sm text-gray-900">
-                                            {selectedPlayer.joinDate ? new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN') : 'N/A'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Column 2: Game Resources */}
-                                <div className="space-y-3">
-                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Tài nguyên</h4>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Coins</label>
-                                        <p className="text-sm text-yellow-600 font-bold flex items-center">
-                                            <span className="text-base mr-1">💰</span>
-                                            {(selectedPlayer.coin || 0).toLocaleString()}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Diamonds</label>
-                                        <p className="text-sm text-blue-500 font-bold flex items-center">
-                                            <span className="text-base mr-1">💎</span>
-                                            {(selectedPlayer.diamond || 0).toLocaleString()}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Gems</label>
-                                        <p className="text-sm text-purple-600 font-bold flex items-center">
-                                            <span className="text-base mr-1">💜</span>
-                                            {(selectedPlayer.gem || 0).toLocaleString()}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tổng thú cưng</label>
-                                        <p className="text-sm text-green-600 font-bold flex items-center">
-                                            <span className="text-base mr-1">🐾</span>
-                                            {selectedPlayer.totalPets || 0}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Column 3: Status */}
-                                <div className="space-y-3">
-                                    <h4 className="font-semibold text-gray-800 border-b pb-2">Trạng thái</h4>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tình trạng tài khoản</label>
-                                        <div className="mt-1">
-                                            {getStatusBadge(selectedPlayer.userStatus || 'ACTIVE')}
+                            {/* Content */}
+                            <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
+                                {/* Basic Info Grid */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                                    {/* Column 1: Personal Info */}
+                                    <div className="space-y-3">
+                                        <h4 className="font-semibold text-gray-800 border-b pb-2">Thông tin cá nhân</h4>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">ID</label>
+                                            <p className="text-sm text-gray-900 font-mono">#{selectedPlayer.id}</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tên người chơi</label>
+                                            <p className="text-sm text-gray-900 font-semibold">{selectedPlayer.userName || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Email</label>
+                                            <p className="text-sm text-gray-900">{selectedPlayer.email || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Level</label>
+                                            <p className="text-lg font-bold text-blue-600">Lv. {selectedPlayer.level || 1}</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Ngày đăng ký</label>
+                                            <p className="text-sm text-gray-900">
+                                                {selectedPlayer.joinDate ? new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN') : 'N/A'}
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>                            {/* Pets Section */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                                    <span className="text-lg mr-2">🐾</span>
-                                    Danh sách thú cưng ({selectedPlayerPets.length})
-                                </h4>
-                                {loadingPets ? (
-                                    <div className="flex items-center justify-center space-x-2 text-blue-600 py-8">
-                                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                                        <span>Đang tải danh sách thú cưng...</span>
+
+                                    {/* Column 2: Game Resources */}
+                                    <div className="space-y-3">
+                                        <h4 className="font-semibold text-gray-800 border-b pb-2">Tài nguyên</h4>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Coins</label>
+                                            <p className="text-sm text-yellow-600 font-bold flex items-center">
+                                                <span className="text-base mr-1">💰</span>
+                                                {(selectedPlayer.coin || 0).toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Diamonds</label>
+                                            <p className="text-sm text-blue-500 font-bold flex items-center">
+                                                <span className="text-base mr-1">💎</span>
+                                                {(selectedPlayer.diamond || 0).toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Gems</label>
+                                            <p className="text-sm text-purple-600 font-bold flex items-center">
+                                                <span className="text-base mr-1">💜</span>
+                                                {(selectedPlayer.gem || 0).toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tổng thú cưng</label>
+                                            <p className="text-sm text-green-600 font-bold flex items-center">
+                                                <span className="text-base mr-1">🐾</span>
+                                                {selectedPlayer.totalPets || 0}
+                                            </p>
+                                        </div>
                                     </div>
-                                ) : selectedPlayerPets.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
-                                        {selectedPlayerPets.map((pet, index) => (
-                                            <div key={pet.playerPetId || index} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-2">
-                                                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-                                                            🐾
+
+                                    {/* Column 3: Status */}
+                                    <div className="space-y-3">
+                                        <h4 className="font-semibold text-gray-800 border-b pb-2">Trạng thái</h4>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">Tình trạng tài khoản</label>
+                                            <div className="mt-1">
+                                                {getStatusBadge(selectedPlayer.userStatus || 'ACTIVE')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                            {/* Pets Section */}
+                                <div className="border-t border-gray-200 pt-6">
+                                    <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
+                                        <span className="text-lg mr-2">🐾</span>
+                                        Danh sách thú cưng ({selectedPlayerPets.length})
+                                    </h4>
+                                    {loadingPets ? (
+                                        <div className="flex items-center justify-center space-x-2 text-blue-600 py-8">
+                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                                            <span>Đang tải danh sách thú cưng...</span>
+                                        </div>
+                                    ) : selectedPlayerPets.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+                                            {selectedPlayerPets.map((pet, index) => (
+                                                <div key={pet.playerPetId || index} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-2">
+                                                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                                                🐾
+                                                            </div>
+                                                            <div>
+                                                                <h6 className="font-medium text-gray-900 text-xs">
+                                                                    {pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}
+                                                                </h6>
+                                                                {pet.adoptedAt && (
+                                                                    <p className="text-xs text-gray-500">
+                                                                        {new Date(pet.adoptedAt).toLocaleDateString('vi-VN')}
+                                                                    </p>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <h6 className="font-medium text-gray-900 text-xs">
-                                                                {pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}
-                                                            </h6>
-                                                            {pet.adoptedAt && (
-                                                                <p className="text-xs text-gray-500">
-                                                                    {new Date(pet.adoptedAt).toLocaleDateString('vi-VN')}
-                                                                </p>
-                                                            )}
+                                                        <div className="text-xs font-medium text-blue-600 bg-white px-2 py-1 rounded-full">
+                                                            Lv.{pet.level || 1}
                                                         </div>
-                                                    </div>
-                                                    <div className="text-xs font-medium text-blue-600 bg-white px-2 py-1 rounded-full">
-                                                        Lv.{pet.level || 1}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
-                                        <div className="text-3xl mb-2">🐾</div>
-                                        <p className="text-sm font-medium text-gray-600">Chưa có thú cưng</p>
-                                        <p className="text-xs text-gray-500">Người chơi này chưa có thú cưng nào</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>                        {/* Footer */}
-                        <div className="flex justify-between p-6 border-t border-gray-200 bg-gray-50">                            <button
-                            onClick={() => {
-                                handleEdit(selectedPlayer);
-                                setSelectedPlayer(null); // Đóng modal chi tiết
-                                setSelectedPlayerPets([]);
-                            }}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center"
-                        >
-                            <Save className="w-4 h-4 mr-2" />
-                            Cập nhật
-                        </button>
-                            <button
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                                            <div className="text-3xl mb-2">🐾</div>
+                                            <p className="text-sm font-medium text-gray-600">Chưa có thú cưng</p>
+                                            <p className="text-xs text-gray-500">Người chơi này chưa có thú cưng nào</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>                        {/* Footer */}
+                            <div className="flex justify-between p-6 border-t border-gray-200 bg-gray-50">                            <button
                                 onClick={() => {
-                                    setSelectedPlayer(null);
+                                    handleEdit(selectedPlayer);
+                                    setSelectedPlayer(null); // Đóng modal chi tiết
                                     setSelectedPlayerPets([]);
                                 }}
-                                className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors font-medium"
+                                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium flex items-center"
                             >
-                                Đóng
+                                <Save className="w-4 h-4 mr-2" />
+                                Cập nhật
                             </button>
+                                <button
+                                    onClick={() => {
+                                        setSelectedPlayer(null);
+                                        setSelectedPlayerPets([]);
+                                    }}
+                                    className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors font-medium"
+                                >
+                                    Đóng
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}            {/* Player Table */}
+                )
+            } {/* Player Table */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 {loading ? (
                     <div className="p-8 text-center">
@@ -1035,249 +1042,225 @@ const PlayersSimple = () => {    // Use hook for data management
                     </table>
                     </div>
                 )}
-            </div>            {/* Pagination - Blue-Cyan Gradient */}
-            {totalFilteredPages > 1 && (
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
-                    <div className="flex items-center justify-center">
-                        <div className="flex items-center gap-2">
-                            {/* Previous Button */}
-                            <button
-                                onClick={handleFilterPreviousPage}
-                                disabled={currentFilterPage === 0}
-                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                                <span className="hidden sm:inline">Trước</span>
-                            </button>
+            </div>
+            {/* Pagination - Blue-Cyan Gradient */}
+            {
+                totalFilteredPages > 1 && (
+                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
+                        <div className="flex items-center justify-center">
+                            <div className="flex items-center gap-2">
+                                {/* Previous Button */}
+                                <button
+                                    onClick={handleFilterPreviousPage}
+                                    disabled={currentFilterPage === 0}
+                                    className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Trước</span>
+                                </button>
 
-                            {/* Page Numbers */}
-                            <div className="flex items-center gap-1">
-                                {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
-                                    const shouldShow =
-                                        page === 0 ||
-                                        page === totalFilteredPages - 1 ||
-                                        Math.abs(page - currentFilterPage) <= 1;
+                                {/* Page Numbers */}
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
+                                        const shouldShow =
+                                            page === 0 ||
+                                            page === totalFilteredPages - 1 ||
+                                            Math.abs(page - currentFilterPage) <= 1;
 
-                                    if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
-                                        return null;
-                                    }
+                                        if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
+                                            return null;
+                                        }
 
-                                    if (
-                                        (page === 1 && currentFilterPage > 3) ||
-                                        (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
-                                    ) {
+                                        if (
+                                            (page === 1 && currentFilterPage > 3) ||
+                                            (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
+                                        ) {
+                                            return (
+                                                <span key={page} className="px-2 text-blue-500">
+                                                    ...
+                                                </span>
+                                            );
+                                        }
                                         return (
-                                            <span key={page} className="px-2 text-blue-500">
-                                                ...
-                                            </span>
-                                        );
-                                    }
-                                    return (
-                                        <button
-                                            key={page}
-                                            onClick={() => setCurrentFilterPage(page)}
-                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentFilterPage(page)}
+                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
                                                     ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-md'
                                                     : 'bg-white border border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800'
-                                                }`}
-                                        >
-                                            {page + 1}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                                                    }`}
+                                            >
+                                                {page + 1}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
 
-                            {/* Next Button */}
-                            <button
-                                onClick={handleFilterNextPage}
-                                disabled={currentFilterPage >= totalFilteredPages - 1}
-                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
-                            >
-                                <span className="hidden sm:inline">Tiếp</span>
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
+                                {/* Next Button */}
+                                <button
+                                    onClick={handleFilterNextPage}
+                                    disabled={currentFilterPage >= totalFilteredPages - 1}
+                                    className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                                >
+                                    <span className="hidden sm:inline">Tiếp</span>
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Edit Player Modal */}
-            {editModal.isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Chỉnh sửa người chơi: {editModal.player?.userName}
-                        </h3>
-
-                        <div className="space-y-4 mb-6">
-                            {/* Username */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tên người chơi
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editForm.userName}
-                                    onChange={(e) => setEditForm({ ...editForm, userName: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Nhập tên người chơi"
-                                />
-                            </div>
-
-                            {/* Email */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={editForm.email}
-                                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Nhập email"
-                                />
-                            </div>
-
-                            {/* Level */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Level
-                                </label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="999"
-                                    value={editForm.level}
-                                    onChange={(e) => setEditForm({ ...editForm, level: parseInt(e.target.value) || 1 })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            {/* Tài sản */}
-                            <div className="grid grid-cols-3 gap-3">
+            {
+                editModal.isOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                Chỉnh sửa người chơi: {editModal.player?.userName}
+                            </h3>                            <div className="space-y-4 mb-6">
+                                {/* Level */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        💰 Coins
+                                        Level
                                     </label>
                                     <input
                                         type="number"
-                                        min="0"
-                                        value={editForm.coin}
-                                        onChange={(e) => setEditForm({ ...editForm, coin: parseInt(e.target.value) || 0 })}
+                                        min="1"
+                                        max="999"
+                                        value={editForm.level}
+                                        onChange={(e) => setEditForm({ ...editForm, level: parseInt(e.target.value) || 1 })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        💎 Diamonds
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        value={editForm.diamond}
-                                        onChange={(e) => setEditForm({ ...editForm, diamond: parseInt(e.target.value) || 0 })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        💜 Gems
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        value={editForm.gem}
-                                        onChange={(e) => setEditForm({ ...editForm, gem: parseInt(e.target.value) || 0 })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
+
+                                {/* Tài sản */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            💰 Coins
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={editForm.coin}
+                                            onChange={(e) => setEditForm({ ...editForm, coin: parseInt(e.target.value) || 0 })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            💎 Diamonds
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={editForm.diamond}
+                                            onChange={(e) => setEditForm({ ...editForm, diamond: parseInt(e.target.value) || 0 })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            💜 Gems
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={editForm.gem}
+                                            onChange={(e) => setEditForm({ ...editForm, gem: parseInt(e.target.value) || 0 })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={handleEditCancel}
-                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={handleEditSubmit}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            >
-                                Cập nhật
-                            </button>
-                        </div>
+                            <div className="flex justify-end space-x-3">
+                                <button
+                                    onClick={handleEditCancel}
+                                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={handleEditSubmit}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Cập nhật
+                                </button>
+                            </div>                </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Ban Duration Modal */}
-            {banModal.isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Cấm người chơi: {banModal.player?.userName}
-                        </h3>
+            {
+                banModal.isOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                Cấm người chơi: {banModal.player?.userName}
+                            </h3>                <p className="text-gray-600 mb-6">
+                                Chọn thời gian cấm cho người chơi này:
+                            </p>
 
-                        <p className="text-gray-600 mb-6">
-                            Chọn thời gian cấm cho người chơi này:
-                        </p>                        <div className="space-y-3 mb-6">
-                            <button
-                                onClick={() => handleBanPlayer(banModal.player?.id, '1minute')}
-                                className="w-full text-left px-4 py-3 border border-red-300 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 bg-red-25"
-                            >
-                                <div className="font-medium text-red-700">1 phút (Test)</div>
-                                <div className="text-sm text-red-500">Cấm trong 1 phút để test</div>
-                            </button>
+                            <div className="space-y-3 mb-6">
+                                <button
+                                    onClick={() => handleBanPlayer(banModal.player?.id, '1minute')}
+                                    className="w-full text-left px-4 py-3 border border-red-300 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 bg-red-25"
+                                >
+                                    <div className="font-medium text-red-700">1 phút (Test)</div>
+                                    <div className="text-sm text-red-500">Cấm trong 1 phút để test</div>
+                                </button>
 
-                            <button
-                                onClick={() => handleBanPlayer(banModal.player?.id, '3days')}
-                                className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <div className="font-medium">3 ngày</div>
-                                <div className="text-sm text-gray-500">Cấm trong 3 ngày</div>
-                            </button>
+                                <button
+                                    onClick={() => handleBanPlayer(banModal.player?.id, '3days')}
+                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <div className="font-medium">3 ngày</div>
+                                    <div className="text-sm text-gray-500">Cấm trong 3 ngày</div>
+                                </button>
 
-                            <button
-                                onClick={() => handleBanPlayer(banModal.player?.id, '7days')}
-                                className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <div className="font-medium">7 ngày</div>
-                                <div className="text-sm text-gray-500">Cấm trong 1 tuần</div>
-                            </button>
+                                <button
+                                    onClick={() => handleBanPlayer(banModal.player?.id, '7days')}
+                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <div className="font-medium">7 ngày</div>
+                                    <div className="text-sm text-gray-500">Cấm trong 1 tuần</div>
+                                </button>
 
-                            <button
-                                onClick={() => handleBanPlayer(banModal.player?.id, '1month')}
-                                className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <div className="font-medium">1 tháng</div>
-                                <div className="text-sm text-gray-500">Cấm trong 30 ngày</div>
-                            </button>
+                                <button
+                                    onClick={() => handleBanPlayer(banModal.player?.id, '1month')}
+                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <div className="font-medium">1 tháng</div>
+                                    <div className="text-sm text-gray-500">Cấm trong 30 ngày</div>
+                                </button>
 
-                            <button
-                                onClick={() => handleBanPlayer(banModal.player?.id, 'permanent')}
-                                className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <div className="font-medium">Vĩnh viễn</div>
-                                <div className="text-sm text-gray-500">Cấm vĩnh viễn người chơi này</div>
-                            </button>
+                                <button
+                                    onClick={() => handleBanPlayer(banModal.player?.id, 'permanent')}
+                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <div className="font-medium">Vĩnh viễn</div>
+                                    <div className="text-sm text-gray-500">Cấm vĩnh viễn người chơi này</div>
+                                </button>
 
-                        </div>
+                            </div>
 
-                        <div className="flex justify-end space-x-3">
-                            <button
+                            <div className="flex justify-end space-x-3">                    <button
                                 onClick={() => setBanModal({ isOpen: false, player: null })}
                                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                             >
                                 Hủy
                             </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+
+                )
+            }
         </div>
-    );
+    )
 };
 
 export default PlayersSimple;
