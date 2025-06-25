@@ -164,7 +164,6 @@ const ShopProductManagement = () => {
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
     const [editForm, setEditForm] = useState({
-        shopId: '',
         petID: null,
         name: '',
         type: '',
@@ -173,7 +172,8 @@ const ShopProductManagement = () => {
         price: '',
         currencyType: 'COIN',
         quantity: 10,
-        status: 1
+        status: 1,
+        shop: 'Item' // Shop type: Pet or Item (for dynamic Type dropdown)
     });
 
     // Sort state
@@ -320,6 +320,16 @@ const ShopProductManagement = () => {
         setCurrencyFilter(currency);
     };
 
+    // Handle Shop change in modal - reset Type and petID when shop changes
+    const handleModalShopChange = (shopType) => {
+        setEditForm(prev => ({
+            ...prev,
+            shop: shopType,
+            type: '', // Reset type when shop changes
+            petID: shopType === 'Item' ? null : prev.petID // Clear petID if switching to Item
+        }));
+    };
+
     // Sort function
     const handleSort = (key) => {
         let direction = 'asc';
@@ -336,8 +346,10 @@ const ShopProductManagement = () => {
 
     // Open edit modal
     const handleEdit = (product) => {
+        // Determine shop type based on petID
+        const shopType = product.petID ? 'Pet' : 'Item';
+
         setEditForm({
-            shopId: product.shopId || '',
             petID: product.petID || null,
             name: product.name || '',
             type: product.type || '',
@@ -346,7 +358,8 @@ const ShopProductManagement = () => {
             price: product.price || '',
             currencyType: product.currencyType || 'COIN',
             quantity: product.quantity || 10,
-            status: product.status !== undefined ? product.status : 1
+            status: product.status !== undefined ? product.status : 1,
+            shop: shopType
         });
         setEditModal({ isOpen: true, product });
     };
@@ -363,7 +376,8 @@ const ShopProductManagement = () => {
             price: '',
             currencyType: 'COIN',
             quantity: 10,
-            status: 1
+            status: 1,
+            shop: 'Item' // Default to Item shop
         });
         setCreateModal(true);
     };
@@ -376,13 +390,47 @@ const ShopProductManagement = () => {
     // Handle form submission for create/edit
     const handleSubmit = async (isEdit = false) => {
         try {
+            // Prepare submission data
+            const submissionData = {
+                ...editForm,
+                // Set shopId based on shop type: Pet Shop = 1, Item Shop = 2
+                shopId: editForm.shop === 'Pet' ? 1 : 2,
+                // Ensure petID is null for Item shop, and properly handle for Pet shop
+                petID: editForm.shop === 'Item' ? null : editForm.petID,
+                // Remove the shop field as it's only for UI
+                shop: undefined
+            };
+
+            // Remove undefined fields
+            Object.keys(submissionData).forEach(key => {
+                if (submissionData[key] === undefined) {
+                    delete submissionData[key];
+                }
+            });
+
             if (isEdit) {
-                await updateShopProduct(editModal.product.shopProductId, editForm);
+                await updateShopProduct(editModal.product.shopProductId, submissionData);
                 setEditModal({ isOpen: false, product: null });
             } else {
-                await createShopProduct(editForm);
+                await createShopProduct(submissionData);
                 setCreateModal(false);
             }
+
+            // Reset form
+            setEditForm({
+                shopId: '',
+                petID: null,
+                name: '',
+                type: '',
+                description: '',
+                imageUrl: '',
+                price: '',
+                currencyType: 'COIN',
+                quantity: 10,
+                status: 1,
+                shop: 'Item'
+            });
+
             refreshData();
         } catch (error) {
             alert('Lỗi khi lưu sản phẩm: ' + error.message);
@@ -717,6 +765,7 @@ const ShopProductManagement = () => {
                                                                 <option value="TOY">🧸 Đồ chơi (Toy)</option>
                                                                 <option value="ACCESSORY">👑 Phụ kiện (Accessory)</option>
                                                                 <option value="MEDICINE">💊 Thuốc (Medicine)</option>
+                                                                <option value="OTHER">📦 Khác</option>
                                                             </optgroup>
                                                         </>
                                                     )}
@@ -1037,35 +1086,40 @@ const ShopProductManagement = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
+                                {/* Shop Type Selection (Pet/Item) */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Cửa Hàng *</label>
+                                    <label className="block text-sm font-medium text-gray-700">Loại cửa hàng *</label>
                                     <select
-                                        value={editForm.shopId}
-                                        onChange={(e) => setEditForm({ ...editForm, shopId: e.target.value })}
+                                        value={editForm.shop}
+                                        onChange={(e) => handleModalShopChange(e.target.value)}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="">Chọn cửa hàng</option>
-                                        {shops.map(shop => (
-                                            <option key={shop.shopId} value={shop.shopId}>{shop.shopName}</option>
-                                        ))}
+                                        <option value="Pet">🐾 Pet Shop</option>
+                                        <option value="Item">📦 Item Shop</option>
                                     </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Pet ID</label>
-                                    <input
-                                        type="number"
-                                        value={editForm.petID || ''}
-                                        onChange={(e) => setEditForm({ ...editForm, petID: e.target.value ? parseInt(e.target.value) : null })}
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                        placeholder="Nhập Pet ID (tùy chọn)"
-                                        min="1"
-                                    />
                                     <p className="mt-1 text-xs text-gray-500">
-                                        💡 Để trống nếu sản phẩm không liên quan đến thú cưng cụ thể
+                                        💡 Pet Shop: sản phẩm dành cho thú cưng cụ thể | Item Shop: vật phẩm chung
                                     </p>
                                 </div>
+
+                                {/* Pet ID - only show for Pet Shop */}
+                                {editForm.shop === 'Pet' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Pet ID</label>
+                                        <input
+                                            type="number"
+                                            value={editForm.petID || ''}
+                                            onChange={(e) => setEditForm({ ...editForm, petID: e.target.value ? parseInt(e.target.value) : null })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            placeholder="Nhập Pet ID (tùy chọn)"
+                                            min="1"
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            💡 Để trống nếu sản phẩm dành cho tất cả thú cưng cùng loài
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Tên sản phẩm *</label>
@@ -1079,18 +1133,48 @@ const ShopProductManagement = () => {
                                     />
                                 </div>
 
+                                {/* Dynamic Type Selection */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Loại *</label>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        {editForm.shop === 'Pet' ? 'Loại thú cưng *' : 'Loại vật phẩm *'}
+                                    </label>
                                     <select
                                         value={editForm.type}
                                         onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="">Chọn loại</option>
-                                        <option value="FOOD">🍖 Thức ăn</option>
-                                        <option value="TOY">🎾 Đồ chơi</option>
+                                        <option value="">
+                                            {editForm.shop === 'Pet' ? 'Chọn loài thú cưng' : 'Chọn loại vật phẩm'}
+                                        </option>
+
+                                        {editForm.shop === 'Pet' ? (
+                                            // Pet types - giống như trong filter
+                                            <>
+                                                <option value="Cat">🐱 Mèo (Cat)</option>
+                                                <option value="Dog">🐶 Chó (Dog)</option>
+                                                <option value="Bird">🐦 Chim (Bird)</option>
+                                                <option value="Fish">🐟 Cá (Fish)</option>
+                                                <option value="Chicken">🐔 Gà (Chicken)</option>
+                                                <option value="Other">🔄 Khác</option>
+                                            </>
+                                        ) : (
+                                            // Item types - giống như trong filter
+                                            <>
+                                                <option value="FOOD">🍖 Thức ăn</option>
+                                                <option value="TOY">🎾 Đồ chơi</option>
+                                                <option value="ACCESSORY">👑 Phụ kiện</option>
+                                                <option value="MEDICINE">💊 Thuốc</option>
+                                                <option value="OTHER">📦 Khác</option>
+                                            </>
+                                        )}
                                     </select>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        {editForm.shop === 'Pet'
+                                            ? '💡 Chọn loài thú cưng phù hợp với sản phẩm'
+                                            : '💡 Chọn danh mục vật phẩm phù hợp'
+                                        }
+                                    </p>
                                 </div>
 
                                 <div>
@@ -1210,11 +1294,12 @@ const ShopProductManagement = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
+                                    <label className="block text-sm font-medium text-gray-700">Trạng thái *</label>
                                     <select
                                         value={editForm.status}
-                                        onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                                        onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                        required
                                     >
                                         <option value="1">✅ Đang bán</option>
                                         <option value="0">❌ Hết hàng</option>
@@ -1247,7 +1332,7 @@ const ShopProductManagement = () => {
                             <button
                                 onClick={() => handleSubmit(editModal.isOpen)}
                                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                                disabled={!editForm.name.trim() || !editForm.shopId || !editForm.type.trim() || !editForm.price || !editForm.quantity}
+                                disabled={!editForm.name.trim() || !editForm.type.trim() || !editForm.price || !editForm.quantity || !editForm.shop}
                             >
                                 {createModal ? 'Tạo Sản phẩm' : 'Cập nhật'}
                             </button>
