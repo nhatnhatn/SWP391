@@ -32,7 +32,7 @@ export default function Layout({ children }) {
     // Dynamic color themes based on current page
     const getThemeColors = () => {
         const path = location.pathname;
-        
+
         if (path === '/players') {
             // Green theme for PlayersSimple
             return {

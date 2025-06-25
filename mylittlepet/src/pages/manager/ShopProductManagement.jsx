@@ -121,10 +121,10 @@ const ShopProductManagement = () => {
     // Local search state - separated for debouncing
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
-    const [shopFilter, setShopFilter] = useState('all'); // Pet, Item
     const [statusFilter, setStatusFilter] = useState('all'); // Đang hoạt động, Hết hàng
     const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
-    const [typeFilter, setTypeFilter] = useState('all'); // Pet types hoặc Item types// Debounce search term to prevent excessive filtering
+    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy, Others
+    const [petTypeFilter, setPetTypeFilter] = useState('all'); // Cat, Dog, Bird, Fish, Chicken (only when shopTypeFilter is Pet)// Debounce search term to prevent excessive filtering
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(localSearchTerm);
@@ -147,10 +147,10 @@ const ShopProductManagement = () => {
     // Clear all filters
     const clearAllFilters = useCallback(() => {
         clearSearch();
-        setShopFilter('all');
         setStatusFilter('all');
         setCurrencyFilter('all');
-        setTypeFilter('all');
+        setShopTypeFilter('all');
+        setPetTypeFilter('all');
         setSortConfig({ key: null, direction: 'asc' });
     }, []);
 
@@ -167,13 +167,15 @@ const ShopProductManagement = () => {
         petID: null,
         name: '',
         type: '',
+        petType: '',
+        customType: '',
+        customPetType: '',
         description: '',
         imageUrl: '',
         price: '',
         currencyType: 'COIN',
         quantity: 10,
-        status: 1,
-        shop: 'Item' // Shop type: Pet or Item (for dynamic Type dropdown)
+        status: 1
     });
 
     // Sort state
@@ -198,35 +200,37 @@ const ShopProductManagement = () => {
                 }
             }
 
-            // 1. Shop filter (Pet, Item) - based on petID
-            if (shopFilter !== 'all') {
-                if (shopFilter === 'Pet' && !product.petID) return false;
-                if (shopFilter === 'Item' && product.petID) return false;
-            }
-
-            // 2. Status filter (Đang hoạt động, Hết hàng)
+            // 1. Status filter (Đang hoạt động, Hết hàng)
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active' && product.status !== 1) return false;
                 if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
             }
 
-            // 3. Currency filter (COIN, DIAMOND, GEM)
+            // 2. Currency filter (COIN, DIAMOND, GEM)
             if (currencyFilter !== 'all') {
                 if (product.currencyType !== currencyFilter) return false;
-            }            // 4. Type filter - depends on shop filter
-            if (typeFilter !== 'all') {
-                if (shopFilter === 'Pet') {
-                    // For pets, filter by pet type from petID relationship
-                    // We'll need to get pet data and match types
-                    // For now, we'll filter by product type field if it contains pet type info
-                    if (product.type !== typeFilter) return false;
-                } else if (shopFilter === 'Item') {
-                    // For items, filter by item categories
-                    if (product.type !== typeFilter) return false;
-                } else {
-                    // No shop filter, check both pet and item types
-                    if (product.type !== typeFilter) return false;
+            }
+
+            // 3. Shop Type filter - categorize products
+            if (shopTypeFilter !== 'all') {
+                if (shopTypeFilter === 'Pet') {
+                    // Pet products are those with pet types
+                    const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
+                    if (!petTypes.includes(product.type) && !product.petID) return false;
+                } else if (shopTypeFilter === 'Food') {
+                    if (product.type !== 'FOOD') return false;
+                } else if (shopTypeFilter === 'Toy') {
+                    if (product.type !== 'TOY') return false;
+                } else if (shopTypeFilter === 'Others') {
+                    // Others are custom types not in predefined categories
+                    const knownTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken', 'FOOD', 'TOY'];
+                    if (knownTypes.includes(product.type)) return false;
                 }
+            }
+
+            // 4. Pet Type filter - only apply when shopTypeFilter is 'Pet'
+            if (shopTypeFilter === 'Pet' && petTypeFilter !== 'all') {
+                if (product.type !== petTypeFilter) return false;
             }
 
             return true;
@@ -271,7 +275,7 @@ const ShopProductManagement = () => {
         }
 
         return filtered;
-    }, [allShopProducts, shopProducts, debouncedSearchTerm, shopFilter, statusFilter, currencyFilter, typeFilter, sortConfig]);
+    }, [allShopProducts, shopProducts, debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, petTypeFilter, sortConfig]);
 
     // Calculate pagination (use filteredAndSortedProducts)
     const totalItems = filteredAndSortedProducts.length;
@@ -283,7 +287,7 @@ const ShopProductManagement = () => {
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [debouncedSearchTerm, shopFilter, statusFilter, currencyFilter, typeFilter]);
+    }, [debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, petTypeFilter]);
 
     // Pagination handlers
     const goToPage = (page) => {
@@ -303,31 +307,23 @@ const ShopProductManagement = () => {
     };
 
     // Handle filters
-    const handleTypeFilter = (type) => {
-        setTypeFilter(type);
-    };
-
     // Updated filter handlers - no API calls, just state updates
     const handleStatusFilter = (status) => {
         setStatusFilter(status);
-    }; const handleShopFilter = (shopId) => {
-        setShopFilter(shopId);
-        // Reset type filter when shop filter changes
-        setTypeFilter('all');
     };
 
     const handleCurrencyFilter = (currency) => {
         setCurrencyFilter(currency);
     };
 
-    // Handle Shop change in modal - reset Type and petID when shop changes
-    const handleModalShopChange = (shopType) => {
-        setEditForm(prev => ({
-            ...prev,
-            shop: shopType,
-            type: '', // Reset type when shop changes
-            petID: shopType === 'Item' ? null : prev.petID // Clear petID if switching to Item
-        }));
+    const handleShopTypeFilter = (shopType) => {
+        setShopTypeFilter(shopType);
+        // Reset pet type filter when shop type changes
+        setPetTypeFilter('all');
+    };
+
+    const handlePetTypeFilter = (petType) => {
+        setPetTypeFilter(petType);
     };
 
     // Sort function
@@ -346,20 +342,44 @@ const ShopProductManagement = () => {
 
     // Open edit modal
     const handleEdit = (product) => {
-        // Determine shop type based on petID
-        const shopType = product.petID ? 'Pet' : 'Item';
-
+        const predefinedTypes = ['FOOD', 'TOY'];
+        const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
+        
+        let formType = '';
+        let formPetType = '';
+        let formCustomType = '';
+        let formCustomPetType = '';
+        
+        if (petTypes.includes(product.type)) {
+            formType = 'Pet';
+            formPetType = product.type;
+        } else if (predefinedTypes.includes(product.type)) {
+            formType = product.type;
+        } else if (product.type) {
+            // Check if this is a pet (shopId = 1) but with a custom type
+            if (product.shopId === 1) {
+                formType = 'Pet';
+                formPetType = 'Khác';
+                formCustomPetType = product.type;
+            } else {
+                formType = 'CUSTOM';
+                formCustomType = product.type;
+            }
+        }
+        
         setEditForm({
             petID: product.petID || null,
             name: product.name || '',
-            type: product.type || '',
+            type: formType,
+            petType: formPetType,
+            customType: formCustomType,
+            customPetType: formCustomPetType,
             description: product.description || '',
             imageUrl: product.imageUrl || '',
             price: product.price || '',
             currencyType: product.currencyType || 'COIN',
             quantity: product.quantity || 10,
-            status: product.status !== undefined ? product.status : 1,
-            shop: shopType
+            status: product.status !== undefined ? product.status : 1
         });
         setEditModal({ isOpen: true, product });
     };
@@ -367,17 +387,18 @@ const ShopProductManagement = () => {
     // Open create modal
     const handleCreate = () => {
         setEditForm({
-            shopId: '',
             petID: null,
             name: '',
             type: '',
+            petType: '',
+            customType: '',
+            customPetType: '',
             description: '',
             imageUrl: '',
             price: '',
             currencyType: 'COIN',
             quantity: 10,
-            status: 1,
-            shop: 'Item' // Default to Item shop
+            status: 1
         });
         setCreateModal(true);
     };
@@ -390,16 +411,66 @@ const ShopProductManagement = () => {
     // Handle form submission for create/edit
     const handleSubmit = async (isEdit = false) => {
         try {
+            // Validation: Check if required fields are filled
+            if (!editForm.name.trim()) {
+                alert('Vui lòng nhập tên sản phẩm');
+                return;
+            }
+            
+            if (!editForm.type) {
+                alert('Vui lòng chọn loại sản phẩm');
+                return;
+            }
+            
+            if (editForm.type === 'Pet') {
+                if (!editForm.petType) {
+                    alert('Vui lòng chọn loại thú cưng');
+                    return;
+                }
+                if (editForm.petType === 'Khác' && !editForm.customPetType.trim()) {
+                    alert('Vui lòng nhập loại thú cưng khác');
+                    return;
+                }
+            }
+            
+            if (editForm.type === 'CUSTOM' && !editForm.customType.trim()) {
+                alert('Vui lòng nhập loại sản phẩm tùy chỉnh');
+                return;
+            }
+            
+            // Determine the actual type to submit
+            let actualType = '';
+            if (editForm.type === 'Pet') {
+                // If pet type is "Khác", use the custom pet type value
+                if (editForm.petType === 'Khác') {
+                    actualType = editForm.customPetType;
+                } else {
+                    actualType = editForm.petType;
+                }
+            } else if (editForm.type === 'CUSTOM') {
+                actualType = editForm.customType;
+            } else {
+                actualType = editForm.type;
+            }
+            
+            // Determine if this is a pet or item based on the actual type
+            const isPetType = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(actualType) || 
+                             (editForm.type === 'Pet' && editForm.petType === 'Khác' && editForm.customPetType);
+            
             // Prepare submission data
             const submissionData = {
                 ...editForm,
-                // Set shopId based on shop type: Pet Shop = 1, Item Shop = 2
-                shopId: editForm.shop === 'Pet' ? 1 : 2,
-                // Ensure petID is null for Item shop, and properly handle for Pet shop
-                petID: editForm.shop === 'Item' ? null : editForm.petID,
-                // Remove the shop field as it's only for UI
-                shop: undefined
+                type: actualType, // Use the actual type (either pet type, predefined type, or custom)
+                // Set shopId based on product type: Pet types = 1, Item types = 2
+                shopId: isPetType ? 1 : 2,
+                // Set petID only for pet types, null for item types
+                petID: isPetType ? editForm.petID : null
             };
+
+            // Remove fields we don't want to submit
+            delete submissionData.customType;
+            delete submissionData.petType;
+            delete submissionData.customPetType;
 
             // Remove undefined fields
             Object.keys(submissionData).forEach(key => {
@@ -418,17 +489,18 @@ const ShopProductManagement = () => {
 
             // Reset form
             setEditForm({
-                shopId: '',
                 petID: null,
                 name: '',
                 type: '',
+                petType: '',
+                customType: '',
+                customPetType: '',
                 description: '',
                 imageUrl: '',
                 price: '',
                 currencyType: 'COIN',
                 quantity: 10,
-                status: 1,
-                shop: 'Item'
+                status: 1
             });
 
             refreshData();
@@ -470,10 +542,78 @@ const ShopProductManagement = () => {
                             <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong các cửa hàng một cách hiệu quả</p>
                         </div>
                     </div>
-                    <div className="hidden lg:flex items-center gap-4 text-gray-500">
+                    
+                    {/* Statistics in Header */}
+                    <div className="hidden lg:flex items-center gap-6">
                         <div className="text-center">
-                            <p className="text-sm font-medium">Tổng sản phẩm</p>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-purple-100 rounded-lg">
+                                    <Package className="h-4 w-4 text-purple-600" />
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">Tổng Sản phẩm</p>
+                            </div>
                             <p className="text-2xl font-bold text-purple-600">{shopProducts.length}</p>
+                        </div>
+                        
+                        <div className="w-px h-12 bg-gray-300"></div>
+                        
+                        <div className="text-center">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-emerald-100 rounded-lg">
+                                    <span className="text-emerald-600 font-bold text-sm">✓</span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">Đang Bán</p>
+                            </div>
+                            <p className="text-2xl font-bold text-emerald-600">
+                                {shopProducts.filter(p => p.status === 1).length}
+                            </p>
+                        </div>
+                        
+                        <div className="w-px h-12 bg-gray-300"></div>
+                        
+                        <div className="text-center">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-red-100 rounded-lg">
+                                    <span className="text-red-600 font-bold text-sm">✕</span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">Hết Hàng</p>
+                            </div>
+                            <p className="text-2xl font-bold text-red-600">
+                                {shopProducts.filter(p => p.status === 0).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Mobile Statistics */}
+                <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <Package className="h-4 w-4 text-purple-600" />
+                                <p className="text-xs font-medium text-gray-600">Tổng</p>
+                            </div>
+                            <p className="text-lg font-bold text-purple-600">{shopProducts.length}</p>
+                        </div>
+                        
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <span className="text-emerald-600 font-bold text-sm">✓</span>
+                                <p className="text-xs font-medium text-gray-600">Đang Bán</p>
+                            </div>
+                            <p className="text-lg font-bold text-emerald-600">
+                                {shopProducts.filter(p => p.status === 1).length}
+                            </p>
+                        </div>
+                        
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <span className="text-red-600 font-bold text-sm">✕</span>
+                                <p className="text-xs font-medium text-gray-600">Hết Hàng</p>
+                            </div>
+                            <p className="text-lg font-bold text-red-600">
+                                {shopProducts.filter(p => p.status === 0).length}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -492,49 +632,6 @@ const ShopProductManagement = () => {
                     </div>
                 </div>
             )}
-
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-purple-100 rounded-lg">
-                            <Package className="h-6 w-6 text-purple-600" />
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Tổng Sản phẩm</p>
-                            <p className="text-2xl font-bold text-gray-900">{shopProducts.length}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-emerald-100 rounded-lg">
-                            <span className="text-emerald-600 font-bold text-lg">✓</span>
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Đang Bán</p>
-                            <p className="text-2xl font-bold text-gray-900">
-                                {shopProducts.filter(p => p.status === 1).length}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-red-100 rounded-lg">
-                            <span className="text-red-600 font-bold text-lg">✕</span>
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Hết Hàng</p>
-                            <p className="text-2xl font-bold text-gray-900">
-                                {shopProducts.filter(p => p.status === 0).length}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Search and Filters Section */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
@@ -570,23 +667,32 @@ const ShopProductManagement = () => {
                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
                                 Tìm kiếm sản phẩm
                             </label>
-                            <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-purple-500 transition-colors duration-200" />                                <input
-                                    type="text"
-                                    placeholder="Nhập tên sản phẩm để tìm kiếm..."
-                                    value={localSearchTerm}
-                                    onChange={(e) => handleSearch(e.target.value)}
-                                    className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
-                                />
-                                {localSearchTerm && (
-                                    <button
-                                        onClick={clearSearch}
-                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                        title="Xóa tìm kiếm"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                )}
+                            <div className="flex gap-3">
+                                <div className="relative group flex-1">
+                                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-purple-500 transition-colors duration-200" />                                    <input
+                                        type="text"
+                                        placeholder="Nhập tên sản phẩm để tìm kiếm..."
+                                        value={localSearchTerm}
+                                        onChange={(e) => handleSearch(e.target.value)}
+                                        className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
+                                    />
+                                    {localSearchTerm && (
+                                        <button
+                                            onClick={clearSearch}
+                                            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
+                                            title="Xóa tìm kiếm"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                <button
+                                    onClick={handleCreate}
+                                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3.5 rounded-lg hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 whitespace-nowrap"
+                                >
+                                    <Plus className="h-5 w-5" />
+                                    Thêm Sản phẩm
+                                </button>
                             </div>                            {(localSearchTerm || debouncedSearchTerm) && (
                                 <div className="bg-purple-100 rounded-md p-3 border border-purple-200">
                                     <div className="flex items-center gap-2">
@@ -607,17 +713,6 @@ const ShopProductManagement = () => {
                                 </div>
                             )}
                         </div>
-
-                        {/* Add Product Button */}
-                        <div className="flex justify-end mt-4">
-                            <button
-                                onClick={handleCreate}
-                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                            >
-                                <Plus className="h-5 w-5" />
-                                Thêm Sản phẩm
-                            </button>
-                        </div>
                     </div>
 
                     {/* Advanced Filters */}
@@ -636,11 +731,6 @@ const ShopProductManagement = () => {
                                 ) : (
                                     <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
                                 )}
-                                {(statusFilter !== '' || typeFilter || shopFilter || currencyFilter || sortConfig.key) && (
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 ml-2">
-                                        {[statusFilter !== '' ? 'status' : null, typeFilter ? 'type' : null, shopFilter ? 'shop' : null, currencyFilter ? 'currency' : null, sortConfig.key ? 'sort' : null].filter(Boolean).length}
-                                    </span>
-                                )}
                             </button>
                         </div>
 
@@ -653,49 +743,56 @@ const ShopProductManagement = () => {
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-700">Lọc theo nội dung</span>
-                                    </div>                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        {/* 1. Shop Filter (Pet, Item) */}
+                                    </div>                                    <div className={`grid grid-cols-1 gap-4 ${shopTypeFilter === 'Pet' ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+                                        {/* 1. Shop Type Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                🏪 Shop (Pet/Item)
+                                                 Loại vật phẩm
                                             </label>
                                             <div className="relative">
                                                 <select
-                                                    value={shopFilter}
-                                                    onChange={(e) => handleShopFilter(e.target.value)}
+                                                    value={shopTypeFilter}
+                                                    onChange={(e) => handleShopTypeFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all">🛒 Tất cả shop</option>
-                                                    <option value="Pet">🐾 Pet Shop</option>
-                                                    <option value="Item">📦 Item Shop</option>
+                                                    <option value="all"> Tất cả vật phẩm</option>
+                                                    <option value="Pet"> Thú cưng</option>
+                                                    <option value="Food"> Thức ăn</option>
+                                                    <option value="Toy"> Đồ chơi</option>
+                                                    <option value="Others"> Khác</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
 
-                                        {/* 2. Status Filter (Đang hoạt động, Hết hàng) */}
-                                        <div className="space-y-2">
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                📊 Trạng thái
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    value={statusFilter}
-                                                    onChange={(e) => handleStatusFilter(e.target.value)}
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                                >
-                                                    <option value="all">📈 Tất cả trạng thái</option>
-                                                    <option value="active">✅ Đang hoạt động</option>
-                                                    <option value="outOfStock">❌ Hết hàng</option>
-                                                </select>
-                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                        {/* 2. Pet Type Filter (conditional) */}
+                                        {shopTypeFilter === 'Pet' && (
+                                            <div className="space-y-2">
+                                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                     Loại thú cưng
+                                                </label>
+                                                <div className="relative">
+                                                    <select
+                                                        value={petTypeFilter}
+                                                        onChange={(e) => handlePetTypeFilter(e.target.value)}
+                                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                    >
+                                                        <option value="all">🐾 Tất cả thú cưng</option>
+                                                        <option value="Cat">🐱 Mèo</option>
+                                                        <option value="Dog">🐶 Chó</option>
+                                                        <option value="Bird">🐦 Chim</option>
+                                                        <option value="Fish">🐟 Cá</option>
+                                                        <option value="Chicken">🐔 Gà</option>
+                                                    </select>
+                                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
 
-                                        {/* 3. Currency Filter (COIN, DIAMOND, GEM) */}
+                                        {/* 3. Currency Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                💰 Tiền tệ
+                                                 Tiền tệ
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -703,7 +800,7 @@ const ShopProductManagement = () => {
                                                     onChange={(e) => handleCurrencyFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all">💸 Tất cả loại tiền</option>
+                                                    <option value="all"> Tất cả loại tiền</option>
                                                     <option value="COIN">💰 Coin</option>
                                                     <option value="DIAMOND">💎 Diamond</option>
                                                     <option value="GEM">💜 Gem</option>
@@ -712,63 +809,20 @@ const ShopProductManagement = () => {
                                             </div>
                                         </div>
 
-                                        {/* 4. Type Filter (sẽ làm sau) */}
+                                        {/* 4. Status Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                {shopFilter === 'Pet' ? '🐾 Loại Thú Cưng' :
-                                                    shopFilter === 'Item' ? '🏷️ Loại Vật Phẩm' :
-                                                        '🏷️ Type'}
+                                                 Trạng thái
                                             </label>
                                             <div className="relative">
                                                 <select
-                                                    value={typeFilter}
-                                                    onChange={(e) => handleTypeFilter(e.target.value)}
+                                                    value={statusFilter}
+                                                    onChange={(e) => handleStatusFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all">
-                                                        {shopFilter === 'Pet' ? '🐾 Tất cả loài thú cưng' :
-                                                            shopFilter === 'Item' ? '📦 Tất cả loại vật phẩm' :
-                                                                '📂 Tất cả loại'}
-                                                    </option>
-
-                                                    {shopFilter === 'Pet' ? (
-                                                        // Pet types - giống như trong PetManagement
-                                                        <>
-                                                            <option value="Cat">🐱 Mèo (Cat)</option>
-                                                            <option value="Dog">🐶 Chó (Dog)</option>
-                                                            <option value="Bird">🐦 Chim (Bird)</option>
-                                                            <option value="Fish">🐟 Cá (Fish)</option>
-                                                            <option value="Chicken">🐔 Gà (Chicken)</option>
-                                                            <option value="Other">🔄 Khác (Phần còn lại)</option>
-                                                        </>
-                                                    ) : shopFilter === 'Item' ? (
-                                                        // Item types
-                                                        <>
-                                                            <option value="FOOD">🍖 Thức ăn (Food)</option>
-                                                            <option value="TOY">🧸 Đồ chơi (Toy)</option>
-                                                            <option value="ACCESSORY">👑 Phụ kiện (Accessory)</option>
-                                                            <option value="MEDICINE">💊 Thuốc (Medicine)</option>
-                                                        </>
-                                                    ) : (
-                                                        // All types when no shop filter
-                                                        <>
-                                                            <optgroup label="🐾 Loại Thú Cưng">
-                                                                <option value="Cat">🐱 Mèo (Cat)</option>
-                                                                <option value="Dog">🐶 Chó (Dog)</option>
-                                                                <option value="Bird">🐦 Chim (Bird)</option>
-                                                                <option value="Fish">🐟 Cá (Fish)</option>
-                                                                <option value="Chicken">🐔 Gà (Chicken)</option>
-                                                                <option value="Other">🔄 Khác (Phần còn lại)</option>
-                                                            </optgroup>
-                                                            <optgroup label="📦 Loại Vật Phẩm">
-                                                                <option value="FOOD">🍖 Thức ăn (Food)</option>
-                                                                <option value="TOY">🧸 Đồ chơi (Toy)</option>
-                                                                <option value="ACCESSORY">👑 Phụ kiện (Accessory)</option>
-                                                                <option value="MEDICINE">💊 Thuốc (Medicine)</option>
-                                                                <option value="OTHER">📦 Khác</option>
-                                                            </optgroup>
-                                                        </>
-                                                    )}
+                                                    <option value="all"> Tất cả trạng thái</option>
+                                                    <option value="active"> Đang bán</option>
+                                                    <option value="outOfStock"> Hết hàng</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -786,29 +840,29 @@ const ShopProductManagement = () => {
                                     </div>                                    <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={clearAllFilters}
-                                            disabled={shopFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && typeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
-                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${shopFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && typeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            disabled={statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
+                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                                 : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
                                                 }`}
                                         >
                                             <X className="h-4 w-4 mr-2" />
-                                            {shopFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && typeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            {statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'Không có bộ lọc nào'
                                                 : 'Xóa tất cả bộ lọc'
                                             }
                                         </button>
 
                                         {/* Filter Status Indicator */}
-                                        {(shopFilter !== 'all' || statusFilter !== 'all' || currencyFilter !== 'all' || typeFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
+                                        {(statusFilter !== 'all' || currencyFilter !== 'all' || shopTypeFilter !== 'all' || petTypeFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
                                                     (localSearchTerm || debouncedSearchTerm) && 'Tìm kiếm',
-                                                    shopFilter !== 'all' && 'Shop',
                                                     statusFilter !== 'all' && 'Trạng thái',
                                                     currencyFilter !== 'all' && 'Tiền tệ',
-                                                    typeFilter !== 'all' && 'Type',
+                                                    shopTypeFilter !== 'all' && 'Loại cửa hàng',
+                                                    petTypeFilter !== 'all' && 'Loại thú cưng',
                                                     sortConfig.key && 'Sắp xếp'
                                                 ].filter(Boolean).length} bộ lọc đang áp dụng
                                             </div>
@@ -829,48 +883,43 @@ const ShopProductManagement = () => {
                         <p className="mt-2 text-gray-600">Đang tải...</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
+                    <div className="overflow-hidden">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
+                            <colgroup>
+                                <col className="w-[28%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                            </colgroup>
+                            <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Sản phẩm
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Sản phẩm
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Cửa hàng
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Cửa hàng
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Loại
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Loại
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Giá
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Giá
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Số lượng
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Số lượng
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider border-r border-purple-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Trạng thái
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Trạng thái
                                     </th>
-                                    <th className="px-6 py-6 text-center text-base font-bold text-white uppercase tracking-wider">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Thao tác
-                                        </span>
+                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide">
+                                        Hành động
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentProducts.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="px-6 py-12 text-center">
@@ -880,12 +929,12 @@ const ShopProductManagement = () => {
                                                 </div>
                                                 <div className="text-center">
                                                     <h3 className="text-lg font-medium text-gray-900">Không có sản phẩm nào</h3>                                                    <p className="text-sm text-gray-500 mt-1">
-                                                        {(localSearchTerm || debouncedSearchTerm) || typeFilter !== 'all' || statusFilter !== 'all' || shopFilter !== 'all' || currencyFilter !== 'all' ?
+                                                        {(localSearchTerm || debouncedSearchTerm) || shopTypeFilter !== 'all' || petTypeFilter !== 'all' || statusFilter !== 'all' || currencyFilter !== 'all' ?
                                                             'Không tìm thấy sản phẩm phù hợp với bộ lọc.' :
                                                             'Hãy bắt đầu bằng cách thêm sản phẩm mới.'
                                                         }
                                                     </p>
-                                                    {!(localSearchTerm || debouncedSearchTerm) && typeFilter === 'all' && statusFilter === 'all' && shopFilter === 'all' && currencyFilter === 'all' && (
+                                                    {!(localSearchTerm || debouncedSearchTerm) && shopTypeFilter === 'all' && petTypeFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && (
                                                         <button
                                                             onClick={handleCreate}
                                                             className="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
@@ -901,50 +950,61 @@ const ShopProductManagement = () => {
                                 ) : (currentProducts.map((product) => (
                                     <tr key={product.shopProductId} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200">
                                         {/* Product Info */}
-                                        <td className="px-6 py-6 whitespace-nowrap">
-                                            <div className="flex items-center">
+                                        <td className="px-3 py-4">
+                                            <div className="flex items-center justify-center space-x-3">
                                                 {product.imageUrl ? (
                                                     <ProductImage
                                                         imageUrl={product.imageUrl}
                                                         productName={product.name}
-                                                        className="h-12 w-12 mr-4 rounded-lg"
+                                                        className="h-10 w-10 rounded-lg flex-shrink-0"
                                                     />
                                                 ) : (
-                                                    <div className="h-12 w-12 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center mr-4">
-                                                        <Package className="h-6 w-6 text-gray-400" />
+                                                    <div className="h-10 w-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center flex-shrink-0">
+                                                        <Package className="h-5 w-5 text-gray-400" />
                                                     </div>
                                                 )}
-                                                <div>
-                                                    <div className="text-sm font-bold text-gray-900">{product.name}</div>
-                                                    <div className="text-sm text-gray-500 max-w-xs truncate" title={product.description}>
-                                                        {product.description}
+                                                <div className="text-center">
+                                                    <div className="text-sm font-bold text-gray-900 truncate" title={product.name}>
+                                                        {product.name}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
 
                                         {/* Shop */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
-                                                {getShopName(product.shopId)}
-                                            </span>
+                                        <td className="px-3 py-4">
+                                            <div className="flex justify-center">
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
+                                                    {getShopName(product.shopId) === 'Pet Shop' ? '🐾 Pet' : '📦 Item'}
+                                                </span>
+                                            </div>
                                         </td>
 
                                         {/* Type */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                        <td className="px-3 py-4">
                                             <div className="flex justify-center">
                                                 {product.type === 'FOOD' && (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        🍖 Thức ăn
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+                                                        🍖 Food
                                                     </span>
                                                 )}
                                                 {product.type === 'TOY' && (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                        🎾 Đồ chơi
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
+                                                        🎾 Toy
                                                     </span>
                                                 )}
-                                                {product.type && !['FOOD', 'TOY'].includes(product.type) && (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                {['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                        {product.type === 'Cat' && '🐱'}
+                                                        {product.type === 'Dog' && '🐶'}
+                                                        {product.type === 'Bird' && '🐦'}
+                                                        {product.type === 'Fish' && '🐟'}
+                                                        {product.type === 'Chicken' && '🐔'}
+                                                        {' ' + product.type}
+                                                    </span>
+                                                )}
+                                                {product.type && !['FOOD', 'TOY', 'Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                         {product.type}
                                                     </span>
                                                 )}
@@ -952,60 +1012,68 @@ const ShopProductManagement = () => {
                                         </td>
 
                                         {/* Price */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                        <td className="px-3 py-4">
                                             <div className="flex items-center justify-center">
-                                                {product.currencyType === 'COIN' && <span className="mr-1">💰</span>}
-                                                {product.currencyType === 'DIAMOND' && <span className="mr-1">💎</span>}
-                                                {product.currencyType === 'GEM' && <span className="mr-1">💜</span>}
-                                                <span className="font-medium text-gray-900">{formatCurrency(product.price, product.currencyType)}</span>
+                                                <div className="text-center">
+                                                    <div className="flex items-center justify-center">
+                                                        {product.currencyType === 'COIN' && <span className="mr-1">💰</span>}
+                                                        {product.currencyType === 'DIAMOND' && <span className="mr-1">💎</span>}
+                                                        {product.currencyType === 'GEM' && <span className="mr-1">💜</span>}
+                                                    </div>
+                                                    <div className="text-xs font-medium text-gray-900">
+                                                        {formatCurrency(product.price, product.currencyType)}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
 
                                         {/* Quantity */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
-                                                {product.quantity}
-                                            </span>
+                                        <td className="px-3 py-4">
+                                            <div className="flex justify-center">
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
+                                                    {product.quantity}
+                                                </span>
+                                            </div>
                                         </td>
 
                                         {/* Status */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
+                                        <td className="px-3 py-4">
                                             <div className="flex justify-center">
                                                 {product.status === 1 ? (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        ✅ Đang bán
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+                                                        ✅ Active
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        ❌ Hết hàng
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
+                                                        ❌ Out
                                                     </span>
                                                 )}
                                             </div>
                                         </td>
 
                                         {/* Actions */}
-                                        <td className="px-6 py-6 whitespace-nowrap text-center">
-                                            <div className="flex justify-center space-x-3">
+                                        <td className="px-3 py-4">
+                                            <div className="flex justify-center space-x-1">
                                                 <button
                                                     onClick={() => handleView(product)}
-                                                    className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                                     title="Xem chi tiết"
                                                 >
-                                                    <Eye className="w-4 h-4" />
+                                                    <Eye className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleEdit(product)}
-                                                    className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                                     title="Chỉnh sửa"
                                                 >
-                                                    <Edit className="w-4 h-4" />
+                                                    <Edit className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(product)}
-                                                    className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                    className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                                     title="Xóa"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         </td>
@@ -1056,16 +1124,11 @@ const ShopProductManagement = () => {
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
-                    </div>                    <div className="mt-3 text-center text-sm text-purple-600">
-                        Hiển thị {startIndex + 1} - {Math.min(endIndex, totalItems)} trong số {totalItems} sản phẩm
-                        {(localSearchTerm || debouncedSearchTerm) && (
-                            <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                                Kết quả tìm kiếm: "{debouncedSearchTerm || localSearchTerm}"
-                            </span>
-                        )}
-                    </div>
+                    </div>                    
                 </div>
-            )}            {/* Create/Edit Modal */}
+            )}            
+            
+            {/* Create/Edit Modal */}
             {(createModal || editModal.isOpen) && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
                     <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 shadow-lg rounded-md bg-white">
@@ -1086,41 +1149,6 @@ const ShopProductManagement = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
-                                {/* Shop Type Selection (Pet/Item) */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Loại cửa hàng *</label>
-                                    <select
-                                        value={editForm.shop}
-                                        onChange={(e) => handleModalShopChange(e.target.value)}
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                        required
-                                    >
-                                        <option value="Pet">🐾 Pet Shop</option>
-                                        <option value="Item">📦 Item Shop</option>
-                                    </select>
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        💡 Pet Shop: sản phẩm dành cho thú cưng cụ thể | Item Shop: vật phẩm chung
-                                    </p>
-                                </div>
-
-                                {/* Pet ID - only show for Pet Shop */}
-                                {editForm.shop === 'Pet' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Pet ID</label>
-                                        <input
-                                            type="number"
-                                            value={editForm.petID || ''}
-                                            onChange={(e) => setEditForm({ ...editForm, petID: e.target.value ? parseInt(e.target.value) : null })}
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                            placeholder="Nhập Pet ID (tùy chọn)"
-                                            min="1"
-                                        />
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            💡 Để trống nếu sản phẩm dành cho tất cả thú cưng cùng loài
-                                        </p>
-                                    </div>
-                                )}
-
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Tên sản phẩm *</label>
                                     <input
@@ -1133,49 +1161,86 @@ const ShopProductManagement = () => {
                                     />
                                 </div>
 
-                                {/* Dynamic Type Selection */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        {editForm.shop === 'Pet' ? 'Loại thú cưng *' : 'Loại vật phẩm *'}
-                                    </label>
+                                    <label className="block text-sm font-medium text-gray-700">Loại sản phẩm *</label>
                                     <select
                                         value={editForm.type}
-                                        onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+                                        onChange={(e) => {
+                                            setEditForm({ ...editForm, type: e.target.value, customType: '', petType: '', customPetType: '' });
+                                        }}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="">
-                                            {editForm.shop === 'Pet' ? 'Chọn loài thú cưng' : 'Chọn loại vật phẩm'}
-                                        </option>
-
-                                        {editForm.shop === 'Pet' ? (
-                                            // Pet types - giống như trong filter
-                                            <>
-                                                <option value="Cat">🐱 Mèo (Cat)</option>
-                                                <option value="Dog">🐶 Chó (Dog)</option>
-                                                <option value="Bird">🐦 Chim (Bird)</option>
-                                                <option value="Fish">🐟 Cá (Fish)</option>
-                                                <option value="Chicken">🐔 Gà (Chicken)</option>
-                                                <option value="Other">🔄 Khác</option>
-                                            </>
-                                        ) : (
-                                            // Item types - giống như trong filter
-                                            <>
-                                                <option value="FOOD">🍖 Thức ăn</option>
-                                                <option value="TOY">🎾 Đồ chơi</option>
-                                                <option value="ACCESSORY">👑 Phụ kiện</option>
-                                                <option value="MEDICINE">💊 Thuốc</option>
-                                                <option value="OTHER">📦 Khác</option>
-                                            </>
-                                        )}
+                                        <option value="">Chọn loại sản phẩm</option>
+                                        <option value="Pet"> Thú cưng</option>
+                                        <option value="FOOD"> Thức ăn</option>
+                                        <option value="TOY"> Đồ chơi</option>
+                                        <option value="CUSTOM"> Tự nhập loại khác</option>
                                     </select>
                                     <p className="mt-1 text-xs text-gray-500">
-                                        {editForm.shop === 'Pet'
-                                            ? '💡 Chọn loài thú cưng phù hợp với sản phẩm'
-                                            : '💡 Chọn danh mục vật phẩm phù hợp'
-                                        }
+                                        � Chọn loại sản phẩm: thú cưng, thức ăn, đồ chơi, hoặc tự nhập
                                     </p>
                                 </div>
+
+                                {/* Pet Type Selection - only show when Pet is selected */}
+                                {editForm.type === 'Pet' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Loại thú cưng *</label>
+                                        <select
+                                            value={editForm.petType}
+                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value, customPetType: '' })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            required
+                                        >
+                                            <option value="">Chọn loại thú cưng</option>
+                                            <option value="Cat">🐱 Mèo (Cat)</option>
+                                            <option value="Dog">🐶 Chó (Dog)</option>
+                                            <option value="Bird">🐦 Chim (Bird)</option>
+                                            <option value="Fish">🐟 Cá (Fish)</option>
+                                            <option value="Chicken">🐔 Gà (Chicken)</option>
+                                            <option value="Khác">❓ Khác</option>
+                                        </select>
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            💡 Chọn loại thú cưng cụ thể
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Custom Pet Type Input - only show when Khác is selected */}
+                                {editForm.type === 'Pet' && editForm.petType === 'Khác' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Loại thú cưng khác *</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.customPetType}
+                                            onChange={(e) => setEditForm({ ...editForm, customPetType: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            placeholder="Nhập loại thú cưng (ví dụ: Hamster, Thỏ, Iguana, ...)"
+                                            required
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            💡 Nhập tên loại thú cưng không có trong danh sách
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Custom Type Input - only show when CUSTOM is selected */}
+                                {editForm.type === 'CUSTOM' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Loại sản phẩm tùy chỉnh *</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.customType}
+                                            onChange={(e) => setEditForm({ ...editForm, customType: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            placeholder="Nhập loại sản phẩm (ví dụ: Phụ kiện, Thuốc, ...)"
+                                            required
+                                        />
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            💡 Nhập tên loại sản phẩm tùy chỉnh
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">URL Hình ảnh</label>
@@ -1332,7 +1397,15 @@ const ShopProductManagement = () => {
                             <button
                                 onClick={() => handleSubmit(editModal.isOpen)}
                                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                                disabled={!editForm.name.trim() || !editForm.type.trim() || !editForm.price || !editForm.quantity || !editForm.shop}
+                                disabled={
+                                    !editForm.name.trim() || 
+                                    !editForm.type.trim() || 
+                                    (editForm.type === 'Pet' && !editForm.petType.trim()) ||
+                                    (editForm.type === 'Pet' && editForm.petType === 'Khác' && !editForm.customPetType.trim()) ||
+                                    (editForm.type === 'CUSTOM' && !editForm.customType.trim()) ||
+                                    !editForm.price || 
+                                    !editForm.quantity
+                                }
                             >
                                 {createModal ? 'Tạo Sản phẩm' : 'Cập nhật'}
                             </button>
