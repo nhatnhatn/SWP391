@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save } from 'lucide-react';
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
+import { useSimplePets } from '../../hooks/useSimplePets';
+import { useAuth } from '../../contexts/AuthContextV2';
 import { convertGoogleDriveLink, formatCurrency } from '../../utils/helpers';
 
 // Component riêng để hiển thị ảnh với fallback URLs
@@ -103,6 +105,9 @@ const ProductImage = ({ imageUrl, productName, className }) => {
 
 // Simple ShopProduct Management Component
 const ShopProductManagement = () => {
+    // Use auth hook to get current user
+    const { user } = useAuth();
+
     // Use hook for data management
     const {
         shopProducts,
@@ -118,13 +123,18 @@ const ShopProductManagement = () => {
         getShopName
     } = useSimpleShopProducts();
 
+    // Use pets hook for Pet ID dropdown
+    const {
+        pets,
+        loading: petsLoading
+    } = useSimplePets();
+
     // Local search state - separated for debouncing
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
     const [statusFilter, setStatusFilter] = useState('all'); // Đang hoạt động, Hết hàng
     const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
-    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy, Others
-    const [petTypeFilter, setPetTypeFilter] = useState('all'); // Cat, Dog, Bird, Fish, Chicken (only when shopTypeFilter is Pet)// Debounce search term to prevent excessive filtering
+    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy, Others// Debounce search term to prevent excessive filtering
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(localSearchTerm);
@@ -150,7 +160,6 @@ const ShopProductManagement = () => {
         setStatusFilter('all');
         setCurrencyFilter('all');
         setShopTypeFilter('all');
-        setPetTypeFilter('all');
         setSortConfig({ key: null, direction: 'asc' });
     }, []);
 
@@ -173,7 +182,7 @@ const ShopProductManagement = () => {
         description: '',
         imageUrl: '',
         price: '',
-        currencyType: 'COIN',
+        currencyType: 'Coin',
         quantity: 10,
         status: 1
     });
@@ -206,7 +215,7 @@ const ShopProductManagement = () => {
                 if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
             }
 
-            // 2. Currency filter (COIN, DIAMOND, GEM)
+            // 2. Currency filter (Coin, Diamond, Gem)
             if (currencyFilter !== 'all') {
                 if (product.currencyType !== currencyFilter) return false;
             }
@@ -218,20 +227,17 @@ const ShopProductManagement = () => {
                     const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
                     if (!petTypes.includes(product.type) && !product.petID) return false;
                 } else if (shopTypeFilter === 'Food') {
-                    if (product.type !== 'FOOD') return false;
+                    if (product.type !== 'Food') return false;
                 } else if (shopTypeFilter === 'Toy') {
-                    if (product.type !== 'TOY') return false;
+                    if (product.type !== 'Toy') return false;
                 } else if (shopTypeFilter === 'Others') {
                     // Others are custom types not in predefined categories
-                    const knownTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken', 'FOOD', 'TOY'];
+                    const knownTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken', 'Food', 'Toy'];
                     if (knownTypes.includes(product.type)) return false;
                 }
             }
 
-            // 4. Pet Type filter - only apply when shopTypeFilter is 'Pet'
-            if (shopTypeFilter === 'Pet' && petTypeFilter !== 'all') {
-                if (product.type !== petTypeFilter) return false;
-            }
+
 
             return true;
         });
@@ -275,7 +281,7 @@ const ShopProductManagement = () => {
         }
 
         return filtered;
-    }, [allShopProducts, shopProducts, debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, petTypeFilter, sortConfig]);
+    }, [allShopProducts, shopProducts, debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, sortConfig]);
 
     // Calculate pagination (use filteredAndSortedProducts)
     const totalItems = filteredAndSortedProducts.length;
@@ -287,7 +293,7 @@ const ShopProductManagement = () => {
     // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, petTypeFilter]);
+    }, [debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter]);
 
     // Pagination handlers
     const goToPage = (page) => {
@@ -318,12 +324,6 @@ const ShopProductManagement = () => {
 
     const handleShopTypeFilter = (shopType) => {
         setShopTypeFilter(shopType);
-        // Reset pet type filter when shop type changes
-        setPetTypeFilter('all');
-    };
-
-    const handlePetTypeFilter = (petType) => {
-        setPetTypeFilter(petType);
     };
 
     // Sort function
@@ -342,14 +342,14 @@ const ShopProductManagement = () => {
 
     // Open edit modal
     const handleEdit = (product) => {
-        const predefinedTypes = ['FOOD', 'TOY'];
+        const predefinedTypes = ['Food', 'Toy'];
         const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
-        
+
         let formType = '';
         let formPetType = '';
         let formCustomType = '';
         let formCustomPetType = '';
-        
+
         if (petTypes.includes(product.type)) {
             formType = 'Pet';
             formPetType = product.type;
@@ -366,7 +366,7 @@ const ShopProductManagement = () => {
                 formCustomType = product.type;
             }
         }
-        
+
         setEditForm({
             petID: product.petID || null,
             name: product.name || '',
@@ -396,7 +396,7 @@ const ShopProductManagement = () => {
             description: '',
             imageUrl: '',
             price: '',
-            currencyType: 'COIN',
+            currencyType: 'Coin',
             quantity: 10,
             status: 1
         });
@@ -416,61 +416,64 @@ const ShopProductManagement = () => {
                 alert('Vui lòng nhập tên sản phẩm');
                 return;
             }
-            
+
             if (!editForm.type) {
                 alert('Vui lòng chọn loại sản phẩm');
                 return;
             }
-            
+
+            if (!editForm.price || editForm.price <= 0) {
+                alert('Vui lòng nhập giá hợp lệ');
+                return;
+            }
+
+            if (!editForm.quantity || editForm.quantity < 0) {
+                alert('Vui lòng nhập số lượng hợp lệ');
+                return;
+            }
+
             if (editForm.type === 'Pet') {
                 if (!editForm.petType) {
                     alert('Vui lòng chọn loại thú cưng');
                     return;
                 }
-                if (editForm.petType === 'Khác' && !editForm.customPetType.trim()) {
-                    alert('Vui lòng nhập loại thú cưng khác');
-                    return;
-                }
             }
-            
+
             if (editForm.type === 'CUSTOM' && !editForm.customType.trim()) {
                 alert('Vui lòng nhập loại sản phẩm tùy chỉnh');
                 return;
-            }
-            
-            // Determine the actual type to submit
+            }            // Determine the actual type to submit
             let actualType = '';
             if (editForm.type === 'Pet') {
-                // If pet type is "Khác", use the custom pet type value
-                if (editForm.petType === 'Khác') {
-                    actualType = editForm.customPetType;
-                } else {
-                    actualType = editForm.petType;
-                }
+                // Use the selected pet type directly
+                actualType = editForm.petType;
             } else if (editForm.type === 'CUSTOM') {
                 actualType = editForm.customType;
             } else {
                 actualType = editForm.type;
             }
-            
-            // Determine if this is a pet or item based on the actual type
-            const isPetType = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(actualType) || 
-                             (editForm.type === 'Pet' && editForm.petType === 'Khác' && editForm.customPetType);
-            
+
+            // Determine if this is a pet or item based on the type
+            const isPetType = editForm.type === 'Pet';
+
             // Prepare submission data
             const submissionData = {
                 ...editForm,
-                type: actualType, // Use the actual type (either pet type, predefined type, or custom)
+                type: actualType, // Use the actual type (pet type from selection, or item type)
+                price: parseFloat(editForm.price) || 0, // Ensure numeric
+                quantity: parseInt(editForm.quantity) || 0, // Ensure integer
+                status: parseInt(editForm.status) || 0, // Ensure integer
                 // Set shopId based on product type: Pet types = 1, Item types = 2
                 shopId: isPetType ? 1 : 2,
-                // Set petID only for pet types, null for item types
-                petID: isPetType ? editForm.petID : null
+                // Set petID to null for pet types (since we're not selecting specific pets anymore)
+                petID: null,
+                // Add adminId from current user
+                adminId: user?.adminId || user?.id
             };
 
             // Remove fields we don't want to submit
             delete submissionData.customType;
-            delete submissionData.petType;
-            delete submissionData.customPetType;
+            // Note: petType and customPetType are no longer used, but keep for backward compatibility
 
             // Remove undefined fields
             Object.keys(submissionData).forEach(key => {
@@ -478,6 +481,8 @@ const ShopProductManagement = () => {
                     delete submissionData[key];
                 }
             });
+
+            console.log('🚀 Submitting product data:', submissionData);
 
             if (isEdit) {
                 await updateShopProduct(editModal.product.shopProductId, submissionData);
@@ -498,14 +503,26 @@ const ShopProductManagement = () => {
                 description: '',
                 imageUrl: '',
                 price: '',
-                currencyType: 'COIN',
+                currencyType: 'Coin',
                 quantity: 10,
                 status: 1
             });
 
             refreshData();
         } catch (error) {
-            alert('Lỗi khi lưu sản phẩm: ' + error.message);
+            console.error('❌ Error saving product:', error);
+            console.error('❌ Error details:', error.response?.data);
+
+            let errorMessage = 'Lỗi khi lưu sản phẩm';
+            if (error.response?.data?.message) {
+                errorMessage += ': ' + error.response.data.message;
+            } else if (error.message) {
+                errorMessage += ': ' + error.message;
+            } else {
+                errorMessage += ': HTTP ' + (error.response?.status || 500);
+            }
+
+            alert(errorMessage);
         }
     };
 
@@ -542,7 +559,7 @@ const ShopProductManagement = () => {
                             <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong các cửa hàng một cách hiệu quả</p>
                         </div>
                     </div>
-                    
+
                     {/* Statistics in Header */}
                     <div className="hidden lg:flex items-center gap-6">
                         <div className="text-center">
@@ -554,9 +571,9 @@ const ShopProductManagement = () => {
                             </div>
                             <p className="text-2xl font-bold text-purple-600">{shopProducts.length}</p>
                         </div>
-                        
+
                         <div className="w-px h-12 bg-gray-300"></div>
-                        
+
                         <div className="text-center">
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
@@ -568,9 +585,9 @@ const ShopProductManagement = () => {
                                 {shopProducts.filter(p => p.status === 1).length}
                             </p>
                         </div>
-                        
+
                         <div className="w-px h-12 bg-gray-300"></div>
-                        
+
                         <div className="text-center">
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="p-1.5 bg-red-100 rounded-lg">
@@ -584,7 +601,7 @@ const ShopProductManagement = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Mobile Statistics */}
                 <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
                     <div className="grid grid-cols-3 gap-4">
@@ -595,7 +612,7 @@ const ShopProductManagement = () => {
                             </div>
                             <p className="text-lg font-bold text-purple-600">{shopProducts.length}</p>
                         </div>
-                        
+
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
@@ -605,7 +622,7 @@ const ShopProductManagement = () => {
                                 {shopProducts.filter(p => p.status === 1).length}
                             </p>
                         </div>
-                        
+
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
@@ -747,7 +764,7 @@ const ShopProductManagement = () => {
                                         {/* 1. Shop Type Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                 Loại vật phẩm
+                                                Loại vật phẩm
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -765,34 +782,10 @@ const ShopProductManagement = () => {
                                             </div>
                                         </div>
 
-                                        {/* 2. Pet Type Filter (conditional) */}
-                                        {shopTypeFilter === 'Pet' && (
-                                            <div className="space-y-2">
-                                                <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                     Loại thú cưng
-                                                </label>
-                                                <div className="relative">
-                                                    <select
-                                                        value={petTypeFilter}
-                                                        onChange={(e) => handlePetTypeFilter(e.target.value)}
-                                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                                    >
-                                                        <option value="all">🐾 Tất cả thú cưng</option>
-                                                        <option value="Cat">🐱 Mèo</option>
-                                                        <option value="Dog">🐶 Chó</option>
-                                                        <option value="Bird">🐦 Chim</option>
-                                                        <option value="Fish">🐟 Cá</option>
-                                                        <option value="Chicken">🐔 Gà</option>
-                                                    </select>
-                                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* 3. Currency Filter */}
+                                        {/* 2. Currency Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                 Tiền tệ
+                                                Tiền tệ
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -801,18 +794,18 @@ const ShopProductManagement = () => {
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
                                                     <option value="all"> Tất cả loại tiền</option>
-                                                    <option value="COIN">💰 Coin</option>
-                                                    <option value="DIAMOND">💎 Diamond</option>
-                                                    <option value="GEM">💜 Gem</option>
+                                                    <option value="Coin">Coin</option>
+                                                    <option value="Diamond">Diamond</option>
+                                                    <option value="Gem">Gem</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
 
-                                        {/* 4. Status Filter */}
+                                        {/* 3. Status Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                 Trạng thái
+                                                Trạng thái
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -840,21 +833,21 @@ const ShopProductManagement = () => {
                                     </div>                                    <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={clearAllFilters}
-                                            disabled={statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
-                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            disabled={statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
+                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                                 : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
                                                 }`}
                                         >
                                             <X className="h-4 w-4 mr-2" />
-                                            {statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && petTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            {statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'Không có bộ lọc nào'
                                                 : 'Xóa tất cả bộ lọc'
                                             }
                                         </button>
 
                                         {/* Filter Status Indicator */}
-                                        {(statusFilter !== 'all' || currencyFilter !== 'all' || shopTypeFilter !== 'all' || petTypeFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
+                                        {(statusFilter !== 'all' || currencyFilter !== 'all' || shopTypeFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
@@ -862,7 +855,6 @@ const ShopProductManagement = () => {
                                                     statusFilter !== 'all' && 'Trạng thái',
                                                     currencyFilter !== 'all' && 'Tiền tệ',
                                                     shopTypeFilter !== 'all' && 'Loại cửa hàng',
-                                                    petTypeFilter !== 'all' && 'Loại thú cưng',
                                                     sortConfig.key && 'Sắp xếp'
                                                 ].filter(Boolean).length} bộ lọc đang áp dụng
                                             </div>
@@ -929,12 +921,12 @@ const ShopProductManagement = () => {
                                                 </div>
                                                 <div className="text-center">
                                                     <h3 className="text-lg font-medium text-gray-900">Không có sản phẩm nào</h3>                                                    <p className="text-sm text-gray-500 mt-1">
-                                                        {(localSearchTerm || debouncedSearchTerm) || shopTypeFilter !== 'all' || petTypeFilter !== 'all' || statusFilter !== 'all' || currencyFilter !== 'all' ?
+                                                        {(localSearchTerm || debouncedSearchTerm) || shopTypeFilter !== 'all' || statusFilter !== 'all' || currencyFilter !== 'all' ?
                                                             'Không tìm thấy sản phẩm phù hợp với bộ lọc.' :
                                                             'Hãy bắt đầu bằng cách thêm sản phẩm mới.'
                                                         }
                                                     </p>
-                                                    {!(localSearchTerm || debouncedSearchTerm) && shopTypeFilter === 'all' && petTypeFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && (
+                                                    {!(localSearchTerm || debouncedSearchTerm) && shopTypeFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && (
                                                         <button
                                                             onClick={handleCreate}
                                                             className="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
@@ -975,7 +967,7 @@ const ShopProductManagement = () => {
                                         <td className="px-3 py-4">
                                             <div className="flex justify-center">
                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
-                                                    {getShopName(product.shopId) === 'Pet Shop' ? '🐾 Pet' : '📦 Item'}
+                                                    {getShopName(product.shopId) === 'Pet Shop' ? 'Pet' : 'Item'}
                                                 </span>
                                             </div>
                                         </td>
@@ -983,27 +975,22 @@ const ShopProductManagement = () => {
                                         {/* Type */}
                                         <td className="px-3 py-4">
                                             <div className="flex justify-center">
-                                                {product.type === 'FOOD' && (
+                                                {product.type === 'Food' && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        🍖 Food
+                                                        Food
                                                     </span>
                                                 )}
-                                                {product.type === 'TOY' && (
+                                                {product.type === 'Toy' && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                        🎾 Toy
+                                                        Toy
                                                     </span>
                                                 )}
                                                 {['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
-                                                        {product.type === 'Cat' && '🐱'}
-                                                        {product.type === 'Dog' && '🐶'}
-                                                        {product.type === 'Bird' && '🐦'}
-                                                        {product.type === 'Fish' && '🐟'}
-                                                        {product.type === 'Chicken' && '🐔'}
-                                                        {' ' + product.type}
+                                                        Pet
                                                     </span>
                                                 )}
-                                                {product.type && !['FOOD', 'TOY', 'Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
+                                                {product.type && !['Food', 'Toy', 'Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                         {product.type}
                                                     </span>
@@ -1015,11 +1002,6 @@ const ShopProductManagement = () => {
                                         <td className="px-3 py-4">
                                             <div className="flex items-center justify-center">
                                                 <div className="text-center">
-                                                    <div className="flex items-center justify-center">
-                                                        {product.currencyType === 'COIN' && <span className="mr-1">💰</span>}
-                                                        {product.currencyType === 'DIAMOND' && <span className="mr-1">💎</span>}
-                                                        {product.currencyType === 'GEM' && <span className="mr-1">💜</span>}
-                                                    </div>
                                                     <div className="text-xs font-medium text-gray-900">
                                                         {formatCurrency(product.price, product.currencyType)}
                                                     </div>
@@ -1041,11 +1023,11 @@ const ShopProductManagement = () => {
                                             <div className="flex justify-center">
                                                 {product.status === 1 ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        ✅ Active
+                                                        Active
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        ❌ Out
+                                                        Out
                                                     </span>
                                                 )}
                                             </div>
@@ -1124,10 +1106,10 @@ const ShopProductManagement = () => {
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
-            )}            
-            
+            )}
+
             {/* Create/Edit Modal */}
             {(createModal || editModal.isOpen) && (
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -1166,15 +1148,15 @@ const ShopProductManagement = () => {
                                     <select
                                         value={editForm.type}
                                         onChange={(e) => {
-                                            setEditForm({ ...editForm, type: e.target.value, customType: '', petType: '', customPetType: '' });
+                                            setEditForm({ ...editForm, type: e.target.value, customType: '', petType: '', petID: null });
                                         }}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
                                         <option value="">Chọn loại sản phẩm</option>
                                         <option value="Pet"> Thú cưng</option>
-                                        <option value="FOOD"> Thức ăn</option>
-                                        <option value="TOY"> Đồ chơi</option>
+                                        <option value="Food"> Thức ăn</option>
+                                        <option value="Toy"> Đồ chơi</option>
                                         <option value="CUSTOM"> Tự nhập loại khác</option>
                                     </select>
                                     <p className="mt-1 text-xs text-gray-500">
@@ -1185,41 +1167,28 @@ const ShopProductManagement = () => {
                                 {/* Pet Type Selection - only show when Pet is selected */}
                                 {editForm.type === 'Pet' && (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Loại thú cưng *</label>
+                                        <label className="block text-sm font-medium text-gray-700">Chọn loại thú cưng *</label>
                                         <select
-                                            value={editForm.petType}
-                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value, customPetType: '' })}
+                                            value={editForm.petType || ''}
+                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value, petID: null })}
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                             required
                                         >
                                             <option value="">Chọn loại thú cưng</option>
-                                            <option value="Cat">🐱 Mèo (Cat)</option>
-                                            <option value="Dog">🐶 Chó (Dog)</option>
-                                            <option value="Bird">🐦 Chim (Bird)</option>
-                                            <option value="Fish">🐟 Cá (Fish)</option>
-                                            <option value="Chicken">🐔 Gà (Chicken)</option>
-                                            <option value="Khác">❓ Khác</option>
+                                            {/* Get unique pet types from pets database */}
+                                            {[...new Set(pets.map(pet => pet.petType))].map(petType => (
+                                                <option key={petType} value={petType}>
+                                                    {petType}
+                                                </option>
+                                            ))}
                                         </select>
+                                        {petsLoading && (
+                                            <p className="mt-1 text-xs text-blue-600">
+                                                ⏳ Đang tải danh sách thú cưng...
+                                            </p>
+                                        )}
                                         <p className="mt-1 text-xs text-gray-500">
-                                            💡 Chọn loại thú cưng cụ thể
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Custom Pet Type Input - only show when Khác is selected */}
-                                {editForm.type === 'Pet' && editForm.petType === 'Khác' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Loại thú cưng khác *</label>
-                                        <input
-                                            type="text"
-                                            value={editForm.customPetType}
-                                            onChange={(e) => setEditForm({ ...editForm, customPetType: e.target.value })}
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                            placeholder="Nhập loại thú cưng (ví dụ: Hamster, Thỏ, Iguana, ...)"
-                                            required
-                                        />
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            💡 Nhập tên loại thú cưng không có trong danh sách
+                                            💡 Chọn loại thú cưng mà sản phẩm này dành cho
                                         </p>
                                     </div>
                                 )}
@@ -1340,9 +1309,9 @@ const ShopProductManagement = () => {
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="COIN">💰 COIN</option>
-                                        <option value="DIAMOND">💎 DIAMOND</option>
-                                        <option value="GEM">💜 GEM</option>
+                                        <option value="Coin">Coin</option>
+                                        <option value="Diamond">Diamond</option>
+                                        <option value="Gem">Gem</option>
                                     </select>
                                 </div>
 
@@ -1398,12 +1367,12 @@ const ShopProductManagement = () => {
                                 onClick={() => handleSubmit(editModal.isOpen)}
                                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                                 disabled={
-                                    !editForm.name.trim() || 
-                                    !editForm.type.trim() || 
+                                    !editForm.name.trim() ||
+                                    !editForm.type.trim() ||
                                     (editForm.type === 'Pet' && !editForm.petType.trim()) ||
                                     (editForm.type === 'Pet' && editForm.petType === 'Khác' && !editForm.customPetType.trim()) ||
                                     (editForm.type === 'CUSTOM' && !editForm.customType.trim()) ||
-                                    !editForm.price || 
+                                    !editForm.price ||
                                     !editForm.quantity
                                 }
                             >
@@ -1581,8 +1550,8 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Loại</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.type === 'FOOD' ? '🍖 Thức ăn' :
-                                            selectedProduct.type === 'TOY' ? '🎾 Đồ chơi' : selectedProduct.type}
+                                        {selectedProduct.type === 'Food' ? '🍖 Thức ăn' :
+                                            selectedProduct.type === 'Toy' ? '🎾 Đồ chơi' : selectedProduct.type}
                                     </p>
                                 </div>
 
@@ -1613,9 +1582,9 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Loại tiền tệ</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.currencyType === 'COIN' && '💰 COIN'}
-                                        {selectedProduct.currencyType === 'DIAMOND' && '💎 DIAMOND'}
-                                        {selectedProduct.currencyType === 'GEM' && '💜 GEM'}
+                                        {selectedProduct.currencyType === 'Coin' && 'Coin'}
+                                        {selectedProduct.currencyType === 'Diamond' && 'Diamond'}
+                                        {selectedProduct.currencyType === 'Gem' && 'Gem'}
                                     </p>
                                 </div>
 

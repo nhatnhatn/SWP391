@@ -30,7 +30,8 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(String petType, String petDefaultName, String description) {
+    public Pet(Integer adminId, String petType, String petDefaultName, String description) {
+        this.adminId = adminId;
         this.petType = petType;
         this.petDefaultName = petDefaultName;
         this.description = description;

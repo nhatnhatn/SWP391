@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Trash2, Eye, Filter, ChevronLeft, ChevronRight, PawPrint, RotateCcw, ChevronUp, ChevronDown, X, Save, Edit } from 'lucide-react';
 import { useSimplePets } from '../../hooks/useSimplePets';
+import { useAuth } from '../../contexts/AuthContextV2';
 
 // Simple Pet Management Component
 const PetManagement = () => {
+    // Use auth hook to get current user
+    const { user } = useAuth();
+
     // Use hook for data management
     const {
         pets,
@@ -197,8 +201,11 @@ const PetManagement = () => {
 
             const createData = {
                 ...editForm,
-                petType: finalPetType
+                petType: finalPetType,
+                adminId: user?.id // Thêm adminId từ user hiện tại
             };
+
+            console.log('🐾 Creating pet with admin ID:', { adminId: user?.id, createData });
             await createPet(createData);
             setCreateModal(false);
             alert('Tạo thú cưng thành công!');
