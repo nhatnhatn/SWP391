@@ -652,7 +652,7 @@ const ShopProductManagement = () => {
 
             {/* Search and Filters Section */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-5 border-b border-purple-100">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 border-b border-purple-100">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -703,6 +703,7 @@ const ShopProductManagement = () => {
                                         </button>
                                     )}
                                 </div>
+
                                 <button
                                     onClick={handleCreate}
                                     className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3.5 rounded-lg hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 whitespace-nowrap"
@@ -710,6 +711,7 @@ const ShopProductManagement = () => {
                                     <Plus className="h-5 w-5" />
                                     Thêm Sản phẩm
                                 </button>
+
                             </div>                            {(localSearchTerm || debouncedSearchTerm) && (
                                 <div className="bg-purple-100 rounded-md p-3 border border-purple-200">
                                     <div className="flex items-center gap-2">
@@ -754,13 +756,13 @@ const ShopProductManagement = () => {
                         {showAdvancedFilters && (
                             <div className="space-y-6 animate-in slide-in-from-top-2 duration-300">
                                 {/* Content Filters */}
-                                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-100">
+                                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
                                     <div className="flex items-center gap-2 mb-3">
-                                        <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
+                                        <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-700">Lọc theo nội dung</span>
-                                    </div>                                    <div className={`grid grid-cols-1 gap-4 ${shopTypeFilter === 'Pet' ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+                                    </div>                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                         {/* 1. Shop Type Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
@@ -773,10 +775,10 @@ const ShopProductManagement = () => {
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
                                                     <option value="all"> Tất cả vật phẩm</option>
-                                                    <option value="Pet"> Thú cưng</option>
-                                                    <option value="Food"> Thức ăn</option>
-                                                    <option value="Toy"> Đồ chơi</option>
-                                                    <option value="Others"> Khác</option>
+                                                    <option value="Pet"> Pet</option>
+                                                    <option value="Food"> Food</option>
+                                                    <option value="Toy"> Toy</option>
+                                                    <option value="Others"> Others</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -814,8 +816,8 @@ const ShopProductManagement = () => {
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
                                                     <option value="all"> Tất cả trạng thái</option>
-                                                    <option value="active"> Đang bán</option>
-                                                    <option value="outOfStock"> Hết hàng</option>
+                                                    <option value="active"> Active</option>
+                                                    <option value="outOfStock"> Out of stock</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -878,35 +880,31 @@ const ShopProductManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[28%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
+                                <col className="w-[35%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Sản phẩm
                                     </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Cửa hàng
-                                    </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Loại
                                     </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Giá
                                     </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Số lượng
                                     </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Trạng thái
                                     </th>
-                                    <th className="px-3 py-4 text-center text-sm font-bold text-white uppercase tracking-wide">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
                                         Hành động
                                     </th>
                                 </tr>
@@ -914,7 +912,7 @@ const ShopProductManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-12 text-center">
+                                        <td colSpan="6" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                     <Package className="h-8 w-8 text-gray-400" />
@@ -943,7 +941,7 @@ const ShopProductManagement = () => {
                                     <tr key={product.shopProductId} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200">
                                         {/* Product Info */}
                                         <td className="px-3 py-4">
-                                            <div className="flex items-center justify-center space-x-3">
+                                            <div className="flex items-start space-x-3 ml-10">
                                                 {product.imageUrl ? (
                                                     <ProductImage
                                                         imageUrl={product.imageUrl}
@@ -955,20 +953,11 @@ const ShopProductManagement = () => {
                                                         <Package className="h-5 w-5 text-gray-400" />
                                                     </div>
                                                 )}
-                                                <div className="text-center">
-                                                    <div className="text-sm font-bold text-gray-900 truncate" title={product.name}>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-bold text-gray-900 break-words" title={product.name}>
                                                         {product.name}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </td>
-
-                                        {/* Shop */}
-                                        <td className="px-3 py-4">
-                                            <div className="flex justify-center">
-                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
-                                                    {getShopName(product.shopId) === 'Pet Shop' ? 'Pet' : 'Item'}
-                                                </span>
                                             </div>
                                         </td>
 
@@ -1027,7 +1016,7 @@ const ShopProductManagement = () => {
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        Out
+                                                        OutOfStock
                                                     </span>
                                                 )}
                                             </div>
@@ -1118,15 +1107,6 @@ const ShopProductManagement = () => {
                             <h3 className="text-lg font-bold text-gray-900">
                                 {createModal ? 'Thêm Sản phẩm Mới' : 'Chỉnh sửa Sản phẩm'}
                             </h3>
-                            <button
-                                onClick={() => {
-                                    setCreateModal(false);
-                                    setEditModal({ isOpen: false, product: null });
-                                }}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                ✕
-                            </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1154,13 +1134,13 @@ const ShopProductManagement = () => {
                                         required
                                     >
                                         <option value="">Chọn loại sản phẩm</option>
-                                        <option value="Pet"> Thú cưng</option>
-                                        <option value="Food"> Thức ăn</option>
-                                        <option value="Toy"> Đồ chơi</option>
-                                        <option value="CUSTOM"> Tự nhập loại khác</option>
+                                        <option value="Pet"> Pet</option>
+                                        <option value="Food"> Food</option>
+                                        <option value="Toy"> Toy</option>
+                                        <option value="CUSTOM"> Others</option>
                                     </select>
                                     <p className="mt-1 text-xs text-gray-500">
-                                        � Chọn loại sản phẩm: thú cưng, thức ăn, đồ chơi, hoặc tự nhập
+                                        Chọn loại sản phẩm: thú cưng, thức ăn, đồ chơi, hoặc tự nhập
                                     </p>
                                 </div>
 
@@ -1188,7 +1168,7 @@ const ShopProductManagement = () => {
                                             </p>
                                         )}
                                         <p className="mt-1 text-xs text-gray-500">
-                                            💡 Chọn loại thú cưng mà sản phẩm này dành cho
+                                            Chọn loại thú cưng mà sản phẩm này dành cho
                                         </p>
                                     </div>
                                 )}
@@ -1206,7 +1186,7 @@ const ShopProductManagement = () => {
                                             required
                                         />
                                         <p className="mt-1 text-xs text-gray-500">
-                                            💡 Nhập tên loại sản phẩm tùy chỉnh
+                                            Nhập tên loại sản phẩm tùy chỉnh
                                         </p>
                                     </div>
                                 )}
@@ -1268,7 +1248,7 @@ const ShopProductManagement = () => {
                                         placeholder="Dán link Google Drive hoặc URL ảnh khác tại đây..."
                                     />
                                     <p className="mt-1 text-xs text-gray-500">
-                                        💡 Hỗ trợ tự động chuyển đổi link Google Drive sang định dạng hiển thị phù hợp
+                                        Hỗ trợ tự động chuyển đổi link Google Drive sang định dạng hiển thị phù hợp
                                     </p>
                                     {linkConverted && (
                                         <p className="mt-1 text-xs text-green-600 font-medium">
@@ -1335,8 +1315,8 @@ const ShopProductManagement = () => {
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="1">✅ Đang bán</option>
-                                        <option value="0">❌ Hết hàng</option>
+                                        <option value="1"> Đang bán</option>
+                                        <option value="0"> Hết hàng</option>
                                     </select>
                                 </div>
                             </div>

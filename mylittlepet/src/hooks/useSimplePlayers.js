@@ -20,7 +20,28 @@ export const useSimplePlayers = () => {
     });
 
     // Paginated players state for display
-    const [paginatedPlayers, setPaginatedPlayers] = useState([]);    // Load players - simple version with pagination support
+    const [paginatedPlayers, setPaginatedPlayers] = useState([]);
+
+    // Load stats - simple version (defined first to avoid reference errors)
+    const loadStats = useCallback(async () => {
+        try {
+            // Always fetch fresh data from API for accurate stats
+            const allPlayers = await apiService.getAllPlayers();
+            const statsData = {
+                total: allPlayers.length,
+                active: allPlayers.filter(p => p.userStatus === 'ACTIVE').length,
+                banned: allPlayers.filter(p => p.userStatus === 'BANNED').length,
+                inactive: allPlayers.filter(p => p.userStatus === 'INACTIVE').length
+            };
+            setStats(statsData);
+            console.log('📊 Stats updated:', statsData);
+        } catch (error) {
+            console.error('Load stats error:', error);
+            setStats({ total: 0, active: 0, banned: 0, inactive: 0 });
+        }
+    }, []);
+
+    // Load players - simple version with pagination support
     const loadPlayers = useCallback(async (page = 0) => {
         try {
             setLoading(true);
@@ -67,32 +88,18 @@ export const useSimplePlayers = () => {
     // Simple refresh function for pagination
     const refreshCurrentPage = useCallback(async () => {
         await loadPlayers(pagination.currentPage);
-    }, [loadPlayers, pagination.currentPage]);
+        await loadStats(); // Also refresh statistics when refreshing page
+    }, [loadPlayers, pagination.currentPage, loadStats]);
 
-    // Load stats - simple version
-    const loadStats = useCallback(async () => {
-        try {
-            // Calculate basic stats from players data
-            const allPlayers = await apiService.getAllPlayers();
-            const statsData = {
-                total: allPlayers.length,
-                active: allPlayers.filter(p => p.userStatus === 'ACTIVE').length,
-                banned: allPlayers.filter(p => p.userStatus === 'BANNED').length,
-                inactive: allPlayers.filter(p => p.userStatus === 'INACTIVE').length
-            };
-            setStats(statsData);
-        } catch (error) {
-            console.error('Load stats error:', error);
-            setStats({ total: 0, active: 0, banned: 0, inactive: 0 });
-        }
-    }, []);    // Update player - simple version
+    // Update player - simple version
     const updatePlayer = useCallback(async (id, playerData) => {
         try {
             setLoading(true);
 
             const updatedPlayer = await apiService.updatePlayer(id, playerData);
             console.log('✅ Player updated:', updatedPlayer);
-            await loadPlayers(); // Refresh list
+            await loadPlayers(pagination.currentPage); // Refresh current page
+            await loadStats(); // Update statistics if player status might have changed
             return updatedPlayer;
 
         } catch (error) {
@@ -101,7 +108,7 @@ export const useSimplePlayers = () => {
         } finally {
             setLoading(false);
         }
-    }, [loadPlayers]);    // Delete player - simple version
+    }, [loadPlayers, loadStats, pagination.currentPage]);    // Delete player - simple version
     const deletePlayer = useCallback(async (id) => {
         try {
             setLoading(true);
@@ -122,11 +129,12 @@ export const useSimplePlayers = () => {
             await apiService.banPlayer(id, banEndDate);
             console.log('✅ Player banned:', id, banEndDate ? `until ${banEndDate.toLocaleDateString('vi-VN')}` : '');
             await refreshCurrentPage();
+            await loadStats(); // Update statistics immediately after banning
         } catch (error) {
             console.error('Ban player error:', error);
             throw error;
         }
-    }, [refreshCurrentPage]);
+    }, [refreshCurrentPage, loadStats]);
 
     // Unban player - simple version with pagination refresh
     const unbanPlayer = useCallback(async (id) => {
@@ -134,11 +142,12 @@ export const useSimplePlayers = () => {
             await apiService.unbanPlayer(id);
             console.log('✅ Player unbanned:', id);
             await refreshCurrentPage();
+            await loadStats(); // Update statistics immediately after unbanning
         } catch (error) {
             console.error('Unban player error:', error);
             throw error;
         }
-    }, [refreshCurrentPage]);
+    }, [refreshCurrentPage, loadStats]);
 
     // Get player by ID - new function
     const getPlayerById = useCallback(async (id) => {
@@ -234,7 +243,7 @@ export const useSimplePlayers = () => {
     useEffect(() => {
         loadPlayers(0);
         loadStats();
-    }, []);
+    }, [loadPlayers, loadStats]);
 
     // Return all functions and state - simplified version
     return {
