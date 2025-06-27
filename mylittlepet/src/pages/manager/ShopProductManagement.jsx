@@ -209,10 +209,10 @@ const ShopProductManagement = () => {
                 }
             }
 
-            // 1. Status filter (Đang hoạt động, Hết hàng)
+            // 1. Status filter (Active, InActive)
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active' && product.status !== 1) return false;
-                if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
+                if (statusFilter === 'inactive' && product.status !== 0) return false;
             }
 
             // 2. Currency filter (Coin, Diamond, Gem)
@@ -817,7 +817,7 @@ const ShopProductManagement = () => {
                                                 >
                                                     <option value="all"> Tất cả trạng thái</option>
                                                     <option value="active"> Active</option>
-                                                    <option value="outOfStock"> Out of stock</option>
+                                                    <option value="inactive"> InActive</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -1016,7 +1016,7 @@ const ShopProductManagement = () => {
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        OutOfStock
+                                                        InActive
                                                     </span>
                                                 )}
                                             </div>
@@ -1315,8 +1315,8 @@ const ShopProductManagement = () => {
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="1"> Đang bán</option>
-                                        <option value="0"> Hết hàng</option>
+                                        <option value="1"> Active</option>
+                                        <option value="0"> InActive</option>
                                     </select>
                                 </div>
                             </div>
@@ -1576,7 +1576,7 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.status === 1 ? '✅ Đang bán' : '❌ Hết hàng'}
+                                        {selectedProduct.status === 1 ? 'Active' : 'InActive'}
                                     </p>
                                 </div>
 
