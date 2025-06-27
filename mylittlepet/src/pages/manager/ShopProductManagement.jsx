@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save } from 'lucide-react';
+import { Search, Plus, Edit, Power, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save, RotateCcw } from 'lucide-react';
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
@@ -209,10 +209,10 @@ const ShopProductManagement = () => {
                 }
             }
 
-            // 1. Status filter (Active, InActive)
+            // 1. Status filter (Đang hoạt động, Hết hàng)
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active' && product.status !== 1) return false;
-                if (statusFilter === 'inactive' && product.status !== 0) return false;
+                if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
             }
 
             // 2. Currency filter (Coin, Diamond, Gem)
@@ -403,9 +403,48 @@ const ShopProductManagement = () => {
         setCreateModal(true);
     };
 
-    // Handle delete
-    const handleDelete = (product) => {
-        setDeleteModal({ isOpen: true, product });
+    // Handle delete (disable product)
+    const handleDelete = async (productId) => {
+        const product = shopProducts.find(p => p.shopProductId === productId);
+        if (!product) return;
+
+        if (product.status === 0) {
+            alert('Sản phẩm này đã bị vô hiệu hóa rồi!');
+            return;
+        }
+
+        if (window.confirm('Bạn có chắc muốn vô hiệu hóa sản phẩm này?')) {
+            try {
+                // Update product status to 0 (inactive)
+                await updateShopProduct(productId, { ...product, status: 0 });
+                alert('Vô hiệu hóa sản phẩm thành công!');
+            } catch (error) {
+                console.error('Failed to disable product:', error);
+                alert('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
+            }
+        }
+    };
+
+    // Handle enable product
+    const handleEnable = async (productId) => {
+        const product = shopProducts.find(p => p.shopProductId === productId);
+        if (!product) return;
+
+        if (product.status === 1) {
+            alert('Sản phẩm này đã được kích hoạt rồi!');
+            return;
+        }
+
+        if (window.confirm('Bạn có chắc muốn kích hoạt lại sản phẩm này?')) {
+            try {
+                // Update product status to 1 (active)
+                await updateShopProduct(productId, { ...product, status: 1 });
+                alert('Kích hoạt sản phẩm thành công!');
+            } catch (error) {
+                console.error('Failed to enable product:', error);
+                alert('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
+            }
+        }
     };
 
     // Handle form submission for create/edit
@@ -579,7 +618,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang Bán</p>
+                                <p className="text-sm font-medium text-gray-600">Đang Hoạt động</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -593,7 +632,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Hết Hàng</p>
+                                <p className="text-sm font-medium text-gray-600">Không Hoạt động</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -616,7 +655,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Đang Bán</p>
+                                <p className="text-xs font-medium text-gray-600">Hoạt động</p>
                             </div>
                             <p className="text-lg font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -626,7 +665,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Hết Hàng</p>
+                                <p className="text-xs font-medium text-gray-600">Không hoạt động</p>
                             </div>
                             <p className="text-lg font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -816,8 +855,8 @@ const ShopProductManagement = () => {
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
                                                     <option value="all"> Tất cả trạng thái</option>
-                                                    <option value="active"> Active</option>
-                                                    <option value="inactive"> InActive</option>
+                                                    <option value="active"> Đang hoạt động</option>
+                                                    <option value="outOfStock"> Không hoạt động</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -1012,11 +1051,11 @@ const ShopProductManagement = () => {
                                             <div className="flex justify-center">
                                                 {product.status === 1 ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        Active
+                                                        Hoạt động
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        InActive
+                                                        Không hoạt động
                                                     </span>
                                                 )}
                                             </div>
@@ -1032,20 +1071,23 @@ const ShopProductManagement = () => {
                                                 >
                                                     <Eye className="w-3.5 h-3.5" />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleEdit(product)}
-                                                    className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                    title="Chỉnh sửa"
-                                                >
-                                                    <Edit className="w-3.5 h-3.5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(product)}
-                                                    className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                    title="Xóa"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
+                                                {product.status === 1 ? (
+                                                    <button
+                                                        onClick={() => handleDelete(product.shopProductId)}
+                                                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Vô hiệu hóa"
+                                                    >
+                                                        <Power className="w-3.5 h-3.5" />
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleEnable(product.shopProductId)}
+                                                        className="text-green-600 hover:text-green-900 hover:bg-green-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="Kích hoạt"
+                                                    >
+                                                        <RotateCcw className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -1315,8 +1357,8 @@ const ShopProductManagement = () => {
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="1"> Active</option>
-                                        <option value="0"> InActive</option>
+                                        <option value="1"> Đang bán</option>
+                                        <option value="0"> Hết hàng</option>
                                     </select>
                                 </div>
                             </div>
@@ -1576,7 +1618,7 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.status === 1 ? 'Active' : 'InActive'}
+                                        {selectedProduct.status === 1 ? '✅ Đang bán' : '❌ Hết hàng'}
                                     </p>
                                 </div>
 

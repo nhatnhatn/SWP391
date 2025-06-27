@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Trash2, Eye, Filter, ChevronLeft, ChevronRight, PawPrint, RotateCcw, ChevronUp, ChevronDown, X, Save, Edit } from 'lucide-react';
+import { Search, Plus, Power, Eye, Filter, ChevronLeft, ChevronRight, PawPrint, RotateCcw, ChevronUp, ChevronDown, X, Save, Edit } from 'lucide-react';
 import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
 
@@ -152,7 +152,7 @@ const PetManagement = () => {
         setSelectedPet(pet);
     };    // Handle Edit from detail modal
     const handleEdit = (pet) => {
-        const isOtherType = pet.petType && !['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(pet.petType);
+        const isOtherType = pet.petType && !persistentPetTypes.includes(pet.petType);
         setEditForm({
             petType: isOtherType ? 'Other' : (pet.petType || ''),
             petDefaultName: pet.petDefaultName || '',
@@ -165,8 +165,26 @@ const PetManagement = () => {
     };    // Submit edit from detail modal
     const handleEditSubmit = async () => {
         try {
+            // Basic validation
+            if (!editForm.petType) {
+                alert('Vui lòng chọn loại thú cưng');
+                return;
+            }
+
+            // Validation for custom pet type
+            if (editForm.petType === 'Other' && !editForm.customPetType.trim()) {
+                alert('Vui lòng nhập tên loài thú cưng tùy chỉnh');
+                return;
+            }
+
+            // Validation for custom pet type length
+            if (editForm.petType === 'Other' && editForm.customPetType.trim().length < 2) {
+                alert('Tên loài thú cưng tùy chỉnh phải có ít nhất 2 ký tự');
+                return;
+            }
+
             const finalPetType = editForm.petType === 'Other' && editForm.customPetType
-                ? editForm.customPetType
+                ? editForm.customPetType.trim()
                 : editForm.petType;
 
             const updatedData = {
@@ -228,8 +246,26 @@ const PetManagement = () => {
     // Submit create
     const handleCreateSubmit = async () => {
         try {
+            // Basic validation
+            if (!editForm.petType) {
+                alert('Vui lòng chọn loại thú cưng');
+                return;
+            }
+
+            // Validation for custom pet type
+            if (editForm.petType === 'Other' && !editForm.customPetType.trim()) {
+                alert('Vui lòng nhập tên loài thú cưng tùy chỉnh');
+                return;
+            }
+
+            // Validation for custom pet type length
+            if (editForm.petType === 'Other' && editForm.customPetType.trim().length < 2) {
+                alert('Tên loài thú cưng tùy chỉnh phải có ít nhất 2 ký tự');
+                return;
+            }
+
             const finalPetType = editForm.petType === 'Other' && editForm.customPetType
-                ? editForm.customPetType
+                ? editForm.customPetType.trim()
                 : editForm.petType;
 
             const createData = {
@@ -317,6 +353,35 @@ const PetManagement = () => {
             </span>
         ) : (
             <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">                Vô hiệu hóa
+            </span>
+        );
+    };
+
+    // Get pet type badge with dynamic styling
+    const getPetTypeBadge = (petType) => {
+        if (!petType) {
+            return (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300 shadow-sm">
+                    N/A
+                </span>
+            );
+        }
+
+        // Define colors for common pet types
+        const petTypeColors = {
+            'Cat': 'from-pink-100 to-rose-100 text-pink-800 border-pink-200',
+            'Dog': 'from-amber-100 to-yellow-100 text-amber-800 border-amber-200',
+            'Bird': 'from-sky-100 to-blue-100 text-sky-800 border-sky-200',
+            'Fish': 'from-cyan-100 to-teal-100 text-cyan-800 border-cyan-200',
+            'Chicken': 'from-orange-100 to-red-100 text-orange-800 border-orange-200'
+        };
+
+        // Use specific color if available, otherwise use purple for custom types
+        const colorClass = petTypeColors[petType] || 'from-purple-100 to-indigo-100 text-purple-800 border-purple-200';
+
+        return (
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${colorClass} shadow-sm`}>
+                {petType}
             </span>
         );
     };
@@ -868,41 +933,7 @@ const PetManagement = () => {
 
                                             <td className="px-3 py-4">
                                                 <div className="flex justify-center">
-                                                    {pet.petType === 'Cat' && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 border border-pink-200 shadow-sm">
-                                                            Cat
-                                                        </span>
-                                                    )}
-                                                    {pet.petType === 'Dog' && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200 shadow-sm">
-                                                            Dog
-                                                        </span>
-                                                    )}
-                                                    {pet.petType === 'Bird' && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-sky-100 to-blue-100 text-sky-800 border border-sky-200 shadow-sm">
-                                                            Bird
-                                                        </span>
-                                                    )}
-                                                    {pet.petType === 'Fish' && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-cyan-100 to-teal-100 text-cyan-800 border border-cyan-200 shadow-sm">
-                                                            Fish
-                                                        </span>
-                                                    )}
-                                                    {pet.petType === 'Chicken' && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                            Chicken
-                                                        </span>
-                                                    )}
-                                                    {pet.petType && !['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(pet.petType) && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
-                                                            {pet.petType}
-                                                        </span>
-                                                    )}
-                                                    {!pet.petType && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300 shadow-sm">
-                                                            N/A
-                                                        </span>
-                                                    )}
+                                                    {getPetTypeBadge(pet.petType)}
                                                 </div>
                                             </td>
 
@@ -937,20 +968,14 @@ const PetManagement = () => {
                                                     >
                                                         <Eye className="w-3.5 h-3.5" />
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleEdit(pet)}
-                                                        className="text-amber-600 hover:text-amber-900 hover:bg-amber-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Chỉnh sửa"
-                                                    >
-                                                        <Edit className="w-3.5 h-3.5" />
-                                                    </button>
+
                                                     {pet.petStatus === 1 ? (
                                                         <button
                                                             onClick={() => handleDelete(pet.petId)}
                                                             className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                                             title="Vô hiệu hóa"
                                                         >
-                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            <Power className="w-3.5 h-3.5" />
                                                         </button>
                                                     ) : (
                                                         <button
@@ -1024,17 +1049,20 @@ const PetManagement = () => {
                             {/* Pet Type */}                            <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Loại thú cưng
-                                </label>                                <select
-                                    value={editForm.petType}
+                                </label>
+                                <select
+                                    value={editForm.petType || ''}
                                     onChange={(e) => handlePetTypeChange(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
                                 >
                                     <option value="">Chọn loại thú cưng</option>
-                                    <option value="Cat">Mèo</option>
-                                    <option value="Dog">Chó</option>
-                                    <option value="Bird">Chim</option>
-                                    <option value="Fish">Cá</option>
-                                    <option value="Chicken">Gà</option>
+                                    {/* Get unique pet types from pets database */}
+                                    {[...new Set(pets.map(pet => pet.petType).filter(Boolean))].map(petType => (
+                                        <option key={petType} value={petType}>
+                                            {petType}
+                                        </option>
+                                    ))}
                                     <option value="Other">Khác</option>
                                 </select>
                             </div>
@@ -1043,7 +1071,7 @@ const PetManagement = () => {
                             {showCustomPetType && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Tên loài tùy chỉnh
+                                        Tên loài tùy chỉnh *
                                     </label>
                                     <input
                                         type="text"
@@ -1051,7 +1079,11 @@ const PetManagement = () => {
                                         onChange={(e) => setEditForm({ ...editForm, customPetType: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Nhập tên loài thú cưng..."
+                                        required
                                     />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Ví dụ: Hamster, Rabbit, Turtle, v.v.
+                                    </p>
                                 </div>
                             )}
 
@@ -1142,16 +1174,20 @@ const PetManagement = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Loại thú cưng
-                                </label>                                <select
-                                    value={editForm.petType}
+                                </label>
+                                <select
+                                    value={editForm.petType || ''}
                                     onChange={(e) => handlePetTypeChange(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >                                    <option value="">Chọn loại thú cưng</option>
-                                    <option value="Cat">Mèo</option>
-                                    <option value="Dog">Chó</option>
-                                    <option value="Bird">Chim</option>
-                                    <option value="Fish">Cá</option>
-                                    <option value="Chicken">Gà</option>
+                                    required
+                                >
+                                    <option value="">Chọn loại thú cưng</option>
+                                    {/* Get unique pet types from pets database */}
+                                    {[...new Set(pets.map(pet => pet.petType).filter(Boolean))].map(petType => (
+                                        <option key={petType} value={petType}>
+                                            {petType}
+                                        </option>
+                                    ))}
                                     <option value="Other">Khác</option>
                                 </select>
                             </div>
@@ -1160,7 +1196,7 @@ const PetManagement = () => {
                             {showCustomPetType && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Tên loài tùy chỉnh
+                                        Tên loài tùy chỉnh *
                                     </label>
                                     <input
                                         type="text"
@@ -1168,7 +1204,11 @@ const PetManagement = () => {
                                         onChange={(e) => setEditForm({ ...editForm, customPetType: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Nhập tên loài thú cưng..."
+                                        required
                                     />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Ví dụ: Hamster, Rabbit, Turtle, v.v.
+                                    </p>
                                 </div>
                             )}
 
