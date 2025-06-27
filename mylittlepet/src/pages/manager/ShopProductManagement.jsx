@@ -435,7 +435,8 @@ const ShopProductManagement = () => {
                 return;
             }
 
-            if (!editForm.type) {
+            // Chỉ validate type khi đang tạo mới sản phẩm
+            if (createModal && !editForm.type) {
                 alert('Vui lòng chọn loại sản phẩm');
                 return;
             }
@@ -450,41 +451,48 @@ const ShopProductManagement = () => {
                 return;
             }
 
-            if (editForm.type === 'Pet') {
+            // Chỉ validate pet type khi đang tạo mới và loại sản phẩm là Pet
+            if (!isEdit && editForm.type === 'Pet') {
                 if (!editForm.petType) {
                     alert('Vui lòng chọn loại thú cưng');
                     return;
                 }
             }
 
-            // Determine the actual type to submit
+            // Determine the actual type to submit - chỉ khi tạo mới
             let actualType = '';
-            if (editForm.type === 'Pet') {
-                // Use the selected pet type directly
-                actualType = editForm.petType;
-            } else {
-                actualType = editForm.type;
+            let isPetType = false;
+
+            if (!isEdit) {
+                // Logic xử lý type chỉ cho tạo mới sản phẩm
+                if (editForm.type === 'Pet') {
+                    // Use the selected pet type directly
+                    actualType = editForm.petType;
+                    isPetType = true;
+                } else {
+                    actualType = editForm.type;
+                    isPetType = false;
+                }
             }
 
-            // Determine if this is a pet or item based on the type
-            const isPetType = editForm.type === 'Pet';
-
             // Prepare submission data
-            const submissionData = {
+            let submissionData = {
                 ...editForm,
-                type: actualType, // Use the actual type (pet type from selection, or item type)
                 price: parseFloat(editForm.price) || 0, // Ensure numeric
                 quantity: parseInt(editForm.quantity) || 0, // Ensure integer
                 status: parseInt(editForm.status) || 0, // Ensure integer
-                // Set shopId based on product type: Pet types = 1, Item types = 2
-                shopId: isPetType ? 1 : 2,
-                // Set petID to null for pet types (since we're not selecting specific pets anymore)
-                petID: null,
                 // Add adminId from current user
                 adminId: user?.adminId || user?.id
             };
 
-            // Remove petType field since we use type directly
+            // Chỉ thêm logic type khi tạo mới
+            if (!isEdit) {
+                submissionData.type = actualType; // Use the actual type (pet type from selection, or item type)
+                submissionData.shopId = isPetType ? 1 : 2; // Set shopId based on product type: Pet types = 1, Item types = 2
+                submissionData.petID = null; // Set petID to null for pet types (since we're not selecting specific pets anymore)
+            }
+
+            // Remove petType field since we use type directly (or not needed for edit)
             delete submissionData.petType;
 
             // Remove undefined fields
@@ -589,7 +597,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang Hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Active</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -603,7 +611,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Không Hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Inactive</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -626,7 +634,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Hoạt động</p>
+                                <p className="text-xs font-medium text-gray-600">Active</p>
                             </div>
                             <p className="text-lg font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -636,7 +644,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Không hoạt động</p>
+                                <p className="text-xs font-medium text-gray-600">Inactive</p>
                             </div>
                             <p className="text-lg font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -825,13 +833,121 @@ const ShopProductManagement = () => {
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
                                                     <option value="all"> Tất cả trạng thái</option>
-                                                    <option value="active"> Đang hoạt động</option>
-                                                    <option value="outOfStock"> Không hoạt động</option>
+                                                    <option value="active"> Active</option>
+                                                    <option value="outOfStock">Inactive</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Sort Section */}
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <ChevronUp className="h-2 w-2 text-white" />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700">Sắp xếp dữ liệu</span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        {/* Sort Field */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Sắp xếp theo
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={sortConfig.key || ''}
+                                                    onChange={(e) => {
+                                                        const key = e.target.value;
+                                                        if (key) {
+                                                            handleSort(key);
+                                                        } else {
+                                                            setSortConfig({ key: null, direction: 'asc' });
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value=""> Không sắp xếp</option>
+                                                    <option value="name">Tên sản phẩm</option>
+                                                    <option value="price">Giá</option>
+                                                    <option value="quantity">Số lượng</option>
+                                                    <option value="status">Trạng thái</option>
+                                                    <option value="type">Loại sản phẩm</option>
+                                                    <option value="currencyType">Loại tiền tệ</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+
+                                        {/* Sort Direction */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Thứ tự
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setSortConfig(prev => ({ ...prev, direction: 'asc' }))}
+                                                    disabled={!sortConfig.key}
+                                                    className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-sm font-medium ${sortConfig.direction === 'asc' && sortConfig.key
+                                                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                        : sortConfig.key
+                                                            ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <ChevronUp className="h-4 w-4" />
+                                                        Tăng dần
+                                                    </div>
+                                                </button>
+                                                <button
+                                                    onClick={() => setSortConfig(prev => ({ ...prev, direction: 'desc' }))}
+                                                    disabled={!sortConfig.key}
+                                                    className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-sm font-medium ${sortConfig.direction === 'desc' && sortConfig.key
+                                                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                        : sortConfig.key
+                                                            ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <ChevronDown className="h-4 w-4" />
+                                                        Giảm dần
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Current Sort Display */}
+                                    {sortConfig.key && (
+                                        <div className="mt-3 p-2.5 bg-blue-100 rounded-lg border border-blue-200">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                                    <span className="text-blue-800 font-medium">
+                                                        Đang sắp xếp theo: <span className="font-bold">
+                                                            {sortConfig.key === 'name' && 'Tên sản phẩm'}
+                                                            {sortConfig.key === 'price' && 'Giá'}
+                                                            {sortConfig.key === 'quantity' && 'Số lượng'}
+                                                            {sortConfig.key === 'status' && 'Trạng thái'}
+                                                            {sortConfig.key === 'type' && 'Loại sản phẩm'}
+                                                            {sortConfig.key === 'currencyType' && 'Loại tiền tệ'}
+                                                        </span> ({sortConfig.direction === 'asc' ? 'Tăng dần' : 'Giảm dần'})
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => setSortConfig({ key: null, direction: 'asc' })}
+                                                    className="text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
+                                                >
+                                                    Bỏ sắp xếp
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Clear Filters */}
@@ -878,6 +994,39 @@ const ShopProductManagement = () => {
                 </div>
             </div>
 
+            {/* Results Summary */}
+            {(debouncedSearchTerm || statusFilter !== 'all' || currencyFilter !== 'all' || shopTypeFilter !== 'all' || sortConfig.key) && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                        <div className="flex items-center gap-2">
+                            <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-sm font-medium text-gray-700">
+                                Hiển thị <span className="font-bold text-blue-600">{currentProducts.length}</span> / <span className="font-bold">{totalItems}</span> sản phẩm
+                                {debouncedSearchTerm && <span className="text-gray-500"> với từ khóa "{debouncedSearchTerm}"</span>}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                            {sortConfig.key && (
+                                <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded border">
+                                    {sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                    <span>Sắp xếp: {
+                                        sortConfig.key === 'name' ? 'Tên' :
+                                            sortConfig.key === 'price' ? 'Giá' :
+                                                sortConfig.key === 'quantity' ? 'Số lượng' :
+                                                    sortConfig.key === 'status' ? 'Trạng thái' :
+                                                        sortConfig.key === 'type' ? 'Loại' :
+                                                            sortConfig.key === 'currencyType' ? 'Tiền tệ' :
+                                                                sortConfig.key
+                                    } ({sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})</span>
+                                </div>
+                            )}
+                            <span>Trang {currentPage}/{totalPages}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Product Table */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 {loading ? (
@@ -899,23 +1048,78 @@ const ShopProductManagement = () => {
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Sản phẩm
+                                    <th
+                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
+                                        onClick={() => handleSort('name')}
+                                        title="Click để sắp xếp theo tên sản phẩm"
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            Sản phẩm
+                                            {sortConfig.key === 'name' && (
+                                                sortConfig.direction === 'asc' ?
+                                                    <ChevronUp className="h-4 w-4" /> :
+                                                    <ChevronDown className="h-4 w-4" />
+                                            )}
+                                        </div>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Loại
+                                    <th
+                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
+                                        onClick={() => handleSort('type')}
+                                        title="Click để sắp xếp theo loại sản phẩm"
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            Loại
+                                            {sortConfig.key === 'type' && (
+                                                sortConfig.direction === 'asc' ?
+                                                    <ChevronUp className="h-4 w-4" /> :
+                                                    <ChevronDown className="h-4 w-4" />
+                                            )}
+                                        </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Mô tả
                                     </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Giá
+                                    <th
+                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
+                                        onClick={() => handleSort('price')}
+                                        title="Click để sắp xếp theo giá"
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            Giá
+                                            {sortConfig.key === 'price' && (
+                                                sortConfig.direction === 'asc' ?
+                                                    <ChevronUp className="h-4 w-4" /> :
+                                                    <ChevronDown className="h-4 w-4" />
+                                            )}
+                                        </div>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Số lượng
+                                    <th
+                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
+                                        onClick={() => handleSort('quantity')}
+                                        title="Click để sắp xếp theo số lượng"
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            Số lượng
+                                            {sortConfig.key === 'quantity' && (
+                                                sortConfig.direction === 'asc' ?
+                                                    <ChevronUp className="h-4 w-4" /> :
+                                                    <ChevronDown className="h-4 w-4" />
+                                            )}
+                                        </div>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Trạng thái
+                                    <th
+                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
+                                        onClick={() => handleSort('status')}
+                                        title="Click để sắp xếp theo trạng thái"
+                                    >
+                                        <div className="flex items-center justify-center gap-1">
+                                            Trạng thái
+                                            {sortConfig.key === 'status' && (
+                                                sortConfig.direction === 'asc' ?
+                                                    <ChevronUp className="h-4 w-4" /> :
+                                                    <ChevronDown className="h-4 w-4" />
+                                            )}
+                                        </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
                                         Hành động
@@ -1034,11 +1238,11 @@ const ShopProductManagement = () => {
                                             <div className="flex justify-center">
                                                 {product.status === 1 ? (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        Hoạt động
+                                                        Active
                                                     </span>
                                                 ) : (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        Không hoạt động
+                                                        Inactive
                                                     </span>
                                                 )}
                                             </div>
@@ -1148,28 +1352,31 @@ const ShopProductManagement = () => {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Loại sản phẩm *</label>
-                                    <select
-                                        value={editForm.type}
-                                        onChange={(e) => {
-                                            setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
-                                        }}
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                        required
-                                    >
-                                        <option value="">Chọn loại sản phẩm</option>
-                                        <option value="Pet"> Pet</option>
-                                        <option value="Food"> Food</option>
-                                        <option value="Toy"> Toy</option>
-                                    </select>
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Chọn loại sản phẩm: thú cưng, thức ăn, hoặc đồ chơi
-                                    </p>
-                                </div>
+                                {/* Chỉ hiển thị box "Loại sản phẩm" khi tạo mới, không hiển thị khi chỉnh sửa */}
+                                {createModal && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Loại sản phẩm *</label>
+                                        <select
+                                            value={editForm.type}
+                                            onChange={(e) => {
+                                                setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
+                                            }}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            required
+                                        >
+                                            <option value="">Chọn loại sản phẩm</option>
+                                            <option value="Pet"> Pet</option>
+                                            <option value="Food"> Food</option>
+                                            <option value="Toy"> Toy</option>
+                                        </select>
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Chọn loại sản phẩm: thú cưng, thức ăn, hoặc đồ chơi
+                                        </p>
+                                    </div>
+                                )}
 
-                                {/* Pet Type Selection - only show when Pet is selected */}
-                                {editForm.type === 'Pet' && (
+                                {/* Pet Type Selection - chỉ hiển thị khi tạo mới và loại sản phẩm là Pet */}
+                                {createModal && editForm.type === 'Pet' && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700">Chọn loại thú cưng *</label>
                                         <select
@@ -1321,8 +1528,8 @@ const ShopProductManagement = () => {
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
                                     >
-                                        <option value="1"> Đang bán</option>
-                                        <option value="0"> Hết hàng</option>
+                                        <option value="1"> Active</option>
+                                        <option value="0"> Inactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -1354,8 +1561,8 @@ const ShopProductManagement = () => {
                                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                                 disabled={
                                     !editForm.name.trim() ||
-                                    !editForm.type.trim() ||
-                                    (editForm.type === 'Pet' && !editForm.petType.trim()) ||
+                                    (createModal && !editForm.type.trim()) ||
+                                    (createModal && editForm.type === 'Pet' && !editForm.petType.trim()) ||
                                     !editForm.price ||
                                     !editForm.quantity
                                 }
@@ -1580,7 +1787,7 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.status === 1 ? '✅ Đang bán' : '❌ Hết hàng'}
+                                        {selectedProduct.status === 1 ? 'Active' : 'Inactive'}
                                     </p>
                                 </div>
 

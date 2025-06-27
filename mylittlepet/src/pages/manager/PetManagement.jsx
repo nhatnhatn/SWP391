@@ -670,78 +670,6 @@ const PetManagement = () => {
                         {/* Collapsible Advanced Filters */}
                         {showAdvancedFilters && (
                             <div className="space-y-6 animate-in slide-in-from-top-2 duration-300">
-                                {/* Sort Controls Group */}
-                                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
-                                            <ChevronUp className="h-2 w-2 text-white" />
-                                        </div>
-                                        <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* Sort Field Filter */}
-                                        <div className="space-y-2">
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Sắp xếp theo
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    value={sortConfig.key || ''}
-                                                    onChange={(e) => {
-                                                        if (e.target.value) {
-                                                            setSortConfig({ key: e.target.value, direction: sortConfig.direction || 'asc' });
-                                                        } else {
-                                                            setSortConfig({ key: null, direction: 'asc' });
-                                                        }
-                                                    }}
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                                >
-                                                    <option value=""> Không sắp xếp</option>
-                                                    <option value="petDefaultName"> Tên thú cưng</option>
-                                                    <option value="petType"> Loại thú cưng</option>
-                                                    <option value="petStatus"> Trạng thái</option>
-                                                </select>
-                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                                            </div>
-                                        </div>
-
-                                        {/* Sort Direction Filter */}
-                                        <div className="space-y-2">
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Thứ tự
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    value={sortConfig.direction}
-                                                    onChange={(e) => {
-                                                        if (sortConfig.key) {
-                                                            setSortConfig({ ...sortConfig, direction: e.target.value });
-                                                        }
-                                                    }}
-                                                    disabled={!sortConfig.key}
-                                                    className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none ${!sortConfig.key ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                >
-                                                    <option value="asc"> Tăng dần (A-Z, 1-9)</option>
-                                                    <option value="desc"> Giảm dần (Z-A, 9-1)</option>
-                                                </select>
-                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Sort Status */}
-                                    {sortConfig.key && (
-                                        <div className="mt-3 p-2 bg-blue-100 rounded-md">
-                                            <p className="text-xs text-blue-700 font-medium">
-                                                Đang sắp xếp theo {
-                                                    sortConfig.key === 'petDefaultName' ? 'Tên thú cưng' :
-                                                        sortConfig.key === 'petType' ? 'Loại thú cưng' :
-                                                            sortConfig.key === 'petStatus' ? 'Trạng thái' : sortConfig.key
-                                                } - {sortConfig.direction === 'asc' ? 'Tăng dần' : 'Giảm dần'}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-
                                 {/* Content Filters Group */}
                                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
                                     <div className="flex items-center gap-2 mb-3">
@@ -810,7 +738,178 @@ const PetManagement = () => {
                                             )}
                                         </div>
                                     </div>
-                                </div>                                {/* Reset Actions Group */}
+                                </div>
+
+                                {/* Sort Controls Group */}
+                                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <ChevronUp className="h-2 w-2 text-white" />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Sort Field Filter */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Sắp xếp theo
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={sortConfig.key || ''}
+                                                    onChange={(e) => {
+                                                        if (e.target.value) {
+                                                            setSortConfig({ key: e.target.value, direction: sortConfig.direction || 'asc' });
+                                                        } else {
+                                                            setSortConfig({ key: null, direction: 'asc' });
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value=""> Không sắp xếp</option>
+                                                    <option value="petDefaultName"> Tên thú cưng</option>
+                                                    <option value="petType"> Loại thú cưng</option>
+                                                    <option value="petStatus"> Trạng thái</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+
+                                        {/* Sort Direction Filter */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Thứ tự
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setSortConfig(prev => ({ ...prev, direction: 'asc' }))}
+                                                    disabled={!sortConfig.key}
+                                                    className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-sm font-medium ${sortConfig.direction === 'asc' && sortConfig.key
+                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                            : sortConfig.key
+                                                                ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                                : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <ChevronUp className="h-4 w-4" />
+                                                        Tăng dần
+                                                    </div>
+                                                </button>
+                                                <button
+                                                    onClick={() => setSortConfig(prev => ({ ...prev, direction: 'desc' }))}
+                                                    disabled={!sortConfig.key}
+                                                    className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-sm font-medium ${sortConfig.direction === 'desc' && sortConfig.key
+                                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                                            : sortConfig.key
+                                                                ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                                : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <ChevronDown className="h-4 w-4" />
+                                                        Giảm dần
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Current Sort Display */}
+                                    {sortConfig.key && (
+                                        <div className="mt-3 p-2.5 bg-blue-100 rounded-lg border border-blue-200">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                                    <span className="text-blue-800 font-medium">
+                                                        Đang sắp xếp theo: <span className="font-bold">
+                                                            {sortConfig.key === 'petDefaultName' && 'Tên thú cưng'}
+                                                            {sortConfig.key === 'petType' && 'Loại thú cưng'}
+                                                            {sortConfig.key === 'petStatus' && 'Trạng thái'}
+                                                        </span> ({sortConfig.direction === 'asc' ? 'Tăng dần' : 'Giảm dần'})
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => setSortConfig({ key: null, direction: 'asc' })}
+                                                    className="text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
+                                                >
+                                                    Bỏ sắp xếp
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Content Filter Group */}
+                                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 border border-emerald-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
+                                            <Filter className="h-2 w-2 text-white" />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700"> Lọc nội dung</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Type Filter */}
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Loại thú cưng
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={typeFilter}
+                                                    onChange={(e) => handleTypeFilter(e.target.value)}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value="">Chọn loại thú cưng</option>
+                                                    {/* Use persistent pet types that don't change when filters are applied */}
+                                                    {persistentPetTypes.map(petType => (
+                                                        <option key={petType} value={petType}>
+                                                            {petType}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                            {typeFilter && (
+                                                <div className="mt-2 p-2 bg-green-100 rounded-md">
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-xs text-green-700 font-medium">
+                                                            Đang lọc: {
+                                                                typeFilter
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Status Filter */}                                        <div className="space-y-2">
+                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                                Trạng thái
+                                            </label>
+                                            <div className="relative">
+                                                <select
+                                                    value={statusFilter}
+                                                    onChange={(e) => handleStatusFilter(e.target.value)}
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
+                                                >
+                                                    <option value=""> Tất cả trạng thái</option>
+                                                    <option value="1"> Đang hoạt động</option>
+                                                    <option value="0"> Không hoạt động</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                                            </div>
+                                            {statusFilter !== '' && (
+                                                <div className="mt-2 p-2 bg-green-100 rounded-md">
+                                                    <p className="text-xs text-green-700 font-medium">
+                                                        Lọc theo: {statusFilter === '1' ? 'Đang hoạt động' : 'Không hoạt động'}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Reset Actions Group */}
                                 <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 border border-red-100">
                                     <div className="flex items-center gap-2 mb-3">
                                         <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
