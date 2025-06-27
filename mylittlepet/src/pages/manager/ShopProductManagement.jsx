@@ -134,7 +134,8 @@ const ShopProductManagement = () => {
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
     const [statusFilter, setStatusFilter] = useState('all'); // Đang hoạt động, Hết hàng
     const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
-    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy, Others// Debounce search term to prevent excessive filtering
+    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy
+    // Debounce search term to prevent excessive filtering
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(localSearchTerm);
@@ -177,8 +178,6 @@ const ShopProductManagement = () => {
         name: '',
         type: '',
         petType: '',
-        customType: '',
-        customPetType: '',
         description: '',
         imageUrl: '',
         price: '',
@@ -230,10 +229,6 @@ const ShopProductManagement = () => {
                     if (product.type !== 'Food') return false;
                 } else if (shopTypeFilter === 'Toy') {
                     if (product.type !== 'Toy') return false;
-                } else if (shopTypeFilter === 'Others') {
-                    // Others are custom types not in predefined categories
-                    const knownTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken', 'Food', 'Toy'];
-                    if (knownTypes.includes(product.type)) return false;
                 }
             }
 
@@ -347,24 +342,12 @@ const ShopProductManagement = () => {
 
         let formType = '';
         let formPetType = '';
-        let formCustomType = '';
-        let formCustomPetType = '';
 
         if (petTypes.includes(product.type)) {
             formType = 'Pet';
             formPetType = product.type;
         } else if (predefinedTypes.includes(product.type)) {
             formType = product.type;
-        } else if (product.type) {
-            // Check if this is a pet (shopId = 1) but with a custom type
-            if (product.shopId === 1) {
-                formType = 'Pet';
-                formPetType = 'Khác';
-                formCustomPetType = product.type;
-            } else {
-                formType = 'CUSTOM';
-                formCustomType = product.type;
-            }
         }
 
         setEditForm({
@@ -372,8 +355,6 @@ const ShopProductManagement = () => {
             name: product.name || '',
             type: formType,
             petType: formPetType,
-            customType: formCustomType,
-            customPetType: formCustomPetType,
             description: product.description || '',
             imageUrl: product.imageUrl || '',
             price: product.price || '',
@@ -391,8 +372,6 @@ const ShopProductManagement = () => {
             name: '',
             type: '',
             petType: '',
-            customType: '',
-            customPetType: '',
             description: '',
             imageUrl: '',
             price: '',
@@ -478,16 +457,11 @@ const ShopProductManagement = () => {
                 }
             }
 
-            if (editForm.type === 'CUSTOM' && !editForm.customType.trim()) {
-                alert('Vui lòng nhập loại sản phẩm tùy chỉnh');
-                return;
-            }            // Determine the actual type to submit
+            // Determine the actual type to submit
             let actualType = '';
             if (editForm.type === 'Pet') {
                 // Use the selected pet type directly
                 actualType = editForm.petType;
-            } else if (editForm.type === 'CUSTOM') {
-                actualType = editForm.customType;
             } else {
                 actualType = editForm.type;
             }
@@ -510,9 +484,8 @@ const ShopProductManagement = () => {
                 adminId: user?.adminId || user?.id
             };
 
-            // Remove fields we don't want to submit
-            delete submissionData.customType;
-            // Note: petType and customPetType are no longer used, but keep for backward compatibility
+            // Remove petType field since we use type directly
+            delete submissionData.petType;
 
             // Remove undefined fields
             Object.keys(submissionData).forEach(key => {
@@ -537,8 +510,6 @@ const ShopProductManagement = () => {
                 name: '',
                 type: '',
                 petType: '',
-                customType: '',
-                customPetType: '',
                 description: '',
                 imageUrl: '',
                 price: '',
@@ -817,7 +788,6 @@ const ShopProductManagement = () => {
                                                     <option value="Pet"> Pet</option>
                                                     <option value="Food"> Food</option>
                                                     <option value="Toy"> Toy</option>
-                                                    <option value="Others"> Others</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -919,11 +889,12 @@ const ShopProductManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[35%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
+                                <col className="w-[25%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[20%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
                                 <col className="w-[15%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
@@ -933,6 +904,9 @@ const ShopProductManagement = () => {
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Loại
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Mô tả
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Giá
@@ -951,7 +925,7 @@ const ShopProductManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center">
+                                        <td colSpan="7" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                     <Package className="h-8 w-8 text-gray-400" />
@@ -1013,16 +987,25 @@ const ShopProductManagement = () => {
                                                         Toy
                                                     </span>
                                                 )}
-                                                {['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
+                                                {product.type === 'Pet' && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
                                                         Pet
                                                     </span>
                                                 )}
-                                                {product.type && !['Food', 'Toy', 'Cat', 'Dog', 'Bird', 'Fish', 'Chicken'].includes(product.type) && (
+                                                {product.type && !['Food', 'Toy', 'Pet'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                         {product.type}
                                                     </span>
                                                 )}
+                                            </div>
+                                        </td>
+
+                                        {/* Description */}
+                                        <td className="px-3 py-4">
+                                            <div className="flex justify-center">
+                                                <div className="text-xs text-gray-700 truncate max-w-[150px]" title={product.description || 'Không có mô tả'}>
+                                                    {product.description || 'Không có mô tả'}
+                                                </div>
                                             </div>
                                         </td>
 
@@ -1170,7 +1153,7 @@ const ShopProductManagement = () => {
                                     <select
                                         value={editForm.type}
                                         onChange={(e) => {
-                                            setEditForm({ ...editForm, type: e.target.value, customType: '', petType: '', petID: null });
+                                            setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
                                         }}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                         required
@@ -1179,10 +1162,9 @@ const ShopProductManagement = () => {
                                         <option value="Pet"> Pet</option>
                                         <option value="Food"> Food</option>
                                         <option value="Toy"> Toy</option>
-                                        <option value="CUSTOM"> Others</option>
                                     </select>
                                     <p className="mt-1 text-xs text-gray-500">
-                                        Chọn loại sản phẩm: thú cưng, thức ăn, đồ chơi, hoặc tự nhập
+                                        Chọn loại sản phẩm: thú cưng, thức ăn, hoặc đồ chơi
                                     </p>
                                 </div>
 
@@ -1211,24 +1193,6 @@ const ShopProductManagement = () => {
                                         )}
                                         <p className="mt-1 text-xs text-gray-500">
                                             Chọn loại thú cưng mà sản phẩm này dành cho
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Custom Type Input - only show when CUSTOM is selected */}
-                                {editForm.type === 'CUSTOM' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Loại sản phẩm tùy chỉnh *</label>
-                                        <input
-                                            type="text"
-                                            value={editForm.customType}
-                                            onChange={(e) => setEditForm({ ...editForm, customType: e.target.value })}
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                            placeholder="Nhập loại sản phẩm (ví dụ: Phụ kiện, Thuốc, ...)"
-                                            required
-                                        />
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            Nhập tên loại sản phẩm tùy chỉnh
                                         </p>
                                     </div>
                                 )}
@@ -1392,8 +1356,6 @@ const ShopProductManagement = () => {
                                     !editForm.name.trim() ||
                                     !editForm.type.trim() ||
                                     (editForm.type === 'Pet' && !editForm.petType.trim()) ||
-                                    (editForm.type === 'Pet' && editForm.petType === 'Khác' && !editForm.customPetType.trim()) ||
-                                    (editForm.type === 'CUSTOM' && !editForm.customType.trim()) ||
                                     !editForm.price ||
                                     !editForm.quantity
                                 }
