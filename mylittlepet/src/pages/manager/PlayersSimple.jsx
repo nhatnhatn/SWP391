@@ -380,7 +380,7 @@ const PlayersSimple = () => {    // Use hook for data management
     };
     return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-            {/* Header */}
+            {/* Dashboard Header */}
             <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -392,72 +392,96 @@ const PlayersSimple = () => {    // Use hook for data management
                             <p className="text-gray-600 mt-1">Quản lý danh sách người chơi trong game một cách hiệu quả</p>
                         </div>
                     </div>
-                    <div className="hidden lg:flex items-center gap-4 text-gray-500">
+
+                    {/* Statistics in Header */}
+                    <div className="hidden lg:flex items-center gap-6">
                         <div className="text-center">
-                            <p className="text-sm font-medium">Tổng người chơi</p>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-green-100 rounded-lg">
+                                    <Users className="h-4 w-4 text-green-600" />
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">Tổng Người chơi</p>
+                            </div>
                             <p className="text-2xl font-bold text-green-600">{stats?.total || players.length}</p>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Error Display */}
-            {
-                error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <div className="flex">
-                            <div className="ml-3">
-                                <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
-                                <div className="mt-2 text-sm text-red-700">
-                                    <p>{error}</p>
+                        <div className="w-px h-12 bg-gray-300"></div>
+
+                        <div className="text-center">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-emerald-100 rounded-lg">
+                                    <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
+                                <p className="text-sm font-medium text-gray-600">Đang Hoạt động</p>
                             </div>
-                        </div>
-                    </div>
-                )
-            } {/* Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                            <Users className="h-6 w-6 text-green-600" />
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Tổng Người chơi</p>
-                            <p className="text-2xl font-bold text-gray-900">{stats?.total || players.length}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-emerald-100 rounded-lg">
-                            <span className="text-emerald-600 font-bold text-lg">✓</span>
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Active</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <p className="text-2xl font-bold text-emerald-600">
                                 {stats?.active || players.filter(p => p.userStatus === 'ACTIVE').length}
                             </p>
                         </div>
-                    </div>
-                </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center">
-                        <div className="p-2 bg-red-100 rounded-lg">
-                            <span className="text-red-600 font-bold text-lg">✕</span>
-                        </div>
-                        <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-600">Banned</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                        <div className="w-px h-12 bg-gray-300"></div>
+
+                        <div className="text-center">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="p-1.5 bg-red-100 rounded-lg">
+                                    <span className="text-red-600 font-bold text-sm">✕</span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-600">Bị Cấm</p>
+                            </div>
+                            <p className="text-2xl font-bold text-red-600">
                                 {stats?.banned || players.filter(p => p.userStatus === 'BANNED').length}
                             </p>
                         </div>
                     </div>
                 </div>
 
+                {/* Mobile Statistics */}
+                <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <Users className="h-4 w-4 text-green-600" />
+                                <p className="text-xs font-medium text-gray-600">Tổng</p>
+                            </div>
+                            <p className="text-lg font-bold text-green-600">{stats?.total || players.length}</p>
+                        </div>
+
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <span className="text-emerald-600 font-bold text-sm">✓</span>
+                                <p className="text-xs font-medium text-gray-600">Hoạt động</p>
+                            </div>
+                            <p className="text-lg font-bold text-emerald-600">
+                                {stats?.active || players.filter(p => p.userStatus === 'ACTIVE').length}
+                            </p>
+                        </div>
+
+                        <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                                <span className="text-red-600 font-bold text-sm">✕</span>
+                                <p className="text-xs font-medium text-gray-600">Bị cấm</p>
+                            </div>
+                            <p className="text-lg font-bold text-red-600">
+                                {stats?.banned || players.filter(p => p.userStatus === 'BANNED').length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
+                            <div className="mt-2 text-sm text-red-700">
+                                <p>{error}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Search & Filters */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
                 {/* Header */}
@@ -472,10 +496,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <p className="text-green-100 text-sm">Tìm kiếm và lọc danh sách người chơi một cách thông minh</p>
                             </div>
                         </div>
-                        <div className="hidden md:flex items-center gap-2 text-white/80 text-sm">
-                            <Users className="h-4 w-4" />
-                            <span>Quản lý hiệu quả</span>
-                        </div>
+                        
                     </div>
                 </div>
 

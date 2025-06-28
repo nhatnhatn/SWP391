@@ -703,10 +703,7 @@ const ShopProductManagement = () => {
                                 <p className="text-purple-100 text-sm">Tìm kiếm và lọc danh sách sản phẩm một cách thông minh</p>
                             </div>
                         </div>
-                        <div className="hidden md:flex items-center gap-2 text-white/80 text-sm">
-                            <Package className="h-4 w-4" />
-                            <span>Quản lý hiệu quả</span>
-                        </div>
+                        
                     </div>
                 </div>
 
