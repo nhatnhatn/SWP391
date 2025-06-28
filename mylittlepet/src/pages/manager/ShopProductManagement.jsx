@@ -129,6 +129,16 @@ const ShopProductManagement = () => {
         loading: petsLoading
     } = useSimplePets();
 
+    // Helper function to check if a product is a Pet
+    const isPetProduct = (product) => {
+        // Check if product has petID (indicating it's linked to a pet)
+        if (product.petID) return true;
+        
+        // Check if product type is 'Pet' or one of the common pet types
+        const petTypes = ['Pet', 'Dog', 'Cat', 'Bird', 'Fish', 'Rabbit', 'Hamster'];
+        return petTypes.includes(product.type);
+    };
+
     // Local search state - separated for debouncing
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
@@ -451,10 +461,14 @@ const ShopProductManagement = () => {
                 return;
             }
 
-            // Chỉ validate pet type khi đang tạo mới và loại sản phẩm là Pet
+            // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
             if (!isEdit && editForm.type === 'Pet') {
                 if (!editForm.petType) {
                     alert('Vui lòng chọn loại thú cưng');
+                    return;
+                }
+                if (!editForm.petID) {
+                    alert('Vui lòng chọn thú cưng cụ thể');
                     return;
                 }
             }
@@ -466,8 +480,8 @@ const ShopProductManagement = () => {
             if (!isEdit) {
                 // Logic xử lý type chỉ cho tạo mới sản phẩm
                 if (editForm.type === 'Pet') {
-                    // Use the selected pet type directly
-                    actualType = editForm.petType;
+                    // Always use "Pet" for all pet products, regardless of specific pet type
+                    actualType = 'Pet';
                     isPetType = true;
                 } else {
                     actualType = editForm.type;
@@ -489,7 +503,13 @@ const ShopProductManagement = () => {
             if (!isEdit) {
                 submissionData.type = actualType; // Use the actual type (pet type from selection, or item type)
                 submissionData.shopId = isPetType ? 1 : 2; // Set shopId based on product type: Pet types = 1, Item types = 2
-                submissionData.petID = null; // Set petID to null for pet types (since we're not selecting specific pets anymore)
+                
+                // For Pet types, use the selected petID, otherwise set to null
+                if (isPetType && editForm.petID) {
+                    submissionData.petID = parseInt(editForm.petID);
+                } else {
+                    submissionData.petID = null;
+                }
             }
 
             // Remove petType field since we use type directly (or not needed for edit)
@@ -503,6 +523,8 @@ const ShopProductManagement = () => {
             });
 
             console.log('🚀 Submitting product data:', submissionData);
+            console.log('🔍 Product type being saved:', submissionData.type);
+            console.log('🐾 Pet ID being saved:', submissionData.petID);
 
             if (isEdit) {
                 await updateShopProduct(editModal.product.shopProductId, submissionData);
@@ -1191,14 +1213,14 @@ const ShopProductManagement = () => {
                                                         Toy
                                                     </span>
                                                 )}
-                                                {product.type === 'Pet' && (
+                                                {isPetProduct(product) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
                                                         Pet
                                                     </span>
                                                 )}
-                                                {product.type && !['Food', 'Toy', 'Pet'].includes(product.type) && (
+                                                {!isPetProduct(product) && !['Food', 'Toy'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
-                                                        {product.type}
+                                                        {product.type || 'Chưa phân loại'}
                                                     </span>
                                                 )}
                                             </div>
@@ -1404,6 +1426,34 @@ const ShopProductManagement = () => {
                                     </div>
                                 )}
 
+                                {/* Pet ID Selection - chỉ hiển thị khi đã chọn loại thú cưng */}
+                                {createModal && editForm.type === 'Pet' && editForm.petType && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Chọn thú cưng cụ thể *</label>
+                                        <select
+                                            value={editForm.petID || ''}
+                                            onChange={(e) => setEditForm({ ...editForm, petID: e.target.value })}
+                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                            required
+                                        >
+                                            <option value="">Chọn thú cưng</option>
+                                            {pets.filter(pet => pet.petType === editForm.petType).map(pet => (
+                                                <option key={pet.petId} value={pet.petId}>
+                                                    {pet.petName} (ID: {pet.petId})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {petsLoading && (
+                                            <p className="mt-1 text-xs text-blue-600">
+                                                ⏳ Đang tải danh sách thú cưng...
+                                            </p>
+                                        )}
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            Chọn thú cưng cụ thể từ loại {editForm.petType}
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">URL Hình ảnh</label>
 
@@ -1563,6 +1613,7 @@ const ShopProductManagement = () => {
                                     !editForm.name.trim() ||
                                     (createModal && !editForm.type.trim()) ||
                                     (createModal && editForm.type === 'Pet' && !editForm.petType.trim()) ||
+                                    (createModal && editForm.type === 'Pet' && !editForm.petID) ||
                                     !editForm.price ||
                                     !editForm.quantity
                                 }
@@ -1729,8 +1780,17 @@ const ShopProductManagement = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Pet ID</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.petID || 'Không có'}</p>
+                                    <label className="block text-sm font-medium text-gray-700">Thú cưng liên kết</label>
+                                    <p className="mt-1 text-sm text-gray-900">
+                                        {selectedProduct.petID ? (
+                                            (() => {
+                                                const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
+                                                return linkedPet 
+                                                    ? `${linkedPet.petName} (ID: ${selectedProduct.petID})`
+                                                    : `ID: ${selectedProduct.petID}`;
+                                            })()
+                                        ) : 'Không có'}
+                                    </p>
                                 </div>
 
                                 <div>
@@ -1741,8 +1801,10 @@ const ShopProductManagement = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Loại</label>
                                     <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.type === 'Food' ? '🍖 Thức ăn' :
-                                            selectedProduct.type === 'Toy' ? '🎾 Đồ chơi' : selectedProduct.type}
+                                        {selectedProduct.type === 'Food' ? 'Food' :
+                                            selectedProduct.type === 'Toy' ? 'Toy' :
+                                            isPetProduct(selectedProduct) ? 'Pet' : 
+                                            selectedProduct.type}
                                     </p>
                                 </div>
 
