@@ -15,7 +15,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);    // Check for existing authentication on app load
     useEffect(() => {
-        const initAuth = async () => {            // OPTION 2: Check for session timeout (uncomment to use)
+        const initAuth = async () => {            
+            // OPTION 2: Check for session timeout (uncomment to use)
             /*
             const token = localStorage.getItem('authToken');
             const storedUser = localStorage.getItem('adminUser');

@@ -129,14 +129,32 @@ const ShopProductManagement = () => {
         loading: petsLoading
     } = useSimplePets();
 
+    // Dynamic pet types extracted from pets data
+    const dynamicPetTypes = useMemo(() => {
+        if (!pets || pets.length === 0) return [];
+
+        // Extract unique pet types from pets data
+        const types = pets
+            .map(pet => pet.petType || pet.type) // Handle both petType and type properties
+            .filter(type => type && type.trim()) // Remove empty/null values
+            .map(type => type.trim()); // Clean whitespace
+
+        // Return unique types, sorted alphabetically
+        const uniqueTypes = [...new Set(types)].sort();
+
+        // Debug log for development
+        console.log('🐾 Dynamic Pet Types extracted:', uniqueTypes);
+
+        return uniqueTypes;
+    }, [pets]);
+
     // Helper function to check if a product is a Pet
     const isPetProduct = (product) => {
         // Check if product has petID (indicating it's linked to a pet)
         if (product.petID) return true;
 
-        // Check if product type is 'Pet' or one of the common pet types
-        const petTypes = ['Pet', 'Dog', 'Cat', 'Bird', 'Fish', 'Rabbit', 'Hamster'];
-        return petTypes.includes(product.type);
+        // Check if product type is one of the dynamic pet types
+        return dynamicPetTypes.includes(product.type);
     };
 
     // Local search state - separated for debouncing
@@ -232,9 +250,8 @@ const ShopProductManagement = () => {
             // 3. Shop Type filter - categorize products
             if (shopTypeFilter !== 'all') {
                 if (shopTypeFilter === 'Pet') {
-                    // Pet products are those with pet types
-                    const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
-                    if (!petTypes.includes(product.type) && !product.petID) return false;
+                    // Pet products are those with dynamic pet types or petID
+                    if (!dynamicPetTypes.includes(product.type) && !product.petID) return false;
                 } else if (shopTypeFilter === 'Food') {
                     if (product.type !== 'Food') return false;
                 } else if (shopTypeFilter === 'Toy') {
@@ -348,12 +365,11 @@ const ShopProductManagement = () => {
     // Open edit modal
     const handleEdit = (product) => {
         const predefinedTypes = ['Food', 'Toy'];
-        const petTypes = ['Cat', 'Dog', 'Bird', 'Fish', 'Chicken'];
 
         let formType = '';
         let formPetType = '';
 
-        if (petTypes.includes(product.type)) {
+        if (dynamicPetTypes.includes(product.type)) {
             formType = 'Pet';
             formPetType = product.type;
         } else if (predefinedTypes.includes(product.type)) {
@@ -595,8 +611,7 @@ const ShopProductManagement = () => {
                             <Package className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Quản lý Sản phẩm Cửa Hàng</h1>
-                            <p className="text-gray-600 mt-1">Quản lý danh sách sản phẩm trong các cửa hàng một cách hiệu quả</p>
+                            <h1 className="text-3xl font-bold text-gray-800">Quản lý sản phẩm cửa hàng</h1>
                         </div>
                     </div>
 
@@ -607,7 +622,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-purple-100 rounded-lg">
                                     <Package className="h-4 w-4 text-purple-600" />
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Tổng Sản phẩm</p>
+                                <p className="text-sm font-medium text-gray-600">Tổng sản phẩm</p>
                             </div>
                             <p className="text-2xl font-bold text-purple-600">{shopProducts.length}</p>
                         </div>
@@ -619,7 +634,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Active</p>
+                                <p className="text-sm font-medium text-gray-600">Đang bán</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -633,7 +648,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Inactive</p>
+                                <p className="text-sm font-medium text-gray-600">Hết hàng</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -656,7 +671,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Active</p>
+                                <p className="text-xs font-medium text-gray-600">Đang bán</p>
                             </div>
                             <p className="text-lg font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -666,7 +681,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Inactive</p>
+                                <p className="text-xs font-medium text-gray-600">Hết hàng</p>
                             </div>
                             <p className="text-lg font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -700,10 +715,9 @@ const ShopProductManagement = () => {
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-white">Tìm kiếm & Bộ lọc</h3>
-                                <p className="text-purple-100 text-sm">Tìm kiếm và lọc danh sách sản phẩm một cách thông minh</p>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -718,9 +732,6 @@ const ShopProductManagement = () => {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                Tìm kiếm sản phẩm
-                            </label>
                             <div className="flex gap-3">
                                 <div className="relative group flex-1">
                                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-purple-500 transition-colors duration-200" />                                    <input
@@ -1048,6 +1059,12 @@ const ShopProductManagement = () => {
 
             {/* Product Table */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="bg-gradient-to-l from-purple-600 to-pink-600 px-6 py-4 border-b border-green-100">
+                    <div className="flex items-center justify-center">
+                        <p className="text-xl font-bold text-white text-center">DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG GAME</p>
+                    </div>
+                </div>
+
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -1057,87 +1074,40 @@ const ShopProductManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[25%]" />
+                                <col className="w-[17%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[31%]" />
                                 <col className="w-[10%]" />
-                                <col className="w-[20%]" />
                                 <col className="w-[10%]" />
                                 <col className="w-[10%]" />
                                 <col className="w-[10%]" />
-                                <col className="w-[15%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
-                                    <th
-                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => handleSort('name')}
-                                        title="Click để sắp xếp theo tên sản phẩm"
-                                    >
-                                        <div className="flex items-center justify-center gap-1">
-                                            Sản phẩm
-                                            {sortConfig.key === 'name' && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="h-4 w-4" /> :
-                                                    <ChevronDown className="h-4 w-4" />
-                                            )}
-                                        </div>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Sản phẩm
                                     </th>
-                                    <th
-                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => handleSort('type')}
-                                        title="Click để sắp xếp theo loại sản phẩm"
-                                    >
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
-                                            Loại
-                                            {sortConfig.key === 'type' && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="h-4 w-4" /> :
-                                                    <ChevronDown className="h-4 w-4" />
-                                            )}
+                                            Loại vật phẩm
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Mô tả
+                                        Mô tả sản phẩm
                                     </th>
-                                    <th
-                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => handleSort('price')}
-                                        title="Click để sắp xếp theo giá"
-                                    >
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
                                             Giá
-                                            {sortConfig.key === 'price' && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="h-4 w-4" /> :
-                                                    <ChevronDown className="h-4 w-4" />
-                                            )}
                                         </div>
                                     </th>
-                                    <th
-                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => handleSort('quantity')}
-                                        title="Click để sắp xếp theo số lượng"
-                                    >
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
                                             Số lượng
-                                            {sortConfig.key === 'quantity' && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="h-4 w-4" /> :
-                                                    <ChevronDown className="h-4 w-4" />
-                                            )}
                                         </div>
                                     </th>
-                                    <th
-                                        className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30 cursor-pointer hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => handleSort('status')}
-                                        title="Click để sắp xếp theo trạng thái"
-                                    >
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
                                             Trạng thái
-                                            {sortConfig.key === 'status' && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="h-4 w-4" /> :
-                                                    <ChevronDown className="h-4 w-4" />
-                                            )}
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
@@ -1177,8 +1147,9 @@ const ShopProductManagement = () => {
                                     <tr key={product.shopProductId} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200">
                                         {/* Product Info */}
                                         <td className="px-3 py-4">
-                                            <div className="flex items-start space-x-3 ml-10">
-                                                {product.imageUrl ? (
+                                            <div className="flex items-center space-x-3 ml-3">
+                                                <div>
+                                                    {product.imageUrl ? (
                                                     <ProductImage
                                                         imageUrl={product.imageUrl}
                                                         productName={product.name}
@@ -1189,8 +1160,10 @@ const ShopProductManagement = () => {
                                                         <Package className="h-5 w-5 text-gray-400" />
                                                     </div>
                                                 )}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-sm font-bold text-gray-900 break-words" title={product.name}>
+                                                </div>
+                                                
+                                                <div className="flex items-center min-w-0">
+                                                    <div className=" text-sm font-bold text-gray-900 break-words" title={product.name}>
                                                         {product.name}
                                                     </div>
                                                 </div>
@@ -1226,7 +1199,7 @@ const ShopProductManagement = () => {
                                         {/* Description */}
                                         <td className="px-3 py-4">
                                             <div className="flex justify-center">
-                                                <div className="text-xs text-gray-700 truncate max-w-[150px]" title={product.description || 'Không có mô tả'}>
+                                                <div className="text-xs text-gray-700 truncate " title={product.description || 'Không có mô tả'}>
                                                     {product.description || 'Không có mô tả'}
                                                 </div>
                                             </div>
@@ -1403,10 +1376,15 @@ const ShopProductManagement = () => {
                                             onChange={(e) => setEditForm({ ...editForm, petType: e.target.value, petID: null })}
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                             required
+                                            disabled={petsLoading || dynamicPetTypes.length === 0}
                                         >
-                                            <option value="">Chọn loại thú cưng</option>
-                                            {/* Get unique pet types from pets database */}
-                                            {[...new Set(pets.map(pet => pet.petType))].map(petType => (
+                                            <option value="">
+                                                {petsLoading ? "Đang tải..." :
+                                                    dynamicPetTypes.length === 0 ? "Không có loại thú cưng" :
+                                                        "Chọn loại thú cưng"}
+                                            </option>
+                                            {/* Use dynamic pet types */}
+                                            {dynamicPetTypes.map(petType => (
                                                 <option key={petType} value={petType}>
                                                     {petType}
                                                 </option>
@@ -1417,8 +1395,13 @@ const ShopProductManagement = () => {
                                                 ⏳ Đang tải danh sách thú cưng...
                                             </p>
                                         )}
+                                        {!petsLoading && dynamicPetTypes.length === 0 && (
+                                            <p className="mt-1 text-xs text-orange-600">
+                                                ⚠️ Không có loại thú cưng nào trong hệ thống
+                                            </p>
+                                        )}
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Chọn loại thú cưng mà sản phẩm này dành cho
+                                            Chọn loại thú cưng từ danh sách động ({dynamicPetTypes.length} loại có sẵn)
                                         </p>
                                     </div>
                                 )}
@@ -1436,7 +1419,7 @@ const ShopProductManagement = () => {
                                             <option value="">Chọn thú cưng</option>
                                             {pets.filter(pet => pet.petType === editForm.petType).map(pet => (
                                                 <option key={pet.petId} value={pet.petId}>
-                                                    {pet.petName} (ID: {pet.petId})
+                                                    (Name: {pet.petName}) (ID: {pet.petId})
                                                 </option>
                                             ))}
                                         </select>

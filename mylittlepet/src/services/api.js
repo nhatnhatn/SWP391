@@ -151,7 +151,9 @@ class ApiService {
             console.error('❌ ApiService: Backend login error:', error.message);
             throw error;
         }
-    } async register(userData) {
+    } 
+    
+    async register(userData) {
         console.log('🔧 Register request data:', userData);
         const response = await this.post('/auth/register', userData);
         if (response.token) {
@@ -181,14 +183,17 @@ class ApiService {
     logout() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('adminUser');
-    }    // Users API
+    }
+        // Users API
     async getUsers(page = 0, size = 10) {
         return this.get(`/users/paginated?page=${page}&size=${size}`);
     }
 
     async getAllUsers() {
         return this.get('/users');
-    } async getUserById(id) {
+    } 
+    
+    async getUserById(id) {
         return this.get(`/users/${id}`);
     }
 
