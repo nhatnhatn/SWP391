@@ -133,7 +133,7 @@ const ShopProductManagement = () => {
     const isPetProduct = (product) => {
         // Check if product has petID (indicating it's linked to a pet)
         if (product.petID) return true;
-        
+
         // Check if product type is 'Pet' or one of the common pet types
         const petTypes = ['Pet', 'Dog', 'Cat', 'Bird', 'Fish', 'Rabbit', 'Hamster'];
         return petTypes.includes(product.type);
@@ -503,7 +503,7 @@ const ShopProductManagement = () => {
             if (!isEdit) {
                 submissionData.type = actualType; // Use the actual type (pet type from selection, or item type)
                 submissionData.shopId = isPetType ? 1 : 2; // Set shopId based on product type: Pet types = 1, Item types = 2
-                
+
                 // For Pet types, use the selected petID, otherwise set to null
                 if (isPetType && editForm.petID) {
                     submissionData.petID = parseInt(editForm.petID);
@@ -1785,7 +1785,7 @@ const ShopProductManagement = () => {
                                         {selectedProduct.petID ? (
                                             (() => {
                                                 const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
-                                                return linkedPet 
+                                                return linkedPet
                                                     ? `${linkedPet.petName} (ID: ${selectedProduct.petID})`
                                                     : `ID: ${selectedProduct.petID}`;
                                             })()
@@ -1803,8 +1803,8 @@ const ShopProductManagement = () => {
                                     <p className="mt-1 text-sm text-gray-900">
                                         {selectedProduct.type === 'Food' ? 'Food' :
                                             selectedProduct.type === 'Toy' ? 'Toy' :
-                                            isPetProduct(selectedProduct) ? 'Pet' : 
-                                            selectedProduct.type}
+                                                isPetProduct(selectedProduct) ? 'Pet' :
+                                                    selectedProduct.type}
                                     </p>
                                 </div>
 
