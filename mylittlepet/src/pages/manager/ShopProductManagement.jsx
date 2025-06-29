@@ -873,9 +873,9 @@ const ShopProductManagement = () => {
                                 </div>
 
                                 {/* Sort Section */}
-                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+                                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-100">
                                     <div className="flex items-center gap-2 mb-3">
-                                        <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                             <ChevronUp className="h-2 w-2 text-white" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-700">Sắp xếp dữ liệu</span>
@@ -1150,18 +1150,18 @@ const ShopProductManagement = () => {
                                             <div className="flex items-center space-x-3 ml-3">
                                                 <div>
                                                     {product.imageUrl ? (
-                                                    <ProductImage
-                                                        imageUrl={product.imageUrl}
-                                                        productName={product.name}
-                                                        className="h-10 w-10 rounded-lg flex-shrink-0"
-                                                    />
-                                                ) : (
-                                                    <div className="h-10 w-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center flex-shrink-0">
-                                                        <Package className="h-5 w-5 text-gray-400" />
-                                                    </div>
-                                                )}
+                                                        <ProductImage
+                                                            imageUrl={product.imageUrl}
+                                                            productName={product.name}
+                                                            className="h-10 w-10 rounded-lg flex-shrink-0"
+                                                        />
+                                                    ) : (
+                                                        <div className="h-10 w-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center flex-shrink-0">
+                                                            <Package className="h-5 w-5 text-gray-400" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                
+
                                                 <div className="flex items-center min-w-0">
                                                     <div className=" text-sm font-bold text-gray-900 break-words" title={product.name}>
                                                         {product.name}
@@ -1198,10 +1198,9 @@ const ShopProductManagement = () => {
 
                                         {/* Description */}
                                         <td className="px-3 py-4">
-                                            <div className="flex justify-center">
-                                                <div className="text-xs text-gray-700 truncate " title={product.description || 'Không có mô tả'}>
-                                                    {product.description || 'Không có mô tả'}
-                                                </div>
+                                            <div className="text-xs text-center text-gray-700 break-words whitespace-normal text-wrap max-w-full leading-relaxed"
+                                                title={product.description || 'Không có mô tả'}>
+                                                {product.description || 'Không có mô tả'}
                                             </div>
                                         </td>
 

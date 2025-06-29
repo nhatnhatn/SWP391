@@ -81,7 +81,9 @@ export const VIETNAMESE_TRANSLATIONS = {
         emailAlreadyExists: 'Email này đã được sử dụng',
         registrationSuccess: 'Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.',
         registrationFailed: 'Đăng ký thất bại. Vui lòng thử lại.',
-        weakPassword: 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số'
+        weakPassword: 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số',
+        hidePassword: 'Ẩn mật khẩu',
+        showPassword: 'Hiển thị mật khẩu',
     },    // Navigation
     nav: {
         players: 'Người chơi',

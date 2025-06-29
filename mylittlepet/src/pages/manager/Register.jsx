@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, UserPlus, Heart, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
 
@@ -112,13 +112,10 @@ export default function Register() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 <div>
-                    <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-emerald-100">
-                        <Heart className="h-8 w-8 text-emerald-600" />
-                    </div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         🐾 My Little Pet
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
+                    <p className="mt-2 text-center text-4xl text-gray-600">
                         {t('auth.createAccount')}
                     </p>
                 </div>
@@ -151,7 +148,7 @@ export default function Register() {
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                    placeholder={t('auth.enterFullName')}
+                                    placeholder="Nhập họ và tên của bạn"
                                 />
                             </div>
 
@@ -168,7 +165,7 @@ export default function Register() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                    placeholder={t('auth.enterEmail')}
+                                    placeholder="Nhập địa chỉ email của bạn"
                                 />
                             </div>
 
@@ -186,12 +183,13 @@ export default function Register() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                        placeholder={t('auth.enterPassword')}
+                                        placeholder="Nhập mật khẩu của bạn"
                                     />
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        title = {showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
@@ -219,12 +217,13 @@ export default function Register() {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"
-                                        placeholder={t('auth.enterConfirmPassword')}
+                                        placeholder="Nhập lại mật khẩu của bạn để xác nhận"
                                     />
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        title={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                                     >
                                         {showConfirmPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />

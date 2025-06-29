@@ -505,11 +505,13 @@ const PetManagement = () => {
                                         </div>
 
                                         <div className="space-y-4">
-                                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                                <span className="text-sm font-medium text-gray-600">ID thú cưng</span>
-                                                <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                                                    #{selectedPet.petId}
-                                                </span>
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between p-3">
+                                                    <span className="text-sm font-medium text-gray-600">ID thú cưng</span>
+                                                    <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                                                        #{selectedPet.petId}
+                                                    </span>
+                                                </div>
                                             </div>
 
                                             {/* <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -518,13 +520,14 @@ const PetManagement = () => {
                                                     {selectedPet.petDefaultName || 'Chưa đặt tên'}
                                                 </span>
                                             </div> */}
-
-                                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                                <span className="text-sm font-medium text-gray-600">Loại thú cưng</span>
-                                                <div>
-                                                    {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
-                                                        <span className="text-sm text-gray-500 italic">Chưa xác định</span>
-                                                    )}
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between p-3">
+                                                    <span className="text-sm font-medium text-gray-600">Loại thú cưng</span>
+                                                    <div>
+                                                        {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
+                                                            <span className="text-sm text-gray-500 italic">Chưa xác định</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -542,7 +545,7 @@ const PetManagement = () => {
                                         </div>
 
                                         <div className="space-y-4">
-                                            <div className="p-3 bg-gray-50 rounded-lg">
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <span className="text-sm font-medium text-gray-600 block mb-2">Trạng thái hoạt động</span>
                                                 <div className="flex items-center gap-2">
                                                     {selectedPet.petStatus === 1 ? (
@@ -561,15 +564,13 @@ const PetManagement = () => {
 
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <span className="text-sm font-medium text-gray-600 block mb-3">Mô tả thú cưng</span>
-                                                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-                                                    <p className="text-sm text-gray-700 leading-relaxed">
-                                                        {selectedPet.description || (
-                                                            <span className="text-gray-400 italic">
-                                                                Chưa có mô tả cho thú cưng này
-                                                            </span>
-                                                        )}
-                                                    </p>
-                                                </div>
+                                                <p className="text-sm text-gray-700 leading-relaxed">
+                                                    {selectedPet.description || (
+                                                        <span className="text-gray-400 italic">
+                                                            Chưa có mô tả cho thú cưng này
+                                                        </span>
+                                                    )}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
