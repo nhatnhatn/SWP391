@@ -733,9 +733,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                                         Đang sắp xếp theo: <span className="font-bold">
                                                             {sortConfig.key === 'userName' && 'Tên người chơi'}
                                                             {sortConfig.key === 'level' && 'Level'}
-                                                            {sortConfig.key === 'coin' && '💰 Coin'}
-                                                            {sortConfig.key === 'diamond' && '💎 Diamond'}
-                                                            {sortConfig.key === 'gem' && '💜 Gem'}
+                                                            {sortConfig.key === 'coin' && ' Coin'}
+                                                            {sortConfig.key === 'diamond' && ' Diamond'}
+                                                            {sortConfig.key === 'gem' && ' Gem'}
                                                             {sortConfig.key === 'userStatus' && 'Trạng thái'}
                                                         </span> ({sortConfig.direction === 'asc' ? 'Thứ tự tăng dần' : 'Thứ tự giảm Giảm dần'})
                                                     </span>
@@ -802,8 +802,8 @@ const PlayersSimple = () => {    // Use hook for data management
 
             {/* Player Details Modal */}
             {selectedPlayer && (
-                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center p-4">
-                    <div className="relative w-full max-w-6xl my-8 bg-white rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-300">
+                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-start justify-center p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-6xl my-8 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
                         {/* Header with Gradient */}
                         <div className="relative bg-gradient-to-r from-teal-600 via-green-600 to-emerald-600 p-6 border-b border-gray-200">
                             <div className="absolute inset-0 bg-gradient-to-r from-teal-600/90 via-green-600/90 to-emerald-600/90"></div>
@@ -819,8 +819,8 @@ const PlayersSimple = () => {    // Use hook for data management
                         {/* Content - No scroll */}
                         <div className="p-6 bg-gradient-to-br from-gray-50 to-white">
                             {/* Status Banner */}
-                            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200">
-                                <div className="flex items-center justify-between">
+                            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <div className="flex items-center justify-between ">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-blue-100 rounded-lg">
                                             <span className="text-blue-600 font-bold text-sm">👤</span>
@@ -864,7 +864,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <p className="text-2xl font-bold text-yellow-700">{(selectedPlayer.coin || 0).toLocaleString()}</p>
                                         </div>
                                         <div className="p-2 bg-yellow-100 rounded-lg">
-                                            <span className="text-2xl">💰</span>
+                                            <span className="text-2xl"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -877,20 +877,20 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <p className="text-2xl font-bold text-blue-700">{(selectedPlayer.diamond || 0).toLocaleString()}</p>
                                         </div>
                                         <div className="p-2 bg-blue-100 rounded-lg">
-                                            <span className="text-2xl">💎</span>
+                                            <span className="text-2xl"></span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Gems Card */}
-                                <div className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-xl p-4 hover:shadow-lg transition-all duration-200">
+                                <div className="bg-gradient-to-br from-green-50 to-teal-50 border border-green-200 rounded-xl p-4 hover:shadow-lg transition-all duration-200">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-xs font-medium text-purple-600 uppercase tracking-wide">Gems</p>
-                                            <p className="text-2xl font-bold text-purple-700">{(selectedPlayer.gem || 0).toLocaleString()}</p>
+                                            <p className="text-xs font-medium text-green-600 uppercase tracking-wide">Gems</p>
+                                            <p className="text-2xl font-bold text-green-700">{(selectedPlayer.gem || 0).toLocaleString()}</p>
                                         </div>
-                                        <div className="p-2 bg-purple-100 rounded-lg">
-                                            <span className="text-2xl">💜</span>
+                                        <div className="p-2 bg-green-100 rounded-lg">
+                                            <span className="text-2xl"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -1017,11 +1017,10 @@ const PlayersSimple = () => {    // Use hook for data management
                                         </div>
                                     ) : (
                                         <div className="text-center py-16 text-gray-500 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
-                                            <div className="text-6xl mb-4 opacity-50">🐾</div>
                                             <p className="text-lg font-semibold text-gray-700 mb-2">Chưa có thú cưng nào</p>
                                             <p className="text-sm text-gray-500 max-w-md mx-auto">
                                                 Người chơi này chưa sở hữu thú cưng nào trong game.
-                                                Họ có thể nhận thú cưng đầu tiên từ cửa hàng hoặc sự kiện.
+                                                Họ có thể nhận thú cưng đầu tiên từ cửa hàng.
                                             </p>
                                             <div className="mt-4 flex justify-center">
                                                 <div className="px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm">
@@ -1034,13 +1033,7 @@ const PlayersSimple = () => {    // Use hook for data management
                             </div>
                         </div>
                         {/* Footer */}
-                        <div className="flex p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white justify-between items-center">
-                            <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <div className="flex items-center gap-1">
-                                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                                    <span>Dữ liệu được cập nhật lần cuối: {new Date().toLocaleTimeString('vi-VN')}</span>
-                                </div>
-                            </div>
+                        <div className="flex p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white justify-end items-center">
 
                             <div className="flex gap-3">
                                 {/* Uncomment if you want to add edit functionality */}
@@ -1167,20 +1160,20 @@ const PlayersSimple = () => {    // Use hook for data management
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
-                                                    <span className="mr-1">💰</span>
-                                                    <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()}</span>
+                                                    <span className="mr-1"></span>
+                                                    <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()} coin</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
-                                                    <span className="mr-1">💎</span>
-                                                    <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()}</span>
+                                                    <span className="mr-1"></span>
+                                                    <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()} diamond</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
-                                                    <span className="mr-1">💜</span>
-                                                    <span className="font-medium text-purple-600">{(player.gem || 0).toLocaleString()}</span>
+                                                    <span className="mr-1"></span>
+                                                    <span className="font-medium text-green-600">{(player.gem || 0).toLocaleString()} gem</span>
                                                 </div>
                                             </td>
 
@@ -1323,7 +1316,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="grid grid-cols-3 gap-3">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            💰 Coins
+                                            Coins
                                         </label>
                                         <input
                                             type="number"
@@ -1335,7 +1328,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            💎 Diamonds
+                                            Diamonds
                                         </label>
                                         <input
                                             type="number"
@@ -1347,7 +1340,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            💜 Gems
+                                            Gems
                                         </label>
                                         <input
                                             type="number"

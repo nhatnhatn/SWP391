@@ -3,7 +3,7 @@ import { Search, Plus, Edit, Power, Eye, Filter, Package, Store, DollarSign, Che
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
-import { convertGoogleDriveLink, formatCurrency } from '../../utils/helpers';
+import { convertGoogleDriveLink } from '../../utils/helpers';
 
 // Component riêng để hiển thị ảnh với fallback URLs
 const ProductImage = ({ imageUrl, productName, className }) => {
@@ -611,7 +611,7 @@ const ShopProductManagement = () => {
                             <Package className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Quản lý sản phẩm cửa hàng</h1>
+                            <h1 className="text-3xl font-bold text-gray-800">Quản lý sản phẩm trong cửa hàng</h1>
                         </div>
                     </div>
 
@@ -1085,7 +1085,7 @@ const ShopProductManagement = () => {
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Sản phẩm
+                                        Tên sản phẩm
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
@@ -1209,7 +1209,7 @@ const ShopProductManagement = () => {
                                             <div className="flex items-center justify-center">
                                                 <div className="text-center">
                                                     <div className="text-xs font-medium text-gray-900">
-                                                        {formatCurrency(product.price, product.currencyType)}
+                                                        {product.price?.toLocaleString('vi-VN') || 0} {product.currencyType}
                                                     </div>
                                                 </div>
                                             </div>
@@ -1739,123 +1739,278 @@ const ShopProductManagement = () => {
 
             {/* View Details Modal */}
             {selectedProduct && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 shadow-lg rounded-md bg-white">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-900">Chi tiết Sản phẩm</h3>
-                            <button
-                                onClick={() => setSelectedProduct(null)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                ✕
-                            </button>
+                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
+                            <div className="relative flex justify-center items-center">
+                                <div className="flex items-center gap-4">
+                                    <h3 className="text-4xl font-bold text-white">Chi tiết Sản phẩm</h3>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Cửa hàng</label>
-                                    <p className="mt-1 text-sm text-gray-900">{getShopName(selectedProduct.shopId)}</p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Thú cưng liên kết</label>
-                                    <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.petID ? (
-                                            (() => {
-                                                const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
-                                                return linkedPet
-                                                    ? `${linkedPet.petName} (ID: ${selectedProduct.petID})`
-                                                    : `ID: ${selectedProduct.petID}`;
-                                            })()
-                                        ) : 'Không có'}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Tên sản phẩm</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.name}</p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Loại</label>
-                                    <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.type === 'Food' ? 'Food' :
-                                            selectedProduct.type === 'Toy' ? 'Toy' :
-                                                isPetProduct(selectedProduct) ? 'Pet' :
-                                                    selectedProduct.type}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Hình ảnh</label>
-                                    <div className="mt-1">
-                                        {selectedProduct.imageUrl ? (
-                                            <ProductImage
-                                                imageUrl={selectedProduct.imageUrl}
-                                                productName={selectedProduct.name}
-                                                className="w-32 h-32"
-                                            />
-                                        ) : (
-                                            <div className="w-32 h-32 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center">
-                                                <Package className="h-8 w-8 text-gray-400" />
-                                            </div>
-                                        )}
+                        {/* Body */}
+                        <div className="p-6 bg-gradient-to-br from-gray-50 to-white">
+                            {/* Product Name Header */}
+                            <div className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between w-full">
+                                        <div>
+                                            <h1 className="text-3xl font-bold text-purple-600">
+                                                Tên sản phẩm
+                                            </h1>
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-semibold text-gray-800">
+                                                {selectedProduct.name}
+                                            </h2>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Giá</label>
-                                    <p className="mt-1 text-sm text-gray-900">{formatCurrency(selectedProduct.price, selectedProduct.currencyType)}</p>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Left Column - Product Image & Basic Info (1/3 width) */}
+                                <div className="lg:col-span-1 space-y-4">
+                                    {/* Product Image Section */}
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 bg-purple-100 rounded-lg">
+                                                    <Package className="h-4 w-4 text-purple-600" />
+                                                </div>
+                                                <h4 className="text-lg font-semibold text-gray-800">Hình ảnh sản phẩm</h4>
+                                            </div>
+
+                                            <div className="flex justify-center">
+                                                {selectedProduct.imageUrl ? (
+                                                    <div className="relative group">
+                                                        <ProductImage
+                                                            imageUrl={selectedProduct.imageUrl}
+                                                            productName={selectedProduct.name}
+                                                            className="w-full h-32 rounded-xl shadow-lg border border-gray-200 object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-xl flex items-center justify-center">
+                                                            <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
+                                                                Hình ảnh sản phẩm
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
+                                                        <Package className="h-8 w-8 text-gray-400 mb-1" />
+                                                        <span className="text-gray-500 text-xs font-medium">Không có hình ảnh</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Basic Info Section */}
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 bg-blue-100 rounded-lg">
+                                                    <Search className="h-4 w-4 text-blue-600" />
+                                                </div>
+                                                <h4 className="text-lg font-semibold text-gray-800">Thông tin cơ bản</h4>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm font-medium text-gray-600">Cửa hàng</span>
+                                                        <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                                            {getShopName(selectedProduct.shopId)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm font-medium text-gray-600">Loại sản phẩm</span>
+                                                        <div>
+                                                            {selectedProduct.type === 'Food' && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
+                                                                    Food
+                                                                </span>
+                                                            )}
+                                                            {selectedProduct.type === 'Toy' && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
+                                                                    Toy
+                                                                </span>
+                                                            )}
+                                                            {isPetProduct(selectedProduct) && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                                    Pet
+                                                                </span>
+                                                            )}
+                                                            {!isPetProduct(selectedProduct) && !['Food', 'Toy'].includes(selectedProduct.type) && (
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
+                                                                    {selectedProduct.type || 'Chưa phân loại'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm font-medium text-gray-600">Thú cưng liên kết</span>
+                                                        <div className="text-right">
+                                                            {selectedProduct.petID ? (
+                                                                <span className="text-sm font-medium text-gray-800">
+                                                                    {(() => {
+                                                                        const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
+                                                                        return linkedPet
+                                                                            ? `${linkedPet.petName} (ID: ${selectedProduct.petID})`
+                                                                            : `ID: ${selectedProduct.petID}`;
+                                                                    })()}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-sm text-gray-500 italic">Không có</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Loại tiền tệ</label>
-                                    <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.currencyType === 'Coin' && 'Coin'}
-                                        {selectedProduct.currencyType === 'Diamond' && 'Diamond'}
-                                        {selectedProduct.currencyType === 'Gem' && 'Gem'}
-                                    </p>
-                                </div>
+                                {/* Right Column - Detailed Product Information (2/3 width) */}
+                                <div className="lg:col-span-2">
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
+                                        <div className="p-4">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 bg-green-100 rounded-lg">
+                                                    <Eye className="h-4 w-4 text-green-600" />
+                                                </div>
+                                                <h4 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h4>
+                                            </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Số lượng</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.quantity}</p>
-                                </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                {/* Pricing Information */}
+                                                <div className="space-y-3">
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin giá cả</h5>
+                                                    <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                                                        <span className="text-sm font-medium text-gray-600 block mb-1">Giá sản phẩm</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xl font-bold text-green-700">
+                                                                {selectedProduct.price?.toLocaleString('vi-VN') || 0} {selectedProduct.currencyType}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
-                                    <p className="mt-1 text-sm text-gray-900">
-                                        {selectedProduct.status === 1 ? 'Active' : 'Inactive'}
-                                    </p>
-                                </div>
+                                                {/* Inventory Information */}
+                                                <div className="space-y-3">
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin kho hàng</h5>
+                                                    <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                                                        <span className="text-sm font-medium text-gray-600 block mb-1">Số lượng tồn kho</span>
+                                                        <span className="text-xl font-bold text-blue-700">{selectedProduct.quantity}</span>
+                                                    </div>
+                                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Mô tả</label>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedProduct.description || 'Không có mô tả'}</p>
+                                                {/* Status Information */}
+                                                <div className="space-y-3">
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Trạng thái hoạt động</h5>
+                                                    <div className={`p-3 rounded-lg border ${selectedProduct.status === 1
+                                                        ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                                                        : 'bg-gradient-to-r from-red-50 to-pink-50 border-red-200'
+                                                        }`}>
+                                                        <span className="text-sm font-medium text-gray-600 block mb-2">Trạng thái hiện tại</span>
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            {selectedProduct.status === 1 ? (
+                                                                <>
+                                                                    <span className="text-base font-semibold text-green-700">Active</span>
+                                                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">
+                                                                        Đang bán
+                                                                    </span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <span className="text-base font-semibold text-red-700">Inactive</span>
+                                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full">
+                                                                        Ngừng bán
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Additional Information */}
+                                                <div className="space-y-3">
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin bổ sung</h5>
+                                                    <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                                                        <span className="text-sm font-medium text-gray-600 block mb-1">ID sản phẩm</span>
+                                                        <span className="text-base font-bold text-purple-700 font-mono">
+                                                            #{selectedProduct.shopProductId}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Product Description */}
+                                            <div>
+                                                <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Mô tả sản phẩm</h5>
+                                                <div className="p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg border border-gray-200">
+                                                    {selectedProduct.description ? (
+                                                        <div className="space-y-2">
+                                                            <div className="max-h-24 overflow-y-auto pr-2">
+                                                                <p className="text-sm text-gray-700 leading-relaxed break-words whitespace-pre-wrap word-wrap">
+                                                                    {selectedProduct.description}
+                                                                </p>
+                                                            </div>
+                                                            {selectedProduct.description.length > 150 && (
+                                                                <div className="flex items-center gap-2 text-xs text-gray-500 pt-1 border-t border-gray-200">
+                                                                    <Package className="h-3 w-3" />
+                                                                    <span>{selectedProduct.description.length} ký tự</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center justify-center py-4">
+                                                            <span className="text-gray-400 italic flex items-center gap-2">
+                                                                <Package className="h-4 w-4" />
+                                                                Chưa có mô tả cho sản phẩm này
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => {
-                                    setSelectedProduct(null);
-                                    handleEdit(selectedProduct);
-                                }}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2"
-                            >
-                                <Edit className="h-4 w-4" />
-                                Chỉnh sửa
-                            </button>
-                            <button
-                                onClick={() => setSelectedProduct(null)}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-                            >
-                                Đóng
-                            </button>
+                        {/* Footer */}
+                        <div className="bg-gradient-to-r from-gray-50 to-purple-50 px-8 py-6 border-t border-gray-200">
+                            <div className="flex justify-end items-center">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setSelectedProduct(null)}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        Đóng
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedProduct(null);
+                                            handleEdit(selectedProduct);
+                                        }}
+                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

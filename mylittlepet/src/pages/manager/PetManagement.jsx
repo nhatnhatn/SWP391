@@ -327,7 +327,8 @@ const PetManagement = () => {
                 Hoạt động
             </span>
         ) : (
-            <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">                Vô hiệu hóa
+            <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                Vô hiệu hóa
             </span>
         );
     };
@@ -342,20 +343,8 @@ const PetManagement = () => {
             );
         }
 
-        // Define colors for common pet types
-        const petTypeColors = {
-            'Cat': 'from-pink-100 to-rose-100 text-pink-800 border-pink-200',
-            'Dog': 'from-amber-100 to-yellow-100 text-amber-800 border-amber-200',
-            'Bird': 'from-sky-100 to-blue-100 text-sky-800 border-sky-200',
-            'Fish': 'from-cyan-100 to-teal-100 text-cyan-800 border-cyan-200',
-            'Chicken': 'from-orange-100 to-red-100 text-orange-800 border-orange-200'
-        };
-
-        // Use specific color if available, otherwise use purple for custom types
-        const colorClass = petTypeColors[petType] || 'from-purple-100 to-indigo-100 text-purple-800 border-purple-200';
-
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${colorClass} shadow-sm`}>
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border-blue-200 shadow-sm">
                 {petType}
             </span>
         );
@@ -465,7 +454,7 @@ const PetManagement = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
-                                <h3 className="text-4xl font-bold text-white">Chi tiết Thú cưng</h3>
+                                <h3 className="text-4xl font-bold text-white">Chi tiết thú cưng</h3>
                             </div>
 
                         </div>
@@ -506,10 +495,19 @@ const PetManagement = () => {
 
                                         <div className="space-y-4">
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between p-3">
+                                                <div className="flex items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-600">ID thú cưng</span>
                                                     <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
                                                         #{selectedPet.petId}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm font-medium text-gray-600">Admin ID</span>
+                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                                                        #{selectedPet.adminId || 'N/A'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -521,7 +519,7 @@ const PetManagement = () => {
                                                 </span>
                                             </div> */}
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between p-3">
+                                                <div className="flex items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-600">Loại thú cưng</span>
                                                     <div>
                                                         {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
@@ -580,11 +578,7 @@ const PetManagement = () => {
 
                         {/* Enhanced Footer */}
                         <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <span>Dữ liệu được cập nhật trong thời gian thực</span>
-                                </div>
+                            <div className="flex justify-end items-center">
 
                                 <div className="flex gap-3">
                                     <button
@@ -761,7 +755,8 @@ const PetManagement = () => {
                                             )}
                                         </div>
 
-                                        {/* Status Filter */}                                        <div className="space-y-2">
+                                        {/* Status Filter */}
+                                        <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
                                                 Trạng thái
                                             </label>
@@ -957,9 +952,10 @@ const PetManagement = () => {
                             <colgroup>
                                 <col className="w-[15%]" />
                                 <col className="w-[15%]" />
-                                <col className="w-[40%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
+                                <col className="w-[34%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-blue-600 to-cyan-600 border-b-4 border-blue-800 shadow-lg">
                                 <tr>
@@ -980,6 +976,11 @@ const PetManagement = () => {
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
+                                            Admin ID
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
                                             Trạng thái
                                         </span>
                                     </th>
@@ -994,7 +995,7 @@ const PetManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentPets.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-12 text-center">
+                                        <td colSpan="6" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
 
                                                 <div className="text-center">
@@ -1040,6 +1041,14 @@ const PetManagement = () => {
                                                     <div className="text-sm text-gray-900 break-words max-w-xs mx-auto" title={pet.description}>
                                                         {pet.description || 'Không có mô tả'}
                                                     </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="px-3 py-4">
+                                                <div className="flex justify-center">
+                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                                                        #{pet.adminId || 'N/A'}
+                                                    </span>
                                                 </div>
                                             </td>
 
@@ -1173,6 +1182,32 @@ const PetManagement = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 {/* Left Column */}
                                 <div className="space-y-6">
+                                    {/* Pet Name Field */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="p-2 bg-blue-100 rounded-lg">
+                                                <Edit className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <label className="text-lg font-semibold text-gray-800">
+                                                Chỉnh sửa tên thú cưng
+                                            </label>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={editForm.petDefaultName}
+                                            onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            placeholder="Nhập tên thú cưng"
+                                            minLength="2"
+                                        />
+                                        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                            <p className="text-sm text-blue-700 flex items-center gap-2">
+                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                Chữ cái đầu sẽ tự động viết hoa. Tối thiểu 2 ký tự.
+                                            </p>
+                                        </div>
+                                    </div>
+
                                     {/* Pet Type Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
@@ -1199,32 +1234,6 @@ const PetManagement = () => {
                                             </p>
                                         </div>
                                     </div>
-
-                                    {/* Pet Name Field */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-green-100 rounded-lg">
-                                                <Edit className="h-5 w-5 text-green-600" />
-                                            </div>
-                                            <label className="text-lg font-semibold text-gray-800">
-                                                Chỉnh sửa tên thú cưng
-                                            </label>
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={editForm.petDefaultName}
-                                            onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập tên thú cưng"
-                                            minLength="2"
-                                        />
-                                        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                            <p className="text-sm text-blue-700 flex items-center gap-2">
-                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                Chữ cái đầu sẽ tự động viết hoa. Tối thiểu 2 ký tự.
-                                            </p>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {/* Right Column */}
@@ -1232,8 +1241,8 @@ const PetManagement = () => {
                                     {/* Description Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-purple-100 rounded-lg">
-                                                <Eye className="h-5 w-5 text-purple-600" />
+                                            <div className="p-2 bg-blue-100 rounded-lg">
+                                                <Eye className="h-5 w-5 text-blue-600" />
                                             </div>
                                             <label className="text-lg font-semibold text-gray-800">
                                                 Chỉnh sửa mô tả thú cưng
@@ -1264,13 +1273,19 @@ const PetManagement = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, petStatus: parseInt(e.target.value) })}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                             >
-                                                <option value={1}>🟢 Hoạt động</option>
-                                                <option value={0}>🔴 Vô hiệu hóa</option>
+                                                <option value={1}> Active</option>
+                                                <option value={0}> Inactive</option>
                                             </select>
                                             <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                         </div>
-                                        <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                            <p className="text-sm text-gray-600 flex items-center gap-2">
+                                        <div className={`mt-2 p-3 rounded-lg border ${editForm.petStatus === 1
+                                            ? 'bg-green-50 border-green-200'
+                                            : 'bg-red-50 border-red-200'
+                                            }`}>
+                                            <p className={`text-sm flex items-center gap-2 ${editForm.petStatus === 1
+                                                ? 'text-green-700'
+                                                : 'text-red-700'
+                                                }`}>
                                                 {editForm.petStatus === 1 ? (
                                                     <>
                                                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -1291,11 +1306,7 @@ const PetManagement = () => {
 
                         {/* Enhanced Footer */}
                         <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <span>Thay đổi sẽ được lưu ngay lập tức</span>
-                                </div>
+                            <div className="flex justify-end items-center">
 
                                 <div className="flex gap-3">
                                     <button
@@ -1309,7 +1320,7 @@ const PetManagement = () => {
                                         onClick={handleEditSubmit}
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
                                     >
-                                        <Save className="w-4 h-4" />
+                                        <Edit className="w-4 h-4" />
                                         Cập nhật
                                     </button>
                                 </div>
@@ -1321,84 +1332,167 @@ const PetManagement = () => {
 
             {/* Create Pet Modal */}
             {createModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Tạo thú cưng mới
-                        </h3>
-
-                        <div className="space-y-4 mb-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tên thú cưng
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editForm.petDefaultName}
-                                    onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Nhập tên thú cưng"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Loại thú cưng *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editForm.petType || ''}
-                                    onChange={(e) => handlePetTypeChange(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Nhập loại thú cưng (VD: Dog, Cat, Bird...)"
-                                    required
-                                    minLength="2"
-                                />
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Chữ cái đầu sẽ tự động viết hoa. Tối thiểu 2 ký tự.
-                                </p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Mô tả thú cưng
-                                </label>
-                                <textarea
-                                    value={editForm.description}
-                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    rows="3"
-                                    placeholder="Nhập mô tả thú cưng"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Trạng thái
-                                </label>
-                                <select
-                                    value={editForm.petStatus}
-                                    onChange={(e) => setEditForm({ ...editForm, petStatus: parseInt(e.target.value) })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value={1}>Hoạt động</option>
-                                    <option value={0}>Vô hiệu hóa</option>
-                                </select>
+                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-2xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
+                            <div className="relative flex justify-center items-center">
+                                <div className="flex items-center gap-4">
+                                    <h3 className="text-3xl font-bold text-white">Tạo thú cưng mới</h3>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={handleCancel}
-                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                            >
-                                Hủy
-                            </button>                            <button
-                                onClick={handleCreateSubmit}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            >
-                                Tạo
-                            </button>
+                        {/* Body */}
+                        <div className="p-8 overflow-y-auto max-h-[calc(95vh-180px)] bg-gradient-to-br from-gray-50 to-white">
+                            <div className="space-y-6">
+                                {/* Pet Name */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <Edit className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <label className="text-lg font-semibold text-gray-800">
+                                            Tên thú cưng
+                                        </label>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={editForm.petDefaultName}
+                                        onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        placeholder="Nhập tên thú cưng..."
+                                        minLength="2"
+                                    />
+                                    <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                        <p className="text-sm text-blue-700 flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                            Chữ cái đầu sẽ tự động viết hoa. Tối thiểu 2 ký tự.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Pet Type */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <PawPrint className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <label className="text-lg font-semibold text-gray-800">
+                                            Loại thú cưng *
+                                        </label>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={editForm.petType || ''}
+                                        onChange={(e) => handlePetTypeChange(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        placeholder="Nhập loại thú cưng (VD: Dog, Cat, Bird...)"
+                                        required
+                                        minLength="2"
+                                    />
+                                    <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                        <p className="text-sm text-blue-700 flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                            Trường bắt buộc. Chữ cái đầu sẽ tự động viết hoa. Tối thiểu 2 ký tự.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Pet Description */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <Eye className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <label className="text-lg font-semibold text-gray-800">
+                                            Mô tả thú cưng
+                                        </label>
+                                    </div>
+                                    <textarea
+                                        value={editForm.description}
+                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                        placeholder="Nhập mô tả chi tiết về thú cưng..."
+                                        rows="3"
+                                    />
+                                    <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                        <p className="text-sm text-blue-700 flex items-center justify-between gap-2">
+                                            <span>Mô tả giúp người chơi hiểu rõ hơn về thú cưng</span>
+                                            <span>{editForm.description?.length || 0} ký tự</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Pet Status */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="p-2 bg-orange-100 rounded-lg">
+                                            <Power className="h-5 w-5 text-orange-600" />
+                                        </div>
+                                        <label className="text-lg font-semibold text-gray-800">
+                                            Trạng thái thú cưng
+                                        </label>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={editForm.petStatus}
+                                            onChange={(e) => setEditForm({ ...editForm, petStatus: parseInt(e.target.value) })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                        >
+                                            <option value={1}> Active</option>
+                                            <option value={0}> Inactive</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                    </div>
+                                    <div className={`mt-2 p-3 rounded-lg border ${editForm.petStatus === 1
+                                        ? 'bg-green-50 border-green-200'
+                                        : 'bg-red-50 border-red-200'
+                                        }`}>
+                                        <p className={`text-sm flex items-center gap-2 ${editForm.petStatus === 1
+                                            ? 'text-green-700'
+                                            : 'text-red-700'
+                                            }`}>
+                                            {editForm.petStatus === 1 ? (
+                                                <>
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                    Thú cưng sẽ hiển thị và có thể sử dụng trong game
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                                    Thú cưng sẽ bị ẩn và không thể sử dụng trong game
+                                                </>
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
+                            <div className="flex justify-end items-center">
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        Hủy
+                                    </button>
+                                    <button
+                                        onClick={handleCreateSubmit}
+                                        disabled={!editForm.petType || editForm.petType.length < 2}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        Tạo thú cưng
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -138,18 +138,3 @@ export function convertGoogleDriveLink(url) {
     // Return the correct format for direct image display
     return `https://drive.google.com/uc?id=${fileId}`;
 }
-
-// Format currency with Vietnamese formatting
-export function formatCurrency(amount, type) {
-    const formatAmount = new Intl.NumberFormat('vi-VN').format(amount);
-    const symbols = {
-        'COIN': '🪙',
-        'DIAMOND': '💎',
-        'GEM': '🔷',
-        // Support database case variations
-        'Coin': '🪙',
-        'Diamond': '💎',
-        'Gem': '🔷'
-    };
-    return `${symbols[type] || '💰'} ${formatAmount}`;
-}
