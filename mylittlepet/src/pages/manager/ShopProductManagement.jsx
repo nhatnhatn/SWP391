@@ -518,7 +518,7 @@ const ShopProductManagement = () => {
             // Chỉ thêm logic type khi tạo mới
             if (!isEdit) {
                 submissionData.type = actualType; // Use the actual type (pet type from selection, or item type)
-                submissionData.shopId = isPetType ? 1 : 2; // Set shopId based on product type: Pet types = 1, Item types = 2
+                submissionData.shopId = isPetType ? 1 : 1; // Set shopId based on product type: Pet types = 1, Item types = 2
 
                 // For Pet types, use the selected petID, otherwise set to null
                 if (isPetType && editForm.petID) {
@@ -1329,8 +1329,8 @@ const ShopProductManagement = () => {
                             </h3>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Tên sản phẩm *</label>
                                     <input
@@ -1366,70 +1366,57 @@ const ShopProductManagement = () => {
                                     </div>
                                 )}
 
-                                {/* Pet Type Selection - chỉ hiển thị khi tạo mới và loại sản phẩm là Pet */}
+                                {/* Pet Selection - chỉ hiển thị khi tạo mới và loại sản phẩm là Pet */}
                                 {createModal && editForm.type === 'Pet' && (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Chọn loại thú cưng *</label>
+                                        <label className="block text-sm font-medium text-gray-700">Chọn thú cưng *</label>
                                         <select
-                                            value={editForm.petType || ''}
-                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value, petID: null })}
+                                            value={editForm.petID || ''}
+                                            onChange={(e) => {
+                                                const selectedPetId = e.target.value;
+                                                const selectedPet = pets.find(pet => pet.petId == selectedPetId);
+                                                setEditForm({
+                                                    ...editForm,
+                                                    petID: selectedPetId,
+                                                    petType: selectedPet ? selectedPet.petType : null
+                                                });
+                                            }}
                                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                                             required
-                                            disabled={petsLoading || dynamicPetTypes.length === 0}
+                                            disabled={petsLoading || pets.length === 0}
                                         >
                                             <option value="">
                                                 {petsLoading ? "Đang tải..." :
-                                                    dynamicPetTypes.length === 0 ? "Không có loại thú cưng" :
-                                                        "Chọn loại thú cưng"}
+                                                    pets.length === 0 ? "Không có thú cưng nào" :
+                                                        "Chọn thú cưng"}
                                             </option>
-                                            {/* Use dynamic pet types */}
-                                            {dynamicPetTypes.map(petType => (
-                                                <option key={petType} value={petType}>
-                                                    {petType}
-                                                </option>
-                                            ))}
+                                            {/* Show each pet type once */}
+                                            {dynamicPetTypes.map(petType => {
+                                                const firstPetOfType = pets.find(pet => pet.petType === petType);
+                                                return (
+                                                    <option key={petType} value={firstPetOfType?.petId}>
+                                                        {petType}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                         {petsLoading && (
                                             <p className="mt-1 text-xs text-blue-600">
                                                 ⏳ Đang tải danh sách thú cưng...
                                             </p>
                                         )}
-                                        {!petsLoading && dynamicPetTypes.length === 0 && (
+                                        {!petsLoading && pets.length === 0 && (
                                             <p className="mt-1 text-xs text-orange-600">
-                                                ⚠️ Không có loại thú cưng nào trong hệ thống
+                                                ⚠️ Không có thú cưng nào trong hệ thống
                                             </p>
                                         )}
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Chọn loại thú cưng từ danh sách động ({dynamicPetTypes.length} loại có sẵn)
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Pet ID Selection - chỉ hiển thị khi đã chọn loại thú cưng */}
-                                {createModal && editForm.type === 'Pet' && editForm.petType && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Chọn thú cưng cụ thể *</label>
-                                        <select
-                                            value={editForm.petID || ''}
-                                            onChange={(e) => setEditForm({ ...editForm, petID: e.target.value })}
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                            required
-                                        >
-                                            <option value="">Chọn thú cưng</option>
-                                            {pets.filter(pet => pet.petType === editForm.petType).map(pet => (
-                                                <option key={pet.petId} value={pet.petId}>
-                                                    (Name: {pet.petName}) (ID: {pet.petId})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {petsLoading && (
-                                            <p className="mt-1 text-xs text-blue-600">
-                                                ⏳ Đang tải danh sách thú cưng...
+                                            Chọn thú cưng cụ thể mà sản phẩm này dành cho ({pets.length} thú cưng có sẵn)
+                                        </p>                        {editForm.petID && editForm.petType && (
+                                            <p className="mt-1 text-xs text-green-600 font-medium">
+                                                ✅ Đã chọn: {pets.find(p => p.petId == editForm.petID)?.petName} ({editForm.petType})
                                             </p>
                                         )}
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            Chọn thú cưng cụ thể từ loại {editForm.petType}
-                                        </p>
                                     </div>
                                 )}
 
@@ -1510,7 +1497,7 @@ const ShopProductManagement = () => {
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Giá *</label>
                                     <input
@@ -1591,7 +1578,6 @@ const ShopProductManagement = () => {
                                 disabled={
                                     !editForm.name.trim() ||
                                     (createModal && !editForm.type.trim()) ||
-                                    (createModal && editForm.type === 'Pet' && !editForm.petType.trim()) ||
                                     (createModal && editForm.type === 'Pet' && !editForm.petID) ||
                                     !editForm.price ||
                                     !editForm.quantity
@@ -1865,7 +1851,7 @@ const ShopProductManagement = () => {
                                                                     {(() => {
                                                                         const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
                                                                         return linkedPet
-                                                                            ? `${linkedPet.petName} (ID: ${selectedProduct.petID})`
+                                                                            ? `${linkedPet.petType}`
                                                                             : `ID: ${selectedProduct.petID}`;
                                                                     })()}
                                                                 </span>
