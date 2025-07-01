@@ -1074,13 +1074,14 @@ const ShopProductManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[17%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[13%]" />
+                                <col className="w-[23%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[10%]" />
                                 <col className="w-[12%]" />
-                                <col className="w-[31%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
@@ -1102,6 +1103,11 @@ const ShopProductManagement = () => {
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
+                                            Loại tiền
+                                        </div>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        <div className="flex items-center justify-center gap-1">
                                             Số lượng
                                         </div>
                                     </th>
@@ -1118,7 +1124,7 @@ const ShopProductManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-12 text-center">
+                                        <td colSpan="8" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                     <Package className="h-8 w-8 text-gray-400" />
@@ -1209,9 +1215,35 @@ const ShopProductManagement = () => {
                                             <div className="flex items-center justify-center">
                                                 <div className="text-center">
                                                     <div className="text-xs font-medium text-gray-900">
-                                                        {product.price?.toLocaleString('vi-VN') || 0} {product.currencyType}
+                                                        {product.price?.toLocaleString('vi-VN') || 0}
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </td>
+
+                                        {/* Currency Type */}
+                                        <td className="px-3 py-4">
+                                            <div className="flex justify-center">
+                                                {product.currencyType === 'Coin' && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                                                        Coin
+                                                    </span>
+                                                )}
+                                                {product.currencyType === 'Diamond' && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-200 shadow-sm">
+                                                        Diamond
+                                                    </span>
+                                                )}
+                                                {product.currencyType === 'Gem' && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                        Gem
+                                                    </span>
+                                                )}
+                                                {!['Coin', 'Diamond', 'Gem'].includes(product.currencyType) && (
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
+                                                        {product.currencyType || 'N/A'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
 

@@ -847,12 +847,10 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-200">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Level</p>
+                                            <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Cấp độ hiện tại</p>
                                             <p className="text-2xl font-bold text-amber-700">Lv. {selectedPlayer.level || 1}</p>
                                         </div>
-                                        <div className="p-2 bg-amber-100 rounded-lg">
-                                            <span className="text-2xl">⭐</span>
-                                        </div>
+
                                     </div>
                                 </div>
 
@@ -1111,11 +1109,6 @@ const PlayersSimple = () => {    // Use hook for data management
                                     </th>
                                     <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Password
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
                                             Trạng thái
                                         </span>
                                     </th>
@@ -1130,7 +1123,7 @@ const PlayersSimple = () => {    // Use hook for data management
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {displayPlayers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-12 text-center">
+                                        <td colSpan="7" className="px-6 py-12 text-center">
                                             <div className="text-gray-500">
                                                 <div className="text-4xl mb-4">👥</div>
                                                 <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>                                            <p className="text-sm text-gray-500">
@@ -1161,25 +1154,22 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
                                                     <span className="mr-1"></span>
-                                                    <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()} coin</span>
+                                                    <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
                                                     <span className="mr-1"></span>
-                                                    <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()} diamond</span>
+                                                    <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center">
                                                     <span className="mr-1"></span>
-                                                    <span className="font-medium text-green-600">{(player.gem || 0).toLocaleString()} gem</span>
+                                                    <span className="font-medium text-green-600">{(player.gem || 0).toLocaleString()}</span>
                                                 </div>
                                             </td>
 
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                <span className="text-gray-400 font-mono">••••••••</span>
-                                            </td>
                                             <td className="px-6 py-6 whitespace-nowrap text-center">
                                                 {getStatusBadge(player.userStatus || 'ACTIVE')}
                                             </td>                                        <td className="px-6 py-6 whitespace-nowrap text-center">
