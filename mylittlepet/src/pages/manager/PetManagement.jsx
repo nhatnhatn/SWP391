@@ -32,6 +32,18 @@ const PetManagement = () => {
     const [allPetTypes, setAllPetTypes] = useState([]);
     const [persistentPetTypes, setPersistentPetTypes] = useState([]);
 
+    // Local error and success message states
+    const [localError, setLocalError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Confirmation dialog state
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null
+    });
+
     // Fetch all unique pet types when pets data changes
     useEffect(() => {
         if (pets && pets.length > 0) {
@@ -162,14 +174,14 @@ const PetManagement = () => {
         try {
             // Basic validation
             if (!editForm.petType || editForm.petType.trim().length < 2) {
-                alert('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
+                setLocalError('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
                 return;
             }
 
             // Check if first letter is capitalized
             const petType = editForm.petType.trim();
             if (petType[0] !== petType[0].toUpperCase()) {
-                alert('Chữ cái đầu của loại thú cưng phải viết hoa');
+                setLocalError('Chữ cái đầu của loại thú cưng phải viết hoa');
                 return;
             }
 
@@ -181,10 +193,13 @@ const PetManagement = () => {
             await updatePet(editModal.pet.petId, updatedData);
             setEditModal({ isOpen: false, pet: null });
             setSelectedPet(null); // Close detail modal too
-            alert('Cập nhật thú cưng thành công!');
+            // Clear any previous errors and show success message
+            setLocalError('');
+            setSuccessMessage('Cập nhật thú cưng thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (error) {
             console.error('Failed to update pet:', error);
-            alert('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'));
+            setLocalError('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'));
         }
     };
 
@@ -232,14 +247,14 @@ const PetManagement = () => {
         try {
             // Basic validation
             if (!editForm.petType || editForm.petType.trim().length < 2) {
-                alert('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
+                setLocalError('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
                 return;
             }
 
             // Check if first letter is capitalized
             const petType = editForm.petType.trim();
             if (petType[0] !== petType[0].toUpperCase()) {
-                alert('Chữ cái đầu của loại thú cưng phải viết hoa');
+                setLocalError('Chữ cái đầu của loại thú cưng phải viết hoa');
                 return;
             }
 
@@ -252,10 +267,13 @@ const PetManagement = () => {
             console.log('🐾 Creating pet with admin ID:', { adminId: user?.id, createData });
             await createPet(createData);
             setCreateModal(false);
-            alert('Tạo thú cưng thành công!');
+            // Clear any previous errors and show success message
+            setLocalError('');
+            setSuccessMessage('Tạo thú cưng thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (error) {
             console.error('Failed to create pet:', error);
-            alert('Tạo thú cưng thất bại: ' + (error.message || 'Lỗi không xác định'));
+            setLocalError('Tạo thú cưng thất bại: ' + (error.message || 'Lỗi không xác định'));
         }
     };
 
@@ -265,20 +283,31 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 0) {
-            alert('Thú cưng này đã bị vô hiệu hóa rồi!');
+            setLocalError('Thú cưng này đã bị vô hiệu hóa rồi!');
+            setTimeout(() => setLocalError(''), 5000);
             return;
         }
 
-        if (window.confirm('Bạn có chắc muốn vô hiệu hóa thú cưng này?')) {
-            try {
-                // Update pet status to 0 (disabled) instead of deleting
-                await updatePet(petId, { ...pet, petStatus: 0 });
-                alert('Vô hiệu hóa thú cưng thành công!');
-            } catch (error) {
-                console.error('Failed to disable pet:', error);
-                alert('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Xác nhận vô hiệu hóa',
+            message: 'Bạn có chắc muốn vô hiệu hóa thú cưng này?',
+            onConfirm: async () => {
+                try {
+                    // Update pet status to 0 (disabled) instead of deleting
+                    await updatePet(petId, { ...pet, petStatus: 0 });
+                    // Clear any previous errors and show success message
+                    setLocalError('');
+                    setSuccessMessage('Vô hiệu hóa thú cưng thành công!');
+                    setTimeout(() => setSuccessMessage(''), 5000);
+                } catch (error) {
+                    console.error('Failed to disable pet:', error);
+                    setLocalError('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
+                    setTimeout(() => setLocalError(''), 5000);
+                }
+                setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
-        }
+        });
     };
 
     // Handle enable pet
@@ -287,19 +316,22 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 1) {
-            alert('Thú cưng này đã được kích hoạt rồi!');
+            setLocalError('Thú cưng này đã được kích hoạt rồi!');
+            setTimeout(() => setLocalError(''), 5000);
             return;
         }
 
-        if (window.confirm('Bạn có chắc muốn kích hoạt lại thú cưng này?')) {
-            try {
-                // Update pet status to 1 (active)
-                await updatePet(petId, { ...pet, petStatus: 1 });
-                alert('Kích hoạt thú cưng thành công!');
-            } catch (error) {
-                console.error('Failed to enable pet:', error);
-                alert('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
-            }
+        try {
+            // Update pet status to 1 (active)
+            await updatePet(petId, { ...pet, petStatus: 1 });
+            // Clear any previous errors and show success message
+            setLocalError('');
+            setSuccessMessage('Kích hoạt thú cưng thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (error) {
+            console.error('Failed to enable pet:', error);
+            setLocalError('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
+            setTimeout(() => setLocalError(''), 5000);
         }
     };    // Cancel forms
     const handleCancel = () => {
@@ -432,6 +464,20 @@ const PetManagement = () => {
                 </div>
             </div>
 
+            {/* Success Message */}
+            {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-green-800">Thành công</h3>
+                            <div className="mt-2 text-sm text-green-700">
+                                <p>{successMessage}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Error Message */}
             {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -514,8 +560,8 @@ const PetManagement = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between">
+                                            {   /**     <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                           <div className="flex items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-600">ID quản trị viên</span>
                                                     <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
                                                         {selectedPet.adminId ? `#${selectedPet.adminId}` : (
@@ -523,7 +569,7 @@ const PetManagement = () => {
                                                         )}
                                                     </span>
                                                 </div>
-                                            </div>
+                                            </div>*/ } 
                                         </div>
                                     </div>
                                 </div>
@@ -1509,6 +1555,35 @@ const PetManagement = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Dialog */}
+            {confirmDialog.isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <X className="w-5 h-5 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800">{confirmDialog.title}</h3>
+                        </div>
+                        <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
+                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={confirmDialog.onConfirm}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                Xác nhận
+                            </button>
                         </div>
                     </div>
                 </div>

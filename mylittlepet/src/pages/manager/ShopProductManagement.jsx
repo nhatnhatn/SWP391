@@ -201,6 +201,18 @@ const ShopProductManagement = () => {
     const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+    // Local error and success message states
+    const [localError, setLocalError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+
+    // Confirmation dialog state
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: null
+    });
+
     const [editForm, setEditForm] = useState({
         petID: null,
         name: '',
@@ -414,20 +426,30 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 0) {
-            alert('Sản phẩm này đã bị vô hiệu hóa rồi!');
+            setLocalError('Sản phẩm này đã bị vô hiệu hóa rồi!');
+            setTimeout(() => setLocalError(''), 5000);
             return;
         }
 
-        if (window.confirm('Bạn có chắc muốn vô hiệu hóa sản phẩm này?')) {
-            try {
-                // Update product status to 0 (inactive)
-                await updateShopProduct(productId, { ...product, status: 0 });
-                alert('Vô hiệu hóa sản phẩm thành công!');
-            } catch (error) {
-                console.error('Failed to disable product:', error);
-                alert('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Xác nhận vô hiệu hóa',
+            message: 'Bạn có chắc muốn vô hiệu hóa sản phẩm này?',
+            onConfirm: async () => {
+                try {
+                    // Update product status to 0 (inactive)
+                    await updateShopProduct(productId, { ...product, status: 0 });
+                    setLocalError('');
+                    setSuccessMessage('Vô hiệu hóa sản phẩm thành công!');
+                    setTimeout(() => setSuccessMessage(''), 5000);
+                } catch (error) {
+                    console.error('Failed to disable product:', error);
+                    setLocalError('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
+                    setTimeout(() => setLocalError(''), 5000);
+                }
+                setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
-        }
+        });
     };
 
     // Handle enable product
@@ -436,19 +458,21 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 1) {
-            alert('Sản phẩm này đã được kích hoạt rồi!');
+            setLocalError('Sản phẩm này đã được kích hoạt rồi!');
+            setTimeout(() => setLocalError(''), 5000);
             return;
         }
 
-        if (window.confirm('Bạn có chắc muốn kích hoạt lại sản phẩm này?')) {
-            try {
-                // Update product status to 1 (active)
-                await updateShopProduct(productId, { ...product, status: 1 });
-                alert('Kích hoạt sản phẩm thành công!');
-            } catch (error) {
-                console.error('Failed to enable product:', error);
-                alert('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
-            }
+        try {
+            // Update product status to 1 (active)
+            await updateShopProduct(productId, { ...product, status: 1 });
+            setLocalError('');
+            setSuccessMessage('Kích hoạt sản phẩm thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (error) {
+            console.error('Failed to enable product:', error);
+            setLocalError('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
+            setTimeout(() => setLocalError(''), 5000);
         }
     };
 
@@ -457,34 +481,40 @@ const ShopProductManagement = () => {
         try {
             // Validation: Check if required fields are filled
             if (!editForm.name.trim()) {
-                alert('Vui lòng nhập tên sản phẩm');
+                setLocalError('Vui lòng nhập tên sản phẩm');
+                setTimeout(() => setLocalError(''), 5000);
                 return;
             }
 
             // Chỉ validate type khi đang tạo mới sản phẩm
             if (createModal && !editForm.type) {
-                alert('Vui lòng chọn loại sản phẩm');
+                setLocalError('Vui lòng chọn loại sản phẩm');
+                setTimeout(() => setLocalError(''), 5000);
                 return;
             }
 
             if (!editForm.price || editForm.price <= 0) {
-                alert('Vui lòng nhập giá hợp lệ');
+                setLocalError('Vui lòng nhập giá hợp lệ');
+                setTimeout(() => setLocalError(''), 5000);
                 return;
             }
 
             if (!editForm.quantity || editForm.quantity < 0) {
-                alert('Vui lòng nhập số lượng hợp lệ');
+                setLocalError('Vui lòng nhập số lượng hợp lệ');
+                setTimeout(() => setLocalError(''), 5000);
                 return;
             }
 
             // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
             if (!isEdit && editForm.type === 'Pet') {
                 if (!editForm.petType) {
-                    alert('Vui lòng chọn loại thú cưng');
+                    setLocalError('Vui lòng chọn loại thú cưng');
+                    setTimeout(() => setLocalError(''), 5000);
                     return;
                 }
                 if (!editForm.petID) {
-                    alert('Vui lòng chọn thú cưng cụ thể');
+                    setLocalError('Vui lòng chọn thú cưng cụ thể');
+                    setTimeout(() => setLocalError(''), 5000);
                     return;
                 }
             }
@@ -565,6 +595,10 @@ const ShopProductManagement = () => {
             });
 
             refreshData();
+
+            setLocalError('');
+            setSuccessMessage(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (error) {
             console.error('❌ Error saving product:', error);
             console.error('❌ Error details:', error.response?.data);
@@ -578,7 +612,8 @@ const ShopProductManagement = () => {
                 errorMessage += ': HTTP ' + (error.response?.status || 500);
             }
 
-            alert(errorMessage);
+            setLocalError(errorMessage);
+            setTimeout(() => setLocalError(''), 5000);
         }
     };
 
@@ -588,8 +623,12 @@ const ShopProductManagement = () => {
             await deleteShopProduct(deleteModal.product.shopProductId);
             setDeleteModal({ isOpen: false, product: null });
             refreshData();
+            setLocalError('');
+            setSuccessMessage('Xóa sản phẩm thành công!');
+            setTimeout(() => setSuccessMessage(''), 5000);
         } catch (error) {
-            alert('Lỗi khi xóa sản phẩm: ' + error.message);
+            setLocalError('Lỗi khi xóa sản phẩm: ' + error.message);
+            setTimeout(() => setLocalError(''), 5000);
         }
     };
 
@@ -699,6 +738,42 @@ const ShopProductManagement = () => {
                             <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
                             <div className="mt-2 text-sm text-red-700">
                                 <p>{error}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Local Error Message */}
+            {localError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 animate-slide-down">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <X className="h-5 w-5 text-red-600" />
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">Lỗi</h3>
+                            <div className="mt-1 text-sm text-red-700">
+                                <p>{localError}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Message */}
+            {successMessage && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 animate-slide-down">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">✓</span>
+                            </div>
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-green-800">Thành công</h3>
+                            <div className="mt-1 text-sm text-green-700">
+                                <p>{successMessage}</p>
                             </div>
                         </div>
                     </div>
@@ -2005,14 +2080,7 @@ const ShopProductManagement = () => {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-sm font-medium text-gray-600">Cửa hàng</span>
-                                                        <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                                                            {getShopName(selectedProduct.shopId)}
-                                                        </span>
-                                                    </div>
-                                                </div>
+
 
                                                 <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                     <div className="flex justify-between items-center">
@@ -2112,16 +2180,12 @@ const ShopProductManagement = () => {
                                                             {selectedProduct.status === 1 ? (
                                                                 <>
                                                                     <span className="text-base font-semibold text-green-700">Active</span>
-                                                                    <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">
-                                                                        Đang bán
-                                                                    </span>
+
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <span className="text-base font-semibold text-red-700">Inactive</span>
-                                                                    <span className="text-xs px-2 py-1 bg-red-100 text-red-600 rounded-full">
-                                                                        Ngừng bán
-                                                                    </span>
+
                                                                 </>
                                                             )}
                                                         </div>
@@ -2197,6 +2261,35 @@ const ShopProductManagement = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Dialog */}
+            {confirmDialog.isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <X className="w-5 h-5 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-800">{confirmDialog.title}</h3>
+                        </div>
+                        <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
+                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={confirmDialog.onConfirm}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                Xác nhận
+                            </button>
                         </div>
                     </div>
                 </div>
