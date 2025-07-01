@@ -848,7 +848,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Cấp độ hiện tại</p>
-                                            <p className="text-2xl font-bold text-amber-700">Lv. {selectedPlayer.level || 1}</p>
+                                            <p className="text-2xl font-bold text-amber-700">{selectedPlayer.level || 1}</p>
                                         </div>
 
                                     </div>
@@ -927,12 +927,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         </div>
                                     </div>
                                     <div className="p-5 space-y-4">
-                                        <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span className="text-sm font-medium text-gray-600">Tổng tài nguyên</span>
-                                            <span className="text-sm font-bold text-green-600">
-                                                {((selectedPlayer.coin || 0) + (selectedPlayer.diamond || 0) + (selectedPlayer.gem || 0)).toLocaleString()}
-                                            </span>
-                                        </div>
+                                        
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                             <span className="text-sm font-medium text-gray-600">Tổng thú cưng</span>
                                             <span className="text-sm font-bold text-blue-600 flex items-center gap-1">
@@ -944,7 +939,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <span className="text-sm font-medium text-gray-600">Cấp độ hiện tại</span>
                                             <div className="flex items-center gap-2">
 
-                                                <span className="text-sm text-black-500">Lv.{selectedPlayer.level || 1}</span>
+                                                <span className="text-sm text-black-500">{selectedPlayer.level || 1}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -383,7 +383,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Active</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">{activePets}</p>
                         </div>
@@ -395,7 +395,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Không hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Inactive</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">{inactivePets}</p>
                         </div>
@@ -416,7 +416,7 @@ const PetManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Đang hoạt động</p>
+                                <p className="text-xs font-medium text-gray-600">Active</p>
                             </div>
                             <p className="text-lg font-bold text-emerald-600">{activePets}</p>
                         </div>
@@ -424,7 +424,7 @@ const PetManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Không hoạt động</p>
+                                <p className="text-xs font-medium text-gray-600">Inactive</p>
                             </div>
                             <p className="text-lg font-bold text-red-600">{inactivePets}</p>
                         </div>
@@ -561,8 +561,8 @@ const PetManagement = () => {
                                                 {selectedPet.description ? (
                                                     <div className="space-y-2">
                                                         <div className={`text-sm text-gray-700 leading-relaxed break-words ${selectedPet.description.length > 150 && !selectedPet.expanded
-                                                                ? 'line-clamp-3'
-                                                                : ''
+                                                            ? 'line-clamp-3'
+                                                            : ''
                                                             }`}>
                                                             {selectedPet.description}
                                                         </div>
