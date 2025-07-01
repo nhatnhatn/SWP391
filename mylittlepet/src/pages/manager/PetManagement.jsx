@@ -505,27 +505,23 @@ const PetManagement = () => {
 
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-600">Admin ID</span>
-                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                                                        #{selectedPet.adminId || 'N/A'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                                <span className="text-sm font-medium text-gray-600">Tên thú cưng</span>
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {selectedPet.petDefaultName || 'Chưa đặt tên'}
-                                                </span>
-                                            </div> */}
-                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between">
                                                     <span className="text-sm font-medium text-gray-600">Loại thú cưng</span>
                                                     <div>
                                                         {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
                                                             <span className="text-sm text-gray-500 italic">Chưa xác định</span>
                                                         )}
                                                     </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-sm font-medium text-gray-600">ID quản trị viên</span>
+                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                                                        {selectedPet.adminId ? `#${selectedPet.adminId}` : (
+                                                            <span className="text-sm text-gray-500 italic">Chưa xác định</span>
+                                                        )}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -562,13 +558,48 @@ const PetManagement = () => {
 
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <span className="text-sm font-medium text-gray-600 block mb-3">Mô tả thú cưng</span>
-                                                <p className="text-sm text-gray-700 leading-relaxed">
-                                                    {selectedPet.description || (
-                                                        <span className="text-gray-400 italic">
+                                                {selectedPet.description ? (
+                                                    <div className="space-y-2">
+                                                        <div className={`text-sm text-gray-700 leading-relaxed break-words ${selectedPet.description.length > 150 && !selectedPet.expanded
+                                                                ? 'line-clamp-3'
+                                                                : ''
+                                                            }`}>
+                                                            {selectedPet.description}
+                                                        </div>
+                                                        {selectedPet.description.length > 150 && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedPet(prev => ({
+                                                                        ...prev,
+                                                                        expanded: !prev.expanded
+                                                                    }));
+                                                                }}
+                                                                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline hover:no-underline transition-colors duration-200 flex items-center gap-1"
+                                                            >
+                                                                {selectedPet.expanded ? (
+                                                                    <>
+                                                                        <ChevronUp className="h-3 w-3" />
+                                                                        Ẩn bớt
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <ChevronDown className="h-3 w-3" />
+                                                                        Xem thêm
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-4">
+                                                        <div className="text-gray-400 mb-2">
+                                                            <Eye className="h-8 w-8 mx-auto opacity-50" />
+                                                        </div>
+                                                        <span className="text-sm text-gray-400 italic">
                                                             Chưa có mô tả cho thú cưng này
                                                         </span>
-                                                    )}
-                                                </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -950,10 +981,9 @@ const PetManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[34%]" />
-                                <col className="w-[12%]" />
+                                <col className="w-[18%]" />
+                                <col className="w-[18%]" />
+                                <col className="w-[40%]" />
                                 <col className="w-[12%]" />
                                 <col className="w-[12%]" />
                             </colgroup>
@@ -976,11 +1006,6 @@ const PetManagement = () => {
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Admin ID
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
                                             Trạng thái
                                         </span>
                                     </th>
@@ -995,7 +1020,7 @@ const PetManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentPets.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center">
+                                        <td colSpan="5" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
 
                                                 <div className="text-center">
@@ -1041,14 +1066,6 @@ const PetManagement = () => {
                                                     <div className="text-sm text-gray-900 break-words max-w-xs mx-auto" title={pet.description}>
                                                         {pet.description || 'Không có mô tả'}
                                                     </div>
-                                                </div>
-                                            </td>
-
-                                            <td className="px-3 py-4">
-                                                <div className="flex justify-center">
-                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                                                        #{pet.adminId || 'N/A'}
-                                                    </span>
                                                 </div>
                                             </td>
 
@@ -1418,8 +1435,7 @@ const PetManagement = () => {
                                         rows="3"
                                     />
                                     <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                        <p className="text-sm text-blue-700 flex items-center justify-between gap-2">
-                                            <span>Mô tả giúp người chơi hiểu rõ hơn về thú cưng</span>
+                                        <p className="text-sm text-blue-700 flex items-center justify-end gap-2">
                                             <span>{editForm.description?.length || 0} ký tự</span>
                                         </p>
                                     </div>
