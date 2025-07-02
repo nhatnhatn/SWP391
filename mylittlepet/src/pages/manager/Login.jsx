@@ -10,6 +10,7 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [emailError, setEmailError] = useState('');
 
     const { login, isAuthenticated } = useAuth();
     const location = useLocation();
@@ -19,13 +20,87 @@ export default function Login() {
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
-    } const handleSubmit = async (e) => {
+    }
+
+    // Email validation function
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    // Handle email input change with validation
+    const handleEmailChange = (e) => {
+        const emailValue = e.target.value;
+        setEmail(emailValue);
+        setEmailError('');
+        setError('');
+
+        if (emailValue && !validateEmail(emailValue)) {
+            setEmailError('Email không hợp lệ. Vui lòng nhập đúng định dạng email.');
+        }
+    };
+
+    // Get specific error message based on error type
+    const getErrorMessage = (errorMsg) => {
+        if (!errorMsg) return '';
+
+        const lowerError = errorMsg.toLowerCase();
+
+        if (lowerError.includes('invalid email') || lowerError.includes('email not found') || lowerError.includes('user not found')) {
+            return ' Email không tồn tại trong hệ thống. Vui lòng kiểm tra lại email của bạn.';
+        }
+
+        if (lowerError.includes('wrong password') || lowerError.includes('invalid password') || lowerError.includes('incorrect password')) {
+            return ' Mật khẩu không chính xác. Vui lòng kiểm tra lại mật khẩu của bạn.';
+        }
+
+        if (lowerError.includes('unauthorized') || lowerError.includes('access denied') || lowerError.includes('role') || lowerError.includes('permission')) {
+            return ' Tài khoản của bạn không có quyền truy cập vào trang quản trị. Chỉ Admin mới có thể đăng nhập.';
+        }
+
+        if (lowerError.includes('account disabled') || lowerError.includes('account suspended') || lowerError.includes('banned')) {
+            return ' Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.';
+        }
+
+        if (lowerError.includes('network') || lowerError.includes('connection')) {
+            return ' Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet và thử lại.';
+        }
+
+        // Default fallback for other errors
+        return ` ${errorMsg}`;
+    }; const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+        setEmailError('');
+
+        // Client-side validation
+        if (!email.trim()) {
+            setEmailError('Email là bắt buộc. Vui lòng nhập email của bạn.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            setEmailError('Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: user@example.com).');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!password.trim()) {
+            setError('Mật khẩu là bắt buộc. Vui lòng nhập mật khẩu của bạn.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (password.length < 6) {
+            setError('Mật khẩu phải có ít nhất 6 ký tự.');
+            setIsLoading(false);
+            return;
+        }
 
         try {
-            console.log('🔍 Debug: Attempting to login with:', { email, password });
+            console.log('🔍 Debug: Attempting to login with:', { email, password: '***' });
 
             const result = await login(email, password);
             console.log('🔑 Login: Login result received', result);
@@ -39,11 +114,13 @@ export default function Login() {
                 console.log('🧭 Login: Navigation called');
             } else {
                 console.error('❌ Login failed:', result.error);
-                setError(result.error || 'Đăng nhập thất bại');
+                const errorMessage = getErrorMessage(result.error || 'Đăng nhập thất bại');
+                setError(errorMessage);
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+            const errorMessage = getErrorMessage(error.message || 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -52,7 +129,7 @@ export default function Login() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
-                <div>                    
+                <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         🐾 My Little Pet
                     </h2>
@@ -79,10 +156,17 @@ export default function Login() {
                                     autoComplete="email"
                                     required
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    onChange={handleEmailChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${emailError ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                                        }`}
                                     placeholder={t('auth.enterEmail')}
                                 />
+                                {emailError && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                                        <span className="mr-1">⚠️</span>
+                                        {emailError}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -97,8 +181,12 @@ export default function Login() {
                                         autoComplete="current-password"
                                         required
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                            setError(''); // Clear error when user starts typing
+                                        }}
+                                        className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${error && error.includes('Mật khẩu') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+                                            }`}
                                         placeholder={t('auth.enterPassword')}
                                     />
                                     <button
@@ -119,8 +207,8 @@ export default function Login() {
                         <div className="mt-6">
                             <button
                                 type="submit"
-                                disabled={isLoading}
-                                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isLoading || emailError || !email.trim() || !password.trim()}
+                                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
                             >                                {isLoading ? (
                                 <div className="flex items-center">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -142,7 +230,7 @@ export default function Login() {
                                     {t('auth.goToRegister')}
                                 </Link>
                             </p>
-                        </div>    
+                        </div>
                     </div>
                 </form>
             </div>

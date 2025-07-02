@@ -76,6 +76,14 @@ const PetManagement = () => {
         petStatus: 1
     });
 
+    // Original form data to track changes
+    const [originalFormData, setOriginalFormData] = useState({
+        petType: '',
+        petDefaultName: '',
+        description: '',
+        petStatus: 1
+    });
+
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -162,14 +170,37 @@ const PetManagement = () => {
         setSelectedPet(pet);
     };    // Handle Edit from detail modal
     const handleEdit = (pet) => {
-        setEditForm({
+        const formData = {
             petType: pet.petType || '',
             petDefaultName: pet.petDefaultName || '',
             description: pet.description || '',
             petStatus: pet.petStatus || 1
-        });
+        };
+
+        setEditForm(formData);
+        setOriginalFormData(formData); // Store original data for comparison
         setEditModal({ isOpen: true, pet: pet });
-    };    // Submit edit from detail modal
+    };
+
+    // Check if form has changes
+    const hasFormChanges = useMemo(() => {
+        return (
+            editForm.petType !== originalFormData.petType ||
+            editForm.petDefaultName !== originalFormData.petDefaultName ||
+            editForm.description !== originalFormData.description ||
+            editForm.petStatus !== originalFormData.petStatus
+        );
+    }, [editForm, originalFormData]);
+
+    // Check if create form has any content (for create modal)
+    const hasCreateFormContent = useMemo(() => {
+        return (
+            (editForm.petType && editForm.petType.trim().length > 0) ||
+            (editForm.petDefaultName && editForm.petDefaultName.trim().length > 0) ||
+            (editForm.description && editForm.description.trim().length > 0) ||
+            editForm.petStatus !== 1 // Default status is 1, so if it's different, user changed it
+        );
+    }, [editForm]);    // Submit edit from detail modal
     const handleEditSubmit = async () => {
         try {
             // Basic validation
@@ -206,12 +237,14 @@ const PetManagement = () => {
     // Cancel edit
     const handleEditCancel = () => {
         setEditModal({ isOpen: false, pet: null });
-        setEditForm({
+        const resetFormData = {
             petType: '',
             petDefaultName: '',
             description: '',
             petStatus: 1
-        });
+        };
+        setEditForm(resetFormData);
+        setOriginalFormData(resetFormData);
     };
 
     // Sort function
@@ -233,12 +266,14 @@ const PetManagement = () => {
             <ChevronDown className="w-4 h-4 inline ml-1" />;
     };    // Open create modal
     const handleCreate = () => {
-        setEditForm({
+        const resetFormData = {
             petType: '',
             petDefaultName: '',
             description: '',
             petStatus: 1
-        });
+        };
+        setEditForm(resetFormData);
+        setOriginalFormData(resetFormData); // Set original data for create mode
         setCreateModal(true);
     };
 
@@ -337,12 +372,14 @@ const PetManagement = () => {
     const handleCancel = () => {
         setEditModal({ isOpen: false, pet: null });
         setCreateModal(false);
-        setEditForm({
+        const resetFormData = {
             petType: '',
             petDefaultName: '',
             description: '',
             petStatus: 1
-        });
+        };
+        setEditForm(resetFormData);
+        setOriginalFormData(resetFormData);
     };
 
     // Handle pet type change with validation
@@ -566,7 +603,7 @@ const PetManagement = () => {
                                                         )}
                                                     </span>
                                                 </div>
-                                            </div>*/ } 
+                                            </div>*/ }
                                         </div>
                                     </div>
                                 </div>
@@ -1266,7 +1303,7 @@ const PetManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Chỉnh sửa loại thú cưng 
+                                                Chỉnh sửa loại thú cưng
                                             </label>
                                         </div>
                                         <input
@@ -1352,7 +1389,6 @@ const PetManagement = () => {
                         {/* Enhanced Footer */}
                         <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
                             <div className="flex justify-end items-center">
-
                                 <div className="flex gap-3">
                                     <button
                                         onClick={handleEditCancel}
@@ -1363,7 +1399,8 @@ const PetManagement = () => {
                                     </button>
                                     <button
                                         onClick={handleEditSubmit}
-                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                                        disabled={!hasFormChanges || !editForm.petType || editForm.petType.length < 2}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Edit className="w-4 h-4" />
                                         Cập nhật
@@ -1419,7 +1456,7 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Loại thú cưng 
+                                            Loại thú cưng
                                         </label>
                                     </div>
                                     <input
@@ -1517,7 +1554,7 @@ const PetManagement = () => {
                                     </button>
                                     <button
                                         onClick={handleCreateSubmit}
-                                        disabled={!editForm.petType || editForm.petType.length < 2}
+                                        disabled={!hasCreateFormContent || !editForm.petType || editForm.petType.length < 2}
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Plus className="w-4 h-4" />

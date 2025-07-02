@@ -226,12 +226,58 @@ const ShopProductManagement = () => {
         status: 1
     });
 
+    // Original form data to track changes
+    const [originalFormData, setOriginalFormData] = useState({
+        petID: null,
+        name: '',
+        type: '',
+        petType: '',
+        description: '',
+        imageUrl: '',
+        price: '',
+        currencyType: 'Coin',
+        quantity: 10,
+        status: 1
+    });
+
     // Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);    // Filter and sort all products, then paginate (proper client-side filtering)
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Check if form has changes (for edit mode)
+    const hasFormChanges = useMemo(() => {
+        return (
+            editForm.petID !== originalFormData.petID ||
+            editForm.name !== originalFormData.name ||
+            editForm.type !== originalFormData.type ||
+            editForm.petType !== originalFormData.petType ||
+            editForm.description !== originalFormData.description ||
+            editForm.imageUrl !== originalFormData.imageUrl ||
+            editForm.price !== originalFormData.price ||
+            editForm.currencyType !== originalFormData.currencyType ||
+            editForm.quantity !== originalFormData.quantity ||
+            editForm.status !== originalFormData.status
+        );
+    }, [editForm, originalFormData]);
+
+    // Check if create form has any content (for create mode)
+    const hasCreateFormContent = useMemo(() => {
+        return (
+            (editForm.name && editForm.name.trim().length > 0) ||
+            (editForm.type && editForm.type.trim().length > 0) ||
+            (editForm.petType && editForm.petType.trim().length > 0) ||
+            (editForm.description && editForm.description.trim().length > 0) ||
+            (editForm.imageUrl && editForm.imageUrl.trim().length > 0) ||
+            (editForm.price && editForm.price.toString().trim().length > 0) ||
+            editForm.currencyType !== 'Coin' || // Default currency is 'Coin'
+            editForm.quantity !== 10 || // Default quantity is 10
+            editForm.status !== 1 || // Default status is 1
+            editForm.petID !== null // Default petID is null
+        );
+    }, [editForm]);    // Filter and sort all products, then paginate (proper client-side filtering)
     const filteredAndSortedProducts = useMemo(() => {
         // Start with all products (assume allShopProducts exists or use shopProducts)
         const allProducts = allShopProducts || shopProducts;
@@ -388,7 +434,7 @@ const ShopProductManagement = () => {
             formType = product.type;
         }
 
-        setEditForm({
+        const formData = {
             petID: product.petID || null,
             name: product.name || '',
             type: formType,
@@ -399,13 +445,16 @@ const ShopProductManagement = () => {
             currencyType: product.currencyType || 'COIN',
             quantity: product.quantity || 10,
             status: product.status !== undefined ? product.status : 1
-        });
+        };
+
+        setEditForm(formData);
+        setOriginalFormData(formData); // Store original data for comparison
         setEditModal({ isOpen: true, product });
     };
 
     // Open create modal
     const handleCreate = () => {
-        setEditForm({
+        const resetFormData = {
             petID: null,
             name: '',
             type: '',
@@ -416,8 +465,31 @@ const ShopProductManagement = () => {
             currencyType: 'Coin',
             quantity: 10,
             status: 1
-        });
+        };
+
+        setEditForm(resetFormData);
+        setOriginalFormData(resetFormData); // Set original data for create mode
         setCreateModal(true);
+    };
+
+    // Handle cancel - close modals and reset form
+    const handleCancel = () => {
+        setCreateModal(false);
+        setEditModal({ isOpen: false, product: null });
+        const resetFormData = {
+            petID: null,
+            name: '',
+            type: '',
+            petType: '',
+            description: '',
+            imageUrl: '',
+            price: '',
+            currencyType: 'Coin',
+            quantity: 10,
+            status: 1
+        };
+        setEditForm(resetFormData);
+        setOriginalFormData(resetFormData);
     };
 
     // Handle delete (disable product)
@@ -1155,7 +1227,7 @@ const ShopProductManagement = () => {
                                 <col className="w-[10%]" />
                                 <col className="w-[10%]" />
                                 <col className="w-[10%]" />
-                                <col className="w-[10%]" />
+                                <col className="w-[12%]" />
                                 <col className="w-[12%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
@@ -1228,7 +1300,7 @@ const ShopProductManagement = () => {
                                     <tr key={product.shopProductId} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200">
                                         {/* Product Info */}
                                         <td className="px-3 py-4">
-                                            <div className="flex items-center space-x-3 ml-3">
+                                            <div className="flex items-center space-x-3 ml-2">
                                                 <div>
                                                     {product.imageUrl ? (
                                                         <ProductImage
@@ -1243,8 +1315,8 @@ const ShopProductManagement = () => {
                                                     )}
                                                 </div>
 
-                                                <div className="flex items-center min-w-0">
-                                                    <div className=" text-sm font-bold text-gray-900 break-words" title={product.name}>
+                                                <div className="flex items-center min-w-0 flex-1">
+                                                    <div className="text-sm font-bold text-gray-900 break-words whitespace-normal leading-tight ml-1" title={product.name}>
                                                         {product.name}
                                                     </div>
                                                 </div>
@@ -1491,7 +1563,7 @@ const ShopProductManagement = () => {
                                                         onClick={() => setShowGoogleDriveHelp(true)}
                                                         className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors font-medium"
                                                     >
-                                                         Hướng dẫn
+                                                        Hướng dẫn
                                                     </button>
                                                 </div>
                                             </div>
@@ -1798,10 +1870,7 @@ const ShopProductManagement = () => {
                             <div className="flex justify-end items-center">
                                 <div className="flex gap-3">
                                     <button
-                                        onClick={() => {
-                                            setCreateModal(false);
-                                            setEditModal({ isOpen: false, product: null });
-                                        }}
+                                        onClick={handleCancel}
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
@@ -1809,13 +1878,20 @@ const ShopProductManagement = () => {
                                     </button>
                                     <button
                                         onClick={() => handleSubmit(editModal.isOpen)}
-                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                         disabled={
+                                            // Basic validation for both create and edit
                                             !editForm.name.trim() ||
-                                            (createModal && !editForm.type.trim()) ||
-                                            (createModal && editForm.type === 'Pet' && !editForm.petID) ||
                                             !editForm.price ||
-                                            !editForm.quantity
+                                            !editForm.quantity ||
+                                            // Create mode specific validation
+                                            (createModal && (
+                                                !hasCreateFormContent ||
+                                                !editForm.type.trim() ||
+                                                (editForm.type === 'Pet' && !editForm.petID)
+                                            )) ||
+                                            // Edit mode specific validation - no changes made
+                                            (editModal.isOpen && !hasFormChanges)
                                         }
                                     >
                                         {createModal ? (
