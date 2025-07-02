@@ -533,9 +533,6 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <div className="p-2 bg-blue-100 rounded-lg">
-                                                <Search className="h-5 w-5 text-blue-600" />
-                                            </div>
                                             <h4 className="text-lg font-semibold text-gray-800">Thông tin cơ bản</h4>
                                         </div>
 
@@ -578,9 +575,6 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <div className="p-2 bg-green-100 rounded-lg">
-                                                <Eye className="h-5 w-5 text-green-600" />
-                                            </div>
                                             <h4 className="text-lg font-semibold text-gray-800">Trạng thái và mô tả thú cưng</h4>
                                         </div>
 
@@ -1248,9 +1242,6 @@ const PetManagement = () => {
                                     {/* Pet Name Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-blue-100 rounded-lg">
-                                                <Edit className="h-5 w-5 text-blue-600" />
-                                            </div>
                                             <label className="text-lg font-semibold text-gray-800">
                                                 Chỉnh sửa tên thú cưng
                                             </label>
@@ -1274,11 +1265,8 @@ const PetManagement = () => {
                                     {/* Pet Type Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-blue-100 rounded-lg">
-                                                <PawPrint className="h-5 w-5 text-blue-600" />
-                                            </div>
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Chỉnh sửa loại thú cưng *
+                                                Chỉnh sửa loại thú cưng 
                                             </label>
                                         </div>
                                         <input
@@ -1304,9 +1292,6 @@ const PetManagement = () => {
                                     {/* Description Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-blue-100 rounded-lg">
-                                                <Eye className="h-5 w-5 text-blue-600" />
-                                            </div>
                                             <label className="text-lg font-semibold text-gray-800">
                                                 Chỉnh sửa mô tả thú cưng
                                             </label>
@@ -1323,9 +1308,6 @@ const PetManagement = () => {
                                     {/* Status Field */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-orange-100 rounded-lg">
-                                                <Power className="h-5 w-5 text-orange-600" />
-                                            </div>
                                             <label className="text-lg font-semibold text-gray-800">
                                                 Chỉnh sửa trạng thái thú cưng
                                             </label>
@@ -1413,9 +1395,6 @@ const PetManagement = () => {
                                 {/* Pet Name */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <Edit className="h-5 w-5 text-blue-600" />
-                                        </div>
                                         <label className="text-lg font-semibold text-gray-800">
                                             Tên thú cưng
                                         </label>
@@ -1439,11 +1418,8 @@ const PetManagement = () => {
                                 {/* Pet Type */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <PawPrint className="h-5 w-5 text-blue-600" />
-                                        </div>
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Loại thú cưng *
+                                            Loại thú cưng 
                                         </label>
                                     </div>
                                     <input
@@ -1466,9 +1442,6 @@ const PetManagement = () => {
                                 {/* Pet Description */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <Eye className="h-5 w-5 text-blue-600" />
-                                        </div>
                                         <label className="text-lg font-semibold text-gray-800">
                                             Mô tả thú cưng
                                         </label>
@@ -1490,9 +1463,6 @@ const PetManagement = () => {
                                 {/* Pet Status */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-orange-100 rounded-lg">
-                                            <Power className="h-5 w-5 text-orange-600" />
-                                        </div>
                                         <label className="text-lg font-semibold text-gray-800">
                                             Trạng thái thú cưng
                                         </label>

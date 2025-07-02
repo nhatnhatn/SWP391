@@ -1435,7 +1435,7 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <h3 className="text-4xl font-bold text-white">
-                                    {createModal ? 'Thêm Sản phẩm Mới' : 'Chỉnh sửa Sản phẩm'}
+                                    {createModal ? 'Thêm sản phẩm Mới' : 'Chỉnh sửa sản phẩm'}
                                 </h3>
                             </div>
                         </div>
@@ -1448,10 +1448,7 @@ const ShopProductManagement = () => {
                                     {/* Product Name */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-purple-100 rounded-lg">
-                                                <Edit className="h-5 w-5 text-purple-600" />
-                                            </div>
-                                            <label className="text-lg font-semibold text-gray-800">Tên sản phẩm *</label>
+                                            <label className="text-lg font-semibold text-gray-800">Tên sản phẩm</label>
                                         </div>
                                         <input
                                             type="text"
@@ -1471,9 +1468,6 @@ const ShopProductManagement = () => {
                                     {/* Image URL */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-blue-100 rounded-lg">
-                                                <Package className="h-5 w-5 text-blue-600" />
-                                            </div>
                                             <label className="text-lg font-semibold text-gray-800">URL Hình ảnh</label>
                                         </div>
 
@@ -1481,7 +1475,6 @@ const ShopProductManagement = () => {
                                         <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                                             <div className="flex items-center justify-between mb-2">
                                                 <div className="flex items-center gap-2">
-                                                    <Package className="h-4 w-4 text-blue-600" />
                                                     <span className="text-sm font-medium text-blue-800">Lấy ảnh từ Google Drive</span>
                                                 </div>
                                                 <div className="flex gap-2">
@@ -1498,7 +1491,7 @@ const ShopProductManagement = () => {
                                                         onClick={() => setShowGoogleDriveHelp(true)}
                                                         className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors font-medium"
                                                     >
-                                                        ❓ Hướng dẫn
+                                                         Hướng dẫn
                                                     </button>
                                                 </div>
                                             </div>
@@ -1562,10 +1555,7 @@ const ShopProductManagement = () => {
                                     {/* Price */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-green-100 rounded-lg">
-                                                <DollarSign className="h-5 w-5 text-green-600" />
-                                            </div>
-                                            <label className="text-lg font-semibold text-gray-800">Giá *</label>
+                                            <label className="text-lg font-semibold text-gray-800">Giá</label>
                                         </div>
                                         <input
                                             type="number"
@@ -1587,10 +1577,7 @@ const ShopProductManagement = () => {
                                     {/* Currency Type */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-2 bg-yellow-100 rounded-lg">
-                                                <Store className="h-5 w-5 text-yellow-600" />
-                                            </div>
-                                            <label className="text-lg font-semibold text-gray-800">Loại tiền tệ *</label>
+                                            <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
                                         </div>
                                         <div className="relative">
                                             <select
@@ -1616,10 +1603,7 @@ const ShopProductManagement = () => {
                                     {createModal && (
                                         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="p-2 bg-purple-100 rounded-lg">
-                                                    <Package className="h-5 w-5 text-purple-600" />
-                                                </div>
-                                                <label className="text-lg font-semibold text-gray-800">Loại sản phẩm *</label>
+                                                <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
                                             </div>
                                             <div className="relative">
                                                 <select
@@ -1650,10 +1634,7 @@ const ShopProductManagement = () => {
                                     {createModal && editForm.type === 'Pet' && (
                                         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="p-2 bg-orange-100 rounded-lg">
-                                                    <PawPrint className="h-5 w-5 text-orange-600" />
-                                                </div>
-                                                <label className="text-lg font-semibold text-gray-800">Chọn thú cưng *</label>
+                                                <label className="text-lg font-semibold text-gray-800">Chọn thú cưng</label>
                                             </div>
                                             <div className="relative">
                                                 <select
@@ -1732,10 +1713,7 @@ const ShopProductManagement = () => {
                                 {/* Quantity */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-indigo-100 rounded-lg">
-                                            <Package className="h-5 w-5 text-indigo-600" />
-                                        </div>
-                                        <label className="text-lg font-semibold text-gray-800">Số lượng *</label>
+                                        <label className="text-lg font-semibold text-gray-800">Số lượng</label>
                                     </div>
                                     <input
                                         type="number"
@@ -1757,10 +1735,7 @@ const ShopProductManagement = () => {
                                 {/* Status */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-orange-100 rounded-lg">
-                                            <Power className="h-5 w-5 text-orange-600" />
-                                        </div>
-                                        <label className="text-lg font-semibold text-gray-800">Trạng thái *</label>
+                                        <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
                                     </div>
                                     <div className="relative">
                                         <select
@@ -1800,9 +1775,6 @@ const ShopProductManagement = () => {
                                 {/* Description */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-blue-100 rounded-lg">
-                                            <Eye className="h-5 w-5 text-blue-600" />
-                                        </div>
                                         <label className="text-lg font-semibold text-gray-800">Mô tả</label>
                                     </div>
                                     <textarea
@@ -2007,7 +1979,7 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <div className="flex items-center gap-4">
-                                    <h3 className="text-4xl font-bold text-white">Chi tiết Sản phẩm</h3>
+                                    <h3 className="text-4xl font-bold text-white">Chi tiết sản phẩm</h3>
                                 </div>
                             </div>
                         </div>
@@ -2039,9 +2011,6 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="p-2 bg-purple-100 rounded-lg">
-                                                    <Package className="h-4 w-4 text-purple-600" />
-                                                </div>
                                                 <h4 className="text-lg font-semibold text-gray-800">Hình ảnh sản phẩm</h4>
                                             </div>
 
@@ -2073,9 +2042,6 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="p-2 bg-blue-100 rounded-lg">
-                                                    <Search className="h-4 w-4 text-blue-600" />
-                                                </div>
                                                 <h4 className="text-lg font-semibold text-gray-800">Thông tin cơ bản</h4>
                                             </div>
 
@@ -2139,9 +2105,6 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <div className="p-2 bg-green-100 rounded-lg">
-                                                    <Eye className="h-4 w-4 text-green-600" />
-                                                </div>
                                                 <h4 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h4>
                                             </div>
 
