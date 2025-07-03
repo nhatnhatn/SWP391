@@ -1507,16 +1507,15 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <h3 className="text-4xl font-bold text-white">
-                                    {createModal ? 'Thêm sản phẩm Mới' : 'Chỉnh sửa sản phẩm'}
+                                    {createModal ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}
                                 </h3>
                             </div>
-                        </div>
-
-                        {/* Content */}
+                        </div>                        {/* Content */}
                         <div className="p-8 overflow-y-auto max-h-[calc(95vh-180px)] bg-gradient-to-br from-gray-50 to-white">
-                            <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-                                {/* Left Column */}
-                                <div className="space-y-12">
+                            {/* Form Fields in 2 Rows */}
+                            <div className="space-y-8">
+                                {/* Row 1 */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {/* Product Name */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
@@ -1527,123 +1526,101 @@ const ShopProductManagement = () => {
                                             value={editForm.name}
                                             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập tên sản phẩm"
+                                            placeholder="Nhập tên sản phẩm (bắt buộc)"
                                             required
+                                            minLength="2"
                                         />
-                                        <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                                            <p className="text-sm text-purple-700 flex items-center gap-2">
-                                                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                                Trường bắt buộc. Tên sản phẩm sẽ hiển thị trong game.
-                                            </p>
-                                        </div>
                                     </div>
+
                                     {/* Image URL */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
+                                        {/* Header with Google Drive Integration */}
+                                        <div className="flex items-center justify-between mb-4">
                                             <label className="text-lg font-semibold text-gray-800">URL Hình ảnh</label>
-                                        </div>
-
-                                        {/* Google Drive Helper Section */}
-                                        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-medium text-blue-800">Lấy ảnh từ Google Drive</span>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <a
-                                                        href="https://drive.google.com/drive/u/0/folders/14-F6VcATkQVW8qwHrA4flc0fX8ffC5Ha"
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                                                    >
-                                                        📁 Mở thư mục
-                                                    </a>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setShowGoogleDriveHelp(true)}
-                                                        className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                                                    >
-                                                        Hướng dẫn
-                                                    </button>
-                                                </div>
+                                            <div className="flex gap-2">
+                                                <a
+                                                    href="https://drive.google.com/drive/u/0/folders/14-F6VcATkQVW8qwHrA4flc0fX8ffC5Ha"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                                >
+                                                    📁 Google Drive
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowGoogleDriveHelp(true)}
+                                                    className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                                                >
+                                                    ❓ Hướng dẫn
+                                                </button>
                                             </div>
-                                            <p className="text-xs text-blue-700 flex items-center gap-2">
-                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                Click "Mở thư mục" để truy cập thư mục ảnh, sau đó copy link ảnh và dán vào ô bên dưới
-                                            </p>
                                         </div>
-
-                                        <input
-                                            type="text"
-                                            value={editForm.imageUrl}
-                                            onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
-                                            onBlur={(e) => {
-                                                const originalUrl = e.target.value;
-                                                const convertedUrl = convertGoogleDriveLink(originalUrl);
-
-                                                // Debug logging để kiểm tra conversion
-                                                if (originalUrl !== convertedUrl) {
-                                                    console.log('🔄 Google Drive Link Conversion:');
-                                                    console.log('Original:', originalUrl);
-                                                    console.log('Converted:', convertedUrl);
-                                                    setEditForm({ ...editForm, imageUrl: convertedUrl });
-
-                                                    // Hiển thị thông báo thành công
-                                                    setLinkConverted(true);
-                                                    setTimeout(() => setLinkConverted(false), 3000);
-                                                }
-                                            }}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Dán link Google Drive hoặc URL ảnh khác tại đây..."
-                                        />
-                                        <div className="mt-2 space-y-2">
-                                            <div className="p-2 bg-purple-50 rounded-lg border border-purple-100">
-                                                <p className="text-sm text-purple-700 flex items-center gap-2">
-                                                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                                    Hỗ trợ tự động chuyển đổi link Google Drive sang định dạng hiển thị phù hợp
-                                                </p>
+                                        
+                                        {/* Google Drive Helper Info */}
+                                        
+                                        {/* Image Preview and Input Layout */}
+                                        <div className="flex gap-4 items-center">
+                                            {/* Image Preview */}
+                                            <div className="flex-shrink-0">
+                                                {editForm.imageUrl ? (
+                                                    <ProductImage
+                                                        imageUrl={editForm.imageUrl}
+                                                        productName="Preview"
+                                                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm"
+                                                    />
+                                                ) : (
+                                                    <div className="w-16 h-16 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                                                        <div className="text-gray-400 text-sm">🖼️</div>
+                                                    </div>
+                                                )}
                                             </div>
-                                            {linkConverted && (
-                                                <div className="p-2 bg-green-50 rounded-lg border border-green-100">
-                                                    <p className="text-sm text-green-700 flex items-center gap-2">
-                                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                                        Đã chuyển đổi link Google Drive thành công!
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
+                                            
+                                            {/* Input Field */}
+                                            <div className="flex-1">
+                                                <input
+                                                    type="text"
+                                                    value={editForm.imageUrl}
+                                                    onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
+                                                    onBlur={(e) => {
+                                                        const originalUrl = e.target.value;
+                                                        const convertedUrl = convertGoogleDriveLink(originalUrl);
 
-                                        {editForm.imageUrl && (
-                                            <div className="mt-4">
-                                                <ProductImage
-                                                    imageUrl={editForm.imageUrl}
-                                                    productName="Preview"
-                                                    className="w-20 h-20"
+                                                        // Debug logging để kiểm tra conversion
+                                                        if (originalUrl !== convertedUrl) {
+                                                            console.log('🔄 Google Drive Link Conversion:');
+                                                            console.log('Original:', originalUrl);
+                                                            console.log('Converted:', convertedUrl);
+                                                            setEditForm({ ...editForm, imageUrl: convertedUrl });
+
+                                                            // Hiển thị thông báo thành công
+                                                            setLinkConverted(true);
+                                                            setTimeout(() => setLinkConverted(false), 3000);
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                                    placeholder="Dán link Google Drive hoặc URL ảnh khác tại đây..."
                                                 />
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
+                                </div>
 
+                                {/* Row 2 */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {/* Price */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Giá</label>
+                                            <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
                                         </div>
                                         <input
                                             type="number"
                                             value={editForm.price}
                                             onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="0"
-                                            min="0"
+                                            placeholder="Nhập giá sản phẩm (>0)"
+                                            min="1"
                                             required
                                         />
-                                        <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-100">
-                                            <p className="text-sm text-green-700 flex items-center gap-2">
-                                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                                Giá sản phẩm phải lớn hơn 0. Sẽ hiển thị trong game.
-                                            </p>
-                                        </div>
                                     </div>
 
                                     {/* Currency Type */}
@@ -1657,6 +1634,7 @@ const ShopProductManagement = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                 required
+                                                title="Chọn loại tiền tệ để mua sản phẩm"
                                             >
                                                 <option value="Coin">Coin</option>
                                                 <option value="Diamond">Diamond</option>
@@ -1664,15 +1642,13 @@ const ShopProductManagement = () => {
                                             </select>
                                             <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                         </div>
-                                        <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
-                                            <p className="text-sm text-yellow-700 flex items-center gap-2">
-                                                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                                                Chọn loại tiền tệ để mua sản phẩm trong game
-                                            </p>
-                                        </div>
                                     </div>
-                                    {/* Product Type - Only show when creating */}
-                                    {createModal && (
+                                </div>
+
+                                {/* Product Type and Pet Selection - Only show when creating */}
+                                {createModal && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        {/* Product Type */}
                                         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                             <div className="flex items-center gap-3 mb-4">
                                                 <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
@@ -1685,6 +1661,7 @@ const ShopProductManagement = () => {
                                                     }}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                     required
+                                                    title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
                                                 >
                                                     <option value="">Chọn loại sản phẩm</option>
                                                     <option value="Pet">Pet</option>
@@ -1693,44 +1670,51 @@ const ShopProductManagement = () => {
                                                 </select>
                                                 <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                             </div>
-                                            <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                                                <p className="text-sm text-purple-700 flex items-center gap-2">
-                                                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                                    Chọn loại sản phẩm: thú cưng, thức ăn, hoặc đồ chơi
-                                                </p>
-                                            </div>
                                         </div>
-                                    )}
 
-                                    {/* Pet Selection - only show when creating Pet products */}
-                                    {createModal && editForm.type === 'Pet' && (
-                                        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        {/* Pet Selection - always visible but disabled when type is not Pet */}
+                                        <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${
+                                            editForm.type === 'Pet' 
+                                                ? 'hover:shadow-md opacity-100' 
+                                                : 'opacity-50 pointer-events-none'
+                                        }`}>
                                             <div className="flex items-center gap-3 mb-4">
-                                                <label className="text-lg font-semibold text-gray-800">Chọn thú cưng</label>
+                                                <label className={`text-lg font-semibold transition-colors duration-200 ${
+                                                    editForm.type === 'Pet' 
+                                                        ? 'text-gray-800' 
+                                                        : 'text-gray-400'
+                                                }`}>Chọn thú cưng</label>
+                                                
                                             </div>
                                             <div className="relative">
                                                 <select
-                                                    value={editForm.petID || ''}
+                                                    value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
                                                     onChange={(e) => {
-                                                        const selectedPetId = e.target.value;
-                                                        const selectedPet = pets.find(pet => pet.petId == selectedPetId);
-                                                        setEditForm({
-                                                            ...editForm,
-                                                            petID: selectedPetId,
-                                                            petType: selectedPet ? selectedPet.petType : null
-                                                        });
+                                                        if (editForm.type === 'Pet') {
+                                                            const selectedPetId = e.target.value;
+                                                            const selectedPet = pets.find(pet => pet.petId == selectedPetId);
+                                                            setEditForm({
+                                                                ...editForm,
+                                                                petID: selectedPetId,
+                                                                petType: selectedPet ? selectedPet.petType : null
+                                                            });
+                                                        }
                                                     }}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                                    required
-                                                    disabled={petsLoading || pets.length === 0}
+                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${
+                                                        editForm.type === 'Pet'
+                                                            ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                            : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                    required={editForm.type === 'Pet'}
+                                                    disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
                                                 >
                                                     <option value="">
-                                                        {petsLoading ? "Đang tải..." :
-                                                            pets.length === 0 ? "Không có thú cưng nào" :
-                                                                "Chọn thú cưng"}
+                                                        {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
+                                                            petsLoading ? "Đang tải..." :
+                                                                pets.length === 0 ? "Không có thú cưng nào" :
+                                                                    "Chọn thú cưng"}
                                                     </option>
-                                                    {/* Show each pet type once */}
-                                                    {dynamicPetTypes.map(petType => {
+                                                    {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
                                                         const firstPetOfType = pets.find(pet => pet.petType === petType);
                                                         return (
                                                             <option key={petType} value={firstPetOfType?.petId}>
@@ -1739,112 +1723,57 @@ const ShopProductManagement = () => {
                                                         );
                                                     })}
                                                 </select>
-                                                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                            </div>
-                                            <div className="mt-2 space-y-2">
-                                                {petsLoading && (
-                                                    <div className="p-2 bg-blue-50 rounded-lg border border-blue-100">
-                                                        <p className="text-sm text-blue-700 flex items-center gap-2">
-                                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                                            Đang tải danh sách thú cưng...
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                {!petsLoading && pets.length === 0 && (
-                                                    <div className="p-2 bg-orange-50 rounded-lg border border-orange-100">
-                                                        <p className="text-sm text-orange-700 flex items-center gap-2">
-                                                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                                            Không có thú cưng nào trong hệ thống
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                <div className="p-2 bg-orange-50 rounded-lg border border-orange-100">
-                                                    <p className="text-sm text-orange-700 flex items-center gap-2">
-                                                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                                        Chọn thú cưng cụ thể mà sản phẩm này dành cho ({pets.length} thú cưng có sẵn)
-                                                    </p>
-                                                </div>
-                                                {editForm.petID && editForm.petType && (
-                                                    <div className="p-2 bg-green-50 rounded-lg border border-green-100">
-                                                        <p className="text-sm text-green-700 flex items-center gap-2">
-                                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                                            Đã chọn: {pets.find(p => p.petId == editForm.petID)?.petName} ({editForm.petType})
-                                                        </p>
-                                                    </div>
-                                                )}
+                                                <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${
+                                                    editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
+                                                }`} />
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-
-
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Full Width Sections */}
-                            <div className="space-y-4 mt-8">
-                                {/* Quantity */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Số lượng</label>
-                                    </div>
-                                    <input
-                                        type="number"
-                                        value={editForm.quantity}
-                                        onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                        placeholder="Nhập số lượng"
-                                        min="0"
-                                        required
-                                    />
-                                    <div className="mt-2 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-                                        <p className="text-sm text-indigo-700 flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                                            Số lượng sản phẩm có sẵn trong kho
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Status */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
-                                    </div>
-                                    <div className="relative">
-                                        <select
-                                            value={editForm.status}
-                                            onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                            {/* Additional Form Fields */}
+                            <div className="space-y-8 mt-8">
+                                {/* Quantity and Status Row */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Quantity */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Số lượng</label>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={editForm.quantity}
+                                            onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            placeholder="Nhập số lượng có sẵn"
+                                            min="0"
                                             required
-                                        >
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                        />
                                     </div>
-                                    <div className={`mt-2 p-3 rounded-lg border ${editForm.status === 1
-                                        ? 'bg-green-50 border-green-200'
-                                        : 'bg-red-50 border-red-200'
-                                        }`}>
-                                        <p className={`text-sm flex items-center gap-2 ${editForm.status === 1
-                                            ? 'text-green-700'
-                                            : 'text-red-700'
-                                            }`}>
-                                            {editForm.status === 1 ? (
-                                                <>
-                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                                    Sản phẩm sẽ hiển thị và có thể mua trong game
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                                    Sản phẩm sẽ bị ẩn và không thể mua trong game
-                                                </>
-                                            )}
-                                        </p>
+
+                                    {/* Status */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={editForm.status}
+                                                onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                                required
+                                                title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
+                                            >
+                                                <option value="1">Active</option>
+                                                <option value="0">Inactive</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Description */}
+                                {/* Description - Full Width */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">Mô tả</label>
@@ -1854,13 +1783,9 @@ const ShopProductManagement = () => {
                                         onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                                         rows={3}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
-                                        placeholder="Nhập mô tả sản phẩm"
+                                        placeholder="Nhập mô tả sản phẩm (tùy chọn)"
+                                        maxLength="500"
                                     />
-                                    <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                        <p className="text-sm text-blue-700 flex items-center justify-end gap-2">
-                                            <span>{editForm.description?.length || 0} ký tự</span>
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2152,25 +2077,28 @@ const ShopProductManagement = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-sm font-medium text-gray-600">Thú cưng liên kết</span>
-                                                        <div className="text-right">
-                                                            {selectedProduct.petID ? (
-                                                                <span className="text-sm font-medium text-gray-800">
-                                                                    {(() => {
-                                                                        const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
-                                                                        return linkedPet
-                                                                            ? `${linkedPet.petType}`
-                                                                            : `ID: ${selectedProduct.petID}`;
-                                                                    })()}
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-sm text-gray-500 italic">Không có</span>
-                                                            )}
+                                                {/* Only show linked pet info for Pet products */}
+                                                {isPetProduct(selectedProduct) && (
+                                                    <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-sm font-medium text-gray-600">Thú cưng liên kết</span>
+                                                            <div className="text-right">
+                                                                {selectedProduct.petID ? (
+                                                                    <span className="text-sm font-medium text-gray-800">
+                                                                        {(() => {
+                                                                            const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
+                                                                            return linkedPet
+                                                                                ? `${linkedPet.petType}`
+                                                                                : `ID: ${selectedProduct.petID}`;
+                                                                        })()}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-sm text-gray-500 italic">Không có</span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

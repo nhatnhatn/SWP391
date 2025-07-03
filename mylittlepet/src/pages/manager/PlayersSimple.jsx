@@ -372,7 +372,7 @@ const PlayersSimple = () => {    // Use hook for data management
         const config = statusConfig[status] || statusConfig.INACTIVE;
 
         return (
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${config.classes}`}>
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.classes}`}>
                 {config.icon && <span className="mr-1">{config.icon}</span>}
                 {config.text}
             </span>
@@ -1061,7 +1061,7 @@ const PlayersSimple = () => {    // Use hook for data management
             {/* Player Table */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 {/* Table Header */}
-                <div className="bg-gradient-to-r from-teal-600 to-green-600 px-6 py-4 border-b border-green-100">
+                <div className="bg-gradient-to-l from-teal-600 to-green-600 px-6 py-4 border-b border-green-100">
                     <div className="flex items-center justify-center">
                         <p className="text-xl font-bold text-white text-center">DANH SÁCH NGƯỜI CHƠI TRONG GAME</p>
                     </div>
@@ -1073,129 +1073,162 @@ const PlayersSimple = () => {    // Use hook for data management
                         <p className="mt-2 text-gray-600">Đang tải...</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
+                    <div className="overflow-hidden">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
+                            <colgroup>
+                                <col className="w-[18%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                                <col className="w-[12%]" />
+                            </colgroup>
+                            <thead className="bg-gradient-to-l from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
                                 <tr>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Tên Người chơi
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Level
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Coin
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Diamond
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Gem
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider border-r border-green-500 border-opacity-30">
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
                                             Trạng thái
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-base text-white uppercase tracking-wider">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Thao tác
-                                        </span>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
+                                        Thao tác
                                     </th>
                                 </tr>
                             </thead>
 
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {displayPlayers.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="px-6 py-12 text-center">
-                                            <div className="text-gray-500">
-                                                <div className="text-4xl mb-4">👥</div>
-                                                <p className="text-lg font-medium text-gray-600 mb-2">Không tìm thấy người chơi</p>                                            <p className="text-sm text-gray-500">
-                                                    {(localSearchTerm || debouncedSearchTerm) || statusFilter !== 'all' || levelFilter !== 'all'
-                                                        ? 'Không có người chơi nào phù hợp với bộ lọc trong trang này'
-                                                        : 'Không có người chơi nào trong trang này'}
-                                                </p>
+                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                                    <Users className="h-8 w-8 text-gray-400" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <h3 className="text-lg font-medium text-gray-900">Không có người chơi nào</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">
+                                                        {(localSearchTerm || debouncedSearchTerm) || statusFilter !== 'all' || levelFilter !== 'all'
+                                                            ? 'Không tìm thấy người chơi phù hợp với bộ lọc.'
+                                                            : 'Không có người chơi nào trong trang này.'}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>) : (displayPlayers.map((player) => (
                                         <tr key={player.id} className="hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 transition-all duration-200">
-                                            <td className="px-6 py-6 whitespace-nowrap">
+                                            {/* Player Name */}
+                                            <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
+                                                    <div className="text-sm font-bold text-gray-900 break-words" title={player.userName || 'N/A'}>
+                                                        {player.userName || 'N/A'}
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                                                    <div className="ml-4 text-center">
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {player.userName || 'N/A'}
+                                            {/* Level */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex justify-center">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                                                        {player.level || 1}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            {/* Coin */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <div className="text-xs font-medium text-yellow-600">
+                                                            {(player.coin || 0).toLocaleString('vi-VN')}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
 
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
-                                                    {player.level || 1}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
+                                            {/* Diamond */}
+                                            <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
-                                                    <span className="mr-1"></span>
-                                                    <span className="font-medium text-yellow-600">{(player.coin || 0).toLocaleString()}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                <div className="flex items-center justify-center">
-                                                    <span className="mr-1"></span>
-                                                    <span className="font-medium text-blue-600">{(player.diamond || 0).toLocaleString()}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                <div className="flex items-center justify-center">
-                                                    <span className="mr-1"></span>
-                                                    <span className="font-medium text-green-600">{(player.gem || 0).toLocaleString()}</span>
+                                                    <div className="text-center">
+                                                        <div className="text-xs font-medium text-blue-600">
+                                                            {(player.diamond || 0).toLocaleString('vi-VN')}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
 
-                                            <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                {getStatusBadge(player.userStatus || 'ACTIVE')}
-                                            </td>                                        <td className="px-6 py-6 whitespace-nowrap text-center">
-                                                <div className="flex justify-center space-x-3">
-                                                    {/* Detail View Button */}
+                                            {/* Gem */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <div className="text-xs font-medium text-green-600">
+                                                            {(player.gem || 0).toLocaleString('vi-VN')}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Status */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex justify-center">
+                                                    {getStatusBadge(player.userStatus || 'ACTIVE')}
+                                                </div>
+                                            </td>
+
+                                            {/* Actions */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex justify-center space-x-1">
                                                     <button
                                                         onClick={() => handleView(player)}
-                                                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                                                         title="Xem chi tiết"
                                                     >
-                                                        <Eye className="w-4 h-4" />
+                                                        <Eye className="w-3.5 h-3.5" />
                                                     </button>
 
                                                     {/* Ban/Unban Button */}
                                                     {/* {player.userStatus === 'BANNED' ? (
-                                                    <button
-                                                        onClick={() => handleUnbanPlayer(player.id)}
-                                                        className="text-green-600 hover:text-green-900 hover:bg-green-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Bỏ cấm tài khoản"
-                                                    >
-                                                        <ShieldCheck className="w-4 h-4" />
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleBanPlayer(player.id)}
-                                                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Cấm tài khoản"
-                                                    >
-                                                        <Shield className="w-4 h-4" />
-                                                    </button>
-                                                )} */}
+                                                        <button
+                                                            onClick={() => handleUnbanPlayer(player.id)}
+                                                            className="text-green-600 hover:text-green-900 hover:bg-green-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                            title="Bỏ cấm tài khoản"
+                                                        >
+                                                            <RotateCcw className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleBanPlayer(player.id)}
+                                                            className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                            title="Cấm tài khoản"
+                                                        >
+                                                            <Power className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )} */}
                                                 </div>
                                             </td>
                                         </tr>
