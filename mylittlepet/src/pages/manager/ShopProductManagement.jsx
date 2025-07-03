@@ -503,6 +503,10 @@ const ShopProductManagement = () => {
             return;
         }
 
+
+
+
+
         setConfirmDialog({
             isOpen: true,
             title: 'Xác nhận vô hiệu hóa',
@@ -1555,9 +1559,9 @@ const ShopProductManagement = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         {/* Google Drive Helper Info */}
-                                        
+
                                         {/* Image Preview and Input Layout */}
                                         <div className="flex gap-4 items-center">
                                             {/* Image Preview */}
@@ -1574,7 +1578,7 @@ const ShopProductManagement = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             {/* Input Field */}
                                             <div className="flex-1">
                                                 <input
@@ -1673,18 +1677,16 @@ const ShopProductManagement = () => {
                                         </div>
 
                                         {/* Pet Selection - always visible but disabled when type is not Pet */}
-                                        <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${
-                                            editForm.type === 'Pet' 
-                                                ? 'hover:shadow-md opacity-100' 
-                                                : 'opacity-50 pointer-events-none'
-                                        }`}>
+                                        <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${editForm.type === 'Pet'
+                                            ? 'hover:shadow-md opacity-100'
+                                            : 'opacity-50 pointer-events-none'
+                                            }`}>
                                             <div className="flex items-center gap-3 mb-4">
-                                                <label className={`text-lg font-semibold transition-colors duration-200 ${
-                                                    editForm.type === 'Pet' 
-                                                        ? 'text-gray-800' 
-                                                        : 'text-gray-400'
-                                                }`}>Chọn thú cưng</label>
-                                                
+                                                <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
+                                                    ? 'text-gray-800'
+                                                    : 'text-gray-400'
+                                                    }`}>Chọn thú cưng</label>
+
                                             </div>
                                             <div className="relative">
                                                 <select
@@ -1700,11 +1702,10 @@ const ShopProductManagement = () => {
                                                             });
                                                         }
                                                     }}
-                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${
-                                                        editForm.type === 'Pet'
-                                                            ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
-                                                            : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                                                    }`}
+                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${editForm.type === 'Pet'
+                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                        }`}
                                                     required={editForm.type === 'Pet'}
                                                     disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
                                                 >
@@ -1723,9 +1724,8 @@ const ShopProductManagement = () => {
                                                         );
                                                     })}
                                                 </select>
-                                                <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${
-                                                    editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
-                                                }`} />
+                                                <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
+                                                    }`} />
                                             </div>
                                         </div>
                                     </div>

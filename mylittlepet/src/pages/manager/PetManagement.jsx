@@ -501,33 +501,56 @@ const PetManagement = () => {
                 </div>
             </div>
 
-            {/* Success Message */}
-            {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-green-800">Thành công</h3>
-                            <div className="mt-2 text-sm text-green-700">
-                                <p>{successMessage}</p>
+          {/* Error Display */}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                            <div className="flex">
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
+                                    <div className="mt-2 text-sm text-red-700">
+                                        <p>{error}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
-                            <div className="mt-2 text-sm text-red-700">
-                                <p>{error}</p>
+                    )}
+        
+                    {/* Local Error Message */}
+                    {localError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 animate-slide-down">
+                            <div className="flex items-center">
+                                <div className="flex-shrink-0">
+                                    <X className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800">Lỗi</h3>
+                                    <div className="mt-1 text-sm text-red-700">
+                                        <p>{localError}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+        
+                    {/* Success Message */}
+                    {successMessage && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 animate-slide-down">
+                            <div className="flex items-center">
+                                <div className="flex-shrink-0">
+                                    <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-xs font-bold">✓</span>
+                                    </div>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-green-800">Thành công</h3>
+                                    <div className="mt-1 text-sm text-green-700">
+                                        <p>{successMessage}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+        
 
             {/* Pet Details Modal */}
             {selectedPet && (
