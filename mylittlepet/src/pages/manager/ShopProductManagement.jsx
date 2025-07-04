@@ -103,6 +103,89 @@ const ProductImage = ({ imageUrl, productName, className }) => {
     );
 };
 
+// Notification Toast Component with right alignment and timing bar
+const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
+    const [progress, setProgress] = useState(100);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        // Show animation
+        setIsVisible(true);
+
+        // Progress bar animation
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                const newProgress = prev - (100 / (duration / 100));
+                return newProgress <= 0 ? 0 : newProgress;
+            });
+        }, 100);
+
+        // Auto close
+        const timer = setTimeout(() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300); // Wait for slide-out animation
+        }, duration);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+        };
+    }, [duration, onClose]);
+
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
+    const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
+
+    return (
+        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+            }`}>
+            <div className={`${bgColor} rounded-lg shadow-lg border border-white/20 overflow-hidden`}>
+                <div className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {type === 'success' ? (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">✓</span>
+                                    </div>
+                                ) : (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <X className="h-4 w-4 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ml-3">
+                                <h3 className={`text-sm font-medium text-white`}>
+                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                </h3>
+                                <p className={`text-sm ${textColor} mt-1`}>
+                                    {message}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setIsVisible(false);
+                                setTimeout(onClose, 300);
+                            }}
+                            className="ml-4 text-white/80 hover:text-white transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="h-1 bg-white/20">
+                    <div
+                        className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Simple ShopProduct Management Component
 const ShopProductManagement = () => {
     // Use auth hook to get current user
@@ -204,6 +287,28 @@ const ShopProductManagement = () => {
     // Local error and success message states
     const [localError, setLocalError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+
+    // Helper function to show notifications
+    const showNotification = (message, type = 'success', duration = 3000) => {
+        setNotification({ message, type, show: true });
+        // Auto clear after duration
+        setTimeout(() => {
+            setNotification({ message: '', type: '', show: false });
+        }, duration);
+    };
+
+    // Helper function to clear notifications
+    const clearNotification = () => {
+        setNotification({ message: '', type: '', show: false });
+    };
+
+    // Show general error as notification
+    useEffect(() => {
+        if (error) {
+            showNotification('Có lỗi xảy ra: ' + error, 'error');
+        }
+    }, [error]);
 
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
@@ -498,8 +603,7 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 0) {
-            setLocalError('Sản phẩm này đã bị vô hiệu hóa rồi!');
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Sản phẩm này đã bị vô hiệu hóa rồi!', 'error');
             return;
         }
 
@@ -512,12 +616,10 @@ const ShopProductManagement = () => {
                     // Update product status to 0 (inactive)
                     await updateShopProduct(productId, { ...product, status: 0 });
                     setLocalError('');
-                    setSuccessMessage('Vô hiệu hóa sản phẩm thành công!');
-                    setTimeout(() => setSuccessMessage(''), 5000);
+                    showNotification('Vô hiệu hóa sản phẩm thành công!', 'success');
                 } catch (error) {
                     console.error('Failed to disable product:', error);
-                    setLocalError('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
-                    setTimeout(() => setLocalError(''), 5000);
+                    showNotification('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
                 }
                 setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
@@ -530,8 +632,7 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 1) {
-            setLocalError('Sản phẩm này đã được kích hoạt rồi!');
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Sản phẩm này đã được kích hoạt rồi!', 'error');
             return;
         }
 
@@ -539,12 +640,10 @@ const ShopProductManagement = () => {
             // Update product status to 1 (active)
             await updateShopProduct(productId, { ...product, status: 1 });
             setLocalError('');
-            setSuccessMessage('Kích hoạt sản phẩm thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification('Kích hoạt sản phẩm thành công!', 'success');
         } catch (error) {
             console.error('Failed to enable product:', error);
-            setLocalError('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
         }
     };
 
@@ -553,40 +652,34 @@ const ShopProductManagement = () => {
         try {
             // Validation: Check if required fields are filled
             if (!editForm.name.trim()) {
-                setLocalError('Vui lòng nhập tên sản phẩm');
-                setTimeout(() => setLocalError(''), 5000);
+                showNotification('Vui lòng nhập tên sản phẩm', 'error');
                 return;
             }
 
             // Chỉ validate type khi đang tạo mới sản phẩm
             if (createModal && !editForm.type) {
-                setLocalError('Vui lòng chọn loại sản phẩm');
-                setTimeout(() => setLocalError(''), 5000);
+                showNotification('Vui lòng chọn loại sản phẩm', 'error');
                 return;
             }
 
             if (!editForm.price || editForm.price <= 0) {
-                setLocalError('Vui lòng nhập giá hợp lệ');
-                setTimeout(() => setLocalError(''), 5000);
+                showNotification('Vui lòng nhập giá hợp lệ', 'error');
                 return;
             }
 
             if (!editForm.quantity || editForm.quantity < 0) {
-                setLocalError('Vui lòng nhập số lượng hợp lệ');
-                setTimeout(() => setLocalError(''), 5000);
+                showNotification('Vui lòng nhập số lượng hợp lệ', 'error');
                 return;
             }
 
             // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
             if (!isEdit && editForm.type === 'Pet') {
                 if (!editForm.petType) {
-                    setLocalError('Vui lòng chọn loại thú cưng');
-                    setTimeout(() => setLocalError(''), 5000);
+                    showNotification('Vui lòng chọn loại thú cưng', 'error');
                     return;
                 }
                 if (!editForm.petID) {
-                    setLocalError('Vui lòng chọn thú cưng cụ thể');
-                    setTimeout(() => setLocalError(''), 5000);
+                    showNotification('Vui lòng chọn thú cưng cụ thể', 'error');
                     return;
                 }
             }
@@ -669,8 +762,7 @@ const ShopProductManagement = () => {
             refreshData();
 
             setLocalError('');
-            setSuccessMessage(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!', 'success');
         } catch (error) {
             console.error('❌ Error saving product:', error);
             console.error('❌ Error details:', error.response?.data);
@@ -684,8 +776,7 @@ const ShopProductManagement = () => {
                 errorMessage += ': HTTP ' + (error.response?.status || 500);
             }
 
-            setLocalError(errorMessage);
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification(errorMessage, 'error');
         }
     };
 
@@ -696,11 +787,9 @@ const ShopProductManagement = () => {
             setDeleteModal({ isOpen: false, product: null });
             refreshData();
             setLocalError('');
-            setSuccessMessage('Xóa sản phẩm thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification('Xóa sản phẩm thành công!', 'success');
         } catch (error) {
-            setLocalError('Lỗi khi xóa sản phẩm: ' + error.message);
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Lỗi khi xóa sản phẩm: ' + error.message, 'error');
         }
     };
 
@@ -802,54 +891,13 @@ const ShopProductManagement = () => {
                 </div>
             </div>
 
-            {/* Error Display */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
-                            <div className="mt-2 text-sm text-red-700">
-                                <p>{error}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Local Error Message */}
-            {localError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 animate-slide-down">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <X className="h-5 w-5 text-red-600" />
-                        </div>
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Lỗi</h3>
-                            <div className="mt-1 text-sm text-red-700">
-                                <p>{localError}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Success Message */}
-            {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 animate-slide-down">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">✓</span>
-                            </div>
-                        </div>
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-green-800">Thành công</h3>
-                            <div className="mt-1 text-sm text-green-700">
-                                <p>{successMessage}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {/* Notification Toast */}
+            {notification.show && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={clearNotification}
+                />
             )}
 
             {/* Search and Filters Section */}
@@ -1555,9 +1603,9 @@ const ShopProductManagement = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         {/* Google Drive Helper Info */}
-                                        
+
                                         {/* Image Preview and Input Layout */}
                                         <div className="flex gap-4 items-center">
                                             {/* Image Preview */}
@@ -1574,7 +1622,7 @@ const ShopProductManagement = () => {
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             {/* Input Field */}
                                             <div className="flex-1">
                                                 <input
@@ -1604,234 +1652,229 @@ const ShopProductManagement = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Row 2 */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Price */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            value={editForm.price}
-                                            onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập giá sản phẩm (>0)"
-                                            min="1"
-                                            required
-                                        />
-                                    </div>
-
-                                    {/* Currency Type */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
-                                        </div>
-                                        <div className="relative">
-                                            <select
-                                                value={editForm.currencyType}
-                                                onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                                required
-                                                title="Chọn loại tiền tệ để mua sản phẩm"
-                                            >
-                                                <option value="Coin">Coin</option>
-                                                <option value="Diamond">Diamond</option>
-                                                <option value="Gem">Gem</option>
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Product Type and Pet Selection - Only show when creating */}
-                                {createModal && (
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        {/* Product Type */}
-                                        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
-                                            </div>
-                                            <div className="relative">
-                                                <select
-                                                    value={editForm.type}
-                                                    onChange={(e) => {
-                                                        setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
-                                                    }}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                                    required
-                                                    title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
-                                                >
-                                                    <option value="">Chọn loại sản phẩm</option>
-                                                    <option value="Pet">Pet</option>
-                                                    <option value="Food">Food</option>
-                                                    <option value="Toy">Toy</option>
-                                                </select>
-                                                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                            </div>
-                                        </div>
-
-                                        {/* Pet Selection - always visible but disabled when type is not Pet */}
-                                        <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${
-                                            editForm.type === 'Pet' 
-                                                ? 'hover:shadow-md opacity-100' 
-                                                : 'opacity-50 pointer-events-none'
-                                        }`}>
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <label className={`text-lg font-semibold transition-colors duration-200 ${
-                                                    editForm.type === 'Pet' 
-                                                        ? 'text-gray-800' 
-                                                        : 'text-gray-400'
-                                                }`}>Chọn thú cưng</label>
-                                                
-                                            </div>
-                                            <div className="relative">
-                                                <select
-                                                    value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
-                                                    onChange={(e) => {
-                                                        if (editForm.type === 'Pet') {
-                                                            const selectedPetId = e.target.value;
-                                                            const selectedPet = pets.find(pet => pet.petId == selectedPetId);
-                                                            setEditForm({
-                                                                ...editForm,
-                                                                petID: selectedPetId,
-                                                                petType: selectedPet ? selectedPet.petType : null
-                                                            });
-                                                        }
-                                                    }}
-                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${
-                                                        editForm.type === 'Pet'
-                                                            ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
-                                                            : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                                                    }`}
-                                                    required={editForm.type === 'Pet'}
-                                                    disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
-                                                >
-                                                    <option value="">
-                                                        {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
-                                                            petsLoading ? "Đang tải..." :
-                                                                pets.length === 0 ? "Không có thú cưng nào" :
-                                                                    "Chọn thú cưng"}
-                                                    </option>
-                                                    {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
-                                                        const firstPetOfType = pets.find(pet => pet.petType === petType);
-                                                        return (
-                                                            <option key={petType} value={firstPetOfType?.petId}>
-                                                                {petType}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </select>
-                                                <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${
-                                                    editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
-                                                }`} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
-
-                            {/* Additional Form Fields */}
-                            <div className="space-y-8 mt-8">
-                                {/* Quantity and Status Row */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Quantity */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Số lượng</label>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            value={editForm.quantity}
-                                            onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập số lượng có sẵn"
-                                            min="0"
-                                            required
-                                        />
-                                    </div>
-
-                                    {/* Status */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
-                                        </div>
-                                        <div className="relative">
-                                            <select
-                                                value={editForm.status}
-                                                onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                                required
-                                                title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
-                                            >
-                                                <option value="1">Active</option>
-                                                <option value="0">Inactive</option>
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Description - Full Width */}
+                            {/* Row 2 */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Price */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Mô tả</label>
+                                        <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
                                     </div>
-                                    <textarea
-                                        value={editForm.description}
-                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                        rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
-                                        placeholder="Nhập mô tả sản phẩm (tùy chọn)"
-                                        maxLength="500"
+                                    <input
+                                        type="number"
+                                        value={editForm.price}
+                                        onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        placeholder="Nhập giá sản phẩm (>0)"
+                                        min="1"
+                                        required
                                     />
                                 </div>
+
+                                {/* Currency Type */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={editForm.currencyType}
+                                            onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                            required
+                                            title="Chọn loại tiền tệ để mua sản phẩm"
+                                        >
+                                            <option value="Coin">Coin</option>
+                                            <option value="Diamond">Diamond</option>
+                                            <option value="Gem">Gem</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Product Type and Pet Selection - Only show when creating */}
+                            {createModal && (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Product Type */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={editForm.type}
+                                                onChange={(e) => {
+                                                    setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
+                                                }}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                                required
+                                                title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
+                                            >
+                                                <option value="">Chọn loại sản phẩm</option>
+                                                <option value="Pet">Pet</option>
+                                                <option value="Food">Food</option>
+                                                <option value="Toy">Toy</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    {/* Pet Selection - always visible but disabled when type is not Pet */}
+                                    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${editForm.type === 'Pet'
+                                            ? 'hover:shadow-md opacity-100'
+                                            : 'opacity-50 pointer-events-none'
+                                        }`}>
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
+                                                    ? 'text-gray-800'
+                                                    : 'text-gray-400'
+                                                }`}>Chọn thú cưng</label>
+
+                                        </div>
+                                        <div className="relative">
+                                            <select
+                                                value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
+                                                onChange={(e) => {
+                                                    if (editForm.type === 'Pet') {
+                                                        const selectedPetId = e.target.value;
+                                                        const selectedPet = pets.find(pet => pet.petId == selectedPetId);
+                                                        setEditForm({
+                                                            ...editForm,
+                                                            petID: selectedPetId,
+                                                            petType: selectedPet ? selectedPet.petType : null
+                                                        });
+                                                    }
+                                                }}
+                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${editForm.type === 'Pet'
+                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                required={editForm.type === 'Pet'}
+                                                disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
+                                            >
+                                                <option value="">
+                                                    {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
+                                                        petsLoading ? "Đang tải..." :
+                                                            pets.length === 0 ? "Không có thú cưng nào" :
+                                                                "Chọn thú cưng"}
+                                                </option>
+                                                {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
+                                                    const firstPetOfType = pets.find(pet => pet.petType === petType);
+                                                    return (
+                                                        <option key={petType} value={firstPetOfType?.petId}>
+                                                            {petType}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                            <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
+                                                }`} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Footer */}
-                        <div className="bg-gradient-to-r from-gray-50 to-purple-50 px-8 py-6 border-t border-gray-200">
-                            <div className="flex justify-end items-center">
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={handleCancel}
-                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
-                                    >
-                                        <X className="w-4 h-4" />
-                                        Hủy
-                                    </button>
-                                    <button
-                                        onClick={() => handleSubmit(editModal.isOpen)}
-                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                        disabled={
-                                            // Basic validation for both create and edit
-                                            !editForm.name.trim() ||
-                                            !editForm.price ||
-                                            !editForm.quantity ||
-                                            // Create mode specific validation
-                                            (createModal && (
-                                                !hasCreateFormContent ||
-                                                !editForm.type.trim() ||
-                                                (editForm.type === 'Pet' && !editForm.petID)
-                                            )) ||
-                                            // Edit mode specific validation - no changes made
-                                            (editModal.isOpen && !hasFormChanges)
-                                        }
-                                    >
-                                        {createModal ? (
-                                            <>
-                                                <Plus className="w-4 h-4" />
-                                                Tạo Sản phẩm
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Edit className="w-4 h-4" />
-                                                Cập nhật
-                                            </>
-                                        )}
-                                    </button>
+                        {/* Additional Form Fields */}
+                        <div className="space-y-8 mt-8">
+                            {/* Quantity and Status Row */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Quantity */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <label className="text-lg font-semibold text-gray-800">Số lượng</label>
+                                    </div>
+                                    <input
+                                        type="number"
+                                        value={editForm.quantity}
+                                        onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        placeholder="Nhập số lượng có sẵn"
+                                        min="0"
+                                        required
+                                    />
                                 </div>
+
+                                {/* Status */}
+                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={editForm.status}
+                                            onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                            required
+                                            title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
+                                        >
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description - Full Width */}
+                            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <label className="text-lg font-semibold text-gray-800">Mô tả</label>
+                                </div>
+                                <textarea
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    rows={3}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                    placeholder="Nhập mô tả sản phẩm (tùy chọn)"
+                                    maxLength="500"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="bg-gradient-to-r from-gray-50 to-purple-50 px-8 py-6 border-t border-gray-200">
+                        <div className="flex justify-end items-center">
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleCancel}
+                                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                                >
+                                    <X className="w-4 h-4" />
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={() => handleSubmit(editModal.isOpen)}
+                                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    disabled={
+                                        // Basic validation for both create and edit
+                                        !editForm.name.trim() ||
+                                        !editForm.price ||
+                                        !editForm.quantity ||
+                                        // Create mode specific validation
+                                        (createModal && (
+                                            !hasCreateFormContent ||
+                                            !editForm.type.trim() ||
+                                            (editForm.type === 'Pet' && !editForm.petID)
+                                        )) ||
+                                        // Edit mode specific validation - no changes made
+                                        (editModal.isOpen && !hasFormChanges)
+                                    }
+                                >
+                                    {createModal ? (
+                                        <>
+                                            <Plus className="w-4 h-4" />
+                                            Tạo Sản phẩm
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Edit className="w-4 h-4" />
+                                            Cập nhật
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>

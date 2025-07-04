@@ -3,6 +3,90 @@ import { Search, Plus, Power, Eye, Filter, ChevronLeft, ChevronRight, PawPrint, 
 import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
 
+// Notification Toast Component with right alignment and timing bar
+const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
+    const [progress, setProgress] = useState(100);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        // Show animation
+        setIsVisible(true);
+        
+        // Progress bar animation
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                const newProgress = prev - (100 / (duration / 100));
+                return newProgress <= 0 ? 0 : newProgress;
+            });
+        }, 100);
+
+        // Auto close
+        const timer = setTimeout(() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300); // Wait for slide-out animation
+        }, duration);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+        };
+    }, [duration, onClose]);
+
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
+    const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
+
+    return (
+        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${
+            isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        }`}>
+            <div className={`${bgColor} rounded-lg shadow-lg border border-white/20 overflow-hidden`}>
+                <div className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {type === 'success' ? (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">✓</span>
+                                    </div>
+                                ) : (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <X className="h-4 w-4 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ml-3">
+                                <h3 className={`text-sm font-medium text-white`}>
+                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                </h3>
+                                <p className={`text-sm ${textColor} mt-1`}>
+                                    {message}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setIsVisible(false);
+                                setTimeout(onClose, 300);
+                            }}
+                            className="ml-4 text-white/80 hover:text-white transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="h-1 bg-white/20">
+                    <div 
+                        className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Simple Pet Management Component
 const PetManagement = () => {
     // Use auth hook to get current user
@@ -35,6 +119,28 @@ const PetManagement = () => {
     // Local error and success message states
     const [localError, setLocalError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+
+    // Helper function to show notifications
+    const showNotification = (message, type = 'success', duration = 5000) => {
+        setNotification({ message, type, show: true });
+        // Auto clear after duration
+        setTimeout(() => {
+            setNotification({ message: '', type: '', show: false });
+        }, duration);
+    };
+
+    // Helper function to clear notifications
+    const clearNotification = () => {
+        setNotification({ message: '', type: '', show: false });
+    };
+
+    // Show general error as notification
+    useEffect(() => {
+        if (error) {
+            showNotification('Có lỗi xảy ra: ' + error, 'error');
+        }
+    }, [error]);
 
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
@@ -205,14 +311,14 @@ const PetManagement = () => {
         try {
             // Basic validation
             if (!editForm.petType || editForm.petType.trim().length < 2) {
-                setLocalError('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
+                showNotification('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự', 'error');
                 return;
             }
 
             // Check if first letter is capitalized
             const petType = editForm.petType.trim();
             if (petType[0] !== petType[0].toUpperCase()) {
-                setLocalError('Chữ cái đầu của loại thú cưng phải viết hoa');
+                showNotification('Chữ cái đầu của loại thú cưng phải viết hoa', 'error');
                 return;
             }
 
@@ -226,11 +332,10 @@ const PetManagement = () => {
             setSelectedPet(null); // Close detail modal too
             // Clear any previous errors and show success message
             setLocalError('');
-            setSuccessMessage('Cập nhật thú cưng thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification('Cập nhật thú cưng thành công!', 'success');
         } catch (error) {
             console.error('Failed to update pet:', error);
-            setLocalError('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'));
+            showNotification('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
         }
     };
 
@@ -282,14 +387,14 @@ const PetManagement = () => {
         try {
             // Basic validation
             if (!editForm.petType || editForm.petType.trim().length < 2) {
-                setLocalError('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự');
+                showNotification('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự', 'error');
                 return;
             }
 
             // Check if first letter is capitalized
             const petType = editForm.petType.trim();
             if (petType[0] !== petType[0].toUpperCase()) {
-                setLocalError('Chữ cái đầu của loại thú cưng phải viết hoa');
+                showNotification('Chữ cái đầu của loại thú cưng phải viết hoa', 'error');
                 return;
             }
 
@@ -304,11 +409,10 @@ const PetManagement = () => {
             setCreateModal(false);
             // Clear any previous errors and show success message
             setLocalError('');
-            setSuccessMessage('Tạo thú cưng thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification('Tạo thú cưng thành công!', 'success');
         } catch (error) {
             console.error('Failed to create pet:', error);
-            setLocalError('Tạo thú cưng thất bại: ' + (error.message || 'Lỗi không xác định'));
+            showNotification('Tạo thú cưng thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
         }
     };
 
@@ -318,8 +422,7 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 0) {
-            setLocalError('Thú cưng này đã bị vô hiệu hóa rồi!');
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Thú cưng này đã bị vô hiệu hóa rồi!', 'error');
             return;
         }
 
@@ -333,12 +436,10 @@ const PetManagement = () => {
                     await updatePet(petId, { ...pet, petStatus: 0 });
                     // Clear any previous errors and show success message
                     setLocalError('');
-                    setSuccessMessage('Vô hiệu hóa thú cưng thành công!');
-                    setTimeout(() => setSuccessMessage(''), 5000);
+                    showNotification('Vô hiệu hóa thú cưng thành công!', 'success');
                 } catch (error) {
                     console.error('Failed to disable pet:', error);
-                    setLocalError('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'));
-                    setTimeout(() => setLocalError(''), 5000);
+                    showNotification('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
                 }
                 setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
@@ -351,8 +452,7 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 1) {
-            setLocalError('Thú cưng này đã được kích hoạt rồi!');
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Thú cưng này đã được kích hoạt rồi!', 'error');
             return;
         }
 
@@ -361,12 +461,10 @@ const PetManagement = () => {
             await updatePet(petId, { ...pet, petStatus: 1 });
             // Clear any previous errors and show success message
             setLocalError('');
-            setSuccessMessage('Kích hoạt thú cưng thành công!');
-            setTimeout(() => setSuccessMessage(''), 5000);
+            showNotification('Kích hoạt thú cưng thành công!', 'success');
         } catch (error) {
             console.error('Failed to enable pet:', error);
-            setLocalError('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'));
-            setTimeout(() => setLocalError(''), 5000);
+            showNotification('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
         }
     };    // Cancel forms
     const handleCancel = () => {
@@ -501,32 +599,13 @@ const PetManagement = () => {
                 </div>
             </div>
 
-            {/* Success Message */}
-            {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-green-800">Thành công</h3>
-                            <div className="mt-2 text-sm text-green-700">
-                                <p>{successMessage}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
-                            <div className="mt-2 text-sm text-red-700">
-                                <p>{error}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {/* Notification Toast */}
+            {notification.show && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={clearNotification}
+                />
             )}
 
             {/* Pet Details Modal */}
@@ -1487,7 +1566,7 @@ const PetManagement = () => {
                                             }`}>
                                             {editForm.petStatus === 1 ? (
                                                 <>
-                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                                                                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                                     Thú cưng sẽ hiển thị và có thể sử dụng trong game
                                                 </>
                                             ) : (
