@@ -104,7 +104,7 @@ const ProductImage = ({ imageUrl, productName, className }) => {
 };
 
 // Notification Toast Component with right alignment and timing bar
-const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
+const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     const [progress, setProgress] = useState(100);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -112,15 +112,18 @@ const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
         // Show animation
         setIsVisible(true);
 
-        // Progress bar animation
+        // Progress bar animation - update every 50ms for smooth animation
+        const updateInterval = 50;
+        const decrementAmount = 100 / (duration / updateInterval);
+
         const interval = setInterval(() => {
             setProgress(prev => {
-                const newProgress = prev - (100 / (duration / 100));
+                const newProgress = prev - decrementAmount;
                 return newProgress <= 0 ? 0 : newProgress;
             });
-        }, 100);
+        }, updateInterval);
 
-        // Auto close
+        // Auto close after duration
         const timer = setTimeout(() => {
             setIsVisible(false);
             setTimeout(onClose, 300); // Wait for slide-out animation
@@ -607,10 +610,6 @@ const ShopProductManagement = () => {
             return;
         }
 
-
-
-
-
         setConfirmDialog({
             isOpen: true,
             title: 'Xác nhận vô hiệu hóa',
@@ -927,7 +926,7 @@ const ShopProductManagement = () => {
                             <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                 <Search className="h-2 w-2 text-white" />
                             </div>
-                            <span className="text-sm font-medium text-gray-700">Tìm kiếm sản phẩm</span>
+                            <span className="text-sm font-medium text-gray-700">Tìm kiếm & Tạo mới sản phẩm</span>
                         </div>
 
                         <div className="space-y-3">
@@ -1553,20 +1552,22 @@ const ShopProductManagement = () => {
             {/* Create/Edit Modal */}
             {(createModal || editModal.isOpen) && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-6xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="relative w-full max-w-6xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300 flex flex-col">
                         {/* Header with Gradient */}
-                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6 relative overflow-hidden">
+                        <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6 relative overflow-hidden flex-shrink-0">
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <h3 className="text-4xl font-bold text-white">
                                     {createModal ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}
                                 </h3>
                             </div>
-                        </div>                        {/* Content */}
-                        <div className="p-8 overflow-y-auto max-h-[calc(95vh-180px)] bg-gradient-to-br from-gray-50 to-white">
-                            {/* Form Fields in 2 Rows */}
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-8 overflow-y-auto flex-1 bg-gradient-to-br from-gray-50 to-white">
+                            {/* Form Fields */}
                             <div className="space-y-8">
-                                {/* Row 1 */}
+                                {/* Row 1 - Product Name and Image */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {/* Product Name */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -1608,10 +1609,6 @@ const ShopProductManagement = () => {
                                             </div>
                                         </div>
 
-
-                                        {/* Google Drive Helper Info */}
-
-
                                         {/* Image Preview and Input Layout */}
                                         <div className="flex gap-4 items-center">
                                             {/* Image Preview */}
@@ -1628,7 +1625,6 @@ const ShopProductManagement = () => {
                                                     </div>
                                                 )}
                                             </div>
-
 
                                             {/* Input Field */}
                                             <div className="flex-1">
@@ -1659,229 +1655,226 @@ const ShopProductManagement = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            {/* Row 2 */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Price */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
-                                    </div>
-                                    <input
-                                        type="number"
-                                        value={editForm.price}
-                                        onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                        placeholder="Nhập giá sản phẩm (>0)"
-                                        min="1"
-                                        required
-                                    />
-                                </div>
 
-                                {/* Currency Type */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
-                                    </div>
-                                    <div className="relative">
-                                        <select
-                                            value={editForm.currencyType}
-                                            onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                            required
-                                            title="Chọn loại tiền tệ để mua sản phẩm"
-                                        >
-                                            <option value="Coin">Coin</option>
-                                            <option value="Diamond">Diamond</option>
-                                            <option value="Gem">Gem</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Product Type and Pet Selection - Only show when creating */}
-                            {createModal && (
+                                {/* Row 2 - Price and Currency */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {/* Product Type */}
+                                    {/* Price */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
+                                            <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={editForm.price}
+                                            onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            placeholder="Nhập giá sản phẩm (>0)"
+                                            min="1"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Currency Type */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
                                         </div>
                                         <div className="relative">
                                             <select
-                                                value={editForm.type}
-                                                onChange={(e) => {
-                                                    setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
-                                                }}
+                                                value={editForm.currencyType}
+                                                onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                 required
-                                                title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
+                                                title="Chọn loại tiền tệ để mua sản phẩm"
                                             >
-                                                <option value="">Chọn loại sản phẩm</option>
-                                                <option value="Pet">Pet</option>
-                                                <option value="Food">Food</option>
-                                                <option value="Toy">Toy</option>
+                                                <option value="Coin">Coin</option>
+                                                <option value="Diamond">Diamond</option>
+                                                <option value="Gem">Gem</option>
                                             </select>
                                             <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* Pet Selection - always visible but disabled when type is not Pet */}
-                                    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${editForm.type === 'Pet'
+                                {/* Row 3 - Product Type and Pet Selection (Only show when creating) */}
+                                {createModal && (
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        {/* Product Type */}
+                                        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
+                                            </div>
+                                            <div className="relative">
+                                                <select
+                                                    value={editForm.type}
+                                                    onChange={(e) => {
+                                                        setEditForm({ ...editForm, type: e.target.value, petType: '', petID: null });
+                                                    }}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                                    required
+                                                    title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
+                                                >
+                                                    <option value="">Chọn loại sản phẩm</option>
+                                                    <option value="Pet">Pet</option>
+                                                    <option value="Food">Food</option>
+                                                    <option value="Toy">Toy</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                            </div>
+                                        </div>
+
+                                        {/* Pet Selection - always visible but disabled when type is not Pet */}
+                                        <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${editForm.type === 'Pet'
                                             ? 'hover:shadow-md opacity-100'
                                             : 'opacity-50 pointer-events-none'
-                                        }`}>
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
+                                            }`}>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
                                                     ? 'text-gray-800'
                                                     : 'text-gray-400'
-                                                }`}>Chọn thú cưng</label>
+                                                    }`}>Chọn thú cưng</label>
+                                            </div>
+                                            <div className="relative">
+                                                <select
+                                                    value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
+                                                    onChange={(e) => {
+                                                        if (editForm.type === 'Pet') {
+                                                            const selectedPetId = e.target.value;
+                                                            const selectedPet = pets.find(pet => pet.petId == selectedPetId);
+                                                            setEditForm({
+                                                                ...editForm,
+                                                                petID: selectedPetId,
+                                                                petType: selectedPet ? selectedPet.petType : null
+                                                            });
+                                                        }
+                                                    }}
+                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${editForm.type === 'Pet'
+                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    required={editForm.type === 'Pet'}
+                                                    disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
+                                                >
+                                                    <option value="">
+                                                        {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
+                                                            petsLoading ? "Đang tải..." :
+                                                                pets.length === 0 ? "Không có thú cưng nào" :
+                                                                    "Chọn thú cưng"}
+                                                    </option>
+                                                    {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
+                                                        const firstPetOfType = pets.find(pet => pet.petType === petType);
+                                                        return (
+                                                            <option key={petType} value={firstPetOfType?.petId}>
+                                                                {petType}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                                <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
+                                                    }`} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
+                                {/* Row 4 - Quantity and Status */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {/* Quantity */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Số lượng</label>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            value={editForm.quantity}
+                                            onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            placeholder="Nhập số lượng có sẵn"
+                                            min="0"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
                                         </div>
                                         <div className="relative">
                                             <select
-                                                value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
-                                                onChange={(e) => {
-                                                    if (editForm.type === 'Pet') {
-                                                        const selectedPetId = e.target.value;
-                                                        const selectedPet = pets.find(pet => pet.petId == selectedPetId);
-                                                        setEditForm({
-                                                            ...editForm,
-                                                            petID: selectedPetId,
-                                                            petType: selectedPet ? selectedPet.petType : null
-                                                        });
-                                                    }
-                                                }}
-                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${editForm.type === 'Pet'
-                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
-                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                                                    }`}
-                                                required={editForm.type === 'Pet'}
-                                                disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
+                                                value={editForm.status}
+                                                onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                                required
+                                                title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
                                             >
-                                                <option value="">
-                                                    {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
-                                                        petsLoading ? "Đang tải..." :
-                                                            pets.length === 0 ? "Không có thú cưng nào" :
-                                                                "Chọn thú cưng"}
-                                                </option>
-                                                {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
-                                                    const firstPetOfType = pets.find(pet => pet.petType === petType);
-                                                    return (
-                                                        <option key={petType} value={firstPetOfType?.petId}>
-                                                            {petType}
-                                                        </option>
-                                                    );
-                                                })}
+                                                <option value="1">Active</option>
+                                                <option value="0">Inactive</option>
                                             </select>
-                                            <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
-                                                }`} />
+                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Additional Form Fields */}
-                        <div className="space-y-8 mt-8">
-                            {/* Quantity and Status Row */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Quantity */}
+                                {/* Row 5 - Description (Full Width) */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Số lượng</label>
+                                        <label className="text-lg font-semibold text-gray-800">Mô tả</label>
                                     </div>
-                                    <input
-                                        type="number"
-                                        value={editForm.quantity}
-                                        onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                        placeholder="Nhập số lượng có sẵn"
-                                        min="0"
-                                        required
+                                    <textarea
+                                        value={editForm.description}
+                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                        rows={3}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                        placeholder="Nhập mô tả sản phẩm (tùy chọn)"
+                                        maxLength="500"
                                     />
                                 </div>
-
-                                {/* Status */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
-                                    </div>
-                                    <div className="relative">
-                                        <select
-                                            value={editForm.status}
-                                            onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
-                                            required
-                                            title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
-                                        >
-                                            <option value="1">Active</option>
-                                            <option value="0">Inactive</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Description - Full Width */}
-                            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <label className="text-lg font-semibold text-gray-800">Mô tả</label>
-                                </div>
-                                <textarea
-                                    value={editForm.description}
-                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                    rows={3}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
-                                    placeholder="Nhập mô tả sản phẩm (tùy chọn)"
-                                    maxLength="500"
-                                />
                             </div>
                         </div>
-                    </div>
 
-                    {/* Footer */}
-                    <div className="bg-gradient-to-r from-gray-50 to-purple-50 px-8 py-6 border-t border-gray-200">
-                        <div className="flex justify-end items-center">
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleCancel}
-                                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
-                                >
-                                    <X className="w-4 h-4" />
-                                    Hủy
-                                </button>
-                                <button
-                                    onClick={() => handleSubmit(editModal.isOpen)}
-                                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                    disabled={
-                                        // Basic validation for both create and edit
-                                        !editForm.name.trim() ||
-                                        !editForm.price ||
-                                        !editForm.quantity ||
-                                        // Create mode specific validation
-                                        (createModal && (
-                                            !hasCreateFormContent ||
-                                            !editForm.type.trim() ||
-                                            (editForm.type === 'Pet' && !editForm.petID)
-                                        )) ||
-                                        // Edit mode specific validation - no changes made
-                                        (editModal.isOpen && !hasFormChanges)
-                                    }
-                                >
-                                    {createModal ? (
-                                        <>
-                                            <Plus className="w-4 h-4" />
-                                            Tạo Sản phẩm
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Edit className="w-4 h-4" />
-                                            Cập nhật
-                                        </>
-                                    )}
-                                </button>
+                        {/* Footer */}
+                        <div className="bg-gradient-to-r from-gray-50 to-purple-50 px-8 py-6 border-t border-gray-200 flex-shrink-0">
+                            <div className="flex justify-end items-center">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        Hủy
+                                    </button>
+                                    <button
+                                        onClick={() => handleSubmit(editModal.isOpen)}
+                                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                        disabled={
+                                            // Basic validation for both create and edit
+                                            !editForm.name.trim() ||
+                                            !editForm.price ||
+                                            !editForm.quantity ||
+                                            // Create mode specific validation
+                                            (createModal && (
+                                                !hasCreateFormContent ||
+                                                !editForm.type.trim() ||
+                                                (editForm.type === 'Pet' && !editForm.petID)
+                                            )) ||
+                                            // Edit mode specific validation - no changes made
+                                            (editModal.isOpen && !hasFormChanges)
+                                        }
+                                    >
+                                        {createModal ? (
+                                            <>
+                                                <Plus className="w-4 h-4" />
+                                                Tạo Sản phẩm
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Edit className="w-4 h-4" />
+                                                Cập nhật
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -4,21 +4,24 @@ import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
 
 // Notification Toast Component with right alignment and timing bar
-const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
+const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     const [progress, setProgress] = useState(100);
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         // Show animation
         setIsVisible(true);
-        
-        // Progress bar animation
+
+        // Progress bar animation - update every 50ms for smooth animation
+        const updateInterval = 50;
+        const decrementAmount = 100 / (duration / updateInterval);
+
         const interval = setInterval(() => {
             setProgress(prev => {
-                const newProgress = prev - (100 / (duration / 100));
+                const newProgress = prev - decrementAmount;
                 return newProgress <= 0 ? 0 : newProgress;
             });
-        }, 100);
+        }, updateInterval);
 
         // Auto close
         const timer = setTimeout(() => {
@@ -37,9 +40,8 @@ const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
 
     return (
-        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${
-            isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-        }`}>
+        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+            }`}>
             <div className={`${bgColor} rounded-lg shadow-lg border border-white/20 overflow-hidden`}>
                 <div className="p-4">
                     <div className="flex items-center justify-between">
@@ -77,7 +79,7 @@ const NotificationToast = ({ message, type, onClose, duration = 5000 }) => {
                 </div>
                 {/* Progress Bar */}
                 <div className="h-1 bg-white/20">
-                    <div 
+                    <div
                         className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
                         style={{ width: `${progress}%` }}
                     />
@@ -122,7 +124,7 @@ const PetManagement = () => {
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
     // Helper function to show notifications
-    const showNotification = (message, type = 'success', duration = 5000) => {
+    const showNotification = (message, type = 'success', duration = 3000) => {
         setNotification({ message, type, show: true });
         // Auto clear after duration
         setTimeout(() => {
@@ -550,7 +552,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Active</p>
+                                <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">{activePets}</p>
                         </div>
@@ -562,7 +564,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Inactive</p>
+                                <p className="text-sm font-medium text-gray-600">Đang bị vô hiệu hóa</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">{inactivePets}</p>
                         </div>
@@ -813,7 +815,7 @@ const PetManagement = () => {
                             <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
                                 <Search className="h-2 w-2 text-white" />
                             </div>
-                            <span className="text-sm font-medium text-gray-700"> Tìm kiếm & Tạo mới</span>
+                            <span className="text-sm font-medium text-gray-700"> Tìm kiếm & Tạo mới thú cưng</span>
                         </div>
 
                         <div className="space-y-4">
@@ -1566,7 +1568,7 @@ const PetManagement = () => {
                                             }`}>
                                             {editForm.petStatus === 1 ? (
                                                 <>
-                                                                                                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                                     Thú cưng sẽ hiển thị và có thể sử dụng trong game
                                                 </>
                                             ) : (

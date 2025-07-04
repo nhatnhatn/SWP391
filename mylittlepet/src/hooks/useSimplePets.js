@@ -129,17 +129,22 @@ export const useSimplePets = () => {
         }
     }, [loadPets]);
 
-    // Delete pet
+    // Delete pet with optimistic update
     const deletePet = useCallback(async (petId) => {
         try {
             setLoading(true);
             await apiService.deletePet(petId);
             console.log('✅ Pet deleted:', petId);
-            await loadPets(); // Refresh list
+
+            // Optimistic update - remove the deleted pet from current list
+            setPets(prev => prev.filter(pet => pet.petId !== petId));
+
             return true;
 
         } catch (error) {
             console.error('Delete pet error:', error);
+            // If deletion fails, reload to ensure data consistency
+            await loadPets();
             throw error;
         } finally {
             setLoading(false);

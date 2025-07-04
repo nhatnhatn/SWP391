@@ -485,7 +485,7 @@ const PlayersSimple = () => {    // Use hook for data management
             {/* Search & Filters */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-5 border-b border-green-100">
+                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4 border-b border-green-100">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
