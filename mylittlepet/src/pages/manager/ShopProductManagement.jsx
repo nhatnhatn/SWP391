@@ -607,6 +607,10 @@ const ShopProductManagement = () => {
             return;
         }
 
+
+
+
+
         setConfirmDialog({
             isOpen: true,
             title: 'Xác nhận vô hiệu hóa',
@@ -1604,7 +1608,9 @@ const ShopProductManagement = () => {
                                             </div>
                                         </div>
 
+
                                         {/* Google Drive Helper Info */}
+
 
                                         {/* Image Preview and Input Layout */}
                                         <div className="flex gap-4 items-center">
@@ -1622,6 +1628,7 @@ const ShopProductManagement = () => {
                                                     </div>
                                                 )}
                                             </div>
+
 
                                             {/* Input Field */}
                                             <div className="flex-1">
