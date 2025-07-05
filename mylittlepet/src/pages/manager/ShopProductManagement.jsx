@@ -140,9 +140,9 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
 
     return (
-        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}>
-            <div className={`${bgColor} rounded-lg shadow-lg border border-white/20 overflow-hidden`}>
+            <div className={`${bgColor} rounded-lg shadow-2xl border border-white/30 overflow-hidden backdrop-blur-sm`}>
                 <div className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -313,6 +313,27 @@ const ShopProductManagement = () => {
         }
     }, [error]);
 
+    // Check for login success notification from sessionStorage
+    useEffect(() => {
+        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
+        if (storedNotification) {
+            try {
+                const notificationData = JSON.parse(storedNotification);
+                // Check if notification is not too old (within 30 seconds)
+                const now = Date.now();
+                const timeDiff = now - notificationData.timestamp;
+                if (timeDiff < 30000) { // 30 seconds
+                    showNotification(notificationData.message, notificationData.type, 4000);
+                }
+                // Clear the notification from sessionStorage after using it
+                sessionStorage.removeItem('loginSuccessNotification');
+            } catch (error) {
+                console.error('Error parsing stored notification:', error);
+                sessionStorage.removeItem('loginSuccessNotification');
+            }
+        }
+    }, []);
+
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -342,7 +363,7 @@ const ShopProductManagement = () => {
         petType: '',
         description: '',
         imageUrl: '',
-        price: '',
+        price: 10,
         currencyType: 'Coin',
         quantity: 10,
         status: 1
@@ -569,7 +590,7 @@ const ShopProductManagement = () => {
             petType: '',
             description: '',
             imageUrl: '',
-            price: '',
+            price: 10,
             currencyType: 'Coin',
             quantity: 10,
             status: 1
@@ -1579,7 +1600,7 @@ const ShopProductManagement = () => {
                                             value={editForm.name}
                                             onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập tên sản phẩm (bắt buộc)"
+                                            placeholder="Nhập tên sản phẩm"
                                             required
                                             minLength="2"
                                         />

@@ -2,6 +2,84 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 
+// Notification Toast Component
+const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
+    const [progress, setProgress] = useState(100);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        setIsVisible(true);
+        const updateInterval = 50;
+        const decrementAmount = 100 / (duration / updateInterval);
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                const newProgress = prev - decrementAmount;
+                return newProgress <= 0 ? 0 : newProgress;
+            });
+        }, updateInterval);
+        const timer = setTimeout(() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300);
+        }, duration);
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+        };
+    }, [duration, onClose]);
+
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
+    const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
+
+    return (
+        <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+            <div className={`${bgColor} rounded-lg shadow-2xl border border-white/30 overflow-hidden backdrop-blur-sm`}>
+                <div className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {type === 'success' ? (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">✓</span>
+                                    </div>
+                                ) : (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">!</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ml-3">
+                                <h3 className={`text-sm font-medium text-white`}>
+                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                </h3>
+                                <p className={`text-sm ${textColor} mt-1`}>
+                                    {message}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setIsVisible(false);
+                                setTimeout(onClose, 300);
+                            }}
+                            className="ml-4 text-white/80 hover:text-white transition-colors"
+                        >
+                            <span className="h-4 w-4">×</span>
+                        </button>
+                    </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="h-1 bg-white/20">
+                    <div
+                        className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // Simple Players component - Updated with Backend Integration
 const PlayersSimple = () => {    // Use hook for data management
     const {
@@ -47,6 +125,43 @@ const PlayersSimple = () => {    // Use hook for data management
     });
 
     const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
+
+    // Notification state
+    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+
+    // Helper function to show notifications
+    const showNotification = (message, type = 'success', duration = 3000) => {
+        setNotification({ message, type, show: true });
+        setTimeout(() => {
+            setNotification({ message: '', type: '', show: false });
+        }, duration);
+    };
+
+    // Helper function to clear notifications
+    const clearNotification = () => {
+        setNotification({ message: '', type: '', show: false });
+    };
+
+    // Check for login success notification from sessionStorage
+    useEffect(() => {
+        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
+        if (storedNotification) {
+            try {
+                const notificationData = JSON.parse(storedNotification);
+                // Check if notification is not too old (within 30 seconds)
+                const now = Date.now();
+                const timeDiff = now - notificationData.timestamp;
+                if (timeDiff < 30000) { // 30 seconds
+                    showNotification(notificationData.message, notificationData.type, 4000);
+                }
+                // Clear the notification from sessionStorage after using it
+                sessionStorage.removeItem('loginSuccessNotification');
+            } catch (error) {
+                console.error('Error parsing stored notification:', error);
+                sessionStorage.removeItem('loginSuccessNotification');
+            }
+        }
+    }, []);
 
     // Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Filter states
@@ -380,6 +495,15 @@ const PlayersSimple = () => {    // Use hook for data management
     };
     return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+            {/* Notification Toast */}
+            {notification.show && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={clearNotification}
+                />
+            )}
+            
             {/* Dashboard Header */}
             <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
                 <div className="flex items-center justify-between">

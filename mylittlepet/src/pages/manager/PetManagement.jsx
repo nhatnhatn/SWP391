@@ -40,7 +40,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
 
     return (
-        <div className={`fixed top-4 right-4 z-50 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}>
             <div className={`${bgColor} rounded-lg shadow-lg border border-white/20 overflow-hidden`}>
                 <div className="p-4">
@@ -143,6 +143,27 @@ const PetManagement = () => {
             showNotification('Có lỗi xảy ra: ' + error, 'error');
         }
     }, [error]);
+
+    // Check for login success notification from sessionStorage
+    useEffect(() => {
+        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
+        if (storedNotification) {
+            try {
+                const notificationData = JSON.parse(storedNotification);
+                // Check if notification is not too old (within 30 seconds)
+                const now = Date.now();
+                const timeDiff = now - notificationData.timestamp;
+                if (timeDiff < 30000) { // 30 seconds
+                    showNotification(notificationData.message, notificationData.type, 4000);
+                }
+                // Clear the notification from sessionStorage after using it
+                sessionStorage.removeItem('loginSuccessNotification');
+            } catch (error) {
+                console.error('Error parsing stored notification:', error);
+                sessionStorage.removeItem('loginSuccessNotification');
+            }
+        }
+    }, []);
 
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
@@ -564,7 +585,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang bị vô hiệu hóa</p>
+                                <p className="text-sm font-medium text-gray-600">Đang vô hiệu hóa</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">{inactivePets}</p>
                         </div>
@@ -1385,9 +1406,9 @@ const PetManagement = () => {
                                         <input
                                             type="text"
                                             value={editForm.petType || ''}
-                                            readOnly
-                                            className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed shadow-sm"
-                                            placeholder="Loại thú cưng không thể thay đổi"
+                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value })}
+                                            className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg text-gray-700 shadow-sm"
+                                            placeholder="Nhập loại thú cưng"
                                         />
                                         {/* <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
                                             <p className="text-sm text-yellow-700 flex items-center gap-2">
@@ -1494,7 +1515,7 @@ const PetManagement = () => {
                                         value={editForm.petDefaultName}
                                         onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                        placeholder="Nhập tên thú cưng..."
+                                        placeholder="Nhập tên thú cưng"
                                         minLength="2"
                                     />
 
@@ -1558,27 +1579,7 @@ const PetManagement = () => {
                                         </select>
                                         <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                     </div>
-                                    <div className={`mt-2 p-3 rounded-lg border ${editForm.petStatus === 1
-                                        ? 'bg-green-50 border-green-200'
-                                        : 'bg-red-50 border-red-200'
-                                        }`}>
-                                        <p className={`text-sm flex items-center gap-2 ${editForm.petStatus === 1
-                                            ? 'text-green-700'
-                                            : 'text-red-700'
-                                            }`}>
-                                            {editForm.petStatus === 1 ? (
-                                                <>
-                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                                    Thú cưng sẽ hiển thị và có thể sử dụng trong game
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                                    Thú cưng sẽ bị ẩn và không thể sử dụng trong game
-                                                </>
-                                            )}
-                                        </p>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

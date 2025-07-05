@@ -1,8 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { t } from '../../constants/vietnamese';
+
+// Notification Toast Component (copied from ShopProductManagement)
+const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
+    const [progress, setProgress] = useState(100);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        setIsVisible(true);
+        const updateInterval = 50;
+        const decrementAmount = 100 / (duration / updateInterval);
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                const newProgress = prev - decrementAmount;
+                return newProgress <= 0 ? 0 : newProgress;
+            });
+        }, updateInterval);
+        const timer = setTimeout(() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300);
+        }, duration);
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timer);
+        };
+    }, [duration, onClose]);
+
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
+    const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
+
+    return (
+        <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+            <div className={`${bgColor} rounded-lg shadow-2xl border border-white/30 overflow-hidden backdrop-blur-sm`}>
+                <div className="p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="flex-shrink-0">
+                                {type === 'success' ? (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">✓</span>
+                                    </div>
+                                ) : (
+                                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-bold">!</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ml-3">
+                                <h3 className={`text-sm font-medium text-white`}>
+                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                </h3>
+                                <p className={`text-sm ${textColor} mt-1`}>
+                                    {message}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setIsVisible(false);
+                                setTimeout(onClose, 300);
+                            }}
+                            className="ml-4 text-white/80 hover:text-white transition-colors"
+                        >
+                            <span className="h-4 w-4">×</span>
+                        </button>
+                    </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="h-1 bg-white/20">
+                    <div
+                        className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -14,6 +92,9 @@ export default function Register() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // Notification state
+    const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
     // Individual field error states for better UX
     const [fieldErrors, setFieldErrors] = useState({
@@ -50,6 +131,18 @@ export default function Register() {
     const clearFieldError = (fieldName) => {
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
         setError('');
+    };
+
+    // Notification helpers
+    const showNotification = (message, type = 'error', duration = 3000) => {
+        setNotification({ message, type, show: true });
+        setTimeout(() => {
+            setNotification({ message: '', type: '', show: false });
+        }, duration);
+    };
+
+    const clearNotification = () => {
+        setNotification({ message: '', type: '', show: false });
     };
 
     // Input change handlers with real-time validation
@@ -182,6 +275,7 @@ export default function Register() {
         // Set general error if form is invalid
         if (!isValid) {
             setError('Vui lòng kiểm tra và sửa các lỗi trong form.');
+            showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
         }
 
         return isValid;
@@ -209,7 +303,8 @@ export default function Register() {
             const result = await register(userData);
 
             if (result.success) {
-                setSuccess('🎉 Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.');
+                setSuccess('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.');
+                showNotification('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.', 'success');
                 // Clear form
                 setEmail('');
                 setPassword('');
@@ -236,11 +331,13 @@ export default function Register() {
             } else {
                 const errorMessage = getErrorMessage(result.error || 'Đăng ký thất bại');
                 setError(errorMessage);
+                showNotification(errorMessage, 'error');
             }
         } catch (error) {
             console.error('Registration error:', error);
             const errorMessage = getErrorMessage(error.message || 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
             setError(errorMessage);
+            showNotification(errorMessage, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -248,6 +345,15 @@ export default function Register() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
+            {/* Notification Toast */}
+            {notification.show && (
+                <NotificationToast
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={clearNotification}
+                />
+            )}
+            
             <div className="max-w-md w-full space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -261,17 +367,6 @@ export default function Register() {
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="bg-white p-6 rounded-lg shadow-md">
                         <div className="space-y-4">
-                            {error && (
-                                <div className="bg-red-50 border border-red-300 rounded-md p-3">
-                                    <p className="text-red-700 text-sm">{error}</p>
-                                </div>
-                            )}
-
-                            {success && (
-                                <div className="bg-green-50 border border-green-300 rounded-md p-3">
-                                    <p className="text-green-700 text-sm">{success}</p>
-                                </div>
-                            )}
 
                             <div>
                                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
