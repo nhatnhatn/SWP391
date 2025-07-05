@@ -503,7 +503,7 @@ const PlayersSimple = () => {    // Use hook for data management
                     onClose={clearNotification}
                 />
             )}
-            
+
             {/* Dashboard Header */}
             <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
                 <div className="flex items-center justify-between">
@@ -1051,7 +1051,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         </div>
                                     </div>
                                     <div className="p-5 space-y-4">
-                                        
+
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                             <span className="text-sm font-medium text-gray-600">Tổng thú cưng</span>
                                             <span className="text-sm font-bold text-blue-600 flex items-center gap-1">

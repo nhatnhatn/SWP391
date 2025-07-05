@@ -88,7 +88,13 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [emailError, setEmailError] = useState('');
+    
+    // Individual field error states for better UX (like Register)
+    const [fieldErrors, setFieldErrors] = useState({
+        email: '',
+        password: ''
+    });
+    
     // Notification state
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
@@ -108,15 +114,31 @@ export default function Login() {
         return emailRegex.test(email);
     };
 
+    // Clear field error helper
+    const clearFieldError = (fieldName) => {
+        setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+        setError('');
+    };
+
     // Handle email input change with validation
     const handleEmailChange = (e) => {
         const emailValue = e.target.value;
         setEmail(emailValue);
-        setEmailError('');
-        setError('');
+        clearFieldError('email');
 
         if (emailValue && !validateEmail(emailValue)) {
-            setEmailError('Email không hợp lệ. Vui lòng nhập đúng định dạng email.');
+            setFieldErrors(prev => ({ ...prev, email: 'Email không hợp lệ. Vui lòng nhập đúng định dạng email.' }));
+        }
+    };
+
+    // Handle password input change with validation
+    const handlePasswordChange = (e) => {
+        const passwordValue = e.target.value;
+        setPassword(passwordValue);
+        clearFieldError('password');
+
+        if (passwordValue && passwordValue.length < 6) {
+            setFieldErrors(prev => ({ ...prev, password: 'Mật khẩu phải có ít nhất 6 ký tự.' }));
         }
     };
 
@@ -163,34 +185,32 @@ export default function Login() {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        setEmailError('');
+        setFieldErrors({ email: '', password: '' });
 
         // Client-side validation
-        if (!email.trim()) {
-            setEmailError('Email là bắt buộc. Vui lòng nhập email của bạn.');
-            setIsLoading(false);
-            showNotification('Email là bắt buộc. Vui lòng nhập email của bạn.', 'error');
-            return;
-        }
+        const errors = {};
+        let isValid = true;
 
-        if (!validateEmail(email)) {
-            setEmailError('Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: user@example.com).');
-            setIsLoading(false);
-            showNotification('Email không hợp lệ. Vui lòng nhập đúng định dạng email.', 'error');
-            return;
+        if (!email.trim()) {
+            errors.email = 'Email là bắt buộc. Vui lòng nhập email của bạn.';
+            isValid = false;
+        } else if (!validateEmail(email)) {
+            errors.email = 'Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: user@example.com).';
+            isValid = false;
         }
 
         if (!password.trim()) {
-            setError('Mật khẩu là bắt buộc. Vui lòng nhập mật khẩu của bạn.');
-            setIsLoading(false);
-            showNotification('Mật khẩu là bắt buộc. Vui lòng nhập mật khẩu của bạn.', 'error');
-            return;
+            errors.password = 'Mật khẩu là bắt buộc. Vui lòng nhập mật khẩu của bạn.';
+            isValid = false;
+        } else if (password.length < 6) {
+            errors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
+            isValid = false;
         }
 
-        if (password.length < 6) {
-            setError('Mật khẩu phải có ít nhất 6 ký tự.');
+        if (!isValid) {
+            setFieldErrors(errors);
             setIsLoading(false);
-            showNotification('Mật khẩu phải có ít nhất 6 ký tự.', 'error');
+            showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
             return;
         }
 
@@ -202,17 +222,17 @@ export default function Login() {
 
             if (result.success) {
                 console.log('✅ Login: Login successful, preparing navigation');
-                
+
                 // Show success notification
                 showNotification('🎉 Đăng nhập thành công! Đang chuyển hướng...', 'success', 2000);
-                
+
                 // Store success notification for next page
                 sessionStorage.setItem('loginSuccessNotification', JSON.stringify({
-                    message: 'Chào mừng bạn đến với My Little Pet!',
+                    message: 'Chào mừng bạn đến với trang quản lí My Little Pet!',
                     type: 'success',
                     timestamp: Date.now()
                 }));
-                
+
                 // Wait for notification to be visible before navigating
                 setTimeout(() => {
                     const from = location.state?.from?.pathname || '/players';
@@ -220,7 +240,7 @@ export default function Login() {
                     navigate(from, { replace: true });
                     console.log('🧭 Login: Navigation called');
                 }, 1800); // 1.8 second delay to show the success notification
-                
+
             } else {
                 const errorMessage = getErrorMessage(result.error || 'Đăng nhập thất bại');
                 setError(errorMessage);
@@ -270,9 +290,15 @@ export default function Login() {
                                     required
                                     value={email}
                                     onChange={handleEmailChange}
-                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 border-gray-300`}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${fieldErrors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                     placeholder={t('auth.enterEmail')}
                                 />
+                                {fieldErrors.email && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                                        <span className="mr-1">⚠️</span>
+                                        {fieldErrors.email}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -287,11 +313,8 @@ export default function Login() {
                                         autoComplete="current-password"
                                         required
                                         value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            setError(''); // Clear error when user starts typing
-                                        }}
-                                        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                        onChange={handlePasswordChange}
+                                        className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${fieldErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder={t('auth.enterPassword')}
                                     />
                                     <button
@@ -306,13 +329,24 @@ export default function Login() {
                                         )}
                                     </button>
                                 </div>
+                                {fieldErrors.password && (
+                                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                                        <span className="mr-1">⚠️</span>
+                                        {fieldErrors.password}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
                         <div className="mt-6">
                             <button
                                 type="submit"
-                                disabled={isLoading || !email.trim() || !password.trim()}
+                                disabled={
+                                    isLoading || 
+                                    Object.values(fieldErrors).some(error => error !== '') ||
+                                    !email.trim() || 
+                                    !password.trim()
+                                }
                                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
                             >                                {isLoading ? (
                                 <div className="flex items-center">

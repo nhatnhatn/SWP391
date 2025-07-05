@@ -292,6 +292,17 @@ const ShopProductManagement = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
+    // Field validation errors
+    const [fieldErrors, setFieldErrors] = useState({
+        name: '',
+        type: '',
+        petType: '',
+        description: '',
+        imageUrl: '',
+        price: '',
+        quantity: ''
+    });
+
     // Helper function to show notifications
     const showNotification = (message, type = 'success', duration = 3000) => {
         setNotification({ message, type, show: true });
@@ -304,6 +315,137 @@ const ShopProductManagement = () => {
     // Helper function to clear notifications
     const clearNotification = () => {
         setNotification({ message: '', type: '', show: false });
+    };
+
+    // Validation helper functions
+    const validateName = (name) => {
+        if (!name || name.trim().length === 0) return 'Tên sản phẩm là bắt buộc.';
+        if (name.trim().length < 2) return 'Tên sản phẩm phải có ít nhất 2 ký tự.';
+        if (name.length > 100) return 'Tên sản phẩm không được vượt quá 100 ký tự.';
+        return '';
+    };
+
+    const validateType = (type) => {
+        if (!type || type.trim().length === 0) return 'Loại sản phẩm là bắt buộc.';
+        return '';
+    };
+
+    const validatePetType = (petType) => {
+        if (!petType || petType.trim().length === 0) return 'Loại thú cưng là bắt buộc.';
+        return '';
+    };
+
+    const validateDescription = (description) => {
+        if (description && description.length > 1000) return 'Mô tả không được vượt quá 1000 ký tự.';
+        return '';
+    };
+
+    const validateImageUrl = (url) => {
+        if (!url || url.trim().length === 0) return 'URL hình ảnh là bắt buộc.';
+        if (!url.includes('drive.google.com')) return 'Vui lòng sử dụng Google Drive link.';
+        return '';
+    };
+
+    const validatePrice = (price) => {
+        if (!price || price === '') return 'Giá sản phẩm là bắt buộc.';
+        const numPrice = parseFloat(price);
+        if (isNaN(numPrice) || numPrice <= 0) return 'Giá sản phẩm phải lớn hơn 0.';
+        if (numPrice > 1000000) return 'Giá sản phẩm không được vượt quá 1,000,000.';
+        return '';
+    };
+
+    const validateQuantity = (quantity) => {
+        if (quantity === '' || quantity === null || quantity === undefined) return 'Số lượng là bắt buộc.';
+        const numQuantity = parseInt(quantity);
+        if (isNaN(numQuantity) || numQuantity < 0) return 'Số lượng phải là số không âm (≥0).';
+        if (numQuantity > 10000) return 'Số lượng không được vượt quá 10,000.';
+        return '';
+    };
+
+    // Clear field error helper
+    const clearFieldError = (fieldName) => {
+        setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    };
+
+    // Validation helper functions
+
+    // Handle input changes with validation
+    const handleProductNameChange = (value) => {
+        setEditForm({ ...editForm, name: value });
+        clearFieldError('name');
+
+        const error = validateName(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, name: error }));
+        }
+    };
+
+    const handleProductTypeChange = (value) => {
+        setEditForm({ ...editForm, type: value });
+        clearFieldError('type');
+
+        const error = validateType(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, type: error }));
+        }
+    };
+
+    const handlePetTypeChange = (value) => {
+        setEditForm({ ...editForm, petType: value });
+        clearFieldError('petType');
+
+        const error = validatePetType(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, petType: error }));
+        }
+    };
+
+    const handleDescriptionChange = (value) => {
+        setEditForm({ ...editForm, description: value });
+        clearFieldError('description');
+
+        const error = validateDescription(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, description: error }));
+        }
+    };
+
+    const handleImageUrlChange = (value) => {
+        setEditForm({ ...editForm, imageUrl: value });
+        clearFieldError('imageUrl');
+
+        const error = validateImageUrl(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, imageUrl: error }));
+        }
+    };
+
+    const handlePriceChange = (value) => {
+        setEditForm({ ...editForm, price: value });
+        clearFieldError('price');
+
+        const error = validatePrice(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, price: error }));
+        }
+    };
+
+    const handleQuantityChange = (value) => {
+        const numValue = parseInt(value) || 0;
+        const newForm = { ...editForm, quantity: value };
+
+        // If quantity is 0, automatically set status to inactive
+        if (numValue === 0) {
+            newForm.status = 0;
+        }
+
+        setEditForm(newForm);
+        clearFieldError('quantity');
+
+        const error = validateQuantity(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, quantity: error }));
+        }
     };
 
     // Show general error as notification
@@ -504,6 +646,19 @@ const ShopProductManagement = () => {
         setCurrentPage(1);
     }, [debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter]);
 
+    // Clear field errors when modal type changes (create/edit)
+    useEffect(() => {
+        setFieldErrors({
+            name: '',
+            type: '',
+            petType: '',
+            description: '',
+            imageUrl: '',
+            price: '',
+            quantity: ''
+        });
+    }, [createModal, editModal.isOpen]);
+
     // Pagination handlers
     const goToPage = (page) => {
         setCurrentPage(Math.max(1, Math.min(page, totalPages)));
@@ -551,6 +706,17 @@ const ShopProductManagement = () => {
 
     // Open edit modal
     const handleEdit = (product) => {
+        // Clear any existing field errors when switching to edit mode
+        setFieldErrors({
+            name: '',
+            type: '',
+            petType: '',
+            description: '',
+            imageUrl: '',
+            price: '',
+            quantity: ''
+        });
+
         const predefinedTypes = ['Food', 'Toy'];
 
         let formType = '';
@@ -583,6 +749,17 @@ const ShopProductManagement = () => {
 
     // Open create modal
     const handleCreate = () => {
+        // Clear any existing field errors when switching to create mode
+        setFieldErrors({
+            name: '',
+            type: '',
+            petType: '',
+            description: '',
+            imageUrl: '',
+            price: '',
+            quantity: ''
+        });
+
         const resetFormData = {
             petID: null,
             name: '',
@@ -603,6 +780,17 @@ const ShopProductManagement = () => {
 
     // Handle cancel - close modals and reset form
     const handleCancel = () => {
+        // Clear field errors when canceling
+        setFieldErrors({
+            name: '',
+            type: '',
+            petType: '',
+            description: '',
+            imageUrl: '',
+            price: '',
+            quantity: ''
+        });
+
         setCreateModal(false);
         setEditModal({ isOpen: false, product: null });
         const resetFormData = {
@@ -674,38 +862,77 @@ const ShopProductManagement = () => {
     // Handle form submission for create/edit
     const handleSubmit = async (isEdit = false) => {
         try {
-            // Validation: Check if required fields are filled
-            if (!editForm.name.trim()) {
-                showNotification('Vui lòng nhập tên sản phẩm', 'error');
-                return;
+            // Clear previous errors
+            setFieldErrors({
+                name: '',
+                type: '',
+                petType: '',
+                description: '',
+                imageUrl: '',
+                price: '',
+                quantity: ''
+            });
+
+            // Validate all fields
+            const errors = {};
+            let isValid = true;
+
+            const nameError = validateName(editForm.name);
+            if (nameError) {
+                errors.name = nameError;
+                isValid = false;
             }
 
             // Chỉ validate type khi đang tạo mới sản phẩm
-            if (createModal && !editForm.type) {
-                showNotification('Vui lòng chọn loại sản phẩm', 'error');
-                return;
+            if (!isEdit && createModal) {
+                const typeError = validateType(editForm.type);
+                if (typeError) {
+                    errors.type = typeError;
+                    isValid = false;
+                }
             }
 
-            if (!editForm.price || editForm.price <= 0) {
-                showNotification('Vui lòng nhập giá hợp lệ', 'error');
-                return;
+            const priceError = validatePrice(editForm.price);
+            if (priceError) {
+                errors.price = priceError;
+                isValid = false;
             }
 
-            if (!editForm.quantity || editForm.quantity < 0) {
-                showNotification('Vui lòng nhập số lượng hợp lệ', 'error');
-                return;
+            const quantityError = validateQuantity(editForm.quantity);
+            if (quantityError) {
+                errors.quantity = quantityError;
+                isValid = false;
+            }
+
+            const descError = validateDescription(editForm.description);
+            if (descError) {
+                errors.description = descError;
+                isValid = false;
+            }
+
+            const imageError = validateImageUrl(editForm.imageUrl);
+            if (imageError) {
+                errors.imageUrl = imageError;
+                isValid = false;
             }
 
             // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
             if (!isEdit && editForm.type === 'Pet') {
-                if (!editForm.petType) {
-                    showNotification('Vui lòng chọn loại thú cưng', 'error');
-                    return;
+                const petTypeError = validatePetType(editForm.petType);
+                if (petTypeError) {
+                    errors.petType = petTypeError;
+                    isValid = false;
                 }
                 if (!editForm.petID) {
-                    showNotification('Vui lòng chọn thú cưng cụ thể', 'error');
-                    return;
+                    errors.petType = 'Vui lòng chọn thú cưng cụ thể.';
+                    isValid = false;
                 }
+            }
+
+            if (!isValid) {
+                setFieldErrors(errors);
+                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+                return;
             }
 
             // Determine the actual type to submit - chỉ khi tạo mới
@@ -1598,12 +1825,18 @@ const ShopProductManagement = () => {
                                         <input
                                             type="text"
                                             value={editForm.name}
-                                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            onChange={(e) => handleProductNameChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                             placeholder="Nhập tên sản phẩm"
                                             required
                                             minLength="2"
                                         />
+                                        {fieldErrors.name && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.name}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Image URL */}
@@ -1652,7 +1885,7 @@ const ShopProductManagement = () => {
                                                 <input
                                                     type="text"
                                                     value={editForm.imageUrl}
-                                                    onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
+                                                    onChange={(e) => handleImageUrlChange(e.target.value)}
                                                     onBlur={(e) => {
                                                         const originalUrl = e.target.value;
                                                         const convertedUrl = convertGoogleDriveLink(originalUrl);
@@ -1669,9 +1902,15 @@ const ShopProductManagement = () => {
                                                             setTimeout(() => setLinkConverted(false), 3000);
                                                         }
                                                     }}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.imageUrl ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                                     placeholder="Dán link Google Drive hoặc URL ảnh khác tại đây..."
                                                 />
+                                                {fieldErrors.imageUrl && (
+                                                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                        <span className="mr-1">⚠️</span>
+                                                        {fieldErrors.imageUrl}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -1687,12 +1926,18 @@ const ShopProductManagement = () => {
                                         <input
                                             type="number"
                                             value={editForm.price}
-                                            onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            onChange={(e) => handlePriceChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.price ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                             placeholder="Nhập giá sản phẩm (>0)"
                                             min="1"
                                             required
                                         />
+                                        {fieldErrors.price && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.price}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Currency Type */}
@@ -1808,31 +2053,47 @@ const ShopProductManagement = () => {
                                         <input
                                             type="number"
                                             value={editForm.quantity}
-                                            onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
-                                            placeholder="Nhập số lượng có sẵn"
+                                            onChange={(e) => handleQuantityChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.quantity ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
+                                            placeholder="Nhập số lượng có sẵn (≥0)"
                                             min="0"
                                             required
                                         />
+                                        {fieldErrors.quantity && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.quantity}
+                                            </p>
+                                        )}
+
                                     </div>
 
                                     {/* Status */}
-                                    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${parseInt(editForm.quantity) === 0 ? 'opacity-50 pointer-events-none' : 'hover:shadow-md'}`}>
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Trạng thái</label>
+                                            <label className={`text-lg font-semibold transition-colors duration-200 ${parseInt(editForm.quantity) === 0 ? 'text-gray-400' : 'text-gray-800'}`}>
+                                                Trạng thái
+                                                {parseInt(editForm.quantity) === 0 && (
+                                                    <span className="ml-2 text-sm font-normal text-amber-600">(Tự động: Inactive)</span>
+                                                )}
+                                            </label>
                                         </div>
                                         <div className="relative">
                                             <select
                                                 value={editForm.status}
                                                 onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
+                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${parseInt(editForm.quantity) === 0
+                                                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                        : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                    }`}
                                                 required
-                                                title="Active: hiển thị trong game | Inactive: ẩn khỏi game"
+                                                title={parseInt(editForm.quantity) === 0 ? "Trạng thái tự động đặt thành Inactive khi số lượng = 0" : "Active: hiển thị trong game | Inactive: ẩn khỏi game"}
+                                                disabled={parseInt(editForm.quantity) === 0}
                                             >
                                                 <option value="1">Active</option>
                                                 <option value="0">Inactive</option>
                                             </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                                            <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${parseInt(editForm.quantity) === 0 ? 'text-gray-300' : 'text-gray-400'}`} />
                                         </div>
                                     </div>
                                 </div>
@@ -1844,12 +2105,23 @@ const ShopProductManagement = () => {
                                     </div>
                                     <textarea
                                         value={editForm.description}
-                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                        onChange={(e) => handleDescriptionChange(e.target.value)}
                                         rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder="Nhập mô tả sản phẩm (tùy chọn)"
                                         maxLength="500"
                                     />
+                                    {fieldErrors.description && (
+                                        <p className="mt-2 text-sm text-red-600 flex items-center">
+                                            <span className="mr-1">⚠️</span>
+                                            {fieldErrors.description}
+                                        </p>
+                                    )}
+                                    <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                                        <p className="text-sm text-purple-700 flex items-center justify-end gap-2">
+                                            <span>{editForm.description?.length || 0}/500 ký tự</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1869,10 +2141,14 @@ const ShopProductManagement = () => {
                                         onClick={() => handleSubmit(editModal.isOpen)}
                                         className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                         disabled={
+                                            // Check for validation errors
+                                            Object.values(fieldErrors).some(error => error !== '') ||
                                             // Basic validation for both create and edit
                                             !editForm.name.trim() ||
                                             !editForm.price ||
-                                            !editForm.quantity ||
+                                            parseInt(editForm.price) <= 0 ||
+                                            editForm.quantity === '' ||
+                                            parseInt(editForm.quantity) < 0 ||
                                             // Create mode specific validation
                                             (createModal && (
                                                 !hasCreateFormContent ||

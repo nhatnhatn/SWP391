@@ -123,6 +123,13 @@ const PetManagement = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
+    // Field validation errors
+    const [fieldErrors, setFieldErrors] = useState({
+        petDefaultName: '',
+        petType: '',
+        description: ''
+    });
+
     // Helper function to show notifications
     const showNotification = (message, type = 'success', duration = 3000) => {
         setNotification({ message, type, show: true });
@@ -135,6 +142,54 @@ const PetManagement = () => {
     // Helper function to clear notifications
     const clearNotification = () => {
         setNotification({ message: '', type: '', show: false });
+    };
+
+    // Validation helper functions
+    const validatePetName = (name) => {
+        if (!name || name.trim().length === 0) return 'Tên thú cưng là bắt buộc.';
+        if (name.trim().length < 2) return 'Tên thú cưng phải có ít nhất 2 ký tự.';
+        if (name.length > 50) return 'Tên thú cưng không được vượt quá 50 ký tự.';
+        return '';
+    };
+
+    const validatePetType = (type) => {
+        if (!type || type.trim().length === 0) return 'Loại thú cưng là bắt buộc.';
+        if (type.trim().length < 2) return 'Loại thú cưng phải có ít nhất 2 ký tự.';
+        if (type.length > 30) return 'Loại thú cưng không được vượt quá 30 ký tự.';
+        const trimmed = type.trim();
+        if (trimmed[0] !== trimmed[0].toUpperCase()) return 'Chữ cái đầu của loại thú cưng phải viết hoa.';
+        return '';
+    };
+
+    const validateDescription = (description) => {
+        if (description && description.length > 500) return 'Mô tả không được vượt quá 500 ký tự.';
+        return '';
+    };
+
+    // Clear field error helper
+    const clearFieldError = (fieldName) => {
+        setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    };
+
+    // Handle input changes with validation
+    const handlePetNameChange = (value) => {
+        setEditForm({ ...editForm, petDefaultName: value });
+        clearFieldError('petDefaultName');
+        
+        const error = validatePetName(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, petDefaultName: error }));
+        }
+    };
+
+    const handleDescriptionChange = (value) => {
+        setEditForm({ ...editForm, description: value });
+        clearFieldError('description');
+        
+        const error = validateDescription(value);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, description: error }));
+        }
     };
 
     // Show general error as notification
@@ -332,22 +387,41 @@ const PetManagement = () => {
     }, [editForm]);    // Submit edit from detail modal
     const handleEditSubmit = async () => {
         try {
-            // Basic validation
-            if (!editForm.petType || editForm.petType.trim().length < 2) {
-                showNotification('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự', 'error');
-                return;
+            // Clear previous errors
+            setFieldErrors({ petDefaultName: '', petType: '', description: '' });
+            
+            // Validate all fields
+            const errors = {};
+            let isValid = true;
+            
+            const nameError = validatePetName(editForm.petDefaultName);
+            if (nameError) {
+                errors.petDefaultName = nameError;
+                isValid = false;
             }
-
-            // Check if first letter is capitalized
-            const petType = editForm.petType.trim();
-            if (petType[0] !== petType[0].toUpperCase()) {
-                showNotification('Chữ cái đầu của loại thú cưng phải viết hoa', 'error');
+            
+            const typeError = validatePetType(editForm.petType);
+            if (typeError) {
+                errors.petType = typeError;
+                isValid = false;
+            }
+            
+            const descError = validateDescription(editForm.description);
+            if (descError) {
+                errors.description = descError;
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                setFieldErrors(errors);
+                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
                 return;
             }
 
             const updatedData = {
                 ...editForm,
-                petType: petType,
+                petType: editForm.petType.trim(),
+                petDefaultName: editForm.petDefaultName.trim(),
                 petId: editModal.pet.petId
             };
             await updatePet(editModal.pet.petId, updatedData);
@@ -408,22 +482,41 @@ const PetManagement = () => {
     // Submit create
     const handleCreateSubmit = async () => {
         try {
-            // Basic validation
-            if (!editForm.petType || editForm.petType.trim().length < 2) {
-                showNotification('Vui lòng nhập loại thú cưng với ít nhất 2 ký tự', 'error');
-                return;
+            // Clear previous errors
+            setFieldErrors({ petDefaultName: '', petType: '', description: '' });
+            
+            // Validate all fields
+            const errors = {};
+            let isValid = true;
+            
+            const nameError = validatePetName(editForm.petDefaultName);
+            if (nameError) {
+                errors.petDefaultName = nameError;
+                isValid = false;
             }
-
-            // Check if first letter is capitalized
-            const petType = editForm.petType.trim();
-            if (petType[0] !== petType[0].toUpperCase()) {
-                showNotification('Chữ cái đầu của loại thú cưng phải viết hoa', 'error');
+            
+            const typeError = validatePetType(editForm.petType);
+            if (typeError) {
+                errors.petType = typeError;
+                isValid = false;
+            }
+            
+            const descError = validateDescription(editForm.description);
+            if (descError) {
+                errors.description = descError;
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                setFieldErrors(errors);
+                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
                 return;
             }
 
             const createData = {
                 ...editForm,
-                petType: petType,
+                petType: editForm.petType.trim(),
+                petDefaultName: editForm.petDefaultName.trim(),
                 adminId: user?.id // Thêm adminId từ user hiện tại
             };
 
@@ -506,8 +599,14 @@ const PetManagement = () => {
     // Handle pet type change with validation
     const handlePetTypeChange = (value) => {
         // Auto-capitalize first letter and format the input
-        const formattedValue = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+        const formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
         setEditForm({ ...editForm, petType: formattedValue });
+        clearFieldError('petType');
+        
+        const error = validatePetType(formattedValue);
+        if (error) {
+            setFieldErrors(prev => ({ ...prev, petType: error }));
+        }
     };
 
     // Get status badge
@@ -1388,11 +1487,17 @@ const PetManagement = () => {
                                         <input
                                             type="text"
                                             value={editForm.petDefaultName}
-                                            onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                            onChange={(e) => handlePetNameChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petDefaultName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                             placeholder="Nhập tên thú cưng"
                                             minLength="2"
                                         />
+                                        {fieldErrors.petDefaultName && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.petDefaultName}
+                                            </p>
+                                        )}
 
                                     </div>
 
@@ -1406,10 +1511,16 @@ const PetManagement = () => {
                                         <input
                                             type="text"
                                             value={editForm.petType || ''}
-                                            onChange={(e) => setEditForm({ ...editForm, petType: e.target.value })}
-                                            className="w-full px-4 py-3 mb-2 border border-gray-300 rounded-lg text-gray-700 shadow-sm"
+                                            onChange={(e) => handlePetTypeChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petType ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                             placeholder="Nhập loại thú cưng"
                                         />
+                                        {fieldErrors.petType && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.petType}
+                                            </p>
+                                        )}
                                         {/* <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
                                             <p className="text-sm text-yellow-700 flex items-center gap-2">
                                                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
@@ -1450,11 +1561,17 @@ const PetManagement = () => {
                                         </div>
                                         <textarea
                                             value={editForm.description}
-                                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                            onChange={(e) => handleDescriptionChange(e.target.value)}
+                                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                             placeholder="Nhập mô tả chi tiết về thú cưng..."
                                             rows="1"
                                         />
+                                        {fieldErrors.description && (
+                                            <p className="mt-2 text-sm text-red-600 flex items-center">
+                                                <span className="mr-1">⚠️</span>
+                                                {fieldErrors.description}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -1473,7 +1590,14 @@ const PetManagement = () => {
                                     </button>
                                     <button
                                         onClick={handleEditSubmit}
-                                        disabled={!hasFormChanges || !editForm.petType || editForm.petType.length < 2}
+                                        disabled={
+                                            !hasFormChanges || 
+                                            !editForm.petType || 
+                                            editForm.petType.length < 2 ||
+                                            !editForm.petDefaultName ||
+                                            editForm.petDefaultName.length < 2 ||
+                                            Object.values(fieldErrors).some(error => error !== '')
+                                        }
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Edit className="w-4 h-4" />
@@ -1513,11 +1637,17 @@ const PetManagement = () => {
                                     <input
                                         type="text"
                                         value={editForm.petDefaultName}
-                                        onChange={(e) => setEditForm({ ...editForm, petDefaultName: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        onChange={(e) => handlePetNameChange(e.target.value)}
+                                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petDefaultName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder="Nhập tên thú cưng"
                                         minLength="2"
                                     />
+                                    {fieldErrors.petDefaultName && (
+                                        <p className="mt-2 text-sm text-red-600 flex items-center">
+                                            <span className="mr-1">⚠️</span>
+                                            {fieldErrors.petDefaultName}
+                                        </p>
+                                    )}
 
                                 </div>
 
@@ -1532,11 +1662,17 @@ const PetManagement = () => {
                                         type="text"
                                         value={editForm.petType || ''}
                                         onChange={(e) => handlePetTypeChange(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900"
+                                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petType ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder="Nhập loại thú cưng (VD: Dog, Cat, Bird...)"
                                         required
                                         minLength="2"
                                     />
+                                    {fieldErrors.petType && (
+                                        <p className="mt-2 text-sm text-red-600 flex items-center">
+                                            <span className="mr-1">⚠️</span>
+                                            {fieldErrors.petType}
+                                        </p>
+                                    )}
 
                                 </div>
 
@@ -1549,14 +1685,20 @@ const PetManagement = () => {
                                     </div>
                                     <textarea
                                         value={editForm.description}
-                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none"
+                                        onChange={(e) => handleDescriptionChange(e.target.value)}
+                                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder="Nhập mô tả chi tiết về thú cưng..."
                                         rows="3"
                                     />
+                                    {fieldErrors.description && (
+                                        <p className="mt-2 text-sm text-red-600 flex items-center">
+                                            <span className="mr-1">⚠️</span>
+                                            {fieldErrors.description}
+                                        </p>
+                                    )}
                                     <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
                                         <p className="text-sm text-blue-700 flex items-center justify-end gap-2">
-                                            <span>{editForm.description?.length || 0} ký tự</span>
+                                            <span>{editForm.description?.length || 0} / 500 ký tự</span>
                                         </p>
                                     </div>
                                 </div>
@@ -1598,7 +1740,14 @@ const PetManagement = () => {
                                     </button>
                                     <button
                                         onClick={handleCreateSubmit}
-                                        disabled={!hasCreateFormContent || !editForm.petType || editForm.petType.length < 2}
+                                        disabled={
+                                            !hasCreateFormContent || 
+                                            !editForm.petType || 
+                                            editForm.petType.length < 2 ||
+                                            !editForm.petDefaultName ||
+                                            editForm.petDefaultName.length < 2 ||
+                                            Object.values(fieldErrors).some(error => error !== '')
+                                        }
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Plus className="w-4 h-4" />
