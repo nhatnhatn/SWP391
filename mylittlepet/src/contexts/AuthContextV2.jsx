@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);    // Check for existing authentication on app load
     useEffect(() => {
-        const initAuth = async () => {            
+        const initAuth = async () => {
             // OPTION 2: Check for session timeout (uncomment to use)
             /*
             const token = localStorage.getItem('authToken');
@@ -51,29 +51,36 @@ export const AuthProvider = ({ children }) => {
                 storedUserPreview: storedUser ? storedUser.substring(0, 50) + '...' : null
             });
 
-            // Prioritize stored user data, token is optional for session restore
-            if (storedUser) {
+            // Only restore session if BOTH token AND user data exist
+            if (token && storedUser) {
                 try {
                     const userData = JSON.parse(storedUser);
-                    console.log('✅ AuthContextV2: Restoring user session from localStorage', userData);
+                    console.log('✅ AuthContextV2: Attempting to restore user session', userData);
 
-                    // Skip server validation during reload to prevent logout
-                    // Just restore the user session from localStorage
-                    setUser(userData);
-                    console.log('✅ AuthContextV2: User session restored successfully');
+                    // Validate token by making a test API call
+                    try {
+                        const response = await fetch('http://localhost:8080/api/auth/protected', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
 
-                    // Optional: Validate token with backend in background (don't logout on failure)
-                    /*
-                    if (token) {
-                        try {
-                            await apiService.healthCheck();
-                            console.log('✅ AuthContextV2: Background token validation successful');
-                        } catch (validationError) {
-                            console.warn('⚠️ AuthContextV2: Background token validation failed, but keeping user logged in:', validationError);
-                            // Don't logout user, just log the warning
+                        if (response.ok) {
+                            console.log('✅ AuthContextV2: Token is valid, restoring session');
+                            setUser(userData);
+                        } else {
+                            console.log('❌ AuthContextV2: Token is invalid, clearing session');
+                            localStorage.removeItem('authToken');
+                            localStorage.removeItem('adminUser');
+                            setUser(null);
                         }
+                    } catch (tokenError) {
+                        console.error('❌ AuthContextV2: Token validation failed:', tokenError);
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('adminUser');
+                        setUser(null);
                     }
-                    */
                 } catch (error) {
                     console.error('❌ AuthContextV2: Failed to parse stored user data:', error);
                     // Clear invalid user data
@@ -82,7 +89,11 @@ export const AuthProvider = ({ children }) => {
                     setUser(null);
                 }
             } else {
-                console.log('ℹ️ AuthContextV2: No stored user data found');
+                console.log('ℹ️ AuthContextV2: No stored token or user data found');
+                // Clear any partial data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('adminUser');
+                setUser(null);
             }
             setLoading(false);
         };
