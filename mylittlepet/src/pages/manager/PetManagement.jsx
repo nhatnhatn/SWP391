@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Power, Eye, Filter, ChevronLeft, ChevronRight, PawPrint, RotateCcw, ChevronUp, ChevronDown, X, Save, Edit } from 'lucide-react';
 import { useSimplePets } from '../../hooks/useSimplePets';
+import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 import { useAuth } from '../../contexts/AuthContextV2';
+import { useNotificationManager } from '../../hooks/useNotificationManager';
 
 // Notification Toast Component with right alignment and timing bar
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
@@ -114,14 +116,29 @@ const PetManagement = () => {
         refreshData
     } = useSimplePets();
 
+    // Use shop products hook to manage related products when pet status changes
+    const {
+        shopProducts,
+        updateShopProduct,
+        refreshData: refreshShopProducts
+    } = useSimpleShopProducts();
+
+    // Use notification manager hook
+    const {
+        notification,
+        showNotification,
+        clearNotification,
+        handleOperationWithNotification,
+        handleFormSubmission
+    } = useNotificationManager(refreshData);
+
     // State to store all unique pet types (for dropdown options)
     const [allPetTypes, setAllPetTypes] = useState([]);
     const [persistentPetTypes, setPersistentPetTypes] = useState([]);
 
-    // Local error and success message states
+    // Local error and success message states (kept for compatibility)
     const [localError, setLocalError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
     // Field validation errors
     const [fieldErrors, setFieldErrors] = useState({
@@ -129,20 +146,6 @@ const PetManagement = () => {
         petType: '',
         description: ''
     });
-
-    // Helper function to show notifications
-    const showNotification = (message, type = 'success', duration = 3000) => {
-        setNotification({ message, type, show: true });
-        // Auto clear after duration
-        setTimeout(() => {
-            setNotification({ message: '', type: '', show: false });
-        }, duration);
-    };
-
-    // Helper function to clear notifications
-    const clearNotification = () => {
-        setNotification({ message: '', type: '', show: false });
-    };
 
     // Validation helper functions
     const validatePetName = (name) => {
@@ -152,12 +155,30 @@ const PetManagement = () => {
         return '';
     };
 
-    const validatePetType = (type) => {
+    const validatePetType = (type, isEditing = false, currentPetId = null) => {
         if (!type || type.trim().length === 0) return 'Loại thú cưng là bắt buộc.';
         if (type.trim().length < 2) return 'Loại thú cưng phải có ít nhất 2 ký tự.';
         if (type.length > 30) return 'Loại thú cưng không được vượt quá 30 ký tự.';
         const trimmed = type.trim();
         if (trimmed[0] !== trimmed[0].toUpperCase()) return 'Chữ cái đầu của loại thú cưng phải viết hoa.';
+
+        // Check for uniqueness
+        const existingPet = pets?.find(pet => {
+            const normalizedExistingType = pet.petType?.trim().toLowerCase();
+            const normalizedNewType = trimmed.toLowerCase();
+
+            // If editing, exclude the current pet from the check
+            if (isEditing && currentPetId && pet.petId === currentPetId) {
+                return false;
+            }
+
+            return normalizedExistingType === normalizedNewType;
+        });
+
+        if (existingPet) {
+            return `Loại thú cưng "${trimmed}" đã tồn tại. Vui lòng chọn tên khác.`;
+        }
+
         return '';
     };
 
@@ -175,7 +196,7 @@ const PetManagement = () => {
     const handlePetNameChange = (value) => {
         setEditForm({ ...editForm, petDefaultName: value });
         clearFieldError('petDefaultName');
-        
+
         const error = validatePetName(value);
         if (error) {
             setFieldErrors(prev => ({ ...prev, petDefaultName: error }));
@@ -185,7 +206,7 @@ const PetManagement = () => {
     const handleDescriptionChange = (value) => {
         setEditForm({ ...editForm, description: value });
         clearFieldError('description');
-        
+
         const error = validateDescription(value);
         if (error) {
             setFieldErrors(prev => ({ ...prev, description: error }));
@@ -198,27 +219,6 @@ const PetManagement = () => {
             showNotification('Có lỗi xảy ra: ' + error, 'error');
         }
     }, [error]);
-
-    // Check for login success notification from sessionStorage
-    useEffect(() => {
-        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
-        if (storedNotification) {
-            try {
-                const notificationData = JSON.parse(storedNotification);
-                // Check if notification is not too old (within 30 seconds)
-                const now = Date.now();
-                const timeDiff = now - notificationData.timestamp;
-                if (timeDiff < 30000) { // 30 seconds
-                    showNotification(notificationData.message, notificationData.type, 4000);
-                }
-                // Clear the notification from sessionStorage after using it
-                sessionStorage.removeItem('loginSuccessNotification');
-            } catch (error) {
-                console.error('Error parsing stored notification:', error);
-                sessionStorage.removeItem('loginSuccessNotification');
-            }
-        }
-    }, []);
 
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
@@ -389,29 +389,29 @@ const PetManagement = () => {
         try {
             // Clear previous errors
             setFieldErrors({ petDefaultName: '', petType: '', description: '' });
-            
+
             // Validate all fields
             const errors = {};
             let isValid = true;
-            
+
             const nameError = validatePetName(editForm.petDefaultName);
             if (nameError) {
                 errors.petDefaultName = nameError;
                 isValid = false;
             }
-            
-            const typeError = validatePetType(editForm.petType);
+
+            const typeError = validatePetType(editForm.petType, true, editModal.pet.petId);
             if (typeError) {
                 errors.petType = typeError;
                 isValid = false;
             }
-            
+
             const descError = validateDescription(editForm.description);
             if (descError) {
                 errors.description = descError;
                 isValid = false;
             }
-            
+
             if (!isValid) {
                 setFieldErrors(errors);
                 showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
@@ -484,29 +484,29 @@ const PetManagement = () => {
         try {
             // Clear previous errors
             setFieldErrors({ petDefaultName: '', petType: '', description: '' });
-            
+
             // Validate all fields
             const errors = {};
             let isValid = true;
-            
+
             const nameError = validatePetName(editForm.petDefaultName);
             if (nameError) {
                 errors.petDefaultName = nameError;
                 isValid = false;
             }
-            
-            const typeError = validatePetType(editForm.petType);
+
+            const typeError = validatePetType(editForm.petType, false, null);
             if (typeError) {
                 errors.petType = typeError;
                 isValid = false;
             }
-            
+
             const descError = validateDescription(editForm.description);
             if (descError) {
                 errors.description = descError;
                 isValid = false;
             }
-            
+
             if (!isValid) {
                 setFieldErrors(errors);
                 showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
@@ -542,17 +542,52 @@ const PetManagement = () => {
             return;
         }
 
+        // Find related shop products before disabling the pet
+        const relatedProducts = shopProducts?.filter(product =>
+            product.petID === petId && product.status === 1
+        ) || [];
+
+        const confirmMessage = relatedProducts.length > 0
+            ? `Bạn có chắc muốn vô hiệu hóa thú cưng này? \n\nLưu ý: Điều này cũng sẽ tự động vô hiệu hóa ${relatedProducts.length} sản phẩm liên quan trong cửa hàng.`
+            : 'Bạn có chắc muốn vô hiệu hóa thú cưng này?';
+
         setConfirmDialog({
             isOpen: true,
             title: 'Xác nhận vô hiệu hóa',
-            message: 'Bạn có chắc muốn vô hiệu hóa thú cưng này?',
+            message: confirmMessage,
             onConfirm: async () => {
                 try {
-                    // Update pet status to 0 (disabled) instead of deleting
+                    // Update pet status to 0 (disabled) first
                     await updatePet(petId, { ...pet, petStatus: 0 });
-                    // Clear any previous errors and show success message
+
+                    // Disable all related shop products
+                    if (relatedProducts.length > 0) {
+                        for (const product of relatedProducts) {
+                            try {
+                                await updateShopProduct(product.shopProductId, {
+                                    ...product,
+                                    status: 0
+                                });
+                            } catch (productError) {
+                                console.error(`Failed to disable product ${product.shopProductId}:`, productError);
+                            }
+                        }
+
+                        // Refresh shop products data
+                        if (refreshShopProducts) {
+                            await refreshShopProducts();
+                        }
+
+                        showNotification(
+                            `Vô hiệu hóa thú cưng thành công! Đã tự động vô hiệu hóa ${relatedProducts.length} sản phẩm liên quan.`,
+                            'success'
+                        );
+                    } else {
+                        showNotification('Vô hiệu hóa thú cưng thành công!', 'success');
+                    }
+
+                    // Clear any previous errors
                     setLocalError('');
-                    showNotification('Vô hiệu hóa thú cưng thành công!', 'success');
                 } catch (error) {
                     console.error('Failed to disable pet:', error);
                     showNotification('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
@@ -572,12 +607,61 @@ const PetManagement = () => {
             return;
         }
 
+        // Find related inactive shop products
+        const relatedInactiveProducts = shopProducts?.filter(product =>
+            product.petID === petId && product.status === 0
+        ) || [];
+
+        // Filter products that can be automatically reactivated (quantity > 0)
+        const eligibleProducts = relatedInactiveProducts.filter(product =>
+            product.quantity > 0
+        );
+
+        // Products that cannot be auto-reactivated (quantity = 0)
+        const ineligibleProducts = relatedInactiveProducts.filter(product =>
+            product.quantity === 0
+        );
+
         try {
             // Update pet status to 1 (active)
             await updatePet(petId, { ...pet, petStatus: 1 });
-            // Clear any previous errors and show success message
+
+            // Automatically reactivate eligible products
+            let reactivatedCount = 0;
+            if (eligibleProducts.length > 0) {
+                for (const product of eligibleProducts) {
+                    try {
+                        await updateShopProduct(product.shopProductId, {
+                            ...product,
+                            status: 1
+                        });
+                        reactivatedCount++;
+                    } catch (productError) {
+                        console.error(`Failed to reactivate product ${product.shopProductId}:`, productError);
+                    }
+                }
+
+                // Refresh shop products data
+                if (refreshShopProducts) {
+                    await refreshShopProducts();
+                }
+            }
+
+            // Create appropriate success message based on results
+            let message = 'Kích hoạt thú cưng thành công!';
+
+            if (reactivatedCount > 0 && ineligibleProducts.length > 0) {
+                message += ` Đã tự động kích hoạt ${reactivatedCount} sản phẩm liên quan. Còn ${ineligibleProducts.length} sản phẩm không thể kích hoạt do số lượng = 0.`;
+            } else if (reactivatedCount > 0) {
+                message += ` Đã tự động kích hoạt ${reactivatedCount} sản phẩm liên quan.`;
+            } else if (ineligibleProducts.length > 0) {
+                message += ` Lưu ý: Có ${ineligibleProducts.length} sản phẩm liên quan vẫn đang bị vô hiệu hóa do số lượng = 0.`;
+            }
+
+            showNotification(message, 'success');
+
+            // Clear any previous errors
             setLocalError('');
-            showNotification('Kích hoạt thú cưng thành công!', 'success');
         } catch (error) {
             console.error('Failed to enable pet:', error);
             showNotification('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
@@ -602,8 +686,12 @@ const PetManagement = () => {
         const formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
         setEditForm({ ...editForm, petType: formattedValue });
         clearFieldError('petType');
-        
-        const error = validatePetType(formattedValue);
+
+        // Determine if we're in edit mode and get current pet ID
+        const isEditing = editModal.isOpen;
+        const currentPetId = isEditing ? editModal.pet?.petId : null;
+
+        const error = validatePetType(formattedValue, isEditing, currentPetId);
         if (error) {
             setFieldErrors(prev => ({ ...prev, petType: error }));
         }
@@ -1591,8 +1679,8 @@ const PetManagement = () => {
                                     <button
                                         onClick={handleEditSubmit}
                                         disabled={
-                                            !hasFormChanges || 
-                                            !editForm.petType || 
+                                            !hasFormChanges ||
+                                            !editForm.petType ||
                                             editForm.petType.length < 2 ||
                                             !editForm.petDefaultName ||
                                             editForm.petDefaultName.length < 2 ||
@@ -1741,8 +1829,8 @@ const PetManagement = () => {
                                     <button
                                         onClick={handleCreateSubmit}
                                         disabled={
-                                            !hasCreateFormContent || 
-                                            !editForm.petType || 
+                                            !hasCreateFormContent ||
+                                            !editForm.petType ||
                                             editForm.petType.length < 2 ||
                                             !editForm.petDefaultName ||
                                             editForm.petDefaultName.length < 2 ||

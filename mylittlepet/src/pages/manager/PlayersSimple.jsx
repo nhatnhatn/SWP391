@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
+import { useNotificationManager } from '../../hooks/useNotificationManager';
 
 // Notification Toast Component
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
@@ -126,42 +127,14 @@ const PlayersSimple = () => {    // Use hook for data management
 
     const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
 
-    // Notification state
-    const [notification, setNotification] = useState({ message: '', type: '', show: false });
-
-    // Helper function to show notifications
-    const showNotification = (message, type = 'success', duration = 3000) => {
-        setNotification({ message, type, show: true });
-        setTimeout(() => {
-            setNotification({ message: '', type: '', show: false });
-        }, duration);
-    };
-
-    // Helper function to clear notifications
-    const clearNotification = () => {
-        setNotification({ message: '', type: '', show: false });
-    };
-
-    // Check for login success notification from sessionStorage
-    useEffect(() => {
-        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
-        if (storedNotification) {
-            try {
-                const notificationData = JSON.parse(storedNotification);
-                // Check if notification is not too old (within 30 seconds)
-                const now = Date.now();
-                const timeDiff = now - notificationData.timestamp;
-                if (timeDiff < 30000) { // 30 seconds
-                    showNotification(notificationData.message, notificationData.type, 4000);
-                }
-                // Clear the notification from sessionStorage after using it
-                sessionStorage.removeItem('loginSuccessNotification');
-            } catch (error) {
-                console.error('Error parsing stored notification:', error);
-                sessionStorage.removeItem('loginSuccessNotification');
-            }
-        }
-    }, []);
+    // Use notification manager hook
+    const {
+        notification,
+        showNotification,
+        clearNotification,
+        handleOperationWithNotification,
+        handleFormSubmission
+    } = useNotificationManager(refreshCurrentPage);
 
     // Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Filter states

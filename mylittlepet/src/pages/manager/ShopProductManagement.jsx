@@ -4,6 +4,7 @@ import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 import { useSimplePets } from '../../hooks/useSimplePets';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { convertGoogleDriveLink } from '../../utils/helpers';
+import { useNotificationManager } from '../../hooks/useNotificationManager';
 
 // Component riêng để hiển thị ảnh với fallback URLs
 const ProductImage = ({ imageUrl, productName, className }) => {
@@ -215,12 +216,13 @@ const ShopProductManagement = () => {
         loading: petsLoading
     } = useSimplePets();
 
-    // Dynamic pet types extracted from pets data
+    // Dynamic pet types extracted from pets data (only active pets)
     const dynamicPetTypes = useMemo(() => {
         if (!pets || pets.length === 0) return [];
 
-        // Extract unique pet types from pets data
+        // Filter for active pets only (petStatus === 1), then extract unique pet types
         const types = pets
+            .filter(pet => pet.petStatus === 1) // Only include active pets
             .map(pet => pet.petType || pet.type) // Handle both petType and type properties
             .filter(type => type && type.trim()) // Remove empty/null values
             .map(type => type.trim()); // Clean whitespace
@@ -229,7 +231,7 @@ const ShopProductManagement = () => {
         const uniqueTypes = [...new Set(types)].sort();
 
         // Debug log for development
-        console.log('🐾 Dynamic Pet Types extracted:', uniqueTypes);
+        console.log('🐾 Dynamic Pet Types (Active Only) extracted:', uniqueTypes);
 
         return uniqueTypes;
     }, [pets]);
@@ -241,6 +243,55 @@ const ShopProductManagement = () => {
 
         // Check if product type is one of the dynamic pet types
         return dynamicPetTypes.includes(product.type);
+    };    // Helper function to check if a product's related pet is inactive
+    const isRelatedPetInactive = (product) => {
+        if (!product.petID || !pets) return false;
+
+        const relatedPet = pets.find(pet => pet.petId === product.petID);
+        return relatedPet && relatedPet.petStatus === 0;
+    };
+
+    // Helper function to get enhanced status badge with pet-related information
+    const getStatusBadge = (product) => {
+        if (product.status === 1) {
+            return (
+                <span
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm cursor-default"
+                    title="Sản phẩm đang hoạt động"
+                >
+                    Active
+                </span>
+            );
+        } else {
+            // Product is inactive - check if it's due to pet being inactive
+            const isPetRelated = isPetProduct(product);
+            const isPetInactive = isRelatedPetInactive(product);
+
+            if (isPetRelated && isPetInactive) {
+                // Inactive due to pet being disabled - more noticeable styling
+                return (
+                    <span
+                        className="inline-flex flex-col items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-300 shadow-sm cursor-help animate-pulse"
+                        title="Sản phẩm bị vô hiệu hóa vì thú cưng liên quan đã bị vô hiệu hóa. Hãy kích hoạt lại thú cưng trước để có thể kích hoạt sản phẩm này."
+                    >
+                        <div className="text-center leading-tight">
+                            <div>Inactive</div>
+                            <div className="text-xs">(Pet Disabled)</div>
+                        </div>
+                    </span>
+                );
+            } else {
+                // Regular inactive status
+                return (
+                    <span
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm cursor-default"
+                        title="Sản phẩm đã bị vô hiệu hóa"
+                    >
+                        Inactive
+                    </span>
+                );
+            }
+        }
     };
 
     // Local search state - separated for debouncing
@@ -287,10 +338,18 @@ const ShopProductManagement = () => {
     const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    // Local error and success message states
+    // Use notification manager hook
+    const {
+        notification,
+        showNotification,
+        clearNotification,
+        handleOperationWithNotification,
+        handleFormSubmission
+    } = useNotificationManager(refreshData);
+
+    // Local error and success message states (kept for compatibility)
     const [localError, setLocalError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
     // Field validation errors
     const [fieldErrors, setFieldErrors] = useState({
@@ -302,20 +361,6 @@ const ShopProductManagement = () => {
         price: '',
         quantity: ''
     });
-
-    // Helper function to show notifications
-    const showNotification = (message, type = 'success', duration = 3000) => {
-        setNotification({ message, type, show: true });
-        // Auto clear after duration
-        setTimeout(() => {
-            setNotification({ message: '', type: '', show: false });
-        }, duration);
-    };
-
-    // Helper function to clear notifications
-    const clearNotification = () => {
-        setNotification({ message: '', type: '', show: false });
-    };
 
     // Validation helper functions
     const validateName = (name) => {
@@ -454,27 +499,6 @@ const ShopProductManagement = () => {
             showNotification('Có lỗi xảy ra: ' + error, 'error');
         }
     }, [error]);
-
-    // Check for login success notification from sessionStorage
-    useEffect(() => {
-        const storedNotification = sessionStorage.getItem('loginSuccessNotification');
-        if (storedNotification) {
-            try {
-                const notificationData = JSON.parse(storedNotification);
-                // Check if notification is not too old (within 30 seconds)
-                const now = Date.now();
-                const timeDiff = now - notificationData.timestamp;
-                if (timeDiff < 30000) { // 30 seconds
-                    showNotification(notificationData.message, notificationData.type, 4000);
-                }
-                // Clear the notification from sessionStorage after using it
-                sessionStorage.removeItem('loginSuccessNotification');
-            } catch (error) {
-                console.error('Error parsing stored notification:', error);
-                sessionStorage.removeItem('loginSuccessNotification');
-            }
-        }
-    }, []);
 
     // Confirmation dialog state
     const [confirmDialog, setConfirmDialog] = useState({
@@ -824,15 +848,11 @@ const ShopProductManagement = () => {
             title: 'Xác nhận vô hiệu hóa',
             message: 'Bạn có chắc muốn vô hiệu hóa sản phẩm này?',
             onConfirm: async () => {
-                try {
-                    // Update product status to 0 (inactive)
-                    await updateShopProduct(productId, { ...product, status: 0 });
-                    setLocalError('');
-                    showNotification('Vô hiệu hóa sản phẩm thành công!', 'success');
-                } catch (error) {
-                    console.error('Failed to disable product:', error);
-                    showNotification('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
-                }
+                await handleOperationWithNotification(
+                    () => updateShopProduct(productId, { ...product, status: 0 }),
+                    'Vô hiệu hóa sản phẩm thành công!',
+                    'Vô hiệu hóa thất bại'
+                );
                 setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
         });
@@ -848,200 +868,145 @@ const ShopProductManagement = () => {
             return;
         }
 
-        try {
-            // Update product status to 1 (active)
-            await updateShopProduct(productId, { ...product, status: 1 });
-            setLocalError('');
-            showNotification('Kích hoạt sản phẩm thành công!', 'success');
-        } catch (error) {
-            console.error('Failed to enable product:', error);
-            showNotification('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
-        }
+        await handleOperationWithNotification(
+            () => updateShopProduct(productId, { ...product, status: 1 }),
+            'Kích hoạt sản phẩm thành công!',
+            'Kích hoạt thất bại'
+        );
     };
 
     // Handle form submission for create/edit
     const handleSubmit = async (isEdit = false) => {
-        try {
-            // Clear previous errors
-            setFieldErrors({
-                name: '',
-                type: '',
-                petType: '',
-                description: '',
-                imageUrl: '',
-                price: '',
-                quantity: ''
-            });
+        // Validate all fields
+        const errors = {};
 
-            // Validate all fields
-            const errors = {};
-            let isValid = true;
+        const nameError = validateName(editForm.name);
+        if (nameError) errors.name = nameError;
 
-            const nameError = validateName(editForm.name);
-            if (nameError) {
-                errors.name = nameError;
-                isValid = false;
-            }
-
-            // Chỉ validate type khi đang tạo mới sản phẩm
-            if (!isEdit && createModal) {
-                const typeError = validateType(editForm.type);
-                if (typeError) {
-                    errors.type = typeError;
-                    isValid = false;
-                }
-            }
-
-            const priceError = validatePrice(editForm.price);
-            if (priceError) {
-                errors.price = priceError;
-                isValid = false;
-            }
-
-            const quantityError = validateQuantity(editForm.quantity);
-            if (quantityError) {
-                errors.quantity = quantityError;
-                isValid = false;
-            }
-
-            const descError = validateDescription(editForm.description);
-            if (descError) {
-                errors.description = descError;
-                isValid = false;
-            }
-
-            const imageError = validateImageUrl(editForm.imageUrl);
-            if (imageError) {
-                errors.imageUrl = imageError;
-                isValid = false;
-            }
-
-            // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
-            if (!isEdit && editForm.type === 'Pet') {
-                const petTypeError = validatePetType(editForm.petType);
-                if (petTypeError) {
-                    errors.petType = petTypeError;
-                    isValid = false;
-                }
-                if (!editForm.petID) {
-                    errors.petType = 'Vui lòng chọn thú cưng cụ thể.';
-                    isValid = false;
-                }
-            }
-
-            if (!isValid) {
-                setFieldErrors(errors);
-                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
-                return;
-            }
-
-            // Determine the actual type to submit - chỉ khi tạo mới
-            let actualType = '';
-            let isPetType = false;
-
-            if (!isEdit) {
-                // Logic xử lý type chỉ cho tạo mới sản phẩm
-                if (editForm.type === 'Pet') {
-                    // Always use "Pet" for all pet products, regardless of specific pet type
-                    actualType = 'Pet';
-                    isPetType = true;
-                } else {
-                    actualType = editForm.type;
-                    isPetType = false;
-                }
-            }
-
-            // Prepare submission data
-            let submissionData = {
-                ...editForm,
-                price: parseFloat(editForm.price) || 0, // Ensure numeric
-                quantity: parseInt(editForm.quantity) || 0, // Ensure integer
-                status: parseInt(editForm.status) || 0, // Ensure integer
-                // Add adminId from current user
-                adminId: user?.adminId || user?.id
-            };
-
-            // Chỉ thêm logic type khi tạo mới
-            if (!isEdit) {
-                submissionData.type = actualType; // Use the actual type (pet type from selection, or item type)
-                submissionData.shopId = isPetType ? 1 : 1; // Set shopId based on product type: Pet types = 1, Item types = 2
-
-                // For Pet types, use the selected petID, otherwise set to null
-                if (isPetType && editForm.petID) {
-                    submissionData.petID = parseInt(editForm.petID);
-                } else {
-                    submissionData.petID = null;
-                }
-            }
-
-            // Remove petType field since we use type directly (or not needed for edit)
-            delete submissionData.petType;
-
-            // Remove undefined fields
-            Object.keys(submissionData).forEach(key => {
-                if (submissionData[key] === undefined) {
-                    delete submissionData[key];
-                }
-            });
-
-            console.log('🚀 Submitting product data:', submissionData);
-            console.log('🔍 Product type being saved:', submissionData.type);
-            console.log('🐾 Pet ID being saved:', submissionData.petID);
-
-            if (isEdit) {
-                await updateShopProduct(editModal.product.shopProductId, submissionData);
-                setEditModal({ isOpen: false, product: null });
-            } else {
-                await createShopProduct(submissionData);
-                setCreateModal(false);
-            }
-
-            // Reset form
-            setEditForm({
-                petID: null,
-                name: '',
-                type: '',
-                petType: '',
-                description: '',
-                imageUrl: '',
-                price: '',
-                currencyType: 'Coin',
-                quantity: 10,
-                status: 1
-            });
-
-            refreshData();
-
-            setLocalError('');
-            showNotification(isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!', 'success');
-        } catch (error) {
-            console.error('❌ Error saving product:', error);
-            console.error('❌ Error details:', error.response?.data);
-
-            let errorMessage = 'Lỗi khi lưu sản phẩm';
-            if (error.response?.data?.message) {
-                errorMessage += ': ' + error.response.data.message;
-            } else if (error.message) {
-                errorMessage += ': ' + error.message;
-            } else {
-                errorMessage += ': HTTP ' + (error.response?.status || 500);
-            }
-
-            showNotification(errorMessage, 'error');
+        // Chỉ validate type khi đang tạo mới sản phẩm
+        if (!isEdit && createModal) {
+            const typeError = validateType(editForm.type);
+            if (typeError) errors.type = typeError;
         }
+
+        const priceError = validatePrice(editForm.price);
+        if (priceError) errors.price = priceError;
+
+        const quantityError = validateQuantity(editForm.quantity);
+        if (quantityError) errors.quantity = quantityError;
+
+        const descError = validateDescription(editForm.description);
+        if (descError) errors.description = descError;
+
+        const imageError = validateImageUrl(editForm.imageUrl);
+        if (imageError) errors.imageUrl = imageError;
+
+        // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
+        if (!isEdit && editForm.type === 'Pet') {
+            const petTypeError = validatePetType(editForm.petType);
+            if (petTypeError) errors.petType = petTypeError;
+            if (!editForm.petID) {
+                errors.petType = 'Vui lòng chọn thú cưng cụ thể.';
+            }
+        }
+
+        // Set field errors
+        setFieldErrors(errors);
+
+        // Use the notification manager for form submission
+        const success = await handleFormSubmission(
+            editForm,
+            errors,
+            async (formData) => {
+                // Determine the actual type to submit - chỉ khi tạo mới
+                let actualType = '';
+                let isPetType = false;
+
+                if (!isEdit) {
+                    if (formData.type === 'Pet') {
+                        actualType = 'Pet';
+                        isPetType = true;
+                    } else {
+                        actualType = formData.type;
+                        isPetType = false;
+                    }
+                }
+
+                // Prepare submission data
+                let submissionData = {
+                    ...formData,
+                    price: parseFloat(formData.price) || 0,
+                    quantity: parseInt(formData.quantity) || 0,
+                    status: parseInt(formData.status) || 0,
+                    adminId: user?.adminId || user?.id
+                };
+
+                // Chỉ thêm logic type khi tạo mới
+                if (!isEdit) {
+                    submissionData.type = actualType;
+                    submissionData.shopId = isPetType ? 1 : 1;
+
+                    if (isPetType && formData.petID) {
+                        submissionData.petID = parseInt(formData.petID);
+                    } else {
+                        submissionData.petID = null;
+                    }
+                }
+
+                // Remove petType field since we use type directly
+                delete submissionData.petType;
+
+                // Remove undefined fields
+                Object.keys(submissionData).forEach(key => {
+                    if (submissionData[key] === undefined) {
+                        delete submissionData[key];
+                    }
+                });
+
+                console.log('🚀 Submitting product data:', submissionData);
+
+                if (isEdit) {
+                    return await updateShopProduct(editModal.product.shopProductId, submissionData);
+                } else {
+                    return await createShopProduct(submissionData);
+                }
+            },
+            isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!',
+            'Lỗi khi lưu sản phẩm',
+            () => {
+                // Success callback - reset form and close modals
+                if (isEdit) {
+                    setEditModal({ isOpen: false, product: null });
+                } else {
+                    setCreateModal(false);
+                }
+
+                setEditForm({
+                    petID: null,
+                    name: '',
+                    type: '',
+                    petType: '',
+                    description: '',
+                    imageUrl: '',
+                    price: '',
+                    currencyType: 'Coin',
+                    quantity: 10,
+                    status: 1
+                });
+            }
+        );
     };
 
     // Handle delete confirmation
     const handleDeleteConfirm = async () => {
-        try {
-            await deleteShopProduct(deleteModal.product.shopProductId);
-            setDeleteModal({ isOpen: false, product: null });
-            refreshData();
-            setLocalError('');
-            showNotification('Xóa sản phẩm thành công!', 'success');
-        } catch (error) {
-            showNotification('Lỗi khi xóa sản phẩm: ' + error.message, 'error');
-        }
+        await handleOperationWithNotification(
+            () => deleteShopProduct(deleteModal.product.shopProductId),
+            'Xóa sản phẩm thành công!',
+            'Lỗi khi xóa sản phẩm',
+            true,
+            false
+        );
+        setDeleteModal({ isOpen: false, product: null });
     };
 
     if (loading) {
@@ -1705,15 +1670,7 @@ const ShopProductManagement = () => {
                                         {/* Status */}
                                         <td className="px-3 py-4">
                                             <div className="flex justify-center">
-                                                {product.status === 1 ? (
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
-                                                        Active
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm">
-                                                        Inactive
-                                                    </span>
-                                                )}
+                                                {getStatusBadge(product)}
                                             </div>
                                         </td>
 
@@ -1736,13 +1693,26 @@ const ShopProductManagement = () => {
                                                         <Power className="w-3.5 h-3.5" />
                                                     </button>
                                                 ) : (
-                                                    <button
-                                                        onClick={() => handleEnable(product.shopProductId)}
-                                                        className="text-green-600 hover:text-green-900 hover:bg-green-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Kích hoạt"
-                                                    >
-                                                        <RotateCcw className="w-3.5 h-3.5" />
-                                                    </button>
+                                                    (() => {
+                                                        const petInactive = isRelatedPetInactive(product);
+                                                        return (
+                                                            <button
+                                                                onClick={() => petInactive ? null : handleEnable(product.shopProductId)}
+                                                                className={`p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${petInactive
+                                                                    ? 'text-gray-400 bg-gray-100 cursor-not-allowed opacity-50'
+                                                                    : 'text-green-600 hover:text-green-900 hover:bg-green-50'
+                                                                    }`}
+                                                                disabled={petInactive}
+                                                                title={
+                                                                    petInactive
+                                                                        ? "Không thể kích hoạt sản phẩm này vì thú cưng liên quan đã bị vô hiệu hóa"
+                                                                        : "Kích hoạt"
+                                                                }
+                                                            >
+                                                                <RotateCcw className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        );
+                                                    })()
                                                 )}
                                             </div>
                                         </td>
@@ -2028,7 +1998,10 @@ const ShopProductManagement = () => {
                                                                     "Chọn thú cưng"}
                                                     </option>
                                                     {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
-                                                        const firstPetOfType = pets.find(pet => pet.petType === petType);
+                                                        // Find the first active pet of this type
+                                                        const firstPetOfType = pets.find(pet =>
+                                                            pet.petType === petType && pet.petStatus === 1
+                                                        );
                                                         return (
                                                             <option key={petType} value={firstPetOfType?.petId}>
                                                                 {petType}
@@ -2069,12 +2042,21 @@ const ShopProductManagement = () => {
                                     </div>
 
                                     {/* Status */}
-                                    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${parseInt(editForm.quantity) === 0 ? 'opacity-50 pointer-events-none' : 'hover:shadow-md'}`}>
+                                    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
+                                            ? 'opacity-50 pointer-events-none'
+                                            : 'hover:shadow-md'
+                                        }`}>
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className={`text-lg font-semibold transition-colors duration-200 ${parseInt(editForm.quantity) === 0 ? 'text-gray-400' : 'text-gray-800'}`}>
+                                            <label className={`text-lg font-semibold transition-colors duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
+                                                    ? 'text-gray-400'
+                                                    : 'text-gray-800'
+                                                }`}>
                                                 Trạng thái
                                                 {parseInt(editForm.quantity) === 0 && (
                                                     <span className="ml-2 text-sm font-normal text-amber-600">(Tự động: Inactive)</span>
+                                                )}
+                                                {isRelatedPetInactive(editForm) && parseInt(editForm.quantity) > 0 && (
+                                                    <span className="ml-2 text-sm font-normal text-orange-600">(Không thể kích hoạt: Thú cưng bị vô hiệu hóa)</span>
                                                 )}
                                             </label>
                                         </div>
@@ -2082,18 +2064,27 @@ const ShopProductManagement = () => {
                                             <select
                                                 value={editForm.status}
                                                 onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
-                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${parseInt(editForm.quantity) === 0
+                                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
                                                         ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                                                         : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
                                                     }`}
                                                 required
-                                                title={parseInt(editForm.quantity) === 0 ? "Trạng thái tự động đặt thành Inactive khi số lượng = 0" : "Active: hiển thị trong game | Inactive: ẩn khỏi game"}
-                                                disabled={parseInt(editForm.quantity) === 0}
+                                                title={
+                                                    parseInt(editForm.quantity) === 0
+                                                        ? "Trạng thái tự động đặt thành Inactive khi số lượng = 0"
+                                                        : isRelatedPetInactive(editForm)
+                                                            ? "Không thể kích hoạt sản phẩm này vì thú cưng liên quan đã bị vô hiệu hóa. Hãy kích hoạt lại thú cưng trước."
+                                                            : "Active: hiển thị trong game | Inactive: ẩn khỏi game"
+                                                }
+                                                disabled={parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)}
                                             >
                                                 <option value="1">Active</option>
                                                 <option value="0">Inactive</option>
                                             </select>
-                                            <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${parseInt(editForm.quantity) === 0 ? 'text-gray-300' : 'text-gray-400'}`} />
+                                            <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
+                                                    ? 'text-gray-300'
+                                                    : 'text-gray-400'
+                                                }`} />
                                         </div>
                                     </div>
                                 </div>
