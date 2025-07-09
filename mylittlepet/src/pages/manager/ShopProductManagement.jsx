@@ -363,10 +363,29 @@ const ShopProductManagement = () => {
     });
 
     // Validation helper functions
-    const validateName = (name) => {
+    const validateName = (name, isEditing = false, currentProductId = null) => {
         if (!name || name.trim().length === 0) return 'Tên sản phẩm là bắt buộc.';
         if (name.trim().length < 2) return 'Tên sản phẩm phải có ít nhất 2 ký tự.';
         if (name.length > 100) return 'Tên sản phẩm không được vượt quá 100 ký tự.';
+
+        // Check for uniqueness
+        const trimmedName = name.trim();
+        const existingProduct = shopProducts?.find(product => {
+            const normalizedExistingName = product.name?.trim().toLowerCase();
+            const normalizedNewName = trimmedName.toLowerCase();
+
+            // If editing, exclude the current product from the check
+            if (isEditing && currentProductId && product.shopProductId === currentProductId) {
+                return false;
+            }
+
+            return normalizedExistingName === normalizedNewName;
+        });
+
+        if (existingProduct) {
+            return `Tên sản phẩm "${trimmedName}" đã tồn tại. Vui lòng chọn tên khác.`;
+        }
+
         return '';
     };
 
@@ -419,7 +438,11 @@ const ShopProductManagement = () => {
         setEditForm({ ...editForm, name: value });
         clearFieldError('name');
 
-        const error = validateName(value);
+        // Determine if we're in edit mode and get current product ID
+        const isEditing = editModal.isOpen;
+        const currentProductId = isEditing ? editModal.product?.shopProductId : null;
+
+        const error = validateName(value, isEditing, currentProductId);
         if (error) {
             setFieldErrors(prev => ({ ...prev, name: error }));
         }
@@ -746,10 +769,28 @@ const ShopProductManagement = () => {
         let formType = '';
         let formPetType = '';
 
-        if (dynamicPetTypes.includes(product.type)) {
+        // Check if product is a pet type - prioritize petID presence over type field
+        if (product.petID) {
+            // If product has petID, it's definitely a pet product
+            formType = 'Pet';
+
+            // Try to get pet type from the pets array using petID
+            const relatedPet = pets?.find(pet => pet.petId === product.petID);
+            if (relatedPet) {
+                formPetType = relatedPet.petType;
+            } else if (product.type && dynamicPetTypes.includes(product.type)) {
+                // Fallback to product.type if pet not found in pets array
+                formPetType = product.type;
+            } else {
+                // If no pet type found, use empty string but still mark as Pet
+                formPetType = '';
+            }
+        } else if (dynamicPetTypes.includes(product.type)) {
+            // Legacy check for products that have type but no petID
             formType = 'Pet';
             formPetType = product.type;
         } else if (predefinedTypes.includes(product.type)) {
+            // Regular product types (Food, Toy, etc.)
             formType = product.type;
         }
 
@@ -765,6 +806,12 @@ const ShopProductManagement = () => {
             quantity: product.quantity || 10,
             status: product.status !== undefined ? product.status : 1
         };
+
+        console.log('🔍 Edit form data prepared:', {
+            original: product,
+            formData: formData,
+            relatedPet: pets?.find(pet => pet.petId === product.petID)
+        });
 
         setEditForm(formData);
         setOriginalFormData(formData); // Store original data for comparison
@@ -880,7 +927,10 @@ const ShopProductManagement = () => {
         // Validate all fields
         const errors = {};
 
-        const nameError = validateName(editForm.name);
+        // Determine current product ID for edit mode
+        const currentProductId = isEdit && editModal.product ? editModal.product.shopProductId : null;
+
+        const nameError = validateName(editForm.name, isEdit, currentProductId);
         if (nameError) errors.name = nameError;
 
         // Chỉ validate type khi đang tạo mới sản phẩm
@@ -918,15 +968,27 @@ const ShopProductManagement = () => {
             editForm,
             errors,
             async (formData) => {
-                // Determine the actual type to submit - chỉ khi tạo mới
+                // Determine the actual type to submit
                 let actualType = '';
                 let isPetType = false;
 
                 if (!isEdit) {
+                    // For new products, determine type based on form selection
                     if (formData.type === 'Pet') {
                         actualType = 'Pet';
                         isPetType = true;
                     } else {
+                        actualType = formData.type;
+                        isPetType = false;
+                    }
+                } else {
+                    // For editing, determine if it's a pet product
+                    if (formData.type === 'Pet' || formData.petID) {
+                        // It's a pet product - use shop product type "Pet"
+                        actualType = 'Pet';
+                        isPetType = true;
+                    } else {
+                        // If it's a regular product type (Food, Toy, etc.)
                         actualType = formData.type;
                         isPetType = false;
                     }
@@ -941,16 +1003,14 @@ const ShopProductManagement = () => {
                     adminId: user?.adminId || user?.id
                 };
 
-                // Chỉ thêm logic type khi tạo mới
-                if (!isEdit) {
-                    submissionData.type = actualType;
-                    submissionData.shopId = isPetType ? 1 : 1;
+                // Set the type field for both create and edit
+                submissionData.type = actualType;
+                submissionData.shopId = isPetType ? 1 : 1;
 
-                    if (isPetType && formData.petID) {
-                        submissionData.petID = parseInt(formData.petID);
-                    } else {
-                        submissionData.petID = null;
-                    }
+                if (isPetType && formData.petID) {
+                    submissionData.petID = parseInt(formData.petID);
+                } else {
+                    submissionData.petID = null;
                 }
 
                 // Remove petType field since we use type directly
@@ -963,7 +1023,14 @@ const ShopProductManagement = () => {
                     }
                 });
 
-                console.log('🚀 Submitting product data:', submissionData);
+                console.log('🚀 Submitting product data:', {
+                    isEdit,
+                    formData,
+                    actualType,
+                    isPetType,
+                    submissionData,
+                    relatedPet: formData.petID ? pets?.find(pet => pet.petId == formData.petID) : null
+                });
 
                 if (isEdit) {
                     return await updateShopProduct(editModal.product.shopProductId, submissionData);
@@ -2043,13 +2110,13 @@ const ShopProductManagement = () => {
 
                                     {/* Status */}
                                     <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm transition-all duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
-                                            ? 'opacity-50 pointer-events-none'
-                                            : 'hover:shadow-md'
+                                        ? 'opacity-50 pointer-events-none'
+                                        : 'hover:shadow-md'
                                         }`}>
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className={`text-lg font-semibold transition-colors duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
-                                                    ? 'text-gray-400'
-                                                    : 'text-gray-800'
+                                                ? 'text-gray-400'
+                                                : 'text-gray-800'
                                                 }`}>
                                                 Trạng thái
                                                 {parseInt(editForm.quantity) === 0 && (
@@ -2065,8 +2132,8 @@ const ShopProductManagement = () => {
                                                 value={editForm.status}
                                                 onChange={(e) => setEditForm({ ...editForm, status: parseInt(e.target.value) })}
                                                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
-                                                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                                                        : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
+                                                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                    : 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
                                                     }`}
                                                 required
                                                 title={
@@ -2082,8 +2149,8 @@ const ShopProductManagement = () => {
                                                 <option value="0">Inactive</option>
                                             </select>
                                             <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)
-                                                    ? 'text-gray-300'
-                                                    : 'text-gray-400'
+                                                ? 'text-gray-300'
+                                                : 'text-gray-400'
                                                 }`} />
                                         </div>
                                     </div>
