@@ -27,9 +27,6 @@ public class PlayerPet {
     @Column(name = "Level")
     private Integer level = 1;
 
-    @Column(name = "Status", length = 50)
-    private String status;
-
     @Column(name = "LastStatusUpdate")
     private LocalDateTime lastStatusUpdate;
 
@@ -109,14 +106,6 @@ public class PlayerPet {
 
     public void setLevel(Integer level) {
         this.level = level;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public LocalDateTime getLastStatusUpdate() {

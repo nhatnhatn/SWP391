@@ -17,10 +17,6 @@ public interface PlayerService {
 
     // Get player by username
     Optional<PlayerDTO> getPlayerByUserName(String userName);
-
-    // Get players by status
-    List<PlayerDTO> getPlayersByStatus(String status);
-
     // Create new player
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 

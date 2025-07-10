@@ -24,9 +24,6 @@ public class User {
     @Column(name = "Password", nullable = false, length = 100)
     private String password;
 
-    @Column(name = "UserStatus", length = 20)
-    private String userStatus = "ACTIVE";
-
     @Column(name = "Level")
     private Integer level = 1;
 
@@ -50,7 +47,6 @@ public class User {
         this.userName = userName;
         this.email = email;
         this.password = password;
-        this.userStatus = "ACTIVE";
         this.level = 1;
         this.coin = 0;
         this.diamond = 0;
@@ -105,15 +101,6 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    public String getUserStatus() {
-        return userStatus;
-    }
-
-    public void setUserStatus(String userStatus) {
-        this.userStatus = userStatus;
-    }
-
     public Integer getLevel() {
         return level;
     }

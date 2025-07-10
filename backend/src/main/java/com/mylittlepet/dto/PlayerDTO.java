@@ -8,7 +8,6 @@ public class PlayerDTO {
     private Integer id;
     private String userName;
     private String email;
-    private String userStatus;
     private Integer level;
     private Integer coin;
     private Integer diamond;
@@ -20,13 +19,13 @@ public class PlayerDTO {
     public PlayerDTO() {
     }
 
-    public PlayerDTO(Integer id, String userName, String email, String userStatus,
+    public PlayerDTO(Integer id, String userName, String email,
             Integer level, Integer coin, Integer diamond, Integer gem,
             LocalDateTime joinDate, Integer totalPets) {
         this.id = id;
         this.userName = userName;
         this.email = email;
-        this.userStatus = userStatus;
+    
         this.level = level;
         this.coin = coin;
         this.diamond = diamond;
@@ -44,7 +43,6 @@ public class PlayerDTO {
         playerDTO.setId(user.getId());
         playerDTO.setUserName(user.getUserName());
         playerDTO.setEmail(user.getEmail());
-        playerDTO.setUserStatus(user.getUserStatus());
         playerDTO.setLevel(user.getLevel());
         playerDTO.setCoin(user.getCoin());
         playerDTO.setDiamond(user.getDiamond());
@@ -65,7 +63,6 @@ public class PlayerDTO {
         playerDTO.setId(user.getId());
         playerDTO.setUserName(user.getUserName());
         playerDTO.setEmail(user.getEmail());
-        playerDTO.setUserStatus(user.getUserStatus());
         playerDTO.setLevel(user.getLevel());
         playerDTO.setCoin(user.getCoin());
         playerDTO.setDiamond(user.getDiamond());
@@ -83,7 +80,6 @@ public class PlayerDTO {
         user.setRole("PLAYER"); // Always set as PLAYER
         user.setUserName(this.userName);
         user.setEmail(this.email);
-        user.setUserStatus(this.userStatus);
         user.setLevel(this.level);
         user.setCoin(this.coin);
         user.setDiamond(this.diamond);
@@ -118,13 +114,7 @@ public class PlayerDTO {
         this.email = email;
     }
 
-    public String getUserStatus() {
-        return userStatus;
-    }
-
-    public void setUserStatus(String userStatus) {
-        this.userStatus = userStatus;
-    }
+    
 
     public Integer getLevel() {
         return level;
