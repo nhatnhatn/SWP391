@@ -29,8 +29,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.role = 'Player'")
     List<User> findAllPlayers();
 
-    @Query("SELECT u FROM User u WHERE u.role = 'Player' AND u.userStatus = :status")
-    List<User> findPlayersByStatus(@Param("status") String status);
+    @Query("SELECT u FROM User u WHERE u.role = 'Player' ORDER BY u.joinDate DESC")
+    List<User> findPlayersByStatus();
 
     @Query("SELECT u FROM User u WHERE u.role = 'Player' AND " +
             "(u.userName LIKE %:keyword% OR u.email LIKE %:keyword%)")

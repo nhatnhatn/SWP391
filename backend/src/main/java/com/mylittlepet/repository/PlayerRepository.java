@@ -21,7 +21,7 @@ public interface PlayerRepository extends JpaRepository<User, Integer> {
         @Query("SELECT u, CAST(COUNT(pp.playerPetId) AS int) FROM User u " +
                         "LEFT JOIN PlayerPet pp ON u.id = pp.playerId " +
                         "WHERE u.role = 'Player' " +
-                        "GROUP BY u.id, u.role, u.userName, u.email, u.password, u.userStatus, u.level, u.coin, u.diamond, u.gem, u.joinDate "
+                        "GROUP BY u.id, u.role, u.userName, u.email, u.password, u.level, u.coin, u.diamond, u.gem, u.joinDate "
                         +
                         "ORDER BY u.joinDate DESC")
         List<Object[]> findAllPlayersWithPetCount();
@@ -42,15 +42,12 @@ public interface PlayerRepository extends JpaRepository<User, Integer> {
         @Query("SELECT u FROM User u WHERE u.userName = :userName AND u.role = 'Player'")
         Optional<User> findPlayerByUserName(@Param("userName") String userName);
 
-        // Find players by status - including JoinDate, ordered by join date
-        @Query("SELECT u FROM User u WHERE u.role = 'Player' AND u.userStatus = :status ORDER BY u.joinDate DESC")
-        List<User> findPlayersByStatus(@Param("status") String status);
-
+      
         // Update player information
         @Modifying
         @Transactional
-        @Query("UPDATE User u SET u.userName = :userName, u.email = :email, u.userStatus = :userStatus, u.level = :level, u.coin = :coin, u.diamond = :diamond, u.gem = :gem WHERE u.id = :id AND u.role = 'Player'")
+        @Query("UPDATE User u SET u.userName = :userName, u.email = :email, u.level = :level, u.coin = :coin, u.diamond = :diamond, u.gem = :gem WHERE u.id = :id AND u.role = 'Player'")
         int updatePlayer(@Param("id") Integer id, @Param("userName") String userName, @Param("email") String email,
-                        @Param("userStatus") String userStatus, @Param("level") Integer level,
+                         @Param("level") Integer level,
                         @Param("coin") Integer coin, @Param("diamond") Integer diamond, @Param("gem") Integer gem);
 }

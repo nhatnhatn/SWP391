@@ -75,17 +75,6 @@ public class SimpleController {
         }
     }
 
-    // GET /api/players/status/{status} - Get players by status
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<PlayerDTO>> getPlayersByStatus(@PathVariable String status) {
-        try {
-            List<PlayerDTO> players = playerService.getPlayersByStatus(status);
-            return ResponseEntity.ok(players);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
     // POST /api/players - Create new player
     @PostMapping
     public ResponseEntity<PlayerDTO> createPlayer(@RequestBody PlayerDTO playerDTO) {
@@ -141,7 +130,6 @@ public class SimpleController {
             }
 
             PlayerDTO playerToUpdate = currentPlayer.get();
-            playerToUpdate.setUserStatus("BANNED");
 
             PlayerDTO updatedPlayer = playerService.updatePlayer(id, playerToUpdate);
             if (updatedPlayer != null) {
@@ -164,8 +152,6 @@ public class SimpleController {
             }
 
             PlayerDTO playerToUpdate = currentPlayer.get();
-            playerToUpdate.setUserStatus("ACTIVE");
-
             PlayerDTO updatedPlayer = playerService.updatePlayer(id, playerToUpdate);
             if (updatedPlayer != null) {
                 return ResponseEntity.ok(updatedPlayer);

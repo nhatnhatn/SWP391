@@ -74,16 +74,7 @@ public class PlayerServiceImpl implements PlayerService {
         return Optional.empty();
     }
 
-    @Override
-    public List<PlayerDTO> getPlayersByStatus(String status) {
-        // Use PlayerRepository's dedicated method
-        return playerRepository.findPlayersByStatus(status).stream()
-                .map(user -> {
-                    Integer totalPets = playerRepository.getTotalPetsByPlayerId(user.getId());
-                    return PlayerDTO.fromUser(user, totalPets);
-                })
-                .collect(Collectors.toList());
-    }
+
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
@@ -104,7 +95,6 @@ public class PlayerServiceImpl implements PlayerService {
             user.setUserName(playerDTO.getUserName());
             user.setEmail(playerDTO.getEmail());
             user.setPassword("defaultPassword123"); // Default password
-            user.setUserStatus("ACTIVE");
             user.setLevel(playerDTO.getLevel() != null ? playerDTO.getLevel() : 1);
             user.setCoin(playerDTO.getCoin() != null ? playerDTO.getCoin() : 0);
             user.setDiamond(playerDTO.getDiamond() != null ? playerDTO.getDiamond() : 0);
@@ -133,15 +123,13 @@ public class PlayerServiceImpl implements PlayerService {
             // Prepare update values (keep existing if new is null)
             String userName = playerDTO.getUserName() != null ? playerDTO.getUserName() : existingUser.getUserName();
             String email = playerDTO.getEmail() != null ? playerDTO.getEmail() : existingUser.getEmail();
-            String userStatus = playerDTO.getUserStatus() != null ? playerDTO.getUserStatus()
-                    : existingUser.getUserStatus();
             Integer level = playerDTO.getLevel() != null ? playerDTO.getLevel() : existingUser.getLevel();
             Integer coin = playerDTO.getCoin() != null ? playerDTO.getCoin() : existingUser.getCoin();
             Integer diamond = playerDTO.getDiamond() != null ? playerDTO.getDiamond() : existingUser.getDiamond();
             Integer gem = playerDTO.getGem() != null ? playerDTO.getGem() : existingUser.getGem();
 
             // Use PlayerRepository's update method
-            int updatedRows = playerRepository.updatePlayer(id, userName, email, userStatus, level, coin, diamond, gem);
+            int updatedRows = playerRepository.updatePlayer(id, userName, email, level, coin, diamond, gem);
             if (updatedRows > 0) {
                 // Return updated player with pet count
                 Optional<User> updatedUser = playerRepository.findPlayerById(id);
@@ -174,8 +162,7 @@ public class PlayerServiceImpl implements PlayerService {
             int updatedRows = playerRepository.updatePlayer(
                     id,
                     user.getUserName(),
-                    user.getEmail(),
-                    "BANNED", // Set status to BANNED
+                    user.getEmail(),                   
                     user.getLevel(),
                     user.getCoin(),
                     user.getDiamond(),
