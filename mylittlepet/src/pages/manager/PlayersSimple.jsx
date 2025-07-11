@@ -88,8 +88,6 @@ const PlayersSimple = () => {    // Use hook for data management
         allPlayers, // All unfiltered players for proper filtering
         loading,
         error,
-        banPlayer,
-        unbanPlayer,
         stats,
         pagination, goToPage, nextPage,
         previousPage,
@@ -114,7 +112,6 @@ const PlayersSimple = () => {    // Use hook for data management
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [selectedPlayerPets, setSelectedPlayerPets] = useState([]);
     const [loadingPets, setLoadingPets] = useState(false);
-    const [banModal, setBanModal] = useState({ isOpen: false, player: null });
     const [editModal, setEditModal] = useState({ isOpen: false, player: null });
     const [editForm, setEditForm] = useState({
         userName: '',
@@ -124,8 +121,6 @@ const PlayersSimple = () => {    // Use hook for data management
         diamond: 0,
         gem: 0
     });
-
-    const [banTimers, setBanTimers] = useState({}); // Track ban end times locally (hidden counting)
 
     // Use notification manager hook
     const {
@@ -138,37 +133,10 @@ const PlayersSimple = () => {    // Use hook for data management
 
     // Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Filter states
-    const [statusFilter, setStatusFilter] = useState('all');
     const [levelFilter, setLevelFilter] = useState('all');
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    // Hidden timer check - auto unban when time expires (no UI display)
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            const now = new Date();
-            const expiredBans = [];
-
-            // Check for expired bans silently
-            Object.entries(banTimers).forEach(([playerId, banEndDate]) => {
-                const timeLeft = new Date(banEndDate) - now;
-                if (timeLeft <= 0) {
-                    console.log(`⏰ Silent auto-unban: Player ${playerId} ban expired`);
-                    expiredBans.push(playerId);
-                }
-            });
-
-            // Auto-unban expired players silently
-            for (const playerId of expiredBans) {
-                try {
-                    await handleAutoUnban(playerId);
-                } catch (error) {
-                    console.error(`Failed to auto-unban player ${playerId}:`, error);
-                }
-            }
-        }, 5000); // Check every 5 seconds
-
-        return () => clearInterval(interval);
-    }, [banTimers]);    // Handle search - Use local state with debouncing
+    // Handle search - Use local state with debouncing
     const handleSearch = useCallback((term) => {
         setLocalSearchTerm(term);
     }, []);
@@ -177,84 +145,7 @@ const PlayersSimple = () => {    // Use hook for data management
     const clearSearch = useCallback(() => {
         setLocalSearchTerm('');
         setDebouncedSearchTerm('');
-    }, []);// Handle player actions
-    const handleBanPlayer = async (playerId, duration = null) => {
-        if (!duration) {
-            // Open ban modal to select duration
-            const player = players.find(p => p.id === playerId);
-            setBanModal({ isOpen: true, player });
-            return;
-        }
-
-        try {
-            // Calculate ban end date
-            const now = new Date();
-            let banEndDate;
-            switch (duration) {
-                case '1minute':
-                    banEndDate = new Date(now.getTime() + 1 * 60 * 1000); // 1 minute
-                    break;
-                case '3days':
-                    banEndDate = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-                    break;
-                case '7days':
-                    banEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-                    break;
-                case '1month':
-                    banEndDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-                    break;
-                case 'permanent':
-                    banEndDate = new Date(now.getTime() + 100 * 365 * 24 * 60 * 60 * 1000); // 100 years
-                    break;
-                default:
-                    banEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
-            }            await banPlayer(playerId, banEndDate);
-            console.log(`✅ Player banned for ${duration} until ${banEndDate.toLocaleDateString('vi-VN')} ${banEndDate.toLocaleTimeString('vi-VN')}`);
-
-            // Store ban timer locally for hidden counting
-            setBanTimers(prev => ({
-                ...prev,
-                [playerId]: banEndDate.toISOString()
-            }));
-
-            setBanModal({ isOpen: false, player: null });
-        } catch (error) {
-            console.error('Failed to ban player:', error);
-        }
-    }; const handleUnbanPlayer = async (playerId) => {
-        try {
-            await unbanPlayer(playerId);
-            console.log('Player unbanned successfully');
-
-            // Remove from hidden ban timers
-            setBanTimers(prev => {
-                const newTimers = { ...prev };
-                delete newTimers[playerId];
-                return newTimers;
-            });
-        } catch (error) {
-            console.error('Failed to unban player:', error);
-        }
-    };
-
-    // Auto-unban function (called by hidden timer)
-    const handleAutoUnban = async (playerId) => {
-        try {
-            console.log(`🤖 Auto-unbanning player ${playerId} - ban time expired (hidden)`);
-            await unbanPlayer(playerId);
-
-            // Remove from hidden ban timers
-            setBanTimers(prev => {
-                const newTimers = { ...prev };
-                delete newTimers[playerId];
-                return newTimers;
-            });
-
-            console.log(`✅ Player ${playerId} automatically unbanned - status changed to ACTIVE`);
-        } catch (error) {
-            console.error(`❌ Failed to auto-unban player ${playerId}:`, error);
-        }
-    };
+    }, []);
 
     // Sort function
     const handleSort = (key) => {
@@ -286,12 +177,6 @@ const PlayersSimple = () => {    // Use hook for data management
                 const userName = (player.userName || '').toLowerCase();
                 const email = (player.email || '').toLowerCase();
                 if (!userName.includes(searchLower) && !email.includes(searchLower)) return false;
-            }
-
-            // Status filter
-            if (statusFilter !== 'all') {
-                const playerStatus = player.userStatus || 'ACTIVE';
-                if (playerStatus !== statusFilter) return false;
             }
 
             // Level filter
@@ -342,7 +227,7 @@ const PlayersSimple = () => {    // Use hook for data management
         }
 
         return filtered;
-    }, [allPlayers, debouncedSearchTerm, sortConfig, statusFilter, levelFilter]);
+    }, [allPlayers, debouncedSearchTerm, sortConfig, levelFilter]);
 
     // Calculate pagination for filtered results
     const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
@@ -351,7 +236,7 @@ const PlayersSimple = () => {    // Use hook for data management
     const displayPlayers = filteredPlayers.slice(startIndex, endIndex);    // Reset to first page when filters change
     useEffect(() => {
         setCurrentFilterPage(0);
-    }, [debouncedSearchTerm, statusFilter, levelFilter]);
+    }, [debouncedSearchTerm, levelFilter]);
 
     // Pagination handlers for filtered results
     const handleFilterPreviousPage = () => {
@@ -401,8 +286,7 @@ const PlayersSimple = () => {    // Use hook for data management
         try {
             const updatedData = {
                 ...editForm,
-                id: editModal.player.id,
-                userStatus: editModal.player.userStatus // Giữ nguyên status
+                id: editModal.player.id
             };
 
             await updatePlayer(editModal.player.id, updatedData);
@@ -437,35 +321,8 @@ const PlayersSimple = () => {    // Use hook for data management
             // Note: deletePlayer function from hook can be added later
             alert('Chức năng xóa sẽ được hoàn thiện sau!');
         }
-    };    // Enhanced status badge with icons and better styling
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            'ACTIVE': {
-                classes: 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm dark:from-green-900/30 dark:to-emerald-900/30 dark:text-green-300 dark:border-green-700',
-                icon: '',
-                text: 'Active'
-            },
-            'BANNED': {
-                classes: 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-200 shadow-sm dark:from-red-900/30 dark:to-rose-900/30 dark:text-red-300 dark:border-red-700',
-                icon: '',
-                text: 'Banned'
-            },
-            'INACTIVE': {
-                classes: 'bg-gradient-to-r from-stone-100 to-gray-100 text-stone-800 border border-stone-200 shadow-sm dark:from-stone-800/30 dark:to-gray-800/30 dark:text-stone-300 dark:border-stone-600',
-                icon: '',
-                text: 'Inactive'
-            }
-        };
-
-        const config = statusConfig[status] || statusConfig.INACTIVE;
-
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.classes}`}>
-                {config.icon && <span className="mr-1">{config.icon}</span>}
-                {config.text}
-            </span>
-        );
     };
+
     return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
             {/* Notification Toast */}
@@ -506,27 +363,13 @@ const PlayersSimple = () => {    // Use hook for data management
 
                         <div className="text-center">
                             <div className="flex items-center gap-2 mb-1">
-                                <div className="p-1.5 bg-emerald-100 rounded-lg">
-                                    <span className="text-emerald-600 font-bold text-sm">✓</span>
+                                <div className="p-1.5 bg-blue-100 rounded-lg">
+                                    <Users className="h-4 w-4 text-blue-600" />
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Tổng số người chơi</p>
                             </div>
-                            <p className="text-2xl font-bold text-emerald-600">
-                                {stats?.active || players.filter(p => p.userStatus === 'ACTIVE').length}
-                            </p>
-                        </div>
-
-                        <div className="w-px h-12 bg-gray-300"></div>
-
-                        <div className="text-center">
-                            <div className="flex items-center gap-2 mb-1">
-                                <div className="p-1.5 bg-red-100 rounded-lg">
-                                    <span className="text-red-600 font-bold text-sm">✕</span>
-                                </div>
-                                <p className="text-sm font-medium text-gray-600">Bị cấm</p>
-                            </div>
-                            <p className="text-2xl font-bold text-red-600">
-                                {stats?.banned || players.filter(p => p.userStatus === 'BANNED').length}
+                            <p className="text-2xl font-bold text-blue-600">
+                                {allPlayers.length}
                             </p>
                         </div>
                     </div>
@@ -534,33 +377,13 @@ const PlayersSimple = () => {    // Use hook for data management
 
                 {/* Mobile Statistics */}
                 <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
-                                <Users className="h-4 w-4 text-green-600" />
-                                <p className="text-xs font-medium text-gray-600">Tổng người chơi</p>
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <p className="text-xs font-medium text-gray-600">Tổng số người chơi</p>
                             </div>
-                            <p className="text-lg font-bold text-green-600">{stats?.total || players.length}</p>
-                        </div>
-
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Đang hoạt động</p>
-                            </div>
-                            <p className="text-lg font-bold text-emerald-600">
-                                {stats?.active || players.filter(p => p.userStatus === 'ACTIVE').length}
-                            </p>
-                        </div>
-
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                                <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Bị cấm</p>
-                            </div>
-                            <p className="text-lg font-bold text-red-600">
-                                {stats?.banned || players.filter(p => p.userStatus === 'BANNED').length}
-                            </p>
+                            <p className="text-lg font-bold text-blue-600">{allPlayers.length}</p>
                         </div>
                     </div>
                 </div>
@@ -663,9 +486,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
                                 )}
                                 {/* Filter Status Indicator */}
-                                {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key) && (
+                                {(levelFilter !== 'all' || sortConfig.key) && (
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
-                                        {[statusFilter !== 'all' ? statusFilter : null, levelFilter !== 'all' ? levelFilter : null, sortConfig.key].filter(Boolean).length}
+                                        {[levelFilter !== 'all' ? levelFilter : null, sortConfig.key].filter(Boolean).length}
                                     </span>
                                 )}
                             </button>
@@ -680,26 +503,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-700"> Lọc theo nội dung</span>
-                                    </div>                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                                        {/* Status Filter */}
-                                        <div className="space-y-2">
-                                            <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Trạng thái tài khoản
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    value={statusFilter}
-                                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
-                                                >
-                                                    <option value="all"> Tất cả trạng thái</option>
-                                                    <option value="ACTIVE"> Active</option>
-                                                    <option value="BANNED"> Banned</option>
-                                                </select>
-                                                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                                            </div>
-                                        </div>
-
+                                    </div>                            <div className="grid grid-cols-1 gap-4">
                                         {/* Level Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
@@ -722,13 +526,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                     </div>
 
                                     {/* Filter Status Display */}
-                                    {(statusFilter !== 'all' || levelFilter !== 'all') && (
+                                    {levelFilter !== 'all' && (
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            {statusFilter !== 'all' && (
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                                    {statusFilter === 'ACTIVE' ? ' Active' : ' Banned'}
-                                                </span>
-                                            )}
                                             {levelFilter !== 'all' && (
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                                                     {levelFilter === 'low' ? ' Level thấp' :
@@ -774,7 +573,6 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     <option value="coin"> Coin</option>
                                                     <option value="diamond"> Diamond</option>
                                                     <option value="gem"> Gem</option>
-                                                    <option value="userStatus"> Trạng thái</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -833,7 +631,6 @@ const PlayersSimple = () => {    // Use hook for data management
                                                             {sortConfig.key === 'coin' && ' Coin'}
                                                             {sortConfig.key === 'diamond' && ' Diamond'}
                                                             {sortConfig.key === 'gem' && ' Gem'}
-                                                            {sortConfig.key === 'userStatus' && 'Trạng thái'}
                                                         </span> ({sortConfig.direction === 'asc' ? 'Thứ tự tăng dần' : 'Thứ tự giảm Giảm dần'})
                                                     </span>
                                                 </div>
@@ -860,31 +657,29 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={() => {
-                                                setStatusFilter('all');
                                                 setLevelFilter('all');
                                                 setSortConfig({ key: null, direction: 'asc' });
                                                 clearSearch();
                                             }}
-                                            disabled={statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
-                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            disabled={levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
+                                            className={`inline-flex items-center px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm ${levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                                 : 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md transform hover:scale-105'
                                                 }`}
                                         >
                                             <X className="h-4 w-4 mr-2" />
-                                            {statusFilter === 'all' && levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
+                                            {levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
                                                 ? 'Không có bộ lọc nào'
                                                 : 'Xóa tất cả bộ lọc'
                                             }
                                         </button>
 
                                         {/* Filter Status Indicator */}
-                                        {(statusFilter !== 'all' || levelFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
+                                        {(levelFilter !== 'all' || sortConfig.key || localSearchTerm || debouncedSearchTerm) && (
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
                                                     (localSearchTerm || debouncedSearchTerm) && 'Tìm kiếm',
-                                                    statusFilter !== 'all' && 'Trạng thái',
                                                     levelFilter !== 'all' && 'Level',
                                                     sortConfig.key && 'Sắp xếp'
                                                 ].filter(Boolean).length} bộ lọc đang áp dụng
@@ -915,7 +710,7 @@ const PlayersSimple = () => {    // Use hook for data management
 
                         {/* Content - No scroll */}
                         <div className="p-6 bg-gradient-to-br from-gray-50 to-white">
-                            {/* Status Banner */}
+                            {/* Join Date Banner */}
                             <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div className="flex items-center justify-between ">
                                     <div className="flex items-center gap-3">
@@ -923,12 +718,11 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <span className="text-blue-600 font-bold text-sm">👤</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-xl text-gray-800">Trạng thái tài khoản</h4>
+                                            <h4 className="font-semibold text-xl text-gray-800">Thông tin tài khoản</h4>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        {getStatusBadge(selectedPlayer.userStatus || 'ACTIVE')}
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="text-sm text-gray-600">
                                             {selectedPlayer.joinDate ?
                                                 `Ngày tham gia: ${new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN')}` :
                                                 'Ngày tham gia: N/A'
@@ -1173,13 +967,12 @@ const PlayersSimple = () => {    // Use hook for data management
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
-                                <col className="w-[18%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
-                                <col className="w-[12%]" />
+                                <col className="w-[20%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[20%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
                                 <tr>
@@ -1208,11 +1001,6 @@ const PlayersSimple = () => {    // Use hook for data management
                                             Gem
                                         </span>
                                     </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Trạng thái
-                                        </span>
-                                    </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
                                         Thao tác
                                     </th>
@@ -1222,7 +1010,7 @@ const PlayersSimple = () => {    // Use hook for data management
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {displayPlayers.length === 0 ? (
                                     <tr>
-                                        <td colSpan="7" className="px-6 py-12 text-center">
+                                        <td colSpan="6" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                     <Users className="h-8 w-8 text-gray-400" />
@@ -1230,7 +1018,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                                 <div className="text-center">
                                                     <h3 className="text-lg font-medium text-gray-900">Không có người chơi nào</h3>
                                                     <p className="text-sm text-gray-500 mt-1">
-                                                        {(localSearchTerm || debouncedSearchTerm) || statusFilter !== 'all' || levelFilter !== 'all'
+                                                        {(localSearchTerm || debouncedSearchTerm) || levelFilter !== 'all'
                                                             ? 'Không tìm thấy người chơi phù hợp với bộ lọc.'
                                                             : 'Không có người chơi nào trong trang này.'}
                                                     </p>
@@ -1242,7 +1030,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                             {/* Player Name */}
                                             <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
-                                                    <div className="text-sm font-bold text-gray-900 break-words" title={player.userName || 'N/A'}>
+                                                    <div className="text-sm font-semibold text-gray-900 break-words text-center" title={player.userName || 'N/A'}>
                                                         {player.userName || 'N/A'}
                                                     </div>
                                                 </div>
@@ -1250,7 +1038,7 @@ const PlayersSimple = () => {    // Use hook for data management
 
                                             {/* Level */}
                                             <td className="px-3 py-4">
-                                                <div className="flex justify-center">
+                                                <div className="flex items-center justify-center">
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
                                                         {player.level || 1}
                                                     </span>
@@ -1260,10 +1048,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                             {/* Coin */}
                                             <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <div className="text-xs font-medium text-yellow-600">
-                                                            {(player.coin || 0).toLocaleString('vi-VN')}
-                                                        </div>
+                                                    <div className="text-xs font-medium text-yellow-700 text-center">
+                                                        {(player.coin || 0).toLocaleString('vi-VN')}
                                                     </div>
                                                 </div>
                                             </td>
@@ -1271,10 +1057,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                             {/* Diamond */}
                                             <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <div className="text-xs font-medium text-blue-600">
-                                                            {(player.diamond || 0).toLocaleString('vi-VN')}
-                                                        </div>
+                                                    <div className="text-xs font-medium text-blue-700 text-center">
+                                                        {(player.diamond || 0).toLocaleString('vi-VN')}
                                                     </div>
                                                 </div>
                                             </td>
@@ -1282,18 +1066,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                             {/* Gem */}
                                             <td className="px-3 py-4">
                                                 <div className="flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <div className="text-xs font-medium text-green-600">
-                                                            {(player.gem || 0).toLocaleString('vi-VN')}
-                                                        </div>
+                                                    <div className="text-xs font-medium text-green-700 text-center">
+                                                        {(player.gem || 0).toLocaleString('vi-VN')}
                                                     </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Status */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex justify-center">
-                                                    {getStatusBadge(player.userStatus || 'ACTIVE')}
                                                 </div>
                                             </td>
 
@@ -1484,73 +1259,6 @@ const PlayersSimple = () => {    // Use hook for data management
                             </div>
                         </div>
                     </div>
-                )
-            }
-
-            {/* Ban Duration Modal */}
-            {
-                banModal.isOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                Cấm người chơi: {banModal.player?.userName}
-                            </h3>                <p className="text-gray-600 mb-6">
-                                Chọn thời gian cấm cho người chơi này:
-                            </p>
-
-                            <div className="space-y-3 mb-6">
-                                <button
-                                    onClick={() => handleBanPlayer(banModal.player?.id, '1minute')}
-                                    className="w-full text-left px-4 py-3 border border-red-300 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 bg-red-25"
-                                >
-                                    <div className="font-medium text-red-700">1 phút (Test)</div>
-                                    <div className="text-sm text-red-500">Cấm trong 1 phút để test</div>
-                                </button>
-
-                                <button
-                                    onClick={() => handleBanPlayer(banModal.player?.id, '3days')}
-                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <div className="font-medium">3 ngày</div>
-                                    <div className="text-sm text-gray-500">Cấm trong 3 ngày</div>
-                                </button>
-
-                                <button
-                                    onClick={() => handleBanPlayer(banModal.player?.id, '7days')}
-                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <div className="font-medium">7 ngày</div>
-                                    <div className="text-sm text-gray-500">Cấm trong 1 tuần</div>
-                                </button>
-
-                                <button
-                                    onClick={() => handleBanPlayer(banModal.player?.id, '1month')}
-                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <div className="font-medium">1 tháng</div>
-                                    <div className="text-sm text-gray-500">Cấm trong 30 ngày</div>
-                                </button>
-
-                                <button
-                                    onClick={() => handleBanPlayer(banModal.player?.id, 'permanent')}
-                                    className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <div className="font-medium">Vĩnh viễn</div>
-                                    <div className="text-sm text-gray-500">Cấm vĩnh viễn người chơi này</div>
-                                </button>
-
-                            </div>
-
-                            <div className="flex justify-end space-x-3">                    <button
-                                onClick={() => setBanModal({ isOpen: false, player: null })}
-                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                            >
-                                Hủy
-                            </button>
-                            </div>
-                        </div>
-                    </div>
-
                 )
             }
         </div>
