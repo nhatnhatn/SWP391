@@ -64,12 +64,12 @@ const DebugPage = () => {
   );
 };
 
-// Component để handle redirect dựa trên localStorage
+// Component to handle redirect based on localStorage
 const DefaultRedirect = () => {
   const lastPath = localStorage.getItem('lastVisitedPath');
   const validPaths = ['/players', '/pets', '/shop-products'];
 
-  // Nếu có lastPath và là path hợp lệ thì redirect, không thì mặc định shop-products
+  // If lastPath exists and is valid, redirect there, otherwise default to shop-products
   const redirectTo = (lastPath && validPaths.includes(lastPath)) ? lastPath : '/shop-products';
 
   return <Navigate to={redirectTo} replace />;

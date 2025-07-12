@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
-import { t } from '../../constants/vietnamese';
 
 // Notification Toast Component (copied from ShopProductManagement)
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
@@ -52,7 +51,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
-                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                    {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
                                     {message}
@@ -155,7 +154,7 @@ export default function Register() {
             if (value.trim().length === 0) {
                 setFieldErrors(prev => ({ ...prev, fullName: 'Họ và tên không được để trống.' }));
             } else if (value.length > 50) {
-                setFieldErrors(prev => ({ ...prev, fullName: 'Họ và tên không được vượt quá 50 ký tự.' }));
+                setFieldErrors(prev => ({ ...prev, fullName: 'Full name cannot exceed 50 characters.' }));
             }
         }
     };
@@ -166,7 +165,7 @@ export default function Register() {
         clearFieldError('email');
 
         if (value && !validateEmail(value)) {
-            setFieldErrors(prev => ({ ...prev, email: 'Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: user@example.com).' }));
+            setFieldErrors(prev => ({ ...prev, email: 'Invalid email. Please enter a valid email format (e.g., user@example.com).' }));
         }
     };
 
@@ -176,12 +175,12 @@ export default function Register() {
         clearFieldError('password');
 
         if (value && !validatePassword(value)) {
-            setFieldErrors(prev => ({ ...prev, password: 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.' }));
+            setFieldErrors(prev => ({ ...prev, password: 'Password must be at least 8 characters and include uppercase, lowercase, and numbers.' }));
         }
 
         // Also validate confirm password if it's already filled
         if (confirmPassword && value !== confirmPassword) {
-            setFieldErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu xác nhận không khớp.' }));
+            setFieldErrors(prev => ({ ...prev, confirmPassword: 'Password confirmation does not match.' }));
         } else if (confirmPassword && value === confirmPassword) {
             setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
         }
@@ -193,7 +192,7 @@ export default function Register() {
         clearFieldError('confirmPassword');
 
         if (value && password && value !== password) {
-            setFieldErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu xác nhận không khớp.' }));
+            setFieldErrors(prev => ({ ...prev, confirmPassword: 'Password confirmation does not match.' }));
         }
     };
 
@@ -204,27 +203,27 @@ export default function Register() {
         const lowerError = errorMsg.toLowerCase();
 
         if (lowerError.includes('email already exists') || lowerError.includes('email đã tồn tại')) {
-            return '❌ Email này đã được sử dụng. Vui lòng sử dụng email khác hoặc đăng nhập nếu đây là tài khoản của bạn.';
+            return '❌ This email is already in use. Please use a different email or login if this is your account.';
         }
 
         if (lowerError.includes('username already exists') || lowerError.includes('tên người dùng đã tồn tại')) {
-            return '❌ Tên người dùng này đã được sử dụng. Vui lòng chọn tên khác.';
+            return '❌ This username is already taken. Please choose a different name.';
         }
 
         if (lowerError.includes('password must be') || lowerError.includes('weak password') || lowerError.includes('mật khẩu yếu')) {
-            return '❌ Mật khẩu không đủ mạnh. Phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.';
+            return '❌ Password is not strong enough. Must be at least 8 characters with uppercase, lowercase, and numbers.';
         }
 
         if (lowerError.includes('invalid email') || lowerError.includes('email không hợp lệ')) {
-            return '❌ Định dạng email không hợp lệ. Vui lòng kiểm tra lại.';
+            return '❌ Invalid email format. Please check again.';
         }
 
         if (lowerError.includes('network') || lowerError.includes('connection') || lowerError.includes('kết nối')) {
-            return '❌ Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet và thử lại.';
+            return '❌ Network connection error. Please check your internet connection and try again.';
         }
 
         if (lowerError.includes('server error') || lowerError.includes('lỗi máy chủ')) {
-            return '❌ Lỗi máy chủ. Vui lòng thử lại sau ít phút.';
+            return '❌ Server error. Please try again in a few minutes.';
         }
 
         // Default fallback for other errors
@@ -235,37 +234,37 @@ export default function Register() {
 
         // Validate full name
         if (!fullName || fullName.trim().length === 0) {
-            errors.fullName = 'Họ và tên là bắt buộc.';
+            errors.fullName = 'Full name is required.';
             isValid = false;
         } else if (fullName.length > 50) {
-            errors.fullName = 'Họ và tên không được vượt quá 50 ký tự.';
+            errors.fullName = 'Full name cannot exceed 50 characters.';
             isValid = false;
         }
 
         // Validate email
         if (!email.trim()) {
-            errors.email = 'Email là bắt buộc.';
+            errors.email = 'Email is required.';
             isValid = false;
         } else if (!validateEmail(email)) {
-            errors.email = 'Email không hợp lệ. Vui lòng nhập đúng định dạng email.';
+            errors.email = 'Invalid email. Please enter a valid email format.';
             isValid = false;
         }
 
         // Validate password
         if (!password) {
-            errors.password = 'Mật khẩu là bắt buộc.';
+            errors.password = 'Password is required.';
             isValid = false;
         } else if (!validatePassword(password)) {
-            errors.password = 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số.';
+            errors.password = 'Password must be at least 8 characters and include uppercase, lowercase, and numbers.';
             isValid = false;
         }
 
         // Validate confirm password
         if (!confirmPassword) {
-            errors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc.';
+            errors.confirmPassword = 'Password confirmation is required.';
             isValid = false;
         } else if (password !== confirmPassword) {
-            errors.confirmPassword = 'Mật khẩu xác nhận không khớp.';
+            errors.confirmPassword = 'Password confirmation does not match.';
             isValid = false;
         }
 
@@ -274,8 +273,8 @@ export default function Register() {
 
         // Set general error if form is invalid
         if (!isValid) {
-            setError('Vui lòng kiểm tra và sửa các lỗi trong form.');
-            showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+            setError('Please check and fix the errors in the form.');
+            showNotification('Please check and fix the errors in the form.', 'error');
         }
 
         return isValid;
@@ -335,7 +334,7 @@ export default function Register() {
             }
         } catch (error) {
             console.error('Registration error:', error);
-            const errorMessage = getErrorMessage(error.message || 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
+            const errorMessage = getErrorMessage(error.message || 'An error occurred during registration. Please try again.');
             setError(errorMessage);
             showNotification(errorMessage, 'error');
         } finally {
@@ -360,7 +359,7 @@ export default function Register() {
                         🐾 My Little Pet
                     </h2>
                     <p className="mt-2 text-center text-4xl text-gray-600">
-                        {t('auth.createAccount')}
+                        Create Account
                     </p>
                 </div>
 
@@ -370,7 +369,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.fullName')}
+                                    Full Name
                                 </label>
                                 <input
                                     id="fullName"
@@ -382,7 +381,7 @@ export default function Register() {
                                     onChange={handleFullNameChange}
                                     className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 ${fieldErrors.fullName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                                         }`}
-                                    placeholder="Nhập họ và tên của bạn"
+                                    placeholder="Enter your full name"
                                 />
                                 {fieldErrors.fullName && (
                                     <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -394,7 +393,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.emailAddress')}
+                                    Email Address
                                 </label>
                                 <input
                                     id="email"
@@ -406,7 +405,7 @@ export default function Register() {
                                     onChange={handleEmailChange}
                                     className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 ${fieldErrors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                                         }`}
-                                    placeholder="Nhập địa chỉ email của bạn"
+                                    placeholder="Enter your email address"
                                 />
                                 {fieldErrors.email && (
                                     <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -418,7 +417,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.password')}
+                                    Password
                                 </label>
                                 <div className="mt-1 relative">
                                     <input
@@ -431,13 +430,13 @@ export default function Register() {
                                         onChange={handlePasswordChange}
                                         className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 ${fieldErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                                             }`}
-                                        placeholder="Nhập mật khẩu của bạn"
+                                        placeholder="Enter your password"
                                     />
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        title={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                                        title={showPassword ? 'Hide Password' : 'Show Password'}
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
@@ -453,14 +452,14 @@ export default function Register() {
                                     </p>
                                 ) : (
                                     <p className="mt-1 text-xs text-gray-500">
-                                        Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+                                        Password must be at least 8 characters long and include uppercase, lowercase, and numbers.
                                     </p>
                                 )}
                             </div>
 
                             <div>
                                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.confirmPassword')}
+                                    Confirm Password
                                 </label>
                                 <div className="mt-1 relative">
                                     <input
@@ -473,13 +472,13 @@ export default function Register() {
                                         onChange={handleConfirmPasswordChange}
                                         className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 ${fieldErrors.confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                                             }`}
-                                        placeholder="Nhập lại mật khẩu của bạn để xác nhận"
+                                        placeholder="Re-enter your password to confirm"
                                     />
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        title={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
+                                        title={showConfirmPassword ? 'Hide Password' : 'Show Password'}
                                     >
                                         {showConfirmPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
@@ -514,12 +513,12 @@ export default function Register() {
                                 {isLoading ? (
                                     <div className="flex items-center">
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                        {t('auth.signingUp')}
+                                        Signing up...
                                     </div>
                                 ) : (
                                     <div className="flex items-center">
                                         <UserPlus className="h-4 w-4 mr-2" />
-                                        {t('auth.signUpForAccount')}
+                                        Create Account
                                     </div>
                                 )}
                             </button>
@@ -527,12 +526,12 @@ export default function Register() {
 
                         <div className="mt-4 text-center">
                             <p className="text-sm text-gray-600">
-                                {t('auth.alreadyHaveAccount')}{' '}
+                                Already have an account?{' '}
                                 <Link
                                     to="/login"
                                     className="font-medium text-emerald-600 hover:text-emerald-500"
                                 >
-                                    {t('auth.goToLogin')}
+                                    Sign in here
                                 </Link>
                             </p>
                         </div>
@@ -544,7 +543,7 @@ export default function Register() {
                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-emerald-700 bg-emerald-100 hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
                                 >
                                     <ArrowLeft className="h-4 w-4 mr-2" />
-                                    {t('auth.goToLogin')}
+                                    Go to Login
                                 </Link>
                             </div>
                         )}

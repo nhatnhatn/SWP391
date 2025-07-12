@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContextV2';
 import { convertGoogleDriveLink } from '../../utils/helpers';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
 
-// Component riêng để hiển thị ảnh với fallback URLs
+// Component to display images with fallback URLs
 const ProductImage = ({ imageUrl, productName, className }) => {
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [imageError, setImageError] = useState(false);
@@ -68,14 +68,14 @@ const ProductImage = ({ imageUrl, productName, className }) => {
         return (
             <div className={`bg-red-50 rounded-lg border border-red-300 flex flex-col items-center justify-center p-2 ${className}`}>
                 <Package className="h-6 w-6 text-red-400 mb-1" />
-                <span className="text-xs text-red-600 text-center">Lỗi CORS</span>
+                <span className="text-xs text-red-600 text-center">CORS Error</span>
                 <a
                     href={imageUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-blue-600 hover:underline mt-1 text-center"
                 >
-                    Xem ảnh
+                    View Image
                 </a>
                 <button
                     onClick={() => {
@@ -84,7 +84,7 @@ const ProductImage = ({ imageUrl, productName, className }) => {
                     }}
                     className="text-xs text-gray-600 hover:underline mt-1"
                 >
-                    Thử lại
+                    Retry
                 </button>
             </div>
         );
@@ -160,7 +160,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
-                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                    {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
                                     {message}
@@ -257,7 +257,7 @@ const ShopProductManagement = () => {
             return (
                 <span
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm cursor-default"
-                    title="Sản phẩm đang hoạt động"
+                    title="Active product"
                 >
                     Active
                 </span>
@@ -272,7 +272,7 @@ const ShopProductManagement = () => {
                 return (
                     <span
                         className="inline-flex flex-col items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border border-orange-300 shadow-sm cursor-help animate-pulse"
-                        title="Sản phẩm bị vô hiệu hóa vì thú cưng liên quan đã bị vô hiệu hóa. Hãy kích hoạt lại thú cưng trước để có thể kích hoạt sản phẩm này."
+                        title="Product disabled because related pet has been disabled. Please activate the pet first to enable this product."
                     >
                         <div className="text-center leading-tight">
                             <div>Inactive</div>
@@ -285,7 +285,7 @@ const ShopProductManagement = () => {
                 return (
                     <span
                         className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200 shadow-sm cursor-default"
-                        title="Sản phẩm đã bị vô hiệu hóa"
+                        title="Product has been disabled"
                     >
                         Inactive
                     </span>
@@ -297,7 +297,7 @@ const ShopProductManagement = () => {
     // Local search state - separated for debouncing
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
-    const [statusFilter, setStatusFilter] = useState('all'); // Đang hoạt động, Hết hàng
+    const [statusFilter, setStatusFilter] = useState('all'); // Active, Out of stock
     const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
     const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy
     // Debounce search term to prevent excessive filtering
@@ -364,9 +364,9 @@ const ShopProductManagement = () => {
 
     // Validation helper functions
     const validateName = (name, isEditing = false, currentProductId = null) => {
-        if (!name || name.trim().length === 0) return 'Tên sản phẩm là bắt buộc.';
-        if (name.trim().length < 2) return 'Tên sản phẩm phải có ít nhất 2 ký tự.';
-        if (name.length > 100) return 'Tên sản phẩm không được vượt quá 100 ký tự.';
+        if (!name || name.trim().length === 0) return 'Product name is required.';
+        if (name.trim().length < 2) return 'Product name must be at least 2 characters.';
+        if (name.length > 100) return 'Product name cannot exceed 100 characters.';
 
         // Check for uniqueness
         const trimmedName = name.trim();
@@ -383,46 +383,46 @@ const ShopProductManagement = () => {
         });
 
         if (existingProduct) {
-            return `Tên sản phẩm "${trimmedName}" đã tồn tại. Vui lòng chọn tên khác.`;
+            return `Product name "${trimmedName}" already exists. Please choose a different name.`;
         }
 
         return '';
     };
 
     const validateType = (type) => {
-        if (!type || type.trim().length === 0) return 'Loại sản phẩm là bắt buộc.';
+        if (!type || type.trim().length === 0) return 'Product type is required.';
         return '';
     };
 
     const validatePetType = (petType) => {
-        if (!petType || petType.trim().length === 0) return 'Loại thú cưng là bắt buộc.';
+        if (!petType || petType.trim().length === 0) return 'Pet type is required.';
         return '';
     };
 
     const validateDescription = (description) => {
-        if (description && description.length > 1000) return 'Mô tả không được vượt quá 1000 ký tự.';
+        if (description && description.length > 1000) return 'Description cannot exceed 1000 characters.';
         return '';
     };
 
     const validateImageUrl = (url) => {
-        if (!url || url.trim().length === 0) return 'URL hình ảnh là bắt buộc.';
-        if (!url.includes('drive.google.com')) return 'Vui lòng sử dụng Google Drive link.';
+        if (!url || url.trim().length === 0) return 'Image URL is required.';
+        if (!url.includes('drive.google.com')) return 'Please use Google Drive link.';
         return '';
     };
 
     const validatePrice = (price) => {
-        if (!price || price === '') return 'Giá sản phẩm là bắt buộc.';
+        if (!price || price === '') return 'Product price is required.';
         const numPrice = parseFloat(price);
-        if (isNaN(numPrice) || numPrice <= 0) return 'Giá sản phẩm phải lớn hơn 0.';
-        if (numPrice > 1000000) return 'Giá sản phẩm không được vượt quá 1,000,000.';
+        if (isNaN(numPrice) || numPrice <= 0) return 'Product price must be greater than 0.';
+        if (numPrice > 1000000) return 'Product price cannot exceed 1,000,000.';
         return '';
     };
 
     const validateQuantity = (quantity) => {
-        if (quantity === '' || quantity === null || quantity === undefined) return 'Số lượng là bắt buộc.';
+        if (quantity === '' || quantity === null || quantity === undefined) return 'Quantity is required.';
         const numQuantity = parseInt(quantity);
-        if (isNaN(numQuantity) || numQuantity < 0) return 'Số lượng phải là số không âm (≥0).';
-        if (numQuantity > 10000) return 'Số lượng không được vượt quá 10,000.';
+        if (isNaN(numQuantity) || numQuantity < 0) return 'Quantity must be a non-negative number (≥0).';
+        if (numQuantity > 10000) return 'Quantity cannot exceed 10,000.';
         return '';
     };
 
@@ -519,7 +519,7 @@ const ShopProductManagement = () => {
     // Show general error as notification
     useEffect(() => {
         if (error) {
-            showNotification('Có lỗi xảy ra: ' + error, 'error');
+            showNotification('An error occurred: ' + error, 'error');
         }
     }, [error]);
 
@@ -612,7 +612,7 @@ const ShopProductManagement = () => {
                 }
             }
 
-            // 1. Status filter (Đang hoạt động, Hết hàng)
+            // 1. Status filter (Active, Out of stock)
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active' && product.status !== 1) return false;
                 if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
@@ -862,8 +862,17 @@ const ShopProductManagement = () => {
             quantity: ''
         });
 
+        // If we were editing a product, navigate back to detail view instead of closing everything
+        const wasEditing = editModal.isOpen && editModal.product;
+
         setCreateModal(false);
         setEditModal({ isOpen: false, product: null });
+
+        // If we exit editing, show the detail view of the product
+        if (wasEditing) {
+            setSelectedProduct(editModal.product);
+        }
+
         const resetFormData = {
             petID: null,
             name: '',
@@ -886,19 +895,19 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 0) {
-            showNotification('Sản phẩm này đã bị vô hiệu hóa rồi!', 'error');
+            showNotification('This product is already disabled!', 'error');
             return;
         }
 
         setConfirmDialog({
             isOpen: true,
-            title: 'Xác nhận vô hiệu hóa',
-            message: 'Bạn có chắc muốn vô hiệu hóa sản phẩm này?',
+            title: 'Confirm disable',
+            message: 'Are you sure you want to disable this product?',
             onConfirm: async () => {
                 await handleOperationWithNotification(
                     () => updateShopProduct(productId, { ...product, status: 0 }),
-                    'Vô hiệu hóa sản phẩm thành công!',
-                    'Vô hiệu hóa thất bại'
+                    'Product disabled successfully!',
+                    'Failed to disable product'
                 );
                 setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
@@ -911,14 +920,14 @@ const ShopProductManagement = () => {
         if (!product) return;
 
         if (product.status === 1) {
-            showNotification('Sản phẩm này đã được kích hoạt rồi!', 'error');
+            showNotification('This product is already activated!', 'error');
             return;
         }
 
         await handleOperationWithNotification(
             () => updateShopProduct(productId, { ...product, status: 1 }),
-            'Kích hoạt sản phẩm thành công!',
-            'Kích hoạt thất bại'
+            'Product activated successfully!',
+            'Activation Failed'
         );
     };
 
@@ -933,7 +942,7 @@ const ShopProductManagement = () => {
         const nameError = validateName(editForm.name, isEdit, currentProductId);
         if (nameError) errors.name = nameError;
 
-        // Chỉ validate type khi đang tạo mới sản phẩm
+        // Only validate type when creating new product
         if (!isEdit && createModal) {
             const typeError = validateType(editForm.type);
             if (typeError) errors.type = typeError;
@@ -951,12 +960,12 @@ const ShopProductManagement = () => {
         const imageError = validateImageUrl(editForm.imageUrl);
         if (imageError) errors.imageUrl = imageError;
 
-        // Chỉ validate pet type và petID khi đang tạo mới và loại sản phẩm là Pet
+        // Only validate pet type and petID when creating new and product type is Pet
         if (!isEdit && editForm.type === 'Pet') {
             const petTypeError = validatePetType(editForm.petType);
             if (petTypeError) errors.petType = petTypeError;
             if (!editForm.petID) {
-                errors.petType = 'Vui lòng chọn thú cưng cụ thể.';
+                errors.petType = 'Please select a specific pet.';
             }
         }
 
@@ -1038,8 +1047,8 @@ const ShopProductManagement = () => {
                     return await createShopProduct(submissionData);
                 }
             },
-            isEdit ? 'Cập nhật sản phẩm thành công!' : 'Tạo sản phẩm thành công!',
-            'Lỗi khi lưu sản phẩm',
+            isEdit ? 'Product updated successfully!' : 'Product created successfully!',
+            'Error saving product',
             () => {
                 // Success callback - reset form and close modals
                 if (isEdit) {
@@ -1068,21 +1077,13 @@ const ShopProductManagement = () => {
     const handleDeleteConfirm = async () => {
         await handleOperationWithNotification(
             () => deleteShopProduct(deleteModal.product.shopProductId),
-            'Xóa sản phẩm thành công!',
-            'Lỗi khi xóa sản phẩm',
+            'Product deleted successfully!',
+            'Error deleting product',
             true,
             false
         );
         setDeleteModal({ isOpen: false, product: null });
     };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-        );
-    }
 
     return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -1094,7 +1095,7 @@ const ShopProductManagement = () => {
                             <Package className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Quản lý sản phẩm trong cửa hàng</h1>
+                            <h1 className="text-3xl font-bold text-gray-800">Shop product management</h1>
                         </div>
                     </div>
 
@@ -1105,7 +1106,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-purple-100 rounded-lg">
                                     <Package className="h-4 w-4 text-purple-600" />
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Tổng sản phẩm</p>
+                                <p className="text-sm font-medium text-gray-600">Total products</p>
                             </div>
                             <p className="text-2xl font-bold text-purple-600">{shopProducts.length}</p>
                         </div>
@@ -1117,7 +1118,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang bán</p>
+                                <p className="text-sm font-medium text-gray-600">Available</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -1131,7 +1132,7 @@ const ShopProductManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Hết hàng</p>
+                                <p className="text-sm font-medium text-gray-600">Out of stock</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -1146,7 +1147,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <Package className="h-4 w-4 text-purple-600" />
-                                <p className="text-xs font-medium text-gray-600">Tổng</p>
+                                <p className="text-xs font-medium text-gray-600">Total</p>
                             </div>
                             <p className="text-lg font-bold text-purple-600">{shopProducts.length}</p>
                         </div>
@@ -1154,7 +1155,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-emerald-600 font-bold text-sm">✓</span>
-                                <p className="text-xs font-medium text-gray-600">Đang bán</p>
+                                <p className="text-xs font-medium text-gray-600">Available</p>
                             </div>
                             <p className="text-lg font-bold text-emerald-600">
                                 {shopProducts.filter(p => p.status === 1).length}
@@ -1164,7 +1165,7 @@ const ShopProductManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <span className="text-red-600 font-bold text-sm">✕</span>
-                                <p className="text-xs font-medium text-gray-600">Hết hàng</p>
+                                <p className="text-xs font-medium text-gray-600">Out of stock</p>
                             </div>
                             <p className="text-lg font-bold text-red-600">
                                 {shopProducts.filter(p => p.status === 0).length}
@@ -1192,7 +1193,7 @@ const ShopProductManagement = () => {
                                 <Search className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Tìm kiếm & Bộ lọc</h3>
+                                <h3 className="text-xl font-bold text-white">Search & Filters</h3>
                             </div>
                         </div>
 
@@ -1206,7 +1207,7 @@ const ShopProductManagement = () => {
                             <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                 <Search className="h-2 w-2 text-white" />
                             </div>
-                            <span className="text-sm font-medium text-gray-700">Tìm kiếm & Tạo mới sản phẩm</span>
+                            <span className="text-sm font-medium text-gray-700">Search & Create new product</span>
                         </div>
 
                         <div className="space-y-3">
@@ -1214,7 +1215,7 @@ const ShopProductManagement = () => {
                                 <div className="relative group flex-1">
                                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-purple-500 transition-colors duration-200" />                                    <input
                                         type="text"
-                                        placeholder="Nhập tên sản phẩm để tìm kiếm..."
+                                        placeholder="Enter product name to search..."
                                         value={localSearchTerm}
                                         onChange={(e) => handleSearch(e.target.value)}
                                         className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
@@ -1223,7 +1224,7 @@ const ShopProductManagement = () => {
                                         <button
                                             onClick={clearSearch}
                                             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                            title="Xóa tìm kiếm"
+                                            title="Clear search"
                                         >
                                             <X className="h-4 w-4" />
                                         </button>
@@ -1235,7 +1236,7 @@ const ShopProductManagement = () => {
                                     className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3.5 rounded-lg hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 whitespace-nowrap"
                                 >
                                     <Plus className="h-5 w-5" />
-                                    Thêm Sản phẩm
+                                    Create new product
                                 </button>
 
                             </div>                            {(localSearchTerm || debouncedSearchTerm) && (
@@ -1243,16 +1244,16 @@ const ShopProductManagement = () => {
                                     <div className="flex items-center gap-2">
                                         <div className="h-2 w-2 bg-purple-600 rounded-full animate-pulse"></div>
                                         <p className="text-sm text-purple-800 font-medium">
-                                            🔍 Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-purple-900">{debouncedSearchTerm || localSearchTerm}</span>"
+                                            🔍 Showing search results for: "<span className="font-semibold text-purple-900">{debouncedSearchTerm || localSearchTerm}</span>"
                                             {localSearchTerm !== debouncedSearchTerm && localSearchTerm && (
-                                                <span className="text-xs text-purple-600 ml-2">(đang nhập...)</span>
+                                                <span className="text-xs text-purple-600 ml-2">(typing...)</span>
                                             )}
                                         </p>
                                         <button
                                             onClick={clearSearch}
                                             className="ml-auto text-purple-600 hover:text-purple-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                         >
-                                            Xóa tìm kiếm
+                                            Clear search
                                         </button>
                                     </div>
                                 </div>
@@ -1269,7 +1270,7 @@ const ShopProductManagement = () => {
                             >
                                 <Filter className="h-5 w-5 text-gray-600 group-hover:text-gray-700" />
                                 <span className="text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                                    Bộ lọc nâng cao
+                                    Advanced filters
                                 </span>
                                 {showAdvancedFilters ? (
                                     <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
@@ -1287,12 +1288,13 @@ const ShopProductManagement = () => {
                                         <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700">Lọc theo nội dung</span>
-                                    </div>                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                        <span className="text-sm font-medium text-gray-700">Filter by content</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                         {/* 1. Shop Type Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Loại vật phẩm
+                                                Product type
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1300,7 +1302,7 @@ const ShopProductManagement = () => {
                                                     onChange={(e) => handleShopTypeFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all"> Tất cả vật phẩm</option>
+                                                    <option value="all"> All type</option>
                                                     <option value="Pet"> Pet</option>
                                                     <option value="Food"> Food</option>
                                                     <option value="Toy"> Toy</option>
@@ -1312,7 +1314,7 @@ const ShopProductManagement = () => {
                                         {/* 2. Currency Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Tiền tệ
+                                                Currency type
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1320,7 +1322,7 @@ const ShopProductManagement = () => {
                                                     onChange={(e) => handleCurrencyFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all"> Tất cả loại tiền</option>
+                                                    <option value="all"> All currency type</option>
                                                     <option value="Coin">Coin</option>
                                                     <option value="Diamond">Diamond</option>
                                                     <option value="Gem">Gem</option>
@@ -1332,7 +1334,7 @@ const ShopProductManagement = () => {
                                         {/* 3. Status Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Trạng thái
+                                                Status
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1340,7 +1342,7 @@ const ShopProductManagement = () => {
                                                     onChange={(e) => handleStatusFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all"> Tất cả trạng thái</option>
+                                                    <option value="all"> All status</option>
                                                     <option value="active"> Active</option>
                                                     <option value="outOfStock">Inactive</option>
                                                 </select>
@@ -1356,14 +1358,14 @@ const ShopProductManagement = () => {
                                         <div className="h-4 w-4 bg-purple-600 rounded-full flex items-center justify-center">
                                             <ChevronUp className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700">Sắp xếp dữ liệu</span>
+                                        <span className="text-sm font-medium text-gray-700">Sort data</span>
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         {/* Sort Field */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Sắp xếp theo
+                                                Sort by
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1378,13 +1380,13 @@ const ShopProductManagement = () => {
                                                     }}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value=""> Không sắp xếp</option>
-                                                    <option value="name">Tên sản phẩm</option>
-                                                    <option value="price">Giá</option>
-                                                    <option value="quantity">Số lượng</option>
-                                                    <option value="status">Trạng thái</option>
-                                                    <option value="type">Loại sản phẩm</option>
-                                                    <option value="currencyType">Loại tiền tệ</option>
+                                                    <option value=""> No sort</option>
+                                                    <option value="name">Product name</option>
+                                                    <option value="price">Price</option>
+                                                    <option value="quantity">Quantity</option>
+                                                    <option value="status">Status</option>
+                                                    <option value="type">Product type</option>
+                                                    <option value="currencyType">Currency Type</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -1393,7 +1395,7 @@ const ShopProductManagement = () => {
                                         {/* Sort Direction */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Thứ tự
+                                                Order by
                                             </label>
                                             <div className="flex gap-2">
                                                 <button
@@ -1408,7 +1410,7 @@ const ShopProductManagement = () => {
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronUp className="h-4 w-4" />
-                                                        Tăng dần
+                                                        Ascending
                                                     </div>
                                                 </button>
                                                 <button
@@ -1423,7 +1425,7 @@ const ShopProductManagement = () => {
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronDown className="h-4 w-4" />
-                                                        Giảm dần
+                                                        Descending
                                                     </div>
                                                 </button>
                                             </div>
@@ -1437,21 +1439,21 @@ const ShopProductManagement = () => {
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
                                                     <span className="text-blue-800 font-medium">
-                                                        Đang sắp xếp theo: <span className="font-bold">
-                                                            {sortConfig.key === 'name' && 'Tên sản phẩm'}
-                                                            {sortConfig.key === 'price' && 'Giá'}
-                                                            {sortConfig.key === 'quantity' && 'Số lượng'}
-                                                            {sortConfig.key === 'status' && 'Trạng thái'}
-                                                            {sortConfig.key === 'type' && 'Loại sản phẩm'}
-                                                            {sortConfig.key === 'currencyType' && 'Loại tiền tệ'}
-                                                        </span> ({sortConfig.direction === 'asc' ? 'Tăng dần' : 'Giảm dần'})
+                                                        Sorting by: <span className="font-bold">
+                                                            {sortConfig.key === 'name' && 'Product name'}
+                                                            {sortConfig.key === 'price' && 'Price'}
+                                                            {sortConfig.key === 'quantity' && 'Quantity'}
+                                                            {sortConfig.key === 'status' && 'Status'}
+                                                            {sortConfig.key === 'type' && 'Product type'}
+                                                            {sortConfig.key === 'currencyType' && 'Currency Type'}
+                                                        </span> ({sortConfig.direction === 'asc' ? 'Ascending' : 'Descending'})
                                                     </span>
                                                 </div>
                                                 <button
                                                     onClick={() => setSortConfig({ key: null, direction: 'asc' })}
                                                     className="text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                                 >
-                                                    Bỏ sắp xếp
+                                                    Remove
                                                 </button>
                                             </div>
                                         </div>
@@ -1464,7 +1466,7 @@ const ShopProductManagement = () => {
                                         <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
                                             <X className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700">Thao tác</span>
+                                        <span className="text-sm font-medium text-gray-700">Actions</span>
                                     </div>                                    <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={clearAllFilters}
@@ -1476,8 +1478,8 @@ const ShopProductManagement = () => {
                                         >
                                             <X className="h-4 w-4 mr-2" />
                                             {statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
-                                                ? 'Không có bộ lọc nào'
-                                                : 'Xóa tất cả bộ lọc'
+                                                ? 'No filters applied'
+                                                : 'Clear all filters'
                                             }
                                         </button>
 
@@ -1486,12 +1488,12 @@ const ShopProductManagement = () => {
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
-                                                    (localSearchTerm || debouncedSearchTerm) && 'Tìm kiếm',
-                                                    statusFilter !== 'all' && 'Trạng thái',
-                                                    currencyFilter !== 'all' && 'Tiền tệ',
-                                                    shopTypeFilter !== 'all' && 'Loại cửa hàng',
-                                                    sortConfig.key && 'Sắp xếp'
-                                                ].filter(Boolean).length} bộ lọc đang áp dụng
+                                                    (localSearchTerm || debouncedSearchTerm) && 'Search',
+                                                    statusFilter !== 'all' && 'Status',
+                                                    currencyFilter !== 'all' && 'Currency',
+                                                    shopTypeFilter !== 'all' && 'Shop Type',
+                                                    sortConfig.key && 'Sort'
+                                                ].filter(Boolean).length} filters applied
                                             </div>
                                         )}
                                     </div>
@@ -1502,51 +1504,19 @@ const ShopProductManagement = () => {
                 </div>
             </div>
 
-            {/* Results Summary */}
-            {(debouncedSearchTerm || statusFilter !== 'all' || currencyFilter !== 'all' || shopTypeFilter !== 'all' || sortConfig.key) && (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-                            <span className="text-sm font-medium text-gray-700">
-                                Hiển thị <span className="font-bold text-blue-600">{currentProducts.length}</span> / <span className="font-bold">{totalItems}</span> sản phẩm
-                                {debouncedSearchTerm && <span className="text-gray-500"> với từ khóa "{debouncedSearchTerm}"</span>}
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                            {sortConfig.key && (
-                                <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded border">
-                                    {sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                                    <span>Sắp xếp: {
-                                        sortConfig.key === 'name' ? 'Tên' :
-                                            sortConfig.key === 'price' ? 'Giá' :
-                                                sortConfig.key === 'quantity' ? 'Số lượng' :
-                                                    sortConfig.key === 'status' ? 'Trạng thái' :
-                                                        sortConfig.key === 'type' ? 'Loại' :
-                                                            sortConfig.key === 'currencyType' ? 'Tiền tệ' :
-                                                                sortConfig.key
-                                    } ({sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})</span>
-                                </div>
-                            )}
-                            <span>Trang {currentPage}/{totalPages}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Product Table */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 <div className="bg-gradient-to-l from-purple-600 to-pink-600 px-6 py-4 border-b border-green-100">
                     <div className="flex items-center justify-center">
-                        <p className="text-xl font-bold text-white text-center">DANH SÁCH SẢN PHẨM TRONG CỬA HÀNG GAME</p>
+                        <p className="text-xl font-bold text-white text-center">SHOP PRODUCTS LIST</p>
                     </div>
                 </div>
 
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                        <p className="mt-2 text-gray-600">Đang tải...</p>
+                        <p className="mt-2 text-gray-600">Loading...</p>
                     </div>
                 ) : (
                     <div className="overflow-hidden">
@@ -1564,38 +1534,38 @@ const ShopProductManagement = () => {
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Tên sản phẩm
+                                        Product name
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
-                                            Loại vật phẩm
+                                            Item type
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        Mô tả sản phẩm
+                                        Product description
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
-                                            Giá
-                                        </div>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
-                                        <div className="flex items-center justify-center gap-1">
-                                            Loại tiền
+                                            Price
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
-                                            Số lượng
+                                            Currency
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         <div className="flex items-center justify-center gap-1">
-                                            Trạng thái
+                                            Quantity
+                                        </div>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        <div className="flex items-center justify-center gap-1">
+                                            Status
                                         </div>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
-                                        Hành động
+                                        Action
                                     </th>
                                 </tr>
                             </thead>
@@ -1608,10 +1578,11 @@ const ShopProductManagement = () => {
                                                     <Package className="h-8 w-8 text-gray-400" />
                                                 </div>
                                                 <div className="text-center">
-                                                    <h3 className="text-lg font-medium text-gray-900">Không có sản phẩm nào</h3>                                                    <p className="text-sm text-gray-500 mt-1">
+                                                    <h3 className="text-lg font-medium text-gray-900">There are no shop product</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">
                                                         {(localSearchTerm || debouncedSearchTerm) || shopTypeFilter !== 'all' || statusFilter !== 'all' || currencyFilter !== 'all' ?
-                                                            'Không tìm thấy sản phẩm phù hợp với bộ lọc.' :
-                                                            'Hãy bắt đầu bằng cách thêm sản phẩm mới.'
+                                                            'No products found matching the filters.' :
+                                                            'Start by adding a new product.'
                                                         }
                                                     </p>
                                                     {!(localSearchTerm || debouncedSearchTerm) && shopTypeFilter === 'all' && statusFilter === 'all' && currencyFilter === 'all' && (
@@ -1620,7 +1591,7 @@ const ShopProductManagement = () => {
                                                             className="mt-4 inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                                                         >
                                                             <Plus className="h-4 w-4 mr-2" />
-                                                            Thêm sản phẩm
+                                                            Creat new product
                                                         </button>
                                                     )}
                                                 </div>
@@ -1674,7 +1645,7 @@ const ShopProductManagement = () => {
                                                 )}
                                                 {!isPetProduct(product) && !['Food', 'Toy'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
-                                                        {product.type || 'Chưa phân loại'}
+                                                        {product.type || 'Uncategorized'}
                                                     </span>
                                                 )}
                                             </div>
@@ -1683,8 +1654,8 @@ const ShopProductManagement = () => {
                                         {/* Description */}
                                         <td className="px-3 py-4">
                                             <div className="text-xs text-center text-gray-700 break-words whitespace-normal text-wrap max-w-full leading-relaxed"
-                                                title={product.description || 'Không có mô tả'}>
-                                                {product.description || 'Không có mô tả'}
+                                                title={product.description || 'No description'}>
+                                                {product.description || 'No description'}
                                             </div>
                                         </td>
 
@@ -1747,7 +1718,7 @@ const ShopProductManagement = () => {
                                                 <button
                                                     onClick={() => handleView(product)}
                                                     className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                    title="Xem chi tiết"
+                                                    title="View product details"
                                                 >
                                                     <Eye className="w-3.5 h-3.5" />
                                                 </button>
@@ -1755,7 +1726,7 @@ const ShopProductManagement = () => {
                                                     <button
                                                         onClick={() => handleDelete(product.shopProductId)}
                                                         className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Vô hiệu hóa"
+                                                        title="Disable product"
                                                     >
                                                         <Power className="w-3.5 h-3.5" />
                                                     </button>
@@ -1772,8 +1743,8 @@ const ShopProductManagement = () => {
                                                                 disabled={petInactive}
                                                                 title={
                                                                     petInactive
-                                                                        ? "Không thể kích hoạt sản phẩm này vì thú cưng liên quan đã bị vô hiệu hóa"
-                                                                        : "Kích hoạt"
+                                                                        ? "Cannot activate product: related pet is inactive"
+                                                                        : "Active"
                                                                 }
                                                             >
                                                                 <RotateCcw className="w-3.5 h-3.5" />
@@ -1803,7 +1774,7 @@ const ShopProductManagement = () => {
                                 className="px-4 py-2 bg-white border border-purple-300 text-purple-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-400 hover:text-purple-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-purple-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                <span className="hidden sm:inline">Trước</span>
+                                <span className="hidden sm:inline">Previous page</span>
                             </button>
 
                             <div className="flex items-center gap-1">
@@ -1826,7 +1797,7 @@ const ShopProductManagement = () => {
                                 disabled={currentPage >= totalPages}
                                 className="px-4 py-2 bg-white border border-purple-300 text-purple-700 rounded-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-400 hover:text-purple-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-purple-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
-                                <span className="hidden sm:inline">Tiếp</span>
+                                <span className="hidden sm:inline">Next page</span>
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -1843,7 +1814,7 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <h3 className="text-4xl font-bold text-white">
-                                    {createModal ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}
+                                    {createModal ? 'Create new product' : 'Edit product'}
                                 </h3>
                             </div>
                         </div>
@@ -1857,14 +1828,14 @@ const ShopProductManagement = () => {
                                     {/* Product Name */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Tên sản phẩm</label>
+                                            <label className="text-lg font-semibold text-gray-800">Product name</label>
                                         </div>
                                         <input
                                             type="text"
                                             value={editForm.name}
                                             onChange={(e) => handleProductNameChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập tên sản phẩm"
+                                            placeholder="Enter product name"
                                             required
                                             minLength="2"
                                         />
@@ -1880,7 +1851,7 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         {/* Header with Google Drive Integration */}
                                         <div className="flex items-center justify-between mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">URL Hình ảnh</label>
+                                            <label className="text-lg font-semibold text-gray-800">Image URL</label>
                                             <div className="flex gap-2">
                                                 <a
                                                     href="https://drive.google.com/drive/u/0/folders/14-F6VcATkQVW8qwHrA4flc0fX8ffC5Ha"
@@ -1895,7 +1866,7 @@ const ShopProductManagement = () => {
                                                     onClick={() => setShowGoogleDriveHelp(true)}
                                                     className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors font-medium"
                                                 >
-                                                    ❓ Hướng dẫn
+                                                    ❓ Guide
                                                 </button>
                                             </div>
                                         </div>
@@ -1927,20 +1898,20 @@ const ShopProductManagement = () => {
                                                         const originalUrl = e.target.value;
                                                         const convertedUrl = convertGoogleDriveLink(originalUrl);
 
-                                                        // Debug logging để kiểm tra conversion
+                                                        // Debug logging to check conversion
                                                         if (originalUrl !== convertedUrl) {
                                                             console.log('🔄 Google Drive Link Conversion:');
                                                             console.log('Original:', originalUrl);
                                                             console.log('Converted:', convertedUrl);
                                                             setEditForm({ ...editForm, imageUrl: convertedUrl });
 
-                                                            // Hiển thị thông báo thành công
+                                                            // Show success notification
                                                             setLinkConverted(true);
                                                             setTimeout(() => setLinkConverted(false), 3000);
                                                         }
                                                     }}
                                                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.imageUrl ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                                    placeholder="Dán link Google Drive hoặc URL ảnh khác tại đây..."
+                                                    placeholder="Paste Google Drive image URL here..."
                                                 />
                                                 {fieldErrors.imageUrl && (
                                                     <p className="mt-2 text-sm text-red-600 flex items-center">
@@ -1958,14 +1929,14 @@ const ShopProductManagement = () => {
                                     {/* Price */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Giá sản phẩm</label>
+                                            <label className="text-lg font-semibold text-gray-800">Product price</label>
                                         </div>
                                         <input
                                             type="number"
                                             value={editForm.price}
                                             onChange={(e) => handlePriceChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.price ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập giá sản phẩm (>0)"
+                                            placeholder="Enter product price (>0)"
                                             min="1"
                                             required
                                         />
@@ -1980,7 +1951,7 @@ const ShopProductManagement = () => {
                                     {/* Currency Type */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Loại tiền tệ</label>
+                                            <label className="text-lg font-semibold text-gray-800">Currency type</label>
                                         </div>
                                         <div className="relative">
                                             <select
@@ -1988,7 +1959,7 @@ const ShopProductManagement = () => {
                                                 onChange={(e) => setEditForm({ ...editForm, currencyType: e.target.value })}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                 required
-                                                title="Chọn loại tiền tệ để mua sản phẩm"
+                                                title="Choose currency type"
                                             >
                                                 <option value="Coin">Coin</option>
                                                 <option value="Diamond">Diamond</option>
@@ -2005,7 +1976,7 @@ const ShopProductManagement = () => {
                                         {/* Product Type */}
                                         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <label className="text-lg font-semibold text-gray-800">Loại sản phẩm</label>
+                                                <label className="text-lg font-semibold text-gray-800">Product type</label>
                                             </div>
                                             <div className="relative">
                                                 <select
@@ -2015,9 +1986,9 @@ const ShopProductManagement = () => {
                                                     }}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                     required
-                                                    title="Chọn loại sản phẩm: Pet, Food, hoặc Toy"
+                                                    title="Select product type: Pet, Food, or Toy"
                                                 >
-                                                    <option value="">Chọn loại sản phẩm</option>
+                                                    <option value="">Choose product type</option>
                                                     <option value="Pet">Pet</option>
                                                     <option value="Food">Food</option>
                                                     <option value="Toy">Toy</option>
@@ -2035,7 +2006,7 @@ const ShopProductManagement = () => {
                                                 <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
                                                     ? 'text-gray-800'
                                                     : 'text-gray-400'
-                                                    }`}>Chọn thú cưng</label>
+                                                    }`}>Pet type</label>
                                             </div>
                                             <div className="relative">
                                                 <select
@@ -2059,10 +2030,10 @@ const ShopProductManagement = () => {
                                                     disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
                                                 >
                                                     <option value="">
-                                                        {editForm.type !== 'Pet' ? "Chọn loại sản phẩm 'Pet' trước" :
-                                                            petsLoading ? "Đang tải..." :
-                                                                pets.length === 0 ? "Không có thú cưng nào" :
-                                                                    "Chọn thú cưng"}
+                                                        {editForm.type !== 'Pet' ? "Only aviable for pet products" :
+                                                            petsLoading ? "Loading..." :
+                                                                pets.length === 0 ? "No pet available" :
+                                                                    "Choose pet type"}
                                                     </option>
                                                     {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
                                                         // Find the first active pet of this type
@@ -2088,14 +2059,14 @@ const ShopProductManagement = () => {
                                     {/* Quantity */}
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
-                                            <label className="text-lg font-semibold text-gray-800">Số lượng</label>
+                                            <label className="text-lg font-semibold text-gray-800">Quantity</label>
                                         </div>
                                         <input
                                             type="number"
                                             value={editForm.quantity}
                                             onChange={(e) => handleQuantityChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.quantity ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập số lượng có sẵn (≥0)"
+                                            placeholder="Enter available quantity (≥0)"
                                             min="0"
                                             required
                                         />
@@ -2118,12 +2089,12 @@ const ShopProductManagement = () => {
                                                 ? 'text-gray-400'
                                                 : 'text-gray-800'
                                                 }`}>
-                                                Trạng thái
+                                                Status
                                                 {parseInt(editForm.quantity) === 0 && (
-                                                    <span className="ml-2 text-sm font-normal text-amber-600">(Tự động: Inactive)</span>
+                                                    <span className="ml-2 text-sm font-normal text-amber-600">(Auto: Inactive)</span>
                                                 )}
                                                 {isRelatedPetInactive(editForm) && parseInt(editForm.quantity) > 0 && (
-                                                    <span className="ml-2 text-sm font-normal text-orange-600">(Không thể kích hoạt: Thú cưng bị vô hiệu hóa)</span>
+                                                    <span className="ml-2 text-sm font-normal text-orange-600">(Cannot set active: Pet is disabled)</span>
                                                 )}
                                             </label>
                                         </div>
@@ -2138,10 +2109,10 @@ const ShopProductManagement = () => {
                                                 required
                                                 title={
                                                     parseInt(editForm.quantity) === 0
-                                                        ? "Trạng thái tự động đặt thành Inactive khi số lượng = 0"
+                                                        ? "Status is automatically set to Inactive when quantity is 0"
                                                         : isRelatedPetInactive(editForm)
-                                                            ? "Không thể kích hoạt sản phẩm này vì thú cưng liên quan đã bị vô hiệu hóa. Hãy kích hoạt lại thú cưng trước."
-                                                            : "Active: hiển thị trong game | Inactive: ẩn khỏi game"
+                                                            ? "Cannot set active: related pet is inactive"
+                                                            : "Active: available in game | Inactive: unavailable in game"
                                                 }
                                                 disabled={parseInt(editForm.quantity) === 0 || isRelatedPetInactive(editForm)}
                                             >
@@ -2159,14 +2130,14 @@ const ShopProductManagement = () => {
                                 {/* Row 5 - Description (Full Width) */}
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <label className="text-lg font-semibold text-gray-800">Mô tả</label>
+                                        <label className="text-lg font-semibold text-gray-800">Description</label>
                                     </div>
                                     <textarea
                                         value={editForm.description}
                                         onChange={(e) => handleDescriptionChange(e.target.value)}
                                         rows={3}
                                         className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                        placeholder="Nhập mô tả sản phẩm (tùy chọn)"
+                                        placeholder="Enter product description (optional)"
                                         maxLength="500"
                                     />
                                     {fieldErrors.description && (
@@ -2177,7 +2148,7 @@ const ShopProductManagement = () => {
                                     )}
                                     <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
                                         <p className="text-sm text-purple-700 flex items-center justify-end gap-2">
-                                            <span>{editForm.description?.length || 0}/500 ký tự</span>
+                                            <span>{editForm.description?.length || 0}/500 words</span>
                                         </p>
                                     </div>
                                 </div>
@@ -2193,7 +2164,7 @@ const ShopProductManagement = () => {
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button
                                         onClick={() => handleSubmit(editModal.isOpen)}
@@ -2220,12 +2191,12 @@ const ShopProductManagement = () => {
                                         {createModal ? (
                                             <>
                                                 <Plus className="w-4 h-4" />
-                                                Tạo Sản phẩm
+                                                Create new product
                                             </>
                                         ) : (
                                             <>
                                                 <Edit className="w-4 h-4" />
-                                                Cập nhật
+                                                Update product
                                             </>
                                         )}
                                     </button>
@@ -2243,7 +2214,7 @@ const ShopProductManagement = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <Package className="h-5 w-5 text-blue-600" />
-                                Hướng dẫn sử dụng Google Drive
+                                Google Drive Usage Guide
                             </h3>
                             <button
                                 onClick={() => setShowGoogleDriveHelp(false)}
@@ -2255,32 +2226,32 @@ const ShopProductManagement = () => {
 
                         <div className="space-y-4">
                             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                <h4 className="font-semibold text-blue-800 mb-2">📁 Bước 1: Truy cập thư mục ảnh</h4>
+                                <h4 className="font-semibold text-blue-800 mb-2">📁 Step 1: Access Image Folder</h4>
                                 <p className="text-sm text-blue-700">
-                                    Click vào button "📁 Mở thư mục" để truy cập thư mục Google Drive chứa ảnh sản phẩm.
+                                    Click the "📁 Open Folder" button to access the Google Drive folder containing product images.
                                 </p>
                             </div>
 
                             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                                <h4 className="font-semibold text-green-800 mb-2">🖼️ Bước 2: Chọn ảnh</h4>
+                                <h4 className="font-semibold text-green-800 mb-2">🖼️ Step 2: Select Image</h4>
                                 <p className="text-sm text-green-700 mb-2">
-                                    Trong thư mục Google Drive:
+                                    In the Google Drive folder:
                                 </p>
                                 <ol className="text-sm text-green-700 list-decimal list-inside space-y-1">
                                     <li>Tìm và click vào ảnh bạn muốn sử dụng</li>
                                     <li>Ảnh sẽ mở trong chế độ preview</li>
                                     <li>Click vào icon "⋮" (3 chấm dọc) ở góc trên bên phải</li>
-                                    <li>Chọn "Chia sẻ" hoặc "Share"</li>
+                                    <li>Select "Share"</li>
                                 </ol>
                             </div>
 
                             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                                <h4 className="font-semibold text-yellow-800 mb-2">🔗 Bước 3: Lấy link chia sẻ</h4>
+                                <h4 className="font-semibold text-yellow-800 mb-2">🔗 Step 3: Get Share Link</h4>
                                 <ol className="text-sm text-yellow-700 list-decimal list-inside space-y-1">
                                     <li>Trong popup chia sẻ, click "Thay đổi" bên cạnh "Hạn chế"</li>
-                                    <li>Chọn "Bất kỳ ai có liên kết"</li>
+                                    <li>Select "Anyone with the link"</li>
                                     <li>Click "Sao chép liên kết"</li>
-                                    <li>Dán link vào ô "URL Hình ảnh" trong form</li>
+                                    <li>Paste the link into the "Image URL" field in the form</li>
                                 </ol>
                             </div>
 
@@ -2332,43 +2303,6 @@ const ShopProductManagement = () => {
                 </div>
             )}
 
-            {/* Delete Confirmation Modal */}
-            {deleteModal.isOpen && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-1/3 shadow-lg rounded-md bg-white">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-900">Xác nhận xóa</h3>
-                            <button
-                                onClick={() => setDeleteModal({ isOpen: false, product: null })}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <p className="text-sm text-gray-700 mb-6">
-                            Bạn có chắc chắn muốn xóa sản phẩm <strong>{deleteModal.product?.name}</strong>?
-                            Hành động này không thể hoàn tác.
-                        </p>
-
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setDeleteModal({ isOpen: false, product: null })}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={handleDeleteConfirm}
-                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                            >
-                                Xóa
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* View Details Modal */}
             {selectedProduct && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -2378,7 +2312,7 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <div className="flex items-center gap-4">
-                                    <h3 className="text-4xl font-bold text-white">Chi tiết sản phẩm</h3>
+                                    <h3 className="text-4xl font-bold text-white">Product detail</h3>
                                 </div>
                             </div>
                         </div>
@@ -2391,7 +2325,7 @@ const ShopProductManagement = () => {
                                     <div className="flex items-center justify-between w-full">
                                         <div>
                                             <h1 className="text-3xl font-bold text-purple-600">
-                                                Tên sản phẩm
+                                                Product name
                                             </h1>
                                         </div>
                                         <div>
@@ -2410,7 +2344,7 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <h4 className="text-lg font-semibold text-gray-800">Hình ảnh sản phẩm</h4>
+                                                <h4 className="text-lg font-semibold text-gray-800">Product image</h4>
                                             </div>
 
                                             <div className="flex justify-center">
@@ -2423,14 +2357,14 @@ const ShopProductManagement = () => {
                                                         />
                                                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-xl flex items-center justify-center">
                                                             <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
-                                                                Hình ảnh sản phẩm
+                                                                Product image
                                                             </span>
                                                         </div>
                                                     </div>
                                                 ) : (
                                                     <div className="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center">
                                                         <Package className="h-8 w-8 text-gray-400 mb-1" />
-                                                        <span className="text-gray-500 text-xs font-medium">Không có hình ảnh</span>
+                                                        <span className="text-gray-500 text-xs font-medium">No image</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -2441,7 +2375,7 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <h4 className="text-lg font-semibold text-gray-800">Thông tin cơ bản</h4>
+                                                <h4 className="text-lg font-semibold text-gray-800">Basic information</h4>
                                             </div>
 
                                             <div className="space-y-3">
@@ -2449,7 +2383,7 @@ const ShopProductManagement = () => {
 
                                                 <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                     <div className="flex justify-between items-center">
-                                                        <span className="text-sm font-medium text-gray-600">Loại sản phẩm</span>
+                                                        <span className="text-sm font-medium text-gray-600">Product type</span>
                                                         <div>
                                                             {selectedProduct.type === 'Food' && (
                                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
@@ -2468,7 +2402,7 @@ const ShopProductManagement = () => {
                                                             )}
                                                             {!isPetProduct(selectedProduct) && !['Food', 'Toy'].includes(selectedProduct.type) && (
                                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
-                                                                    {selectedProduct.type || 'Chưa phân loại'}
+                                                                    {selectedProduct.type || 'Unknown'}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -2479,7 +2413,7 @@ const ShopProductManagement = () => {
                                                 {isPetProduct(selectedProduct) && (
                                                     <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                         <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600">Thú cưng liên kết</span>
+                                                            <span className="text-sm font-medium text-gray-600">Linked pet</span>
                                                             <div className="text-right">
                                                                 {selectedProduct.petID ? (
                                                                     <span className="text-sm font-medium text-gray-800">
@@ -2491,7 +2425,7 @@ const ShopProductManagement = () => {
                                                                         })()}
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="text-sm text-gray-500 italic">Không có</span>
+                                                                    <span className="text-sm text-gray-500 italic">Not Specified</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -2507,15 +2441,14 @@ const ShopProductManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 h-full">
                                         <div className="p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <h4 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm</h4>
+                                                <h4 className="text-lg font-semibold text-gray-800">Product details</h4>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                                 {/* Pricing Information */}
                                                 <div className="space-y-3">
-                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin giá cả</h5>
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Product price</h5>
                                                     <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                                                        <span className="text-sm font-medium text-gray-600 block mb-1">Giá sản phẩm</span>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-xl font-bold text-green-700">
                                                                 {selectedProduct.price?.toLocaleString('vi-VN') || 0} {selectedProduct.currencyType}
@@ -2526,21 +2459,19 @@ const ShopProductManagement = () => {
 
                                                 {/* Inventory Information */}
                                                 <div className="space-y-3">
-                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin kho hàng</h5>
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Quantity</h5>
                                                     <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                                                        <span className="text-sm font-medium text-gray-600 block mb-1">Số lượng tồn kho</span>
                                                         <span className="text-xl font-bold text-blue-700">{selectedProduct.quantity}</span>
                                                     </div>
                                                 </div>
 
                                                 {/* Status Information */}
                                                 <div className="space-y-3">
-                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Trạng thái hoạt động</h5>
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Status</h5>
                                                     <div className={`p-3 rounded-lg border ${selectedProduct.status === 1
                                                         ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
                                                         : 'bg-gradient-to-r from-red-50 to-pink-50 border-red-200'
                                                         }`}>
-                                                        <span className="text-sm font-medium text-gray-600 block mb-2">Trạng thái hiện tại</span>
                                                         <div className="flex items-center justify-between gap-2">
                                                             {selectedProduct.status === 1 ? (
                                                                 <>
@@ -2559,9 +2490,8 @@ const ShopProductManagement = () => {
 
                                                 {/* Additional Information */}
                                                 <div className="space-y-3">
-                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Thông tin bổ sung</h5>
+                                                    <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Additional information</h5>
                                                     <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                                                        <span className="text-sm font-medium text-gray-600 block mb-1">ID sản phẩm</span>
                                                         <span className="text-base font-bold text-purple-700 font-mono">
                                                             #{selectedProduct.shopProductId}
                                                         </span>
@@ -2571,7 +2501,7 @@ const ShopProductManagement = () => {
 
                                             {/* Product Description */}
                                             <div>
-                                                <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Mô tả sản phẩm</h5>
+                                                <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-3">Product description</h5>
                                                 <div className="p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg border border-gray-200">
                                                     {selectedProduct.description ? (
                                                         <div className="space-y-2">
@@ -2583,7 +2513,7 @@ const ShopProductManagement = () => {
                                                             {selectedProduct.description.length > 150 && (
                                                                 <div className="flex items-center gap-2 text-xs text-gray-500 pt-1 border-t border-gray-200">
                                                                     <Package className="h-3 w-3" />
-                                                                    <span>{selectedProduct.description.length} ký tự</span>
+                                                                    <span>{selectedProduct.description.length} words</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -2591,7 +2521,7 @@ const ShopProductManagement = () => {
                                                         <div className="flex items-center justify-center py-4">
                                                             <span className="text-gray-400 italic flex items-center gap-2">
                                                                 <Package className="h-4 w-4" />
-                                                                Chưa có mô tả cho sản phẩm này
+                                                                No description available for this product
                                                             </span>
                                                         </div>
                                                     )}
@@ -2612,7 +2542,7 @@ const ShopProductManagement = () => {
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
-                                        Đóng
+                                        Close
                                     </button>
                                     <button
                                         onClick={() => {
@@ -2622,7 +2552,7 @@ const ShopProductManagement = () => {
                                         className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
                                     >
                                         <Edit className="w-4 h-4" />
-                                        Chỉnh sửa
+                                        Update product
                                     </button>
                                 </div>
                             </div>

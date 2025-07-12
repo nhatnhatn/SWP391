@@ -13,12 +13,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContextV2';
 import LogoutConfirmDialog from './LogoutConfirmDialog';
-import { t } from '../constants/vietnamese';
 
 const navigation = [
-    { name: t('nav.players'), href: '/players', icon: Users },
-    { name: t('nav.pets'), href: '/pets', icon: PawPrint },
-    { name: t('nav.shops'), href: '/shop-products', icon: Package },
+    { name: 'Players', href: '/players', icon: Users },
+    { name: 'Pets', href: '/pets', icon: PawPrint },
+    { name: 'Shops', href: '/shop-products', icon: Package },
 ];
 
 export default function Layout({ children }) {
@@ -119,13 +118,13 @@ export default function Layout({ children }) {
                                     </div>
                                 </div>
                                 <div className="ml-2 flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-700 truncate">{user?.name || t('nav.admin')}</p>
+                                    <p className="text-xs font-medium text-gray-700 truncate">{user?.name || 'Admin'}</p>
                                     <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@mylittlepet.com'}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowLogoutDialog(true)}
                                     className="ml-1 p-1 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
-                                    title={t('auth.signOut')}
+                                    title="Sign Out"
                                 >
                                     <LogOut className="h-3 w-3" />
                                 </button>
@@ -142,7 +141,7 @@ export default function Layout({ children }) {
                             <button
                                 onClick={() => setSidebarExpanded(!sidebarExpanded)}
                                 className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                                title={sidebarExpanded ? 'Thu gọn' : 'Mở rộng'}
+                                title={sidebarExpanded ? 'Collapse' : 'Expand'}
                             >
                                 {sidebarExpanded ? (
                                     <ChevronLeft className="h-4 w-4" />
@@ -191,13 +190,13 @@ export default function Layout({ children }) {
                                         </div>
                                     </div>
                                     <div className="ml-2 flex-1 min-w-0">
-                                        <p className="text-xs font-medium text-gray-700 truncate">{user?.name || t('nav.admin')}</p>
+                                        <p className="text-xs font-medium text-gray-700 truncate">{user?.name || 'Admin'}</p>
                                         <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@mylittlepet.com'}</p>
                                     </div>
                                     <button
                                         onClick={() => setShowLogoutDialog(true)}
                                         className="ml-1 p-1 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
-                                        title={t('auth.signOut')}
+                                        title="Sign Out"
                                     >
                                         <LogOut className="h-3 w-3" />
                                     </button>
@@ -212,7 +211,7 @@ export default function Layout({ children }) {
                                     <button
                                         onClick={() => setShowLogoutDialog(true)}
                                         className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                                        title={t('auth.signOut')}
+                                        title="Sign Out"
                                     >
                                         <LogOut className="h-3 w-3" />
                                     </button>

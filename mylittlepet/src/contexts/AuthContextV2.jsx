@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
             console.log('📝 AuthContextV2: Setting user data:', userData);
             setUser(userData);
 
-            // Lưu cả token riêng và user data
+            // Save both token and user data separately
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('adminUser', JSON.stringify(userData));
             console.log('✅ AuthContextV2: User state and token saved successfully');
@@ -129,7 +129,17 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.error('❌ AuthContextV2: Login failed:', error);
-            throw error;
+            console.error('❌ AuthContextV2: Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+
+            // Return a structured error instead of throwing
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message || 'Login failed'
+            };
         }
     };
 
@@ -146,7 +156,7 @@ export const AuthProvider = ({ children }) => {
     const changePassword = async (oldPassword, newPassword) => {
         try {
             await apiService.changePassword(oldPassword, newPassword);
-            return { success: true, message: 'Đổi mật khẩu thành công' };
+            return { success: true, message: 'Password changed successfully' };
         } catch (error) {
             console.error('Change password failed:', error);
             throw error;

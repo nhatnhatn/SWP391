@@ -51,7 +51,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
-                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                    {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
                                     {message}
@@ -295,10 +295,10 @@ const PlayersSimple = () => {    // Use hook for data management
             // Refresh data sau khi update
             await refreshCurrentPage();
 
-            alert('Cập nhật thông tin người chơi thành công!');
+            alert('Player information updated successfully!');
         } catch (error) {
             console.error('Failed to update player:', error);
-            alert('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'));
+            alert('Update failed: ' + (error.message || 'Unknown error'));
         }
     };
 
@@ -316,10 +316,10 @@ const PlayersSimple = () => {    // Use hook for data management
 
     const handleDelete = (playerId) => {
         // Simple delete - happy case
-        const confirmDelete = window.confirm('Bạn có chắc muốn xóa?');
+        const confirmDelete = window.confirm('Are you sure you want to delete?');
         if (confirmDelete) {
             // Note: deletePlayer function from hook can be added later
-            alert('Chức năng xóa sẽ được hoàn thiện sau!');
+            alert('Delete functionality will be completed later!');
         }
     };
 
@@ -342,8 +342,8 @@ const PlayersSimple = () => {    // Use hook for data management
                             <Users className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Quản lý người chơi</h1>
-                            {/* <p className="text-gray-600 mt-1">Quản lý danh sách người chơi trong game</p> */}
+                            <h1 className="text-3xl font-bold text-gray-800">Player management</h1>
+                            {/* <p className="text-gray-600 mt-1">Manage list of players in the game</p> */}
                         </div>
                     </div>
 
@@ -354,23 +354,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="p-1.5 bg-green-100 rounded-lg">
                                     <Users className="h-4 w-4 text-green-600" />
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Tổng người chơi</p>
+                                <p className="text-sm font-medium text-gray-600">Total players</p>
                             </div>
                             <p className="text-2xl font-bold text-green-600">{stats?.total || players.length}</p>
-                        </div>
-
-                        <div className="w-px h-12 bg-gray-300"></div>
-
-                        <div className="text-center">
-                            <div className="flex items-center gap-2 mb-1">
-                                <div className="p-1.5 bg-blue-100 rounded-lg">
-                                    <Users className="h-4 w-4 text-blue-600" />
-                                </div>
-                                <p className="text-sm font-medium text-gray-600">Tổng số người chơi</p>
-                            </div>
-                            <p className="text-2xl font-bold text-blue-600">
-                                {allPlayers.length}
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -381,7 +367,7 @@ const PlayersSimple = () => {    // Use hook for data management
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <Users className="h-4 w-4 text-blue-600" />
-                                <p className="text-xs font-medium text-gray-600">Tổng số người chơi</p>
+                                <p className="text-xs font-medium text-gray-600">Total players</p>
                             </div>
                             <p className="text-lg font-bold text-blue-600">{allPlayers.length}</p>
                         </div>
@@ -394,7 +380,7 @@ const PlayersSimple = () => {    // Use hook for data management
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                     <div className="flex">
                         <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
+                            <h3 className="text-sm font-medium text-red-800">An error occurred</h3>
                             <div className="mt-2 text-sm text-red-700">
                                 <p>{error}</p>
                             </div>
@@ -412,7 +398,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <Search className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Tìm kiếm & Bộ lọc</h3>
+                                <h3 className="text-xl font-bold text-white">Search & Filter</h3>
                             </div>
                         </div>
 
@@ -427,14 +413,14 @@ const PlayersSimple = () => {    // Use hook for data management
                             <div className="h-4 w-4 bg-green-600 rounded-full flex items-center justify-center">
                                 <Search className="h-2 w-2 text-white" />
                             </div>
-                            <span className="text-sm font-medium text-gray-700"> Tìm kiếm người chơi</span>
+                            <span className="text-sm font-medium text-gray-700">Search players</span>
                         </div>
 
                         <div className="space-y-3">
                             <div className="relative group">
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-green-500 transition-colors duration-200" />                                <input
                                     type="text"
-                                    placeholder="Nhập tên người chơi để tìm kiếm..."
+                                    placeholder="Enter player name to search..."
                                     value={localSearchTerm}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
@@ -443,7 +429,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <button
                                         onClick={clearSearch}
                                         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                        title="Xóa tìm kiếm"
+                                        title="Clear search"
                                     >
                                         <X className="h-4 w-4" />
                                     </button>
@@ -455,16 +441,16 @@ const PlayersSimple = () => {    // Use hook for data management
                                     <div className="flex items-center gap-2">
                                         <div className="h-2 w-2 bg-green-600 rounded-full animate-pulse"></div>
                                         <p className="text-sm text-green-800 font-medium">
-                                            🔍 Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-green-900">{debouncedSearchTerm || localSearchTerm}</span>"
+                                            🔍 Showing search results for: "<span className="font-semibold text-green-900">{debouncedSearchTerm || localSearchTerm}</span>"
                                             {localSearchTerm !== debouncedSearchTerm && localSearchTerm && (
-                                                <span className="text-xs text-green-600 ml-2">(đang nhập...)</span>
+                                                <span className="text-xs text-green-600 ml-2">(typing...)</span>
                                             )}
                                         </p>
                                         <button
                                             onClick={clearSearch}
                                             className="ml-auto text-green-600 hover:text-green-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                         >
-                                            Xóa tìm kiếm
+                                            Clear search
                                         </button>
                                     </div>
                                 </div>)}
@@ -478,7 +464,7 @@ const PlayersSimple = () => {    // Use hook for data management
                             >
                                 <Filter className="h-5 w-5 text-gray-600 group-hover:text-gray-700" />
                                 <span className="text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                                    Bộ lọc nâng cao
+                                    Advanced filters
                                 </span>
                                 {showAdvancedFilters ? (
                                     <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
@@ -502,12 +488,13 @@ const PlayersSimple = () => {    // Use hook for data management
                                         <div className="h-4 w-4 bg-emerald-600 rounded-full flex items-center justify-center">
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700"> Lọc theo nội dung</span>
-                                    </div>                            <div className="grid grid-cols-1 gap-4">
+                                        <span className="text-sm font-medium text-gray-700">Filter by content</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4">
                                         {/* Level Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Mức độ Level
+                                                Level Range
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -515,9 +502,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     onChange={(e) => setLevelFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="all"> Tất cả level</option>
-                                                    <option value="low"> Thấp (1-9)</option>
-                                                    <option value="medium"> Trung bình (10-49)</option>
+                                                    <option value="all">All levels</option>
+                                                    <option value="low"> Low (1-9)</option>
+                                                    <option value="medium"> Medium (10-49)</option>
                                                     <option value="high"> Cao (50+)</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -530,9 +517,9 @@ const PlayersSimple = () => {    // Use hook for data management
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {levelFilter !== 'all' && (
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                                    {levelFilter === 'low' ? ' Level thấp' :
-                                                        levelFilter === 'medium' ? ' Level trung bình' :
-                                                            ' Level cao'}
+                                                    {levelFilter === 'low' ? ' Low level' :
+                                                        levelFilter === 'medium' ? ' Medium level' :
+                                                            ' High level'}
                                                 </span>
                                             )}
                                         </div>
@@ -546,14 +533,14 @@ const PlayersSimple = () => {    // Use hook for data management
 
                                             <ChevronUp className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
+                                        <span className="text-sm font-medium text-gray-700"> Sort data</span>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Sort Field */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Sắp xếp theo
+                                                Sort by
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -567,8 +554,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     }}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value=""> Không sắp xếp</option>
-                                                    <option value="userName"> Tên người chơi</option>
+                                                    <option value=""> No sorting</option>
+                                                    <option value="userName">Player name</option>
                                                     <option value="level"> Level</option>
                                                     <option value="coin"> Coin</option>
                                                     <option value="diamond"> Diamond</option>
@@ -581,7 +568,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         {/* Sort Direction */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Thứ tự
+                                                Order by
                                             </label>
                                             <div className="flex gap-2">
                                                 <button
@@ -596,7 +583,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronUp className="h-4 w-4" />
-                                                        Tăng dần
+                                                        Ascending
                                                     </div>
                                                 </button>
                                                 <button
@@ -611,7 +598,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronDown className="h-4 w-4" />
-                                                        Giảm dần
+                                                        Descending
                                                     </div>
                                                 </button>
                                             </div>
@@ -625,20 +612,20 @@ const PlayersSimple = () => {    // Use hook for data management
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
                                                     <span className="text-blue-800 font-medium">
-                                                        Đang sắp xếp theo: <span className="font-bold">
-                                                            {sortConfig.key === 'userName' && 'Tên người chơi'}
+                                                        Currently sorting by: <span className="font-bold">
+                                                            {sortConfig.key === 'userName' && 'Player name'}
                                                             {sortConfig.key === 'level' && 'Level'}
                                                             {sortConfig.key === 'coin' && ' Coin'}
                                                             {sortConfig.key === 'diamond' && ' Diamond'}
                                                             {sortConfig.key === 'gem' && ' Gem'}
-                                                        </span> ({sortConfig.direction === 'asc' ? 'Thứ tự tăng dần' : 'Thứ tự giảm Giảm dần'})
+                                                        </span> ({sortConfig.direction === 'asc' ? 'Ascending order' : 'Descending order'})
                                                     </span>
                                                 </div>
                                                 <button
                                                     onClick={() => setSortConfig({ key: null, direction: 'asc' })}
                                                     className="text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                                 >
-                                                    Bỏ sắp xếp
+                                                    Clear sorting
                                                 </button>
                                             </div>
                                         </div>
@@ -651,7 +638,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
                                             <X className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700"> Thao tác</span>
+                                        <span className="text-sm font-medium text-gray-700"> Actions</span>
                                     </div>
 
                                     <div className="flex flex-wrap gap-3">
@@ -669,8 +656,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                         >
                                             <X className="h-4 w-4 mr-2" />
                                             {levelFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm
-                                                ? 'Không có bộ lọc nào'
-                                                : 'Xóa tất cả bộ lọc'
+                                                ? 'No filters'
+                                                : 'Clear all filters'
                                             }
                                         </button>
 
@@ -679,10 +666,10 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
-                                                    (localSearchTerm || debouncedSearchTerm) && 'Tìm kiếm',
+                                                    (localSearchTerm || debouncedSearchTerm) && 'Search',
                                                     levelFilter !== 'all' && 'Level',
-                                                    sortConfig.key && 'Sắp xếp'
-                                                ].filter(Boolean).length} bộ lọc đang áp dụng
+                                                    sortConfig.key && 'Sort'
+                                                ].filter(Boolean).length} active filters
                                             </div>)}
                                     </div>
                                 </div>
@@ -702,7 +689,7 @@ const PlayersSimple = () => {    // Use hook for data management
                             <div className="relative flex justify-center items-center">
                                 <div className="flex items-center gap-4">
                                     <div>
-                                        <h3 className="text-4xl font-bold text-white">Chi tiết người chơi</h3>
+                                        <h3 className="text-4xl font-bold text-white">Player details</h3>
                                     </div>
                                 </div>
                             </div>
@@ -718,14 +705,14 @@ const PlayersSimple = () => {    // Use hook for data management
                                             <span className="text-blue-600 font-bold text-sm">👤</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-xl text-gray-800">Thông tin tài khoản</h4>
+                                            <h4 className="font-semibold text-xl text-gray-800">Account information</h4>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm text-gray-600">
                                             {selectedPlayer.joinDate ?
-                                                `Ngày tham gia: ${new Date(selectedPlayer.joinDate).toLocaleDateString('vi-VN')}` :
-                                                'Ngày tham gia: N/A'
+                                                `Join date: ${new Date(selectedPlayer.joinDate).toLocaleDateString('en-US')}` :
+                                                'Join date: N/A'
                                             }
                                         </p>
                                     </div>
@@ -738,7 +725,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-200">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Cấp độ hiện tại</p>
+                                            <p className="text-xs font-medium text-amber-600 uppercase tracking-wide">Current level</p>
                                             <p className="text-2xl font-bold text-amber-700">{selectedPlayer.level || 1}</p>
                                         </div>
 
@@ -791,16 +778,16 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-5 border-b border-gray-100">
                                         <div className="flex items-center justify-center gap-3">
-                                            <h4 className="text-2xl font-semibold text-gray-800">Thông tin cá nhân</h4>
+                                            <h4 className="text-2xl font-semibold text-gray-800">Personal information</h4>
                                         </div>
                                     </div>
                                     <div className="p-5 space-y-4">
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span className="text-sm font-medium text-gray-600">ID Người chơi</span>
+                                            <span className="text-sm font-medium text-gray-600">Player ID</span>
                                             <span className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">#{selectedPlayer.id}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span className="text-sm font-medium text-gray-600">Tên người chơi</span>
+                                            <span className="text-sm font-medium text-gray-600">Player name</span>
                                             <span className="text-sm font-semibold text-gray-900">{selectedPlayer.userName || 'N/A'}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-2">
@@ -814,20 +801,20 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-5 border-b border-gray-100">
                                         <div className="flex items-center justify-center gap-3">
-                                            <h4 className="text-2xl font-semibold text-gray-800">Thống kê Game</h4>
+                                            <h4 className="text-2xl font-semibold text-gray-800">Game statistics</h4>
                                         </div>
                                     </div>
                                     <div className="p-5 space-y-4">
 
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                            <span className="text-sm font-medium text-gray-600">Tổng thú cưng</span>
+                                            <span className="text-sm font-medium text-gray-600">Total pets</span>
                                             <span className="text-sm font-bold text-blue-600 flex items-center gap-1">
                                                 <span>🐾</span>
                                                 {selectedPlayer.totalPets || 0}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center py-2">
-                                            <span className="text-sm font-medium text-gray-600">Cấp độ hiện tại</span>
+                                            <span className="text-sm font-medium text-gray-600">Current level</span>
                                             <div className="flex items-center gap-2">
 
                                                 <span className="text-sm text-black-500">{selectedPlayer.level || 1}</span>
@@ -846,12 +833,12 @@ const PlayersSimple = () => {    // Use hook for data management
                                                 <span className="text-emerald-600 text-lg">🐾</span>
                                             </div>
                                             <div>
-                                                <h4 className="text-lg font-semibold text-gray-800">Danh sách thú cưng</h4>
+                                                <h4 className="text-lg font-semibold text-gray-800">Pet list</h4>
                                             </div>
                                         </div>
                                         {selectedPlayerPets.length > 0 && (
                                             <div className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
-                                                {selectedPlayerPets.length} thú cưng
+                                                {selectedPlayerPets.length} pets
                                             </div>
                                         )}
                                     </div>
@@ -861,8 +848,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                     {loadingPets ? (
                                         <div className="flex flex-col items-center justify-center py-12 text-blue-600">
                                             <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-                                            <span className="text-lg font-medium">Đang tải danh sách thú cưng...</span>
-                                            <span className="text-sm text-gray-500 mt-1">Vui lòng chờ trong giây lát</span>
+                                            <span className="text-lg font-medium">Loading pet list...</span>
+                                            <span className="text-sm text-gray-500 mt-1">Please wait a moment</span>
                                         </div>
                                     ) : selectedPlayerPets.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -884,8 +871,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <h6 className="font-semibold text-gray-900 text-sm line-clamp-1" title={pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}>
-                                                            {pet.petCustomName || pet.petDefaultName || 'Chưa đặt tên'}
+                                                        <h6 className="font-semibold text-gray-900 text-sm line-clamp-1" title={pet.petCustomName || pet.petDefaultName || 'Unnamed'}>
+                                                            {pet.petCustomName || pet.petDefaultName || 'Unnamed'}
                                                         </h6>
 
                                                         {pet.petType && (
@@ -901,14 +888,14 @@ const PlayersSimple = () => {    // Use hook for data management
                                         </div>
                                     ) : (
                                         <div className="text-center py-16 text-gray-500 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
-                                            <p className="text-lg font-semibold text-gray-700 mb-2">Chưa có thú cưng nào</p>
+                                            <p className="text-lg font-semibold text-gray-700 mb-2">No pets found</p>
                                             <p className="text-sm text-gray-500 max-w-md mx-auto">
-                                                Người chơi này chưa sở hữu thú cưng nào trong game.
-                                                Họ có thể nhận thú cưng đầu tiên từ cửa hàng.
+                                                This player doesn't own any pets in the game.
+                                                They can get their first pet from the shop.
                                             </p>
                                             <div className="mt-4 flex justify-center">
                                                 <div className="px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm">
-                                                    0 thú cưng
+                                                    0 pets
                                                 </div>
                                             </div>
                                         </div>
@@ -930,7 +917,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-2"
                                     >
                                         <Edit className="w-4 h-4" />
-                                        Chỉnh sửa
+                                        Edit
                                     </button> */}
 
                                 <button
@@ -941,7 +928,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium flex items-center gap-2"
                                 >
                                     <X className="w-4 h-4" />
-                                    Đóng
+                                    Close
                                 </button>
                             </div>
                         </div>
@@ -954,14 +941,14 @@ const PlayersSimple = () => {    // Use hook for data management
                 {/* Table Header */}
                 <div className="bg-gradient-to-l from-teal-600 to-green-600 px-6 py-4 border-b border-green-100">
                     <div className="flex items-center justify-center">
-                        <p className="text-xl font-bold text-white text-center">DANH SÁCH NGƯỜI CHƠI TRONG GAME</p>
+                        <p className="text-xl font-bold text-white text-center">PLAYER LIST</p>
                     </div>
                 </div>
 
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                        <p className="mt-2 text-gray-600">Đang tải...</p>
+                        <p className="mt-2 text-gray-600">Loading...</p>
                     </div>
                 ) : (
                     <div className="overflow-hidden">
@@ -978,7 +965,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <tr>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Tên Người chơi
+                                            Player Name
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
@@ -1002,7 +989,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
-                                        Thao tác
+                                        Action
                                     </th>
                                 </tr>
                             </thead>
@@ -1016,11 +1003,11 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     <Users className="h-8 w-8 text-gray-400" />
                                                 </div>
                                                 <div className="text-center">
-                                                    <h3 className="text-lg font-medium text-gray-900">Không có người chơi nào</h3>
+                                                    <h3 className="text-lg font-medium text-gray-900">No players found</h3>
                                                     <p className="text-sm text-gray-500 mt-1">
                                                         {(localSearchTerm || debouncedSearchTerm) || levelFilter !== 'all'
-                                                            ? 'Không tìm thấy người chơi phù hợp với bộ lọc.'
-                                                            : 'Không có người chơi nào trong trang này.'}
+                                                            ? 'No players found matching the filters.'
+                                                            : 'No players found on this page.'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -1078,29 +1065,10 @@ const PlayersSimple = () => {    // Use hook for data management
                                                     <button
                                                         onClick={() => handleView(player)}
                                                         className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Xem chi tiết"
+                                                        title="View Details"
                                                     >
                                                         <Eye className="w-3.5 h-3.5" />
                                                     </button>
-
-                                                    {/* Ban/Unban Button */}
-                                                    {/* {player.userStatus === 'BANNED' ? (
-                                                        <button
-                                                            onClick={() => handleUnbanPlayer(player.id)}
-                                                            className="text-green-600 hover:text-green-900 hover:bg-green-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                            title="Bỏ cấm tài khoản"
-                                                        >
-                                                            <RotateCcw className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => handleBanPlayer(player.id)}
-                                                            className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                            title="Cấm tài khoản"
-                                                        >
-                                                            <Power className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    )} */}
                                                 </div>
                                             </td>
                                         </tr>
@@ -1124,7 +1092,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                     className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                                 >
                                     <ChevronLeft className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Trước</span>
+                                    <span className="hidden sm:inline">Previous page</span>
                                 </button>
 
                                 {/* Page Numbers */}
@@ -1170,91 +1138,8 @@ const PlayersSimple = () => {    // Use hook for data management
                                     disabled={currentFilterPage >= totalFilteredPages - 1}
                                     className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                                 >
-                                    <span className="hidden sm:inline">Tiếp</span>
+                                    <span className="hidden sm:inline">Next page</span>
                                     <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
-
-            {/* Edit Player Modal */}
-            {
-                editModal.isOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-6 w-96 max-w-lg mx-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                Chỉnh sửa người chơi: {editModal.player?.userName}
-                            </h3>                            <div className="space-y-4 mb-6">
-                                {/* Level */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Level
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="999"
-                                        value={editForm.level}
-                                        onChange={(e) => setEditForm({ ...editForm, level: parseInt(e.target.value) || 1 })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
-
-                                {/* Tài sản */}
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Coins
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            value={editForm.coin}
-                                            onChange={(e) => setEditForm({ ...editForm, coin: parseInt(e.target.value) || 0 })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Diamonds
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            value={editForm.diamond}
-                                            onChange={(e) => setEditForm({ ...editForm, diamond: parseInt(e.target.value) || 0 })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Gems
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            value={editForm.gem}
-                                            onChange={(e) => setEditForm({ ...editForm, gem: parseInt(e.target.value) || 0 })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    onClick={handleEditCancel}
-                                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    onClick={handleEditSubmit}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Cập nhật
                                 </button>
                             </div>
                         </div>

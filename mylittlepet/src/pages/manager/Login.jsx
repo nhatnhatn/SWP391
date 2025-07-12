@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Heart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
-import { t } from '../../constants/vietnamese';
 
 // Notification Toast Component (copied from ShopProductManagement)
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
@@ -52,7 +51,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
-                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                    {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
                                     {message}
@@ -88,13 +87,13 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    
+
     // Individual field error states for better UX (like Register)
     const [fieldErrors, setFieldErrors] = useState({
         email: '',
         password: ''
     });
-    
+
     // Notification state
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
@@ -127,7 +126,7 @@ export default function Login() {
         clearFieldError('email');
 
         if (emailValue && !validateEmail(emailValue)) {
-            setFieldErrors(prev => ({ ...prev, email: 'Email không hợp lệ. Vui lòng nhập đúng định dạng email.' }));
+            setFieldErrors(prev => ({ ...prev, email: 'Invalid email. Please enter a valid email format.' }));
         }
     };
 
@@ -138,7 +137,7 @@ export default function Login() {
         clearFieldError('password');
 
         if (passwordValue && passwordValue.length < 6) {
-            setFieldErrors(prev => ({ ...prev, password: 'Mật khẩu phải có ít nhất 6 ký tự.' }));
+            setFieldErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters.' }));
         }
     };
 
@@ -147,29 +146,35 @@ export default function Login() {
         if (!errorMsg) return '';
 
         const lowerError = errorMsg.toLowerCase();
+        console.log('🔍 Debug: Analyzing error message:', errorMsg);
+
+        // Check for role-based access issues first (most specific)
+        if (lowerError.includes('player') || lowerError.includes('user role') || lowerError.includes('not admin')) {
+            return '🚫 This is a Player account, not authorized to access admin panel. Only Admin accounts can login to the management system.';
+        }
+
+        if (lowerError.includes('unauthorized') || lowerError.includes('access denied') || lowerError.includes('role') || lowerError.includes('permission') || lowerError.includes('forbidden')) {
+            return '🚫 Your account does not have permission to access the admin panel. Only Admins can login.';
+        }
 
         if (lowerError.includes('invalid email') || lowerError.includes('email not found') || lowerError.includes('user not found')) {
-            return ' Email không tồn tại trong hệ thống. Vui lòng kiểm tra lại email của bạn.';
+            return '📧 Email not found in the system. Please check your email address.';
         }
 
-        if (lowerError.includes('wrong password') || lowerError.includes('invalid password') || lowerError.includes('incorrect password')) {
-            return ' Mật khẩu không chính xác. Vui lòng kiểm tra lại mật khẩu của bạn.';
+        if (lowerError.includes('wrong password') || lowerError.includes('invalid password') || lowerError.includes('incorrect password') || lowerError.includes('password')) {
+            return '🔐 Incorrect password. Please check your password.';
         }
 
-        if (lowerError.includes('unauthorized') || lowerError.includes('access denied') || lowerError.includes('role') || lowerError.includes('permission')) {
-            return ' Tài khoản của bạn không có quyền truy cập vào trang quản trị. Chỉ Admin mới có thể đăng nhập.';
-        }
-
-        if (lowerError.includes('account disabled') || lowerError.includes('account suspended') || lowerError.includes('banned')) {
-            return ' Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên cấp cao.';
+        if (lowerError.includes('account disabled') || lowerError.includes('account suspended') || lowerError.includes('banned') || lowerError.includes('inactive')) {
+            return '⛔ Your account has been disabled. Please contact the system administrator.';
         }
 
         if (lowerError.includes('network') || lowerError.includes('connection')) {
-            return ' Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet và thử lại.';
+            return '🌐 Network connection error. Please check your internet connection and try again.';
         }
 
-        // Default fallback for other errors
-        return ` ${errorMsg}`;
+        // Default fallback for other errors  
+        return `❌ ${errorMsg}`;
     };
 
     const showNotification = (message, type = 'error', duration = 3000) => {
@@ -192,25 +197,25 @@ export default function Login() {
         let isValid = true;
 
         if (!email.trim()) {
-            errors.email = 'Email là bắt buộc. Vui lòng nhập email của bạn.';
+            errors.email = 'Email is required. Please enter your email.';
             isValid = false;
         } else if (!validateEmail(email)) {
-            errors.email = 'Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: user@example.com).';
+            errors.email = 'Invalid email format. Please enter a valid email (e.g., user@example.com).';
             isValid = false;
         }
 
         if (!password.trim()) {
-            errors.password = 'Mật khẩu là bắt buộc. Vui lòng nhập mật khẩu của bạn.';
+            errors.password = 'Password is required. Please enter your password.';
             isValid = false;
         } else if (password.length < 6) {
-            errors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
+            errors.password = 'Password must be at least 6 characters.';
             isValid = false;
         }
 
         if (!isValid) {
             setFieldErrors(errors);
             setIsLoading(false);
-            showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+            showNotification('Please check and fix the errors in the form.', 'error');
             return;
         }
 
@@ -224,11 +229,11 @@ export default function Login() {
                 console.log('✅ Login: Login successful, preparing navigation');
 
                 // Show success notification
-                showNotification('🎉 Đăng nhập thành công! Đang chuyển hướng...', 'success', 2000);
+                showNotification('🎉 Login successful! Redirecting...', 'success', 2000);
 
                 // Store success notification for next page
                 sessionStorage.setItem('loginSuccessNotification', JSON.stringify({
-                    message: 'Chào mừng bạn đến với trang quản lí My Little Pet!',
+                    message: 'Welcome to My Little Pet Management Panel!',
                     type: 'success',
                     timestamp: Date.now()
                 }));
@@ -242,12 +247,17 @@ export default function Login() {
                 }, 1800); // 1.8 second delay to show the success notification
 
             } else {
-                const errorMessage = getErrorMessage(result.error || 'Đăng nhập thất bại');
+                console.log('❌ Login: Login failed with error:', result.error);
+                const errorMessage = getErrorMessage(result.error || 'Login failed');
+                console.log('📝 Login: Processed error message:', errorMessage);
                 setError(errorMessage);
                 showNotification(errorMessage, 'error');
             }
         } catch (error) {
-            const errorMessage = getErrorMessage(error.message || 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+            console.log('💥 Login: Exception caught:', error);
+            console.log('💥 Login: Error message:', error.message);
+            const errorMessage = getErrorMessage(error.message || 'An error occurred during login. Please try again.');
+            console.log('📝 Login: Processed exception message:', errorMessage);
             setError(errorMessage);
             showNotification(errorMessage, 'error');
         } finally {
@@ -271,7 +281,7 @@ export default function Login() {
                         🐾 My Little Pet
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
-                        Đăng nhập vào tài khoản quản trị viên
+                        Sign in to your admin account
                     </p>
                 </div>
 
@@ -280,7 +290,7 @@ export default function Login() {
                         <div className="space-y-4">
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.emailAddress')}
+                                    Email Address
                                 </label>
                                 <input
                                     id="email"
@@ -291,7 +301,7 @@ export default function Login() {
                                     value={email}
                                     onChange={handleEmailChange}
                                     className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${fieldErrors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                    placeholder={t('auth.enterEmail')}
+                                    placeholder="Enter your email"
                                 />
                                 {fieldErrors.email && (
                                     <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -303,7 +313,7 @@ export default function Login() {
 
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.password')}
+                                    Password
                                 </label>
                                 <div className="mt-1 relative">
                                     <input
@@ -315,7 +325,7 @@ export default function Login() {
                                         value={password}
                                         onChange={handlePasswordChange}
                                         className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${fieldErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                        placeholder={t('auth.enterPassword')}
+                                        placeholder="Enter your password"
                                     />
                                     <button
                                         type="button"
@@ -342,31 +352,31 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={
-                                    isLoading || 
+                                    isLoading ||
                                     Object.values(fieldErrors).some(error => error !== '') ||
-                                    !email.trim() || 
+                                    !email.trim() ||
                                     !password.trim()
                                 }
                                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
                             >                                {isLoading ? (
                                 <div className="flex items-center">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    {t('auth.signingIn')}
+                                    Signing in...
                                 </div>
                             ) : (<div className="flex items-center">
                                 <LogIn className="h-4 w-4 mr-2" />
-                                {t('auth.signIn')}
+                                Sign In
                             </div>
                             )}
                             </button>
                         </div>                        <div className="mt-4 text-center">
                             <p className="text-sm text-gray-600">
-                                {t('auth.dontHaveAccount')}{' '}
+                                Don't have an account?{' '}
                                 <Link
                                     to="/register"
                                     className="font-medium text-indigo-600 hover:text-indigo-500"
                                 >
-                                    {t('auth.goToRegister')}
+                                    Sign up here
                                 </Link>
                             </p>
                         </div>

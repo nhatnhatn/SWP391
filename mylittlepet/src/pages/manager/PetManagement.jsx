@@ -61,7 +61,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                             </div>
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
-                                    {type === 'success' ? 'Thành công' : 'Lỗi'}
+                                    {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
                                     {message}
@@ -149,18 +149,18 @@ const PetManagement = () => {
 
     // Validation helper functions
     const validatePetName = (name) => {
-        if (!name || name.trim().length === 0) return 'Tên thú cưng là bắt buộc.';
-        if (name.trim().length < 2) return 'Tên thú cưng phải có ít nhất 2 ký tự.';
-        if (name.length > 50) return 'Tên thú cưng không được vượt quá 50 ký tự.';
+        if (!name || name.trim().length === 0) return 'Pet name is required.';
+        if (name.trim().length < 2) return 'Pet name must be at least 2 characters.';
+        if (name.length > 50) return 'Pet name cannot exceed 50 characters.';
         return '';
     };
 
     const validatePetType = (type, isEditing = false, currentPetId = null) => {
-        if (!type || type.trim().length === 0) return 'Loại thú cưng là bắt buộc.';
-        if (type.trim().length < 2) return 'Loại thú cưng phải có ít nhất 2 ký tự.';
-        if (type.length > 30) return 'Loại thú cưng không được vượt quá 30 ký tự.';
+        if (!type || type.trim().length === 0) return 'Pet type is required.';
+        if (type.trim().length < 2) return 'Pet type must be at least 2 characters.';
+        if (type.length > 30) return 'Pet type cannot exceed 30 characters.';
         const trimmed = type.trim();
-        if (trimmed[0] !== trimmed[0].toUpperCase()) return 'Chữ cái đầu của loại thú cưng phải viết hoa.';
+        if (trimmed[0] !== trimmed[0].toUpperCase()) return 'First letter of pet type must be capitalized.';
 
         // Check for uniqueness
         const existingPet = pets?.find(pet => {
@@ -176,14 +176,14 @@ const PetManagement = () => {
         });
 
         if (existingPet) {
-            return `Loại thú cưng "${trimmed}" đã tồn tại. Vui lòng chọn tên khác.`;
+            return `Pet type "${trimmed}" already exists. Please choose a different name.`;
         }
 
         return '';
     };
 
     const validateDescription = (description) => {
-        if (description && description.length > 500) return 'Mô tả không được vượt quá 500 ký tự.';
+        if (description && description.length > 500) return 'Description cannot exceed 500 characters.';
         return '';
     };
 
@@ -216,7 +216,7 @@ const PetManagement = () => {
     // Show general error as notification
     useEffect(() => {
         if (error) {
-            showNotification('Có lỗi xảy ra: ' + error, 'error');
+            showNotification('An error occurred: ' + error, 'error');
         }
     }, [error]);
 
@@ -414,7 +414,7 @@ const PetManagement = () => {
 
             if (!isValid) {
                 setFieldErrors(errors);
-                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+                showNotification('Please check and fix the errors in the form.', 'error');
                 return;
             }
 
@@ -429,10 +429,10 @@ const PetManagement = () => {
             setSelectedPet(null); // Close detail modal too
             // Clear any previous errors and show success message
             setLocalError('');
-            showNotification('Cập nhật thú cưng thành công!', 'success');
+            showNotification('Pet updated successfully!', 'success');
         } catch (error) {
             console.error('Failed to update pet:', error);
-            showNotification('Cập nhật thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
+            showNotification('Update failed: ' + (error.message || 'Unknown error'), 'error');
         }
     };
 
@@ -509,7 +509,7 @@ const PetManagement = () => {
 
             if (!isValid) {
                 setFieldErrors(errors);
-                showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+                showNotification('Please check and fix the errors in the form.', 'error');
                 return;
             }
 
@@ -517,7 +517,7 @@ const PetManagement = () => {
                 ...editForm,
                 petType: editForm.petType.trim(),
                 petDefaultName: editForm.petDefaultName.trim(),
-                adminId: user?.id // Thêm adminId từ user hiện tại
+                adminId: user?.id // Add adminId from current user
             };
 
             console.log('🐾 Creating pet with admin ID:', { adminId: user?.id, createData });
@@ -525,10 +525,10 @@ const PetManagement = () => {
             setCreateModal(false);
             // Clear any previous errors and show success message
             setLocalError('');
-            showNotification('Tạo thú cưng thành công!', 'success');
+            showNotification('Pet created successfully!', 'success');
         } catch (error) {
             console.error('Failed to create pet:', error);
-            showNotification('Tạo thú cưng thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
+            showNotification('Pet creation failed: ' + (error.message || 'Unknown error'), 'error');
         }
     };
 
@@ -538,7 +538,7 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 0) {
-            showNotification('Thú cưng này đã bị vô hiệu hóa rồi!', 'error');
+            showNotification('This pet is already disabled!', 'error');
             return;
         }
 
@@ -548,12 +548,12 @@ const PetManagement = () => {
         ) || [];
 
         const confirmMessage = relatedProducts.length > 0
-            ? `Bạn có chắc muốn vô hiệu hóa thú cưng này? \n\nLưu ý: Điều này cũng sẽ tự động vô hiệu hóa ${relatedProducts.length} sản phẩm liên quan trong cửa hàng.`
-            : 'Bạn có chắc muốn vô hiệu hóa thú cưng này?';
+            ? `Are you sure you want to disable this pet? \n\nNote: This will also automatically disable ${relatedProducts.length} related products in the shop.`
+            : 'Are you sure you want to disable this pet?';
 
         setConfirmDialog({
             isOpen: true,
-            title: 'Xác nhận vô hiệu hóa',
+            title: 'Confirm disable',
             message: confirmMessage,
             onConfirm: async () => {
                 try {
@@ -579,18 +579,18 @@ const PetManagement = () => {
                         }
 
                         showNotification(
-                            `Vô hiệu hóa thú cưng thành công! Đã tự động vô hiệu hóa ${relatedProducts.length} sản phẩm liên quan.`,
+                            `Pet disabled successfully! Automatically disabled ${relatedProducts.length} related products.`,
                             'success'
                         );
                     } else {
-                        showNotification('Vô hiệu hóa thú cưng thành công!', 'success');
+                        showNotification('Pet disabled successfully!', 'success');
                     }
 
                     // Clear any previous errors
                     setLocalError('');
                 } catch (error) {
                     console.error('Failed to disable pet:', error);
-                    showNotification('Vô hiệu hóa thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
+                    showNotification('Disable failed: ' + (error.message || 'Unknown error'), 'error');
                 }
                 setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
             }
@@ -603,7 +603,7 @@ const PetManagement = () => {
         if (!pet) return;
 
         if (pet.petStatus === 1) {
-            showNotification('Thú cưng này đã được kích hoạt rồi!', 'error');
+            showNotification('This pet is already activated!', 'error');
             return;
         }
 
@@ -648,14 +648,14 @@ const PetManagement = () => {
             }
 
             // Create appropriate success message based on results
-            let message = 'Kích hoạt thú cưng thành công!';
+            let message = 'Pet activated successfully!';
 
             if (reactivatedCount > 0 && ineligibleProducts.length > 0) {
-                message += ` Đã tự động kích hoạt ${reactivatedCount} sản phẩm liên quan. Còn ${ineligibleProducts.length} sản phẩm không thể kích hoạt do số lượng = 0.`;
+                message += ` Automatically activated ${reactivatedCount} related products. ${ineligibleProducts.length} products cannot be activated due to quantity = 0.`;
             } else if (reactivatedCount > 0) {
-                message += ` Đã tự động kích hoạt ${reactivatedCount} sản phẩm liên quan.`;
+                message += ` Automatically activated ${reactivatedCount} related products.`;
             } else if (ineligibleProducts.length > 0) {
-                message += ` Lưu ý: Có ${ineligibleProducts.length} sản phẩm liên quan vẫn đang bị vô hiệu hóa do số lượng = 0.`;
+                message += ` Note: ${ineligibleProducts.length} related products remain disabled due to quantity = 0.`;
             }
 
             showNotification(message, 'success');
@@ -664,7 +664,7 @@ const PetManagement = () => {
             setLocalError('');
         } catch (error) {
             console.error('Failed to enable pet:', error);
-            showNotification('Kích hoạt thất bại: ' + (error.message || 'Lỗi không xác định'), 'error');
+            showNotification('Activation failed: ' + (error.message || 'Unknown error'), 'error');
         }
     };    // Cancel forms
     const handleCancel = () => {
@@ -701,11 +701,11 @@ const PetManagement = () => {
     const getStatusBadge = (status) => {
         return status === 1 ? (
             <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                Hoạt động
+                Active
             </span>
         ) : (
             <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                Vô hiệu hóa
+                Disabled
             </span>
         );
     };
@@ -737,7 +737,7 @@ const PetManagement = () => {
                             <PawPrint className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Quản lý thú cưng</h1>
+                            <h1 className="text-3xl font-bold text-gray-800">Pet management</h1>
                         </div>
                     </div>
 
@@ -748,7 +748,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-blue-100 rounded-lg">
                                     <PawPrint className="h-4 w-4 text-blue-600" />
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Tổng thú cưng</p>
+                                <p className="text-sm font-medium text-gray-600">Total pets</p>
                             </div>
                             <p className="text-2xl font-bold text-blue-600">{totalPets}</p>
                         </div>
@@ -760,7 +760,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                                     <span className="text-emerald-600 font-bold text-sm">✓</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang hoạt động</p>
+                                <p className="text-sm font-medium text-gray-600">Active</p>
                             </div>
                             <p className="text-2xl font-bold text-emerald-600">{activePets}</p>
                         </div>
@@ -772,7 +772,7 @@ const PetManagement = () => {
                                 <div className="p-1.5 bg-red-100 rounded-lg">
                                     <span className="text-red-600 font-bold text-sm">✕</span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-600">Đang vô hiệu hóa</p>
+                                <p className="text-sm font-medium text-gray-600">Inactive</p>
                             </div>
                             <p className="text-2xl font-bold text-red-600">{inactivePets}</p>
                         </div>
@@ -785,7 +785,7 @@ const PetManagement = () => {
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <PawPrint className="h-4 w-4 text-blue-600" />
-                                <p className="text-xs font-medium text-gray-600">Tổng thú cưng</p>
+                                <p className="text-xs font-medium text-gray-600">Total pets</p>
                             </div>
                             <p className="text-lg font-bold text-blue-600">{totalPets}</p>
                         </div>
@@ -826,7 +826,7 @@ const PetManagement = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
-                                <h3 className="text-4xl font-bold text-white">Chi tiết thú cưng</h3>
+                                <h3 className="text-4xl font-bold text-white">Pet details</h3>
                             </div>
 
                         </div>
@@ -840,13 +840,13 @@ const PetManagement = () => {
                                         {/* Right Side: The label */}
                                         <div>
                                             <h1 className="text-3xl font-bold text-cyan-600">
-                                                Tên thú cưng
+                                                Pet name
                                             </h1>
                                         </div>
                                         {/* Left Side: The pet's name */}
                                         <div>
                                             <h2 className="text-2xl font-semibold text-gray-800">
-                                                {selectedPet.petDefaultName || 'Chưa đặt tên'}
+                                                {selectedPet.petDefaultName || 'No name provided'}
                                             </h2>
                                         </div>
                                     </div>
@@ -859,13 +859,13 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <h4 className="text-lg font-semibold text-gray-800">Thông tin cơ bản</h4>
+                                            <h4 className="text-lg font-semibold text-gray-800">Basic information</h4>
                                         </div>
 
                                         <div className="space-y-4">
                                             <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-medium text-gray-600">ID thú cưng</span>
+                                                    <span className="text-sm font-medium text-gray-600">Pet ID</span>
                                                     <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
                                                         #{selectedPet.petId}
                                                     </span>
@@ -874,10 +874,10 @@ const PetManagement = () => {
 
                                             <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                 <div className="flex items-center justify-between mb-2 mt-2">
-                                                    <span className="text-sm font-medium text-gray-600">Loại thú cưng</span>
+                                                    <span className="text-sm font-medium text-gray-600">Pet Type</span>
                                                     <div>
                                                         {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
-                                                            <span className="text-sm text-gray-500 italic">Chưa xác định</span>
+                                                            <span className="text-sm text-gray-500 italic">Not specified</span>
                                                         )}
                                                     </div>
                                                 </div>
@@ -885,10 +885,10 @@ const PetManagement = () => {
 
                                             {   /**     <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                            <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-600">ID quản trị viên</span>
+                                                    <span className="text-sm font-medium text-gray-600">Admin ID</span>
                                                     <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
                                                         {selectedPet.adminId ? `#${selectedPet.adminId}` : (
-                                                            <span className="text-sm text-gray-500 italic">Chưa xác định</span>
+                                                            <span className="text-sm text-gray-500 italic">Not specified</span>
                                                         )}
                                                     </span>
                                                 </div>
@@ -901,29 +901,29 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="p-6">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <h4 className="text-lg font-semibold text-gray-800">Trạng thái và mô tả thú cưng</h4>
+                                            <h4 className="text-lg font-semibold text-gray-800">Pet Status and Description</h4>
                                         </div>
 
                                         <div className="space-y-4">
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Trạng thái hoạt động</span>
+                                                <span className="text-sm font-medium text-gray-600 block mb-2">Activity status</span>
                                                 <div className="flex items-center gap-2">
                                                     {selectedPet.petStatus === 1 ? (
                                                         <>
                                                             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                                                            <span className="text-sm font-semibold text-green-700">Đang hoạt động</span>
+                                                            <span className="text-sm font-semibold text-green-700">Active</span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                                            <span className="text-sm font-semibold text-red-700">Không hoạt động</span>
+                                                            <span className="text-sm font-semibold text-red-700">Inactive</span>
                                                         </>
                                                     )}
                                                 </div>
                                             </div>
 
                                             <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <span className="text-sm font-medium text-gray-600 block mb-3">Mô tả thú cưng</span>
+                                                <span className="text-sm font-medium text-gray-600 block mb-3">Pet description</span>
                                                 {selectedPet.description ? (
                                                     <div className="space-y-2">
                                                         <div className={`text-sm text-gray-700 leading-relaxed break-words ${selectedPet.description.length > 150 && !selectedPet.expanded
@@ -945,12 +945,12 @@ const PetManagement = () => {
                                                                 {selectedPet.expanded ? (
                                                                     <>
                                                                         <ChevronUp className="h-3 w-3" />
-                                                                        Ẩn bớt
+                                                                        Hide
                                                                     </>
                                                                 ) : (
                                                                     <>
                                                                         <ChevronDown className="h-3 w-3" />
-                                                                        Xem thêm
+                                                                        View more
                                                                     </>
                                                                 )}
                                                             </button>
@@ -962,7 +962,7 @@ const PetManagement = () => {
                                                             <Eye className="h-8 w-8 mx-auto opacity-50" />
                                                         </div>
                                                         <span className="text-sm text-gray-400 italic">
-                                                            Chưa có mô tả cho thú cưng này
+                                                            No description available for this pet
                                                         </span>
                                                     </div>
                                                 )}
@@ -983,14 +983,14 @@ const PetManagement = () => {
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
-                                        Đóng
+                                        Close
                                     </button>
                                     <button
                                         onClick={() => handleEdit(selectedPet)}
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
                                     >
                                         <Edit className="w-4 h-4" />
-                                        Chỉnh sửa
+                                        Update pet
                                     </button>
                                 </div>
                             </div>
@@ -1008,7 +1008,7 @@ const PetManagement = () => {
                                 <Search className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Tìm kiếm & Bộ lọc</h3>
+                                <h3 className="text-xl font-bold text-white">Search & Filter</h3>
                             </div>
                         </div>
 
@@ -1023,7 +1023,7 @@ const PetManagement = () => {
                             <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
                                 <Search className="h-2 w-2 text-white" />
                             </div>
-                            <span className="text-sm font-medium text-gray-700"> Tìm kiếm & Tạo mới thú cưng</span>
+                            <span className="text-sm font-medium text-gray-700"> Search & Create new pet</span>
                         </div>
 
                         <div className="space-y-4">
@@ -1034,7 +1034,7 @@ const PetManagement = () => {
                                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-blue-500 transition-colors duration-200" />
                                         <input
                                             type="text"
-                                            placeholder="Nhập tên thú cưng để tìm kiếm..."
+                                            placeholder="Enter petname to search..."
                                             value={searchTerm}
                                             onChange={handleSearch}
                                             className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
@@ -1043,7 +1043,7 @@ const PetManagement = () => {
                                             <button
                                                 onClick={() => handleSearch({ target: { value: '' } })}
                                                 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                                title="Xóa tìm kiếm"
+                                                title="Clear search"
                                             >
                                                 <X className="h-4 w-4" />
                                             </button>
@@ -1057,7 +1057,7 @@ const PetManagement = () => {
                                     className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3.5 rounded-lg hover:from-blue-700 hover:to-cyan-700 flex items-center gap-2 transition-all duration-200 font-medium shadow-md hover:shadow-lg whitespace-nowrap transform hover:scale-105"
                                 >
                                     <Plus className="h-5 w-5" />
-                                    Thêm thú cưng
+                                    Create new pet
                                 </button>
                             </div>
 
@@ -1067,13 +1067,13 @@ const PetManagement = () => {
                                 <div className="flex items-center gap-2">
                                     <div className="h-2 w-2 bg-blue-600 rounded-full animate-pulse"></div>
                                     <p className="text-sm text-blue-800 font-medium">
-                                        Đang hiển thị kết quả tìm kiếm cho: "<span className="font-semibold text-blue-900">{searchTerm}</span>"
+                                        Showing search results for: "<span className="font-semibold text-blue-900">{searchTerm}</span>"
                                     </p>
                                     <button
                                         onClick={() => handleSearch({ target: { value: '' } })}
                                         className="ml-auto text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                     >
-                                        Xóa tìm kiếm
+                                        Clear search
                                     </button>
                                 </div>
                             </div>
@@ -1090,7 +1090,7 @@ const PetManagement = () => {
                             >
                                 <Filter className="h-5 w-5 text-gray-600 group-hover:text-gray-700" />
                                 <span className="text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                                    Bộ lọc nâng cao
+                                    Advance filters
                                 </span>
                                 {showAdvancedFilters ? (
                                     <ChevronUp className="h-4 w-4 text-gray-500 transition-transform duration-200" />
@@ -1115,13 +1115,13 @@ const PetManagement = () => {
                                         <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
                                             <Filter className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700"> Lọc nội dung</span>
+                                        <span className="text-sm font-medium text-gray-700">Filter by content</span>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Type Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Loại thú cưng
+                                                Pet type
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1129,7 +1129,7 @@ const PetManagement = () => {
                                                     onChange={(e) => handleTypeFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value="">Chọn loại thú cưng</option>
+                                                    <option value="">Select pet type</option>
                                                     {/* Use persistent pet types that don't change when filters are applied */}
                                                     {persistentPetTypes.map(petType => (
                                                         <option key={petType} value={petType}>
@@ -1143,7 +1143,7 @@ const PetManagement = () => {
                                                 <div className="mt-2 p-2 bg-green-100 rounded-md">
                                                     <div className="flex items-center justify-between">
                                                         <p className="text-xs text-green-700 font-medium">
-                                                            Đang lọc: {
+                                                            Currently filtering: {
                                                                 typeFilter
                                                             }
                                                         </p>
@@ -1155,7 +1155,7 @@ const PetManagement = () => {
                                         {/* Status Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Trạng thái
+                                                Status
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1163,16 +1163,16 @@ const PetManagement = () => {
                                                     onChange={(e) => handleStatusFilter(e.target.value)}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value=""> Tất cả trạng thái</option>
-                                                    <option value="1"> Đang hoạt động</option>
-                                                    <option value="0"> Không hoạt động</option>
+                                                    <option value=""> All status</option>
+                                                    <option value="1"> Active</option>
+                                                    <option value="0"> Inactive</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
                                             {statusFilter !== '' && (
                                                 <div className="mt-2 p-2 bg-green-100 rounded-md">
                                                     <p className="text-xs text-green-700 font-medium">
-                                                        Lọc theo: {statusFilter === '1' ? 'Đang hoạt động' : 'Không hoạt động'}
+                                                        Currently filtering: {statusFilter === '1' ? 'Active' : 'Inactive'}
                                                     </p>
                                                 </div>
                                             )}
@@ -1186,13 +1186,13 @@ const PetManagement = () => {
                                         <div className="h-4 w-4 bg-blue-600 rounded-full flex items-center justify-center">
                                             <ChevronUp className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700"> Sắp xếp dữ liệu</span>
+                                        <span className="text-sm font-medium text-gray-700"> Sort data</span>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {/* Sort Field Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Sắp xếp theo
+                                                Sort by
                                             </label>
                                             <div className="relative">
                                                 <select
@@ -1206,10 +1206,10 @@ const PetManagement = () => {
                                                     }}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-all duration-200 hover:border-gray-400 appearance-none"
                                                 >
-                                                    <option value=""> Không sắp xếp</option>
-                                                    <option value="petDefaultName"> Tên thú cưng</option>
-                                                    <option value="petType"> Loại thú cưng</option>
-                                                    <option value="petStatus"> Trạng thái</option>
+                                                    <option value=""> No sorting</option>
+                                                    <option value="petDefaultName"> Pet name</option>
+                                                    <option value="petType"> Pet type</option>
+                                                    <option value="petStatus"> Status</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -1218,7 +1218,7 @@ const PetManagement = () => {
                                         {/* Sort Direction Filter */}
                                         <div className="space-y-2">
                                             <label className="block text-xs font-medium text-gray-600 uppercase tracking-wide">
-                                                Thứ tự
+                                                Order by
                                             </label>
                                             <div className="flex gap-2">
                                                 <button
@@ -1233,7 +1233,7 @@ const PetManagement = () => {
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronUp className="h-4 w-4" />
-                                                        Tăng dần
+                                                        Ascending
                                                     </div>
                                                 </button>
                                                 <button
@@ -1248,7 +1248,7 @@ const PetManagement = () => {
                                                 >
                                                     <div className="flex items-center justify-center gap-1">
                                                         <ChevronDown className="h-4 w-4" />
-                                                        Giảm dần
+                                                        Descending
                                                     </div>
                                                 </button>
                                             </div>
@@ -1261,18 +1261,18 @@ const PetManagement = () => {
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
                                                     <span className="text-blue-800 font-medium">
-                                                        Đang sắp xếp theo: <span className="font-bold">
-                                                            {sortConfig.key === 'petDefaultName' && 'Tên thú cưng'}
-                                                            {sortConfig.key === 'petType' && 'Loại thú cưng'}
-                                                            {sortConfig.key === 'petStatus' && 'Trạng thái'}
-                                                        </span> ({sortConfig.direction === 'asc' ? 'Tăng dần' : 'Giảm dần'})
+                                                        Currently sorting by: <span className="font-bold">
+                                                            {sortConfig.key === 'petDefaultName' && 'Pet name'}
+                                                            {sortConfig.key === 'petType' && 'Pet type'}
+                                                            {sortConfig.key === 'petStatus' && 'Status'}
+                                                        </span> ({sortConfig.direction === 'asc' ? 'Ascending' : 'Descending'})
                                                     </span>
                                                 </div>
                                                 <button
                                                     onClick={() => setSortConfig({ key: null, direction: 'asc' })}
                                                     className="text-blue-600 hover:text-blue-800 text-xs font-medium underline hover:no-underline transition-all duration-200"
                                                 >
-                                                    Bỏ sắp xếp
+                                                    Clear sorting
                                                 </button>
                                             </div>
                                         </div>
@@ -1287,7 +1287,7 @@ const PetManagement = () => {
                                         <div className="h-4 w-4 bg-red-600 rounded-full flex items-center justify-center">
                                             <X className="h-2 w-2 text-white" />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-700">Thao tác</span>
+                                        <span className="text-sm font-medium text-gray-700">Actions</span>
                                     </div>
                                     <div className="flex flex-wrap gap-3">
                                         <button
@@ -1305,8 +1305,8 @@ const PetManagement = () => {
                                         >
                                             <X className="h-4 w-4 mr-2" />
                                             {!searchTerm && !typeFilter && statusFilter === '' && !sortConfig.key
-                                                ? 'Không có bộ lọc nào'
-                                                : 'Xóa tất cả bộ lọc'
+                                                ? 'No filters'
+                                                : 'Clear all filters'
                                             }
                                         </button>
 
@@ -1315,11 +1315,11 @@ const PetManagement = () => {
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
-                                                    searchTerm && 'Tìm kiếm',
-                                                    typeFilter && 'Loại',
-                                                    statusFilter !== '' && 'Trạng thái',
-                                                    sortConfig.key && 'Sắp xếp'
-                                                ].filter(Boolean).length} bộ lọc đang áp dụng
+                                                    searchTerm && 'Search',
+                                                    typeFilter && 'Type',
+                                                    statusFilter !== '' && 'Status',
+                                                    sortConfig.key && 'Sort'
+                                                ].filter(Boolean).length} filters applied
                                             </div>
                                         )}
                                     </div>
@@ -1334,14 +1334,14 @@ const PetManagement = () => {
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                 <div className="bg-gradient-to-l from-blue-600 to-cyan-600 px-6 py-4 border-b border-green-100">
                     <div className="flex items-center justify-center">
-                        <p className="text-xl font-bold text-white text-center">DANH SÁCH THÚ CƯNG TRONG GAME</p>
+                        <p className="text-xl font-bold text-white text-center">PETS LIST</p>
                     </div>
                 </div>
 
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        <p className="mt-2 text-gray-600">Đang tải...</p>
+                        <p className="mt-2 text-gray-600">Loading...</p>
                     </div>
                 ) : (
                     <div className="overflow-hidden">
@@ -1357,27 +1357,27 @@ const PetManagement = () => {
                                 <tr>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Tên thú cưng
+                                            Pet name
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Loại thú cưng
+                                            Pet type
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Mô tả thú cưng
+                                            Pet description
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-blue-500 border-opacity-30">
                                         <span className="flex items-center justify-center gap-2">
-                                            Trạng thái
+                                            Status
                                         </span>
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
                                         <span className="flex items-center justify-center gap-2">
-                                            Thao tác
+                                            Action
                                         </span>
                                     </th>
                                 </tr>
@@ -1390,11 +1390,11 @@ const PetManagement = () => {
                                             <div className="flex flex-col items-center justify-center space-y-4">
 
                                                 <div className="text-center">
-                                                    <h3 className="text-lg font-medium text-gray-900">Không có thú cưng nào</h3>
+                                                    <h3 className="text-lg font-medium text-gray-900">No pet data</h3>
                                                     <p className="text-sm text-gray-500 mt-1">
                                                         {searchTerm || typeFilter || statusFilter !== '' ?
-                                                            'Không tìm thấy thú cưng phù hợp với bộ lọc.' :
-                                                            'Hãy bắt đầu bằng cách thêm thú cưng mới.'
+                                                            'No pets found matching the filters.' :
+                                                            'Start with create new pet.'
                                                         }
                                                     </p>
                                                     {!searchTerm && !typeFilter && statusFilter === '' && (
@@ -1403,7 +1403,7 @@ const PetManagement = () => {
                                                             className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                                         >
                                                             <Plus className="h-4 w-4 mr-2" />
-                                                            Thêm thú cưng
+                                                            Create new pet
                                                         </button>
                                                     )}
                                                 </div>
@@ -1416,7 +1416,7 @@ const PetManagement = () => {
                                             <td className="px-3 py-4">
                                                 <div className="flex justify-center">
                                                     <div className="text-sm font-bold text-gray-900 break-words" title={pet.petDefaultName}>
-                                                        {pet.petDefaultName || 'Chưa đặt tên'}
+                                                        {pet.petDefaultName || 'Unnamed'}
                                                     </div>
                                                 </div>
                                             </td>
@@ -1430,7 +1430,7 @@ const PetManagement = () => {
                                             <td className="px-3 py-4">
                                                 <div className="text-center">
                                                     <div className="text-sm text-gray-900 break-words max-w-xs mx-auto" title={pet.description}>
-                                                        {pet.description || 'Không có mô tả'}
+                                                        {pet.description || 'No description'}
                                                     </div>
                                                 </div>
                                             </td>
@@ -1454,7 +1454,7 @@ const PetManagement = () => {
                                                     <button
                                                         onClick={() => handleView(pet)}
                                                         className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="Xem chi tiết"
+                                                        title="View pet details"
                                                     >
                                                         <Eye className="w-3.5 h-3.5" />
                                                     </button>
@@ -1463,7 +1463,7 @@ const PetManagement = () => {
                                                         <button
                                                             onClick={() => handleDelete(pet.petId)}
                                                             className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                            title="Vô hiệu hóa"
+                                                            title="Disable pet"
                                                         >
                                                             <Power className="w-3.5 h-3.5" />
                                                         </button>
@@ -1471,7 +1471,7 @@ const PetManagement = () => {
                                                         <button
                                                             onClick={() => handleEnable(pet.petId)}
                                                             className="text-green-600 hover:text-green-900 hover:bg-green-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                            title="Kích hoạt"
+                                                            title="Activate"
                                                         >
                                                             <RotateCcw className="w-3.5 h-3.5" />
                                                         </button>
@@ -1496,7 +1496,7 @@ const PetManagement = () => {
                                 className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
                                 <ChevronLeft className="h-4 w-4" />
-                                <span className="hidden sm:inline">Trước</span>
+                                <span className="hidden sm:inline">Previous page</span>
                             </button>
 
                             <div className="flex items-center gap-1">
@@ -1519,7 +1519,7 @@ const PetManagement = () => {
                                 disabled={currentPage >= totalPages}
                                 className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
-                                <span className="hidden sm:inline">Tiếp</span>
+                                <span className="hidden sm:inline">Next page</span>
                                 <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -1535,7 +1535,7 @@ const PetManagement = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
-                                <h3 className="text-4xl font-bold text-white">Chỉnh sửa thú cưng</h3>
+                                <h3 className="text-4xl font-bold text-white">Edit pet</h3>
                             </div>
                         </div>
 
@@ -1548,13 +1548,13 @@ const PetManagement = () => {
                                         {/* Right Side: The label */}
                                         <div>
                                             <h1 className="text-3xl font-bold text-cyan-600">
-                                                Tên thú cưng
+                                                Pet name
                                             </h1>
                                         </div>
                                         {/* Left Side: The pet's name */}
                                         <div>
                                             <h2 className="text-2xl font-semibold text-gray-800">
-                                                {selectedPet.petDefaultName || 'Chưa đặt tên'}
+                                                {selectedPet.petDefaultName || 'No name is set'}
                                             </h2>
                                         </div>
                                     </div>
@@ -1569,7 +1569,7 @@ const PetManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Đổi tên thú cưng
+                                                Pet name
                                             </label>
                                         </div>
                                         <input
@@ -1577,7 +1577,7 @@ const PetManagement = () => {
                                             value={editForm.petDefaultName}
                                             onChange={(e) => handlePetNameChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petDefaultName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập tên thú cưng"
+                                            placeholder="Enter pet name"
                                             minLength="2"
                                         />
                                         {fieldErrors.petDefaultName && (
@@ -1593,7 +1593,7 @@ const PetManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Loại thú cưng
+                                                Pet type
                                             </label>
                                         </div>
                                         <input
@@ -1601,7 +1601,7 @@ const PetManagement = () => {
                                             value={editForm.petType || ''}
                                             onChange={(e) => handlePetTypeChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petType ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập loại thú cưng"
+                                            placeholder="Enter pet type"
                                         />
                                         {fieldErrors.petType && (
                                             <p className="mt-2 text-sm text-red-600 flex items-center">
@@ -1612,7 +1612,7 @@ const PetManagement = () => {
                                         {/* <div className="mt-2 p-3 bg-yellow-50 rounded-lg border border-yellow-100">
                                             <p className="text-sm text-yellow-700 flex items-center gap-2">
                                                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                                                Loại thú cưng không thể chỉnh sửa sau khi tạo.
+                                                Pet type cannot be edited after creation.
                                             </p>
                                         </div> */}
                                     </div>
@@ -1624,7 +1624,7 @@ const PetManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Trạng thái thú cưng
+                                                Pet status
                                             </label>
                                         </div>
                                         <div className="relative">
@@ -1644,14 +1644,14 @@ const PetManagement = () => {
                                     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                         <div className="flex items-center gap-3 mb-4">
                                             <label className="text-lg font-semibold text-gray-800">
-                                                Mô tả thú cưng
+                                                Pet description
                                             </label>
                                         </div>
                                         <textarea
                                             value={editForm.description}
                                             onChange={(e) => handleDescriptionChange(e.target.value)}
                                             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                            placeholder="Nhập mô tả chi tiết về thú cưng..."
+                                            placeholder="Enter detailed description about the pet..."
                                             rows="1"
                                         />
                                         {fieldErrors.description && (
@@ -1674,7 +1674,7 @@ const PetManagement = () => {
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button
                                         onClick={handleEditSubmit}
@@ -1689,7 +1689,7 @@ const PetManagement = () => {
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Edit className="w-4 h-4" />
-                                        Cập nhật
+                                        Update pet
                                     </button>
                                 </div>
                             </div>
@@ -1707,7 +1707,7 @@ const PetManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <div className="flex items-center gap-4">
-                                    <h3 className="text-3xl font-bold text-white">Tạo thú cưng mới</h3>
+                                    <h3 className="text-3xl font-bold text-white">Create new pet</h3>
                                 </div>
                             </div>
                         </div>
@@ -1719,7 +1719,7 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Tên thú cưng
+                                            Pet name
                                         </label>
                                     </div>
                                     <input
@@ -1727,7 +1727,7 @@ const PetManagement = () => {
                                         value={editForm.petDefaultName}
                                         onChange={(e) => handlePetNameChange(e.target.value)}
                                         className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petDefaultName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                        placeholder="Nhập tên thú cưng"
+                                        placeholder="Enter pet name"
                                         minLength="2"
                                     />
                                     {fieldErrors.petDefaultName && (
@@ -1743,7 +1743,7 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Loại thú cưng
+                                            Pet type
                                         </label>
                                     </div>
                                     <input
@@ -1751,7 +1751,7 @@ const PetManagement = () => {
                                         value={editForm.petType || ''}
                                         onChange={(e) => handlePetTypeChange(e.target.value)}
                                         className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 ${fieldErrors.petType ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                        placeholder="Nhập loại thú cưng (VD: Dog, Cat, Bird...)"
+                                        placeholder="Enter pet type (e.g. Dog, Cat, Bird...)"
                                         required
                                         minLength="2"
                                     />
@@ -1768,14 +1768,14 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Mô tả thú cưng
+                                            Pet description
                                         </label>
                                     </div>
                                     <textarea
                                         value={editForm.description}
                                         onChange={(e) => handleDescriptionChange(e.target.value)}
                                         className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 resize-none ${fieldErrors.description ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
-                                        placeholder="Nhập mô tả chi tiết về thú cưng..."
+                                        placeholder="Enter detailed description about the pet..."
                                         rows="3"
                                     />
                                     {fieldErrors.description && (
@@ -1786,7 +1786,7 @@ const PetManagement = () => {
                                     )}
                                     <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
                                         <p className="text-sm text-blue-700 flex items-center justify-end gap-2">
-                                            <span>{editForm.description?.length || 0} / 500 ký tự</span>
+                                            <span>{editForm.description?.length || 0} / 500 words</span>
                                         </p>
                                     </div>
                                 </div>
@@ -1795,7 +1795,7 @@ const PetManagement = () => {
                                 <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-center gap-3 mb-4">
                                         <label className="text-lg font-semibold text-gray-800">
-                                            Trạng thái thú cưng
+                                            Pet status
                                         </label>
                                     </div>
                                     <div className="relative">
@@ -1824,7 +1824,7 @@ const PetManagement = () => {
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />
-                                        Hủy
+                                        Cancel
                                     </button>
                                     <button
                                         onClick={handleCreateSubmit}
@@ -1839,7 +1839,7 @@ const PetManagement = () => {
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
                                         <Plus className="w-4 h-4" />
-                                        Tạo thú cưng
+                                        Create new pet
                                     </button>
                                 </div>
                             </div>
@@ -1864,13 +1864,13 @@ const PetManagement = () => {
                                 onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
                                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                             >
-                                Hủy
+                                Cancel
                             </button>
                             <button
                                 onClick={confirmDialog.onConfirm}
                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                             >
-                                Xác nhận
+                                Confirm
                             </button>
                         </div>
                     </div>
