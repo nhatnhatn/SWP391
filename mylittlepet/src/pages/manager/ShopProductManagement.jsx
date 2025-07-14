@@ -299,7 +299,7 @@ const ShopProductManagement = () => {
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
     const [statusFilter, setStatusFilter] = useState('all'); // Active, Out of stock
     const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
-    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food, Toy
+    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food
     // Debounce search term to prevent excessive filtering
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -400,7 +400,7 @@ const ShopProductManagement = () => {
     };
 
     const validateDescription = (description) => {
-        if (!description || description.trim().length === 0) return 'Description is required and cannot be left blank.';
+        if (!description || description.trim().length === 0) return 'Description is required.';
         if (description.length > 1000) return 'Description cannot exceed 1000 characters.';
         return '';
     };
@@ -603,12 +603,11 @@ const ShopProductManagement = () => {
 
         // Apply filters first
         let filtered = allProducts.filter(product => {
-            // Search filter - use debounced search term
+            // Search filter - use debounced search term (name only)
             if (debouncedSearchTerm.trim()) {
                 const searchLower = debouncedSearchTerm.toLowerCase();
                 const productName = (product.name || '').toLowerCase();
-                const productDescription = (product.description || '').toLowerCase();
-                if (!productName.includes(searchLower) && !productDescription.includes(searchLower)) {
+                if (!productName.includes(searchLower)) {
                     return false;
                 }
             }
@@ -631,8 +630,6 @@ const ShopProductManagement = () => {
                     if (!dynamicPetTypes.includes(product.type) && !product.petID) return false;
                 } else if (shopTypeFilter === 'Food') {
                     if (product.type !== 'Food') return false;
-                } else if (shopTypeFilter === 'Toy') {
-                    if (product.type !== 'Toy') return false;
                 }
             }
 
@@ -765,7 +762,7 @@ const ShopProductManagement = () => {
             quantity: ''
         });
 
-        const predefinedTypes = ['Food', 'Toy'];
+        const predefinedTypes = ['Food'];
 
         let formType = '';
         let formPetType = '';
@@ -791,7 +788,7 @@ const ShopProductManagement = () => {
             formType = 'Pet';
             formPetType = product.type;
         } else if (predefinedTypes.includes(product.type)) {
-            // Regular product types (Food, Toy, etc.)
+            // Regular product types (Food, etc.)
             formType = product.type;
         }
 
@@ -1005,7 +1002,7 @@ const ShopProductManagement = () => {
                         actualType = 'Pet';
                         isPetType = true;
                     } else {
-                        // If it's a regular product type (Food, Toy, etc.)
+                        // If it's a regular product type (Food, etc.)
                         actualType = formData.type;
                         isPetType = false;
                     }
@@ -1313,7 +1310,6 @@ const ShopProductManagement = () => {
                                                     <option value="all"> All Type</option>
                                                     <option value="Pet"> Pet</option>
                                                     <option value="Food"> Food</option>
-                                                    <option value="Toy"> Toy</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                                             </div>
@@ -1530,18 +1526,22 @@ const ShopProductManagement = () => {
                     <div className="overflow-hidden">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <colgroup>
+                                <col className="w-[7%]" />
                                 <col className="w-[15%]" />
-                                <col className="w-[13%]" />
-                                <col className="w-[23%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
-                                <col className="w-[10%]" />
                                 <col className="w-[12%]" />
-                                <col className="w-[12%]" />
+                                <col className="w-[20%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[8%]" />
+                                <col className="w-[8%]" />
+                                <col className="w-[10%]" />
+                                <col className="w-[9%]" />
                             </colgroup>
                             <thead className="bg-gradient-to-l from-purple-600 to-pink-600 border-b-4 border-purple-800 shadow-lg">
                                 <tr>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
+                                        Image
+                                    </th>
+                                    <th className="px-3 py-6 text-left text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
                                         Product Name
                                     </th>
                                     <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-purple-500 border-opacity-30">
@@ -1580,7 +1580,7 @@ const ShopProductManagement = () => {
                             <tbody className="bg-white divide-y divide-gray-200 text-justify">
                                 {currentProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="px-6 py-12 text-center">
+                                        <td colSpan="9" className="px-6 py-12 text-center">
                                             <div className="flex flex-col items-center justify-center space-y-4">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                                                     <Package className="h-8 w-8 text-gray-400" />
@@ -1608,28 +1608,27 @@ const ShopProductManagement = () => {
                                     </tr>
                                 ) : (currentProducts.map((product) => (
                                     <tr key={product.shopProductId} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200">
-                                        {/* Product Info */}
+                                        {/* Product Image */}
                                         <td className="px-3 py-4">
-                                            <div className="flex items-center space-x-3 ml-2">
-                                                <div>
-                                                    {product.imageUrl ? (
-                                                        <ProductImage
-                                                            imageUrl={product.imageUrl}
-                                                            productName={product.name}
-                                                            className="h-10 w-10 rounded-lg flex-shrink-0"
-                                                        />
-                                                    ) : (
-                                                        <div className="h-10 w-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center flex-shrink-0">
-                                                            <Package className="h-5 w-5 text-gray-400" />
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex items-center min-w-0 flex-1">
-                                                    <div className="text-sm font-bold text-gray-900 break-words whitespace-normal leading-tight ml-1" title={product.name}>
-                                                        {product.name}
+                                            <div className="flex justify-center">
+                                                {product.imageUrl ? (
+                                                    <ProductImage
+                                                        imageUrl={product.imageUrl}
+                                                        productName={product.name}
+                                                        className="h-16 w-16 rounded-lg flex-shrink-0"
+                                                    />
+                                                ) : (
+                                                    <div className="h-16 w-16 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center flex-shrink-0">
+                                                        <Package className="h-8 w-8 text-gray-400" />
                                                     </div>
-                                                </div>
+                                                )}
+                                            </div>
+                                        </td>
+
+                                        {/* Product Name */}
+                                        <td className="px-3 py-4">
+                                            <div className="text-sm font-bold text-gray-900 break-words whitespace-normal leading-tight text-left" title={product.name}>
+                                                {product.name}
                                             </div>
                                         </td>
 
@@ -1641,17 +1640,12 @@ const ShopProductManagement = () => {
                                                         Food
                                                     </span>
                                                 )}
-                                                {product.type === 'Toy' && (
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                        Toy
-                                                    </span>
-                                                )}
                                                 {isPetProduct(product) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
                                                         Pet
                                                     </span>
                                                 )}
-                                                {!isPetProduct(product) && !['Food', 'Toy'].includes(product.type) && (
+                                                {!isPetProduct(product) && !['Food'].includes(product.type) && (
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                         {product.type || 'Uncategorized'}
                                                     </span>
@@ -1994,12 +1988,11 @@ const ShopProductManagement = () => {
                                                     }}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 appearance-none cursor-pointer"
                                                     required
-                                                    title="Select product type: Pet, Food, or Toy"
+                                                    title="Select product type: Pet or Food"
                                                 >
                                                     <option value="">Choose Product Type</option>
                                                     <option value="Pet">Pet</option>
                                                     <option value="Food">Food</option>
-                                                    <option value="Toy">Toy</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                                             </div>
@@ -2398,17 +2391,12 @@ const ShopProductManagement = () => {
                                                                     Food
                                                                 </span>
                                                             )}
-                                                            {selectedProduct.type === 'Toy' && (
-                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800 border border-orange-200 shadow-sm">
-                                                                    Toy
-                                                                </span>
-                                                            )}
                                                             {isPetProduct(selectedProduct) && (
                                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
                                                                     Pet
                                                                 </span>
                                                             )}
-                                                            {!isPetProduct(selectedProduct) && !['Food', 'Toy'].includes(selectedProduct.type) && (
+                                                            {!isPetProduct(selectedProduct) && !['Food'].includes(selectedProduct.type) && (
                                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                                     {selectedProduct.type || 'Unknown'}
                                                                 </span>
