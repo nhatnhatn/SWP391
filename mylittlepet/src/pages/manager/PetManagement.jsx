@@ -1011,7 +1011,7 @@ const PetManagement = () => {
                                 <Search className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Search & Filter</h3>
+                                <h3 className="text-xl font-bold text-white">Search & Filters</h3>
                             </div>
                         </div>
 
@@ -1037,7 +1037,7 @@ const PetManagement = () => {
                                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-blue-500 transition-colors duration-200" />
                                         <input
                                             type="text"
-                                            placeholder="Enter petname to search..."
+                                            placeholder="Enter pet name to search..."
                                             value={searchTerm}
                                             onChange={handleSearch}
                                             className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
@@ -1538,7 +1538,7 @@ const PetManagement = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
-                                <h3 className="text-4xl font-bold text-white">Edit Pet</h3>
+                                <h3 className="text-4xl font-bold text-white">Update Pet</h3>
                             </div>
                         </div>
 

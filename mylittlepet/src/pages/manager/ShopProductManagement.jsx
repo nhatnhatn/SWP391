@@ -1816,7 +1816,7 @@ const ShopProductManagement = () => {
                             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
                             <div className="relative flex justify-center items-center">
                                 <h3 className="text-4xl font-bold text-white">
-                                    {createModal ? 'Create new product' : 'Edit product'}
+                                    {createModal ? 'Create new product' : 'Update product'}
                                 </h3>
                             </div>
                         </div>

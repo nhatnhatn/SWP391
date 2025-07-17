@@ -398,7 +398,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <Search className="h-6 w-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Search & Filter</h3>
+                                <h3 className="text-xl font-bold text-white">Search & Filters</h3>
                             </div>
                         </div>
 
