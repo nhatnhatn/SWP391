@@ -469,7 +469,9 @@ const PetManagement = () => {
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="w-4 h-4 inline ml-1" /> :
             <ChevronDown className="w-4 h-4 inline ml-1" />;
-    };    // Open create modal
+    };    
+    
+    // Open create modal
     const handleCreate = () => {
         const resetFormData = {
             petType: '',
@@ -669,7 +671,8 @@ const PetManagement = () => {
             console.error('Failed to enable pet:', error);
             showNotification('Activation failed: ' + (error.message || 'Unknown error'), 'error');
         }
-    };    // Cancel forms
+    };    
+    // Cancel forms
     const handleCancel = () => {
         setEditModal({ isOpen: false, pet: null });
         setCreateModal(false);

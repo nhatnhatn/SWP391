@@ -1,61 +1,129 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, Plus, Edit, Power, Eye, Filter, Package, Store, DollarSign, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save, RotateCcw, PawPrint } from 'lucide-react';
-import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
-import { useSimplePets } from '../../hooks/useSimplePets';
-import { useAuth } from '../../contexts/AuthContextV2';
-import { convertGoogleDriveLink } from '../../utils/helpers';
-import { useNotificationManager } from '../../hooks/useNotificationManager';
+// ================================================================================================
+// SHOP PRODUCT MANAGEMENT COMPONENT
+// ================================================================================================
+// This is the main component for managing shop products in the pet store application.
+// It provides a complete interface for:
+// - Viewing all products in a paginated table
+// - Creating new products with validation
+// - Editing existing products
+// - Managing product status (active/inactive)
+// - Real-time search and filtering
+// - Image handling with Google Drive integration
+// ================================================================================================
 
-// Component to display images with fallback URLs
+// React core imports for component functionality
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
+// Lucide React icons for UI elements (search, buttons, navigation, etc.)
+import {
+    Search, Plus, Edit, Power, Eye, Filter, Package, Store, DollarSign,
+    ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Save, RotateCcw, PawPrint
+} from 'lucide-react';
+
+// Custom hooks for data management
+import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts'; // Handles product CRUD operations
+import { useSimplePets } from '../../hooks/useSimplePets';                 // Manages pet data for product relationships
+import { useAuth } from '../../contexts/AuthContextV2';                    // Provides user authentication context
+import { useNotificationManager } from '../../hooks/useNotificationManager'; // Handles success/error notifications
+
+// Utility functions
+import { convertGoogleDriveLink } from '../../utils/helpers'; // Converts Google Drive sharing links to direct image URLs
+
+// ================================================================================================
+// PRODUCT IMAGE COMPONENT
+// ================================================================================================
+// This component handles product image display with intelligent fallback mechanisms.
+// Google Drive images often have CORS (Cross-Origin Resource Sharing) issues, so this
+// component tries multiple URL formats until one works successfully.
+//
+// Props:
+// - imageUrl: Original Google Drive sharing URL
+// - productName: Used for alt text accessibility
+// - className: CSS classes for styling the container
+// ================================================================================================
+
 const ProductImage = ({ imageUrl, productName, className }) => {
+    // Track which fallback URL we're currently trying (starts at index 0)
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
+
+    // Track if all image URLs have failed to load
     const [imageError, setImageError] = useState(false);
 
-    // Generate fallback URLs - prioritize formats that work better with CORS
+    // Generate multiple fallback URLs from the original Google Drive link
+    // useMemo ensures this only recalculates when imageUrl changes
     const fallbackUrls = useMemo(() => {
+        // If no image URL provided, return empty array
         if (!imageUrl) return [];
 
+        // Convert sharing URL to direct access URL
         const convertedUrl = convertGoogleDriveLink(imageUrl);
+
+        // Extract file ID from the converted URL
         const fileId = convertedUrl.split('id=')[1];
 
+        // If we can't extract file ID, just use the converted URL
         if (!fileId) return [convertedUrl];
 
         return [
-            // Google User Content - usually works better with CORS
+            // Primary: Google User Content with specific dimensions - best CORS compatibility
             `https://lh3.googleusercontent.com/d/${fileId}=w400-h400-c`,
+
+            // Secondary: Google Drive thumbnail service
             `https://drive.google.com/thumbnail?id=${fileId}&sz=w400-h400`,
-            // Alternative Google User Content formats
+
+            // Tertiary: Basic Google User Content without dimensions
             `https://lh3.googleusercontent.com/d/${fileId}`,
+
+            // Quaternary: Google Drive direct view URL
             `https://drive.google.com/uc?export=view&id=${fileId}`,
+
+            // Quinary: Another Google Drive format
             `https://drive.google.com/uc?id=${fileId}`,
-            // Fallback to original
+
+            // Last resort: Use the originally converted URL
             convertedUrl
         ];
-    }, [imageUrl]);
+    }, [imageUrl]); // Only recalculate when imageUrl prop changes
 
-    // Reset state when imageUrl changes
+    // Reset to first URL and clear error state when imageUrl changes
     useEffect(() => {
         setCurrentUrlIndex(0);
         setImageError(false);
     }, [imageUrl]);
 
+    /**
+     * Handle image loading errors by trying the next fallback URL
+     * This function is called by the img element's onError event
+     */
     const handleImageError = () => {
         console.log(`❌ Image failed to load (attempt ${currentUrlIndex + 1}):`, fallbackUrls[currentUrlIndex]);
+
+        // If we have more URLs to try, move to the next one
         if (currentUrlIndex < fallbackUrls.length - 1) {
             setCurrentUrlIndex(prev => prev + 1);
-            setImageError(false);
+            setImageError(false); // Reset error state to try again
             console.log(`🔄 Trying fallback URL ${currentUrlIndex + 2}:`, fallbackUrls[currentUrlIndex + 1]);
         } else {
+            // All URLs failed - show error state
             setImageError(true);
             console.log('💥 All image URLs failed to load');
         }
     };
 
+    /**
+     * Handle successful image loading
+     * This function is called by the img element's onLoad event
+     */
     const handleImageLoad = () => {
         console.log('✅ Image loaded successfully:', fallbackUrls[currentUrlIndex]);
         setImageError(false);
     };
 
+    // ============================================================================================
+    // RENDER LOGIC FOR DIFFERENT IMAGE STATES
+    // ============================================================================================
+
+    // Case 1: No image URL provided - show placeholder with package icon
     if (!imageUrl) {
         return (
             <div className={`bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center ${className}`}>
@@ -64,11 +132,13 @@ const ProductImage = ({ imageUrl, productName, className }) => {
         );
     }
 
+    // Case 2: All image URLs failed - show error state with retry option
     if (imageError) {
         return (
             <div className={`bg-red-50 rounded-lg border border-red-300 flex flex-col items-center justify-center p-2 ${className}`}>
                 <Package className="h-6 w-6 text-red-400 mb-1" />
                 <span className="text-xs text-red-600 text-center">CORS Error</span>
+                {/* Direct link to view image in new tab */}
                 <a
                     href={imageUrl}
                     target="_blank"
@@ -77,6 +147,7 @@ const ProductImage = ({ imageUrl, productName, className }) => {
                 >
                     View Image
                 </a>
+                {/* Retry button to start fallback process again */}
                 <button
                     onClick={() => {
                         setCurrentUrlIndex(0);
@@ -90,63 +161,90 @@ const ProductImage = ({ imageUrl, productName, className }) => {
         );
     }
 
+    // Case 3: Display the image using current fallback URL
     return (
         <div className={`relative ${className}`}>
             <img
-                src={fallbackUrls[currentUrlIndex]}
-                alt={productName}
-                onError={handleImageError}
-                onLoad={handleImageLoad}
+                src={fallbackUrls[currentUrlIndex]}  // Use current fallback URL
+                alt={productName}                     // Accessibility alt text
+                onError={handleImageError}           // Trigger fallback on error
+                onLoad={handleImageLoad}             // Log success and clear error state
                 className="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
-                style={{ display: 'block' }}
+                style={{ display: 'block' }}        // Ensure image displays as block element
             />
         </div>
     );
 };
 
-// Notification Toast Component with right alignment and timing bar
+// ================================================================================================
+// NOTIFICATION TOAST COMPONENT
+// ================================================================================================
+// This component displays success/error messages as animated toast notifications.
+// Features:
+// - Slides in from the right side of the screen
+// - Auto-dismisses after a specified duration (default 3 seconds)
+// - Shows a progress bar indicating remaining time
+// - Can be manually dismissed by clicking the X button
+// - Different colors for success (green) and error (red) messages
+//
+// Props:
+// - message: The text to display in the notification
+// - type: Either 'success' or 'error' to determine styling
+// - onClose: Callback function called when notification is dismissed
+// - duration: How long to show the notification in milliseconds (default 3000)
+// ================================================================================================
+
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
+    // Track the progress bar percentage (starts at 100%, decreases to 0%)
     const [progress, setProgress] = useState(100);
+
+    // Track visibility for slide-in/slide-out animations
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Show animation
+        // Start with slide-in animation
         setIsVisible(true);
 
-        // Progress bar animation - update every 50ms for smooth animation
-        const updateInterval = 50;
-        const decrementAmount = 100 / (duration / updateInterval);
+        // Set up progress bar animation - updates every 50ms for smooth movement
+        const updateInterval = 50; // Update frequency in milliseconds
+        const decrementAmount = 100 / (duration / updateInterval); // How much to decrease each update
 
+        // Interval to update progress bar
         const interval = setInterval(() => {
             setProgress(prev => {
                 const newProgress = prev - decrementAmount;
-                return newProgress <= 0 ? 0 : newProgress;
+                return newProgress <= 0 ? 0 : newProgress; // Don't go below 0%
             });
         }, updateInterval);
 
-        // Auto close after duration
+        // Timer to auto-dismiss the notification
         const timer = setTimeout(() => {
-            setIsVisible(false);
-            setTimeout(onClose, 300); // Wait for slide-out animation
+            setIsVisible(false); // Start slide-out animation
+            setTimeout(onClose, 300); // Wait for animation to complete before calling onClose
         }, duration);
 
+        // Cleanup function - clear timers when component unmounts or dependencies change
         return () => {
             clearInterval(interval);
             clearTimeout(timer);
         };
-    }, [duration, onClose]);
+    }, [duration, onClose]); // Re-run effect if duration or onClose changes
 
+    // Dynamic styling based on notification type (success = green, error = red)
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
 
+    // Main toast container - positioned fixed at top-right with slide animations
     return (
         <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
             }`}>
+            {/* Toast content container with dynamic background color */}
             <div className={`${bgColor} rounded-lg shadow-2xl border border-white/30 overflow-hidden backdrop-blur-sm`}>
                 <div className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
+                            {/* Icon based on notification type */}
                             <div className="flex-shrink-0">
                                 {type === 'success' ? (
                                     <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
@@ -158,8 +256,9 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                     </div>
                                 )}
                             </div>
+                            {/* Message content */}
                             <div className="ml-3">
-                                <h3 className={`text-sm font-medium text-white`}>
+                                <h3 className="text-sm font-medium text-white">
                                     {type === 'success' ? 'Success' : 'Error'}
                                 </h3>
                                 <p className={`text-sm ${textColor} mt-1`}>
@@ -167,10 +266,11 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                 </p>
                             </div>
                         </div>
+                        {/* Manual close button */}
                         <button
                             onClick={() => {
                                 setIsVisible(false);
-                                setTimeout(onClose, 300);
+                                setTimeout(onClose, 300); // Wait for slide-out animation
                             }}
                             className="ml-4 text-white/80 hover:text-white transition-colors"
                         >
@@ -178,11 +278,11 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                         </button>
                     </div>
                 </div>
-                {/* Progress Bar */}
+                {/* Progress Bar showing remaining time */}
                 <div className="h-1 bg-white/20">
                     <div
                         className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${progress}%` }} // Dynamically shrinking width
                     />
                 </div>
             </div>
@@ -190,68 +290,117 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     );
 };
 
-// Simple ShopProduct Management Component
+// ================================================================================================
+// MAIN SHOP PRODUCT MANAGEMENT COMPONENT
+// ================================================================================================
+// This is the main component that handles all product management functionality.
+// It provides a complete interface for managing shop products including:
+// - Viewing products in a paginated, sortable table
+// - Creating new products with validation
+// - Editing existing products
+// - Managing product status (enable/disable)
+// - Real-time search and filtering
+// - Integration with pet management system
+// ================================================================================================
+
 const ShopProductManagement = () => {
-    // Use auth hook to get current user
+    // ============================================================================================
+    // AUTHENTICATION AND USER CONTEXT
+    // ============================================================================================
+
+    // Get current authenticated user information
     const { user } = useAuth();
 
-    // Use hook for data management
+    // ============================================================================================
+    // DATA MANAGEMENT HOOKS
+    // ============================================================================================
+
+    // Main hook for shop product operations - provides CRUD functions and data
     const {
-        shopProducts,
-        allShopProducts, // All unfiltered products
-        shops,
-        loading,
-        error,
-        createShopProduct,
-        updateShopProduct,
-        deleteShopProduct,
-        updateShopProductStatus,
-        refreshData,
-        getShopName
+        shopProducts,           // Currently displayed products (filtered/paginated)
+        allShopProducts,        // Complete unfiltered product list for client-side filtering
+        shops,                  // Available shop information
+        loading,                // Loading state for API operations
+        error,                  // Error state from failed API calls
+        createShopProduct,      // Function to create a new product
+        updateShopProduct,      // Function to update an existing product
+        deleteShopProduct,      // Function to delete a product
+        updateShopProductStatus, // Function to change product active/inactive status
+        refreshData,            // Function to refetch data from API
+        getShopName            // Helper function to get shop name by ID
     } = useSimpleShopProducts();
 
-    // Use pets hook for Pet ID dropdown
+    // Hook for pet data - needed because products can be linked to specific pets
     const {
-        pets,
-        loading: petsLoading
+        pets,                   // List of all pets in the system
+        loading: petsLoading    // Loading state for pet data
     } = useSimplePets();
 
-    // Dynamic pet types extracted from pets data (only active pets)
+    // ============================================================================================
+    // COMPUTED VALUES AND DERIVED STATE
+    // ============================================================================================
+
+    /**
+     * Extract unique pet types from active pets for dynamic product categorization
+     * This creates a list of available pet types that can be used for products.
+     * Only includes pets with petStatus === 1 (active) to avoid issues with disabled pets.
+     */
     const dynamicPetTypes = useMemo(() => {
+        // Return empty array if no pets data available
         if (!pets || pets.length === 0) return [];
 
-        // Filter for active pets only (petStatus === 1), then extract unique pet types
+        // Process pets to extract unique active pet types
         const types = pets
-            .filter(pet => pet.petStatus === 1) // Only include active pets
-            .map(pet => pet.petType || pet.type) // Handle both petType and type properties
-            .filter(type => type && type.trim()) // Remove empty/null values
-            .map(type => type.trim()); // Clean whitespace
+            .filter(pet => pet.petStatus === 1)      // Only include active pets
+            .map(pet => pet.petType || pet.type)     // Handle both property naming conventions
+            .filter(type => type && type.trim())     // Remove empty/null values
+            .map(type => type.trim());               // Clean whitespace
 
-        // Return unique types, sorted alphabetically
+        // Return unique types, sorted alphabetically for consistent UI
         const uniqueTypes = [...new Set(types)].sort();
 
-        // Debug log for development
+        // Debug log for development - helps track what pet types are available
         console.log('🐾 Dynamic Pet Types (Active Only) extracted:', uniqueTypes);
 
         return uniqueTypes;
-    }, [pets]);
+    }, [pets]); // Only recalculate when pets data changes
 
-    // Helper function to check if a product is a Pet
+    // ============================================================================================
+    // HELPER FUNCTIONS FOR PRODUCT CLASSIFICATION
+    // ============================================================================================
+
+    /**
+     * Determine if a product is related to a pet
+     * A product is considered a pet product if:
+     * 1. It has a petID (direct association with a specific pet)
+     * 2. Its type matches one of the dynamic pet types
+     */
     const isPetProduct = (product) => {
-        // Check if product has petID (indicating it's linked to a pet)
+        // Direct pet association via petID
         if (product.petID) return true;
 
-        // Check if product type is one of the dynamic pet types
+        // Type-based classification - check if product type is a pet type
         return dynamicPetTypes.includes(product.type);
-    };    // Helper function to check if a product's related pet is inactive
-    const isRelatedPetInactive = (product) => {
-        if (!product.petID || !pets) return false;
-
-        const relatedPet = pets.find(pet => pet.petId === product.petID);
-        return relatedPet && relatedPet.petStatus === 0;
     };
 
-    // Helper function to get enhanced status badge with pet-related information
+    /**
+     * Check if a product's related pet is inactive
+     * This is important for determining why a product might be disabled.
+     * If a pet is disabled, its related products should also be disabled.
+     */
+    const isRelatedPetInactive = (product) => {
+        // Only check if product has a petID and we have pets data
+        if (!product.petID || !pets) return false;
+
+        // Find the related pet and check its status
+        const relatedPet = pets.find(pet => pet.petId === product.petID);
+        return relatedPet && relatedPet.petStatus === 0; // Pet is inactive
+    };
+
+    /**
+     * Generate enhanced status badge with contextual information
+     * This provides visual feedback about product status and explains why it might be disabled
+     */
     const getStatusBadge = (product) => {
         if (product.status === 1) {
             return (
@@ -294,13 +443,24 @@ const ShopProductManagement = () => {
         }
     };
 
-    // Local search state - separated for debouncing
+    // ============================================================================================
+    // STATE MANAGEMENT - FILTERING AND SEARCH
+    // ============================================================================================
+
+    // Local search state - separated for debouncing to improve performance
     const [localSearchTerm, setLocalSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');    // Filter states
-    const [statusFilter, setStatusFilter] = useState('all'); // Active, Out of stock
-    const [currencyFilter, setCurrencyFilter] = useState('all'); // COIN, DIAMOND, GEM
-    const [shopTypeFilter, setShopTypeFilter] = useState('all'); // Pet, Food
-    // Debounce search term to prevent excessive filtering
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+    // Filter states for different product categorization
+    const [statusFilter, setStatusFilter] = useState('all');      // Active/Inactive products
+    const [currencyFilter, setCurrencyFilter] = useState('all');  // COIN/DIAMOND/GEM currency types
+    const [shopTypeFilter, setShopTypeFilter] = useState('all');  // Pet/Food/Other product types
+
+    /**
+     * Debounce search term to prevent excessive filtering
+     * Waits 300ms after user stops typing before applying search
+     * This improves performance and reduces unnecessary API calls
+     */
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(localSearchTerm);
@@ -309,18 +469,27 @@ const ShopProductManagement = () => {
         return () => clearTimeout(timer);
     }, [localSearchTerm]);
 
-    // Handle search - Use local state with debouncing
+    /**
+     * Handle search input with local state for immediate UI feedback
+     * Uses debouncing to prevent performance issues with large datasets
+     */
     const handleSearch = useCallback((term) => {
         setLocalSearchTerm(term);
     }, []);
 
-    // Clear search with debouncing reset
+    /**
+     * Clear search and reset debounced state
+     * Ensures both immediate and delayed search states are cleared
+     */
     const clearSearch = useCallback(() => {
         setLocalSearchTerm('');
         setDebouncedSearchTerm('');
     }, []);
 
-    // Clear all filters
+    /**
+     * Reset all filters to default state
+     * Provides a quick way to clear all applied filters and sorting
+     */
     const clearAllFilters = useCallback(() => {
         clearSearch();
         setStatusFilter('all');
@@ -329,25 +498,40 @@ const ShopProductManagement = () => {
         setSortConfig({ key: null, direction: 'asc' });
     }, []);
 
-    // Local UI state
+    // ============================================================================================
+    // STATE MANAGEMENT - MODAL AND UI STATES
+    // ============================================================================================
+
+    // Product selection and detail viewing
     const [selectedProduct, setSelectedProduct] = useState(null);
+
+    // Modal states for different CRUD operations
     const [editModal, setEditModal] = useState({ isOpen: false, product: null });
     const [createModal, setCreateModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
-    const [linkConverted, setLinkConverted] = useState(false);
-    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false);
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-    // Use notification manager hook
+    // UI helper states
+    const [linkConverted, setLinkConverted] = useState(false);           // Google Drive link conversion status
+    const [showGoogleDriveHelp, setShowGoogleDriveHelp] = useState(false); // Help dialog visibility
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false); // Advanced filter panel visibility
+
+    // ============================================================================================
+    // NOTIFICATION SYSTEM INTEGRATION
+    // ============================================================================================
+
+    /**
+     * Use notification manager hook for consistent user feedback
+     * Provides unified notification system with automatic refresh functionality
+     */
     const {
-        notification,
-        showNotification,
-        clearNotification,
-        handleOperationWithNotification,
-        handleFormSubmission
+        notification,                    // Current notification state
+        showNotification,               // Function to display notifications
+        clearNotification,              // Function to clear notifications
+        handleOperationWithNotification, // Wrapper for operations with notifications
+        handleFormSubmission            // Wrapper for form submissions with notifications
     } = useNotificationManager(refreshData);
 
-    // Local error and success message states (kept for compatibility)
+    // Local error and success message states (kept for legacy compatibility)
     const [localError, setLocalError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
@@ -362,19 +546,32 @@ const ShopProductManagement = () => {
         quantity: ''
     });
 
-    // Validation helper functions
+    // ============================================================================================
+    // VALIDATION FUNCTIONS - INPUT VALIDATION AND BUSINESS RULES
+    // ============================================================================================
+
+    /**
+     * Validate product name with uniqueness check
+     * Ensures product names are unique, appropriate length, and properly formatted
+     * 
+     * @param {string} name - The product name to validate
+     * @param {boolean} isEditing - Whether this is an edit operation (affects uniqueness check)
+     * @param {number} currentProductId - ID of product being edited (excluded from uniqueness check)
+     * @returns {string} Error message or empty string if valid
+     */
     const validateName = (name, isEditing = false, currentProductId = null) => {
+        // Basic validation
         if (!name || name.trim().length === 0) return 'Product name is required.';
         if (name.trim().length < 2) return 'Product name must be at least 2 characters.';
         if (name.length > 100) return 'Product name cannot exceed 100 characters.';
 
-        // Check for uniqueness
+        // Uniqueness validation - check against existing products
         const trimmedName = name.trim();
         const existingProduct = shopProducts?.find(product => {
             const normalizedExistingName = product.name?.trim().toLowerCase();
             const normalizedNewName = trimmedName.toLowerCase();
 
-            // If editing, exclude the current product from the check
+            // If editing, exclude the current product from uniqueness check
             if (isEditing && currentProductId && product.shopProductId === currentProductId) {
                 return false;
             }
@@ -386,31 +583,51 @@ const ShopProductManagement = () => {
             return `Product name "${trimmedName}" already exists. Please choose a different name.`;
         }
 
-        return '';
+        return ''; // Valid
     };
 
+    /**
+     * Validate product type selection
+     * Ensures a valid product category is selected
+     */
     const validateType = (type) => {
         if (!type || type.trim().length === 0) return 'Product type is required.';
         return '';
     };
 
+    /**
+     * Validate pet type selection for pet-related products
+     * Required when product type indicates it's pet-specific
+     */
     const validatePetType = (petType) => {
         if (!petType || petType.trim().length === 0) return 'Pet type is required.';
         return '';
     };
 
+    /**
+     * Validate product description
+     * Ensures description is provided and within character limits
+     */
     const validateDescription = (description) => {
         if (!description || description.trim().length === 0) return 'Description is required.';
         if (description.length > 1000) return 'Description cannot exceed 1000 characters.';
         return '';
     };
 
+    /**
+     * Validate image URL with Google Drive requirement
+     * Ensures image is hosted on Google Drive for consistency and reliability
+     */
     const validateImageUrl = (url) => {
         if (!url || url.trim().length === 0) return 'Image URL is required.';
         if (!url.includes('drive.google.com')) return 'Please use Google Drive link.';
         return '';
     };
 
+    /**
+     * Validate product price with business rules
+     * Ensures price is numeric, positive, and within reasonable bounds
+     */
     const validatePrice = (price) => {
         if (!price || price === '') return 'Product price is required.';
         const numPrice = parseFloat(price);
@@ -419,6 +636,10 @@ const ShopProductManagement = () => {
         return '';
     };
 
+    /**
+     * Validate product quantity with business constraints
+     * Ensures quantity is non-negative integer within reasonable bounds
+     */
     const validateQuantity = (quantity) => {
         if (quantity === '' || quantity === null || quantity === undefined) return 'Quantity is required.';
         const numQuantity = parseInt(quantity);
@@ -427,19 +648,31 @@ const ShopProductManagement = () => {
         return '';
     };
 
-    // Clear field error helper
+    // ============================================================================================
+    // FORM FIELD ERROR MANAGEMENT
+    // ============================================================================================
+
+    /**
+     * Clear specific field validation error
+     * Used when user starts correcting an input field
+     */
     const clearFieldError = (fieldName) => {
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
     };
 
-    // Validation helper functions
+    // ============================================================================================
+    // INPUT CHANGE HANDLERS WITH REAL-TIME VALIDATION
+    // ============================================================================================
 
-    // Handle input changes with validation
+    /**
+     * Handle product name changes with immediate validation
+     * Provides real-time feedback on name uniqueness and format requirements
+     */
     const handleProductNameChange = (value) => {
         setEditForm({ ...editForm, name: value });
         clearFieldError('name');
 
-        // Determine if we're in edit mode and get current product ID
+        // Determine context for uniqueness validation
         const isEditing = editModal.isOpen;
         const currentProductId = isEditing ? editModal.product?.shopProductId : null;
 
@@ -449,6 +682,10 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle product type selection with validation
+     * Ensures a valid product category is selected
+     */
     const handleProductTypeChange = (value) => {
         setEditForm({ ...editForm, type: value });
         clearFieldError('type');
@@ -459,6 +696,10 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle pet type selection for pet-specific products
+     * Validates pet type when product is categorized as pet-related
+     */
     const handlePetTypeChange = (value) => {
         setEditForm({ ...editForm, petType: value });
         clearFieldError('petType');
@@ -469,6 +710,10 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle description changes with character limit validation
+     * Provides immediate feedback on description length requirements
+     */
     const handleDescriptionChange = (value) => {
         setEditForm({ ...editForm, description: value });
         clearFieldError('description');
@@ -479,6 +724,10 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle image URL changes with Google Drive validation
+     * Ensures consistency by requiring Google Drive hosting
+     */
     const handleImageUrlChange = (value) => {
         setEditForm({ ...editForm, imageUrl: value });
         clearFieldError('imageUrl');
@@ -489,6 +738,10 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle price changes with numeric validation
+     * Ensures price is positive number within business constraints
+     */
     const handlePriceChange = (value) => {
         setEditForm({ ...editForm, price: value });
         clearFieldError('price');
@@ -499,11 +752,16 @@ const ShopProductManagement = () => {
         }
     };
 
+    /**
+     * Handle quantity changes with automatic status management
+     * When quantity reaches 0, automatically sets product status to inactive
+     * This implements business rule: out-of-stock products should be inactive
+     */
     const handleQuantityChange = (value) => {
         const numValue = parseInt(value) || 0;
         const newForm = { ...editForm, quantity: value };
 
-        // If quantity is 0, automatically set status to inactive
+        // Business rule: If quantity is 0, automatically set status to inactive
         if (numValue === 0) {
             newForm.status = 0;
         }
@@ -517,14 +775,28 @@ const ShopProductManagement = () => {
         }
     };
 
-    // Show general error as notification
+    // ============================================================================================
+    // ERROR HANDLING AND USER FEEDBACK
+    // ============================================================================================
+
+    /**
+     * Show general errors as notifications
+     * Converts hook-level errors into user-visible notifications
+     */
     useEffect(() => {
         if (error) {
             showNotification('An error occurred: ' + error, 'error');
         }
     }, [error]);
 
-    // Confirmation dialog state
+    // ============================================================================================
+    // CONFIRMATION DIALOG MANAGEMENT
+    // ============================================================================================
+
+    /**
+     * Confirmation dialog state for destructive operations
+     * Used for delete confirmations and other critical actions
+     */
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         title: '',
@@ -532,20 +804,31 @@ const ShopProductManagement = () => {
         onConfirm: null
     });
 
+    // ============================================================================================
+    // FORM STATE MANAGEMENT
+    // ============================================================================================
+
+    /**
+     * Main form data state for both create and edit operations
+     * Contains all product fields with sensible defaults
+     */
     const [editForm, setEditForm] = useState({
-        petID: null,
-        name: '',
-        type: '',
-        petType: '',
-        description: '',
-        imageUrl: '',
-        price: '',
-        currencyType: 'Coin',
-        quantity: 10,
-        status: 1
+        petID: null,                  // Link to specific pet (optional)
+        name: '',                     // Product name (required)
+        type: '',                     // Product category (required)
+        petType: '',                  // Pet type for pet-specific products
+        description: '',              // Product description (required)
+        imageUrl: '',                 // Google Drive image URL (required)
+        price: '',                    // Product price (required)
+        currencyType: 'Coin',         // Default currency type
+        quantity: 10,                 // Default quantity
+        status: 1                     // Default active status
     });
 
-    // Original form data to track changes
+    /**
+     * Original form data for change detection in edit mode
+     * Used to determine if user has made any modifications
+     */
     const [originalFormData, setOriginalFormData] = useState({
         petID: null,
         name: '',
@@ -559,14 +842,31 @@ const ShopProductManagement = () => {
         status: 1
     });
 
-    // Sort state
+    // ============================================================================================
+    // SORTING AND PAGINATION STATE
+    // ============================================================================================
+
+    /**
+     * Sorting configuration for table columns
+     * Supports ascending/descending sort on any column
+     */
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
-    // Pagination state
+    /**
+     * Pagination state for large product lists
+     * Allows users to navigate through products efficiently
+     */
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // Check if form has changes (for edit mode)
+    // ============================================================================================
+    // CHANGE DETECTION FOR FORM VALIDATION
+    // ============================================================================================
+
+    /**
+     * Detect if form has changes in edit mode
+     * Used to warn users about unsaved changes and enable/disable save button
+     */
     const hasFormChanges = useMemo(() => {
         return (
             editForm.petID !== originalFormData.petID ||
@@ -582,7 +882,10 @@ const ShopProductManagement = () => {
         );
     }, [editForm, originalFormData]);
 
-    // Check if create form has any content (for create mode)
+    /**
+     * Detect if create form has any content
+     * Used to warn users about losing unsaved data when closing create modal
+     */
     const hasCreateFormContent = useMemo(() => {
         return (
             (editForm.name && editForm.name.trim().length > 0) ||
@@ -596,14 +899,31 @@ const ShopProductManagement = () => {
             editForm.status !== 1 || // Default status is 1
             editForm.petID !== null // Default petID is null
         );
-    }, [editForm]);    // Filter and sort all products, then paginate (proper client-side filtering)
+    }, [editForm]);
+
+    // ============================================================================================
+    // DATA PROCESSING - FILTERING, SORTING, AND PAGINATION
+    // ============================================================================================
+
+    /**
+     * Main data processing pipeline that applies all filters, sorting, and returns final dataset
+     * This is the core logic for displaying products with user-applied filters
+     * 
+     * Processing order:
+     * 1. Apply search filter (product name)
+     * 2. Apply status filter (active/inactive/out of stock)
+     * 3. Apply currency filter (coin/diamond/gem)
+     * 4. Apply shop type filter (pet/food/other)
+     * 5. Apply sorting (any column, asc/desc)
+     * 6. Return filtered and sorted results for pagination
+     */
     const filteredAndSortedProducts = useMemo(() => {
-        // Start with all products (assume allShopProducts exists or use shopProducts)
+        // Start with complete product dataset
         const allProducts = allShopProducts || shopProducts;
 
-        // Apply filters first
+        // Apply all filters sequentially
         let filtered = allProducts.filter(product => {
-            // Search filter - use debounced search term (name only)
+            // 1. Search filter - use debounced search term for performance
             if (debouncedSearchTerm.trim()) {
                 const searchLower = debouncedSearchTerm.toLowerCase();
                 const productName = (product.name || '').toLowerCase();
@@ -612,67 +932,66 @@ const ShopProductManagement = () => {
                 }
             }
 
-            // 1. Status filter (Active, Out of stock)
+            // 2. Status filter - categorize by product availability
             if (statusFilter !== 'all') {
                 if (statusFilter === 'active' && product.status !== 1) return false;
                 if (statusFilter === 'outOfStock' && (product.status !== 0 && product.quantity > 0)) return false;
             }
 
-            // 2. Currency filter (Coin, Diamond, Gem)
+            // 3. Currency filter - filter by payment method
             if (currencyFilter !== 'all') {
                 if (product.currencyType !== currencyFilter) return false;
             }
 
-            // 3. Shop Type filter - categorize products
+            // 4. Shop type filter - categorize by product relationship
             if (shopTypeFilter !== 'all') {
                 if (shopTypeFilter === 'Pet') {
-                    // Pet products are those with dynamic pet types or petID
+                    // Pet products: either have dynamic pet types or direct pet association
                     if (!dynamicPetTypes.includes(product.type) && !product.petID) return false;
                 } else if (shopTypeFilter === 'Food') {
                     if (product.type !== 'Food') return false;
                 }
             }
 
-
-
-            return true;
+            return true; // Product passes all filters
         });
 
-        // Apply sorting
+        // Apply sorting if configured
         if (sortConfig.key) {
             filtered.sort((a, b) => {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
-                // Special handling for numeric fields
+                // Handle numeric fields (price, quantity) with proper number conversion
                 if (sortConfig.key === 'price' || sortConfig.key === 'quantity') {
                     aValue = Number(aValue) || 0;
                     bValue = Number(bValue) || 0;
                 }
 
-                // Special handling for status (ensure numeric comparison)
+                // Handle status field as numeric for proper ordering
                 if (sortConfig.key === 'status') {
                     aValue = Number(aValue);
                     bValue = Number(bValue);
                 }
 
-                // Handle string comparisons
+                // Handle string comparisons (case-insensitive)
                 if (typeof aValue === 'string') {
                     aValue = aValue.toLowerCase();
                     bValue = bValue.toLowerCase();
                 }
 
-                // Handle null/undefined values
+                // Handle null/undefined values by converting to empty string
                 if (aValue == null) aValue = '';
                 if (bValue == null) bValue = '';
 
+                // Perform comparison based on sort direction
                 if (aValue < bValue) {
                     return sortConfig.direction === 'asc' ? -1 : 1;
                 }
                 if (aValue > bValue) {
                     return sortConfig.direction === 'asc' ? 1 : -1;
                 }
-                return 0;
+                return 0; // Values are equal
             });
         }
 

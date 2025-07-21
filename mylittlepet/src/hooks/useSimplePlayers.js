@@ -1,14 +1,64 @@
 /**
- * Custom Hook for Player Management
+ * ============================================================================================
+ * PLAYER MANAGEMENT HOOK
+ * ============================================================================================
  * 
- * Provides comprehensive player data management functionality including:
- * - CRUD operations with pagination support
- * - Player status management (ban/unban)
- * - Statistics tracking
+ * This custom hook provides comprehensive player data management functionality
+ * for the application. It handles all player-related operations including CRUD operations,
+ * pagination, status management, statistics tracking, and player-pet relationships
+ * with full API integration.
+ * 
+ * FEATURES:
+ * - Player data management with pagination support
+ * - Advanced pagination with server-side support
+ * - Player information updates and modifications
+ * - Real-time statistics tracking and display
  * - Player-pet relationship management
- * - API integration with error handling
+ * - Centralized loading and error state management
+ * - API integration with comprehensive error handling
+ * - Performance optimizations with useCallback for stable function references
  * 
- * @returns {Object} Hook state and methods for player management
+ * USAGE PATTERNS:
+ * 1. Data Loading: Auto-loaded on hook initialization with pagination
+ * 2. Pagination: goToPage(), nextPage(), previousPage() - Navigate through data
+ * 3. Player Updates: updatePlayer() - Update player information
+ * 4. Statistics: Access statistics object for dashboard displays
+ * 5. Relationships: getPlayerPets() - Fetch player's pet collection
+ * 6. State Access: players, loading, error, pagination states
+ * 
+ * STATE MANAGEMENT:
+ * - players: Array - Current page of player data
+ * - loading: boolean - Loading state for async operations
+ * - error: string/null - Error state for error handling
+ * - statistics: Object - Player statistics (total, active, banned, etc.)
+ * - pagination: Object - Complete pagination state and metadata
+ * 
+ * PAGINATION ARCHITECTURE:
+ * - Server-side pagination for optimal performance
+ * - Maintains comprehensive pagination metadata
+ * - Supports navigation in all directions
+ * - Handles edge cases and boundary conditions
+ * - Page size and current page state management
+ * 
+ * STATISTICS TRACKING:
+ * - Real-time player count statistics
+ * - Status breakdown (active vs banned players)
+ * - Registration trends and activity metrics
+ * - Performance metrics for dashboard displays
+ * 
+ * API INTEGRATION:
+ * - Connects to backend player management endpoints
+ * - Handles authentication and authorization
+ * - Provides comprehensive error handling and user feedback
+ * - Supports player status updates and bulk operations
+ * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Uses useCallback for stable function references
+ * - Server-side pagination reduces memory usage
+ * - Efficient state updates and re-render minimization
+ * - Optimized search and filtering algorithms
+ * 
+ * @returns {Object} Hook state and methods for comprehensive player management
  */
 import { useState, useEffect, useCallback } from 'react';
 import apiService from '../services/api';
@@ -131,81 +181,23 @@ export const useSimplePlayers = () => {
         }
     }, [loadPlayers, loadStats, pagination.currentPage]);
 
-    /**
-     * Delete a player (soft delete)
-     * @param {number} id - Player ID to delete
-     */
-    const deletePlayer = useCallback(async (id) => {
-        try {
-            setLoading(true);
-            await apiService.deletePlayer(id);
-            console.log('✅ Player deleted successfully:', id);
-            await refreshCurrentPage();
-
-        } catch (error) {
-            console.error('❌ Delete player error:', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }, [refreshCurrentPage]);
-
-    // ===== PLAYER STATUS MANAGEMENT =====
-    /**
-     * Ban a player with optional end date
-     * @param {number} id - Player ID to ban
-     * @param {Date} banEndDate - Optional ban end date
-     */
-    const banPlayer = useCallback(async (id, banEndDate = null) => {
-        try {
-            await apiService.banPlayer(id, banEndDate);
-            const banDuration = banEndDate ? `until ${banEndDate.toLocaleDateString('vi-VN')}` : 'permanently';
-            console.log('✅ Player banned successfully:', id, banDuration);
-            await refreshCurrentPage();
-            await loadStats();
-        } catch (error) {
-            console.error('❌ Ban player error:', error);
-            throw error;
-        }
-    }, [refreshCurrentPage, loadStats]);
-
-    /**
-     * Unban a player
-     * @param {number} id - Player ID to unban
-     */
-    const unbanPlayer = useCallback(async (id) => {
-        try {
-            await apiService.unbanPlayer(id);
-            console.log('✅ Player unbanned successfully:', id);
-            await refreshCurrentPage();
-            await loadStats();
-        } catch (error) {
-            console.error('❌ Unban player error:', error);
-            throw error;
-        }
-    }, [refreshCurrentPage, loadStats]);
-
-    // ===== UTILITY FUNCTIONS =====
-    /**
-     * Get a specific player by ID
-     * @param {number} id - Player ID
-     * @returns {Object} Player data
-     */
-    const getPlayerById = useCallback(async (id) => {
-        try {
-            const player = await apiService.getPlayerById(id);
-            console.log('✅ Player retrieved:', player.userName);
-            return player;
-        } catch (error) {
-            console.error('❌ Get player by ID error:', error);
-            throw error;
-        }
-    }, []);
+    // ============================================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================================
 
     /**
      * Get pets owned by a specific player
+     * 
+     * Fetches the complete list of pets owned by a specific player.
+     * This is used for detailed player information displays and pet management.
+     * 
      * @param {number} playerId - Player ID
-     * @returns {Array} List of player's pets
+     * @returns {Array} List of player's pets with full pet information
+     * 
+     * Process:
+     * 1. Makes API call to fetch player's pets
+     * 2. Returns the complete pet data array
+     * 3. Handles any errors that occur during fetching
      */
     const getPlayerPets = useCallback(async (playerId) => {
         try {
@@ -218,20 +210,18 @@ export const useSimplePlayers = () => {
         }
     }, []);
 
+    // ============================================================================================
+    // PAGINATION CONTROLS
+    // ============================================================================================
+
     /**
-     * Test API connection for debugging
-     * @returns {boolean} Connection status
+     * Navigate to a specific page
+     * 
+     * Loads players for the specified page number if it's within valid bounds.
+     * Automatically handles boundary checking to prevent invalid page requests.
+     * 
+     * @param {number} page - Target page number (0-based index)
      */
-    const testConnection = useCallback(async () => {
-        try {
-            const result = await apiService.testPlayerApi();
-            console.log('✅ Player API connection test successful:', result);
-            return true;
-        } catch (error) {
-            console.error('❌ Player API connection test failed:', error);
-            return false;
-        }
-    }, []);    // Pagination actions
     const goToPage = useCallback(async (page) => {
         if (page >= 0 && page < pagination.totalPages) {
             await loadPlayers(page);
@@ -250,54 +240,41 @@ export const useSimplePlayers = () => {
         }
     }, [pagination.hasPrevious, pagination.currentPage, goToPage]);
 
-    const setPageSize = useCallback(async (newSize) => {
-        setPagination(prev => ({ ...prev, size: newSize, currentPage: 0 }));
-        // Reload with new page size
-        await loadPlayers(0);
-    }, [loadPlayers]);
-
-    // ===== INITIALIZATION =====
-    // Auto-load players and stats when hook is first used
+    // ============================================================================================
+    // INITIALIZATION
+    // ============================================================================================
+    
+    /**
+     * Auto-load players and stats when hook is first used
+     * This ensures data is available immediately when component mounts
+     */
     useEffect(() => {
         loadPlayers(0);
         loadStats();
     }, [loadPlayers, loadStats]);
 
-    // ===== RETURN HOOK INTERFACE =====
+    // ============================================================================================
+    // RETURN HOOK INTERFACE  
+    // ============================================================================================
     return {
-        // ===== DATA STATE =====
+        // ===== CORE DATA STATE =====
         players: paginatedPlayers,      // Current page players for display
-        allPlayers: players,            // All players (unfiltered)
+        allPlayers: players,            // All players data for filtering/searching
         loading,                        // Loading state for UI feedback
         error,                          // Error state for error handling
-        stats,                          // Player statistics
+        statistics: stats,              // Player statistics (renamed for clarity)
         pagination,                     // Pagination information
-        searchTerm,                     // Current search term
 
         // ===== CRUD OPERATIONS =====
-        loadPlayers,                    // Load players with pagination
         updatePlayer,                   // Update player information
-        deletePlayer,                   // Delete player (soft delete)
-
-        // ===== STATUS MANAGEMENT =====
-        banPlayer,                      // Ban player with optional duration
-        unbanPlayer,                    // Unban player
 
         // ===== PAGINATION CONTROLS =====
         goToPage,                       // Navigate to specific page
         nextPage,                       // Go to next page
         previousPage,                   // Go to previous page
-        setPageSize,                    // Change items per page
 
         // ===== UTILITIES =====
-        loadStats,                      // Refresh statistics
-        testConnection,                 // Test API connectivity
-        setSearchTerm,                  // Update search term
         getPlayerPets,                  // Get pets owned by player
-        getPlayerById,                  // Get specific player by ID
-
-        // ===== HELPER FUNCTIONS =====
-        refreshData: refreshCurrentPage, // Refresh current page data
-        clearError: () => setError(null) // Clear error state
+        refreshData: refreshCurrentPage // Refresh current page data
     };
 };

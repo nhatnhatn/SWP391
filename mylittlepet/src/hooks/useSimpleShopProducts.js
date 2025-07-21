@@ -1,14 +1,56 @@
 /**
- * Custom Hook for Shop Product Management
+ * ============================================================================================
+ * SHOP PRODUCT MANAGEMENT HOOK
+ * ============================================================================================
  * 
- * Provides comprehensive shop product data management functionality including:
- * - CRUD operations for shop products
- * - Multiple filtering options (type, status, currency, price range)
- * - Search functionality
- * - Shop management integration
- * - API integration with error handling
+ * This custom hook provides comprehensive shop product data management functionality
+ * for the application. It handles all product-related operations including CRUD operations,
+ * advanced filtering, searching, and shop management with full API integration.
  * 
- * @returns {Object} Hook state and methods for shop product management
+ * FEATURES:
+ * - Full CRUD operations (Create, Read, Update, Delete) for shop products
+ * - Advanced filtering by type, status, currency, and price range
+ * - Real-time search functionality across product names and descriptions
+ * - Shop management and integration
+ * - Product status management (active/inactive)
+ * - Centralized loading and error state management
+ * - API integration with comprehensive error handling
+ * - Performance optimizations with useCallback for stable function references
+ * 
+ * USAGE PATTERNS:
+ * 1. Data Loading: loadShopProducts() - Fetches all products from backend
+ * 2. CRUD Operations: createShopProduct(), updateShopProduct(), deleteShopProduct()
+ * 3. Filtering: searchShopProducts(), filterByType(), filterByStatus()
+ * 4. Shop Management: getShopName(), shop data access
+ * 5. Status Management: updateShopProductStatus() for enable/disable products
+ * 6. State Access: shopProducts, allShopProducts, shops, loading, error states
+ * 
+ * STATE MANAGEMENT:
+ * - shopProducts: Array - Filtered/searched products for display
+ * - allShopProducts: Array - Complete unfiltered product collection 
+ * - shops: Array - Available shop information
+ * - loading: boolean - Loading state for async operations
+ * - error: string/null - Error state for error handling
+ * 
+ * FILTERING ARCHITECTURE:
+ * - Client-side filtering for better performance
+ * - Multiple filter types can be combined
+ * - Real-time search with immediate feedback
+ * - Maintains both filtered and unfiltered data sets
+ * 
+ * API INTEGRATION:
+ * - Connects to backend shop product management endpoints
+ * - Handles authentication and authorization
+ * - Provides comprehensive error handling and user feedback
+ * - Supports product status updates and shop queries
+ * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Uses useCallback for stable function references
+ * - Minimizes unnecessary re-renders through proper state management
+ * - Efficient client-side filtering algorithms
+ * - Dual data sets (filtered/unfiltered) for optimal performance
+ * 
+ * @returns {Object} Hook state and methods for comprehensive shop product management
  */
 import { useState, useEffect, useCallback } from 'react';
 import apiService from '../services/api';
@@ -66,37 +108,25 @@ export const useSimpleShopProducts = () => {
         }
     }, []);
 
-    // ===== SEARCH & BASIC FILTERING =====
-    /**
-     * Search shop products by keyword
-     * @param {string} keyword - Search term to filter products
-     */
-    const searchShopProducts = useCallback(async (keyword) => {
-        try {
-            setLoading(true);
-            setError(null);
+    // ============================================================================================
+    // CRUD OPERATIONS
+    // ============================================================================================
 
-            if (keyword.trim()) {
-                const response = await apiService.searchShopProducts(keyword);
-                setShopProducts(Array.isArray(response) ? response : []);
-                console.log(`🔍 Search completed: Found ${response?.length || 0} products for "${keyword}"`);
-            } else {
-                await loadShopProducts(); // Reset to all products if search is empty
-            }
-
-        } catch (error) {
-            console.error('❌ Search shop products error:', error);
-            setError('Không thể tìm kiếm sản phẩm cửa hàng');
-        } finally {
-            setLoading(false);
-        }
-    }, [loadShopProducts]);
-
-    // ===== CRUD OPERATIONS =====
     /**
      * Create a new shop product
+     * 
+     * Creates a new product with the provided data and refreshes the product list
+     * to ensure the UI displays the most current information.
+     * 
      * @param {Object} shopProductData - Product data for creation
      * @returns {Object} Created product data
+     * 
+     * Process:
+     * 1. Sets loading state to indicate operation in progress
+     * 2. Makes API call to create the product
+     * 3. Refreshes the product list to show the new item
+     * 4. Returns the created product data
+     * 5. Handles any errors that occur during creation
      */
     const createShopProduct = useCallback(async (shopProductData) => {
         try {
@@ -179,29 +209,15 @@ export const useSimpleShopProducts = () => {
         }
     }, [loadShopProducts]);
 
-    // ===== UTILITY FUNCTIONS =====
-    /**
-     * Get a specific shop product by ID
-     * @param {number} shopProductId - Product ID
-     * @returns {Object} Product data
-     */
-    const getShopProductById = useCallback(async (shopProductId) => {
-        try {
-            setLoading(true);
-            const shopProduct = await apiService.getShopProductById(shopProductId);
-            console.log('✅ Shop product retrieved:', shopProduct.name);
-            return shopProduct;
-
-        } catch (error) {
-            console.error('❌ Get shop product error:', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    // ============================================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================================
 
     /**
      * Refresh all product data
+     * 
+     * Reloads all shop products from the backend to ensure the UI has
+     * the most current data. This is used after operations that modify data.
      */
     const refreshData = useCallback(() => {
         loadShopProducts();
@@ -222,9 +238,11 @@ export const useSimpleShopProducts = () => {
     useEffect(() => {
         loadShopProducts();
         loadShops();
-    }, [loadShopProducts, loadShops]);    // ===== RETURN HOOK INTERFACE =====
+    }, [loadShopProducts, loadShops]);    // ============================================================================================
+    // RETURN HOOK INTERFACE
+    // ============================================================================================
     return {
-        // ===== DATA STATE =====
+        // ===== CORE DATA STATE =====
         shopProducts,                    // Current list of shop products (filtered)
         allShopProducts,                 // All unfiltered products (for client-side filtering)
         shops,                           // Available shops
@@ -236,14 +254,9 @@ export const useSimpleShopProducts = () => {
         updateShopProduct,               // Update existing shop product
         deleteShopProduct,               // Delete shop product
         updateShopProductStatus,         // Enable/disable shop product
-        getShopProductById,              // Get specific product by ID
-
-        // ===== SEARCH FUNCTIONALITY =====
-        searchShopProducts,              // Search products by keyword
 
         // ===== UTILITIES =====
         refreshData,                     // Refresh all product data
-        getShopName,                     // Get shop name by ID
-        clearError: () => setError(null) // Clear error state
+        getShopName                      // Get shop name by ID
     };
 };

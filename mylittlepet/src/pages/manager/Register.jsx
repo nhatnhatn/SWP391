@@ -1,43 +1,77 @@
+/**
+ * REGISTER COMPONENT
+ * 
+ * User registration page for My Little Pet application
+ * Features: Form validation, real-time error checking, password strength requirements,
+ * notification system, and automatic redirect after successful registration
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 
-// Notification Toast Component (copied from ShopProductManagement)
+// ============================================================================
+// NOTIFICATION TOAST COMPONENT
+// ============================================================================
+
+/**
+ * Reusable notification toast component with auto-dismiss functionality
+ * Features: Progress bar animation, different notification types, smooth transitions
+ */
+/**
+ * Reusable notification toast component with auto-dismiss functionality
+ * Features: Progress bar animation, different notification types, smooth transitions
+ */
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
+    // Progress bar state (100% to 0% over duration)
     const [progress, setProgress] = useState(100);
+    // Visibility state for smooth enter/exit animations
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        // Start visible animation
         setIsVisible(true);
-        const updateInterval = 50;
+
+        // Progress bar animation setup
+        const updateInterval = 50; // Update every 50ms for smooth animation
         const decrementAmount = 100 / (duration / updateInterval);
+
+        // Animate progress bar countdown
         const interval = setInterval(() => {
             setProgress(prev => {
                 const newProgress = prev - decrementAmount;
                 return newProgress <= 0 ? 0 : newProgress;
             });
         }, updateInterval);
+
+        // Auto-dismiss timer with exit animation
         const timer = setTimeout(() => {
-            setIsVisible(false);
-            setTimeout(onClose, 300);
+            setIsVisible(false); // Start exit animation
+            setTimeout(onClose, 300); // Close after animation completes
         }, duration);
+
+        // Cleanup timers on unmount
         return () => {
             clearInterval(interval);
             clearTimeout(timer);
         };
     }, [duration, onClose]);
 
+    // Dynamic styling based on notification type
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
 
     return (
+        // Fixed positioning with responsive design and smooth transitions
         <div className={`fixed top-4 right-4 z-9999 max-w-sm transition-all duration-300 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
             <div className={`${bgColor} rounded-lg shadow-2xl border border-white/30 overflow-hidden backdrop-blur-sm`}>
+                {/* Main notification content */}
                 <div className="p-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center">
+                            {/* Status icon */}
                             <div className="flex-shrink-0">
                                 {type === 'success' ? (
                                     <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
@@ -49,6 +83,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                     </div>
                                 )}
                             </div>
+                            {/* Message content */}
                             <div className="ml-3">
                                 <h3 className={`text-sm font-medium text-white`}>
                                     {type === 'success' ? 'Success' : 'Error'}
@@ -58,6 +93,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                 </p>
                             </div>
                         </div>
+                        {/* Manual close button */}
                         <button
                             onClick={() => {
                                 setIsVisible(false);
@@ -69,7 +105,7 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                         </button>
                     </div>
                 </div>
-                {/* Progress Bar */}
+                {/* Animated progress bar showing remaining time */}
                 <div className="h-1 bg-white/20">
                     <div
                         className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
@@ -81,58 +117,123 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     );
 };
 
+// ============================================================================
+// MAIN REGISTER COMPONENT
+// ============================================================================
+
+/**
+ * Registration form component with comprehensive validation and user feedback
+ * Features: Real-time validation, password strength checking, field-specific error messages,
+ * automatic authentication state management, and post-registration redirect
+ */
 export default function Register() {
+    // ============================================================================
+    // STATE MANAGEMENT
+    // ============================================================================
+
+    // Form input states
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [fullName, setFullName] = useState('');
+
+    // UI state for password visibility toggles
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Form submission and feedback states
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-    // Notification state
+    // Notification system state
     const [notification, setNotification] = useState({ message: '', type: '', show: false });
 
-    // Individual field error states for better UX
+    /**
+     * Individual field error tracking for granular validation feedback
+     * Each field can show specific error messages independently
+     */
     const [fieldErrors, setFieldErrors] = useState({
         fullName: '',
         email: '',
         password: '',
         confirmPassword: ''
-    }); const { register, logout, isAuthenticated } = useAuth();
+    });
+
+    // ============================================================================
+    // HOOKS AND AUTHENTICATION
+    // ============================================================================
+    // HOOKS AND AUTHENTICATION
+    // ============================================================================
+
+    // Authentication context and navigation hooks
+    const { register, logout, isAuthenticated } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Redirect if already logged in
+    /**
+     * Redirect logic for already authenticated users
+     * Prevents showing registration form to logged-in users
+     */
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
     }
 
-    // Validation functions
+    // ============================================================================
+    // VALIDATION FUNCTIONS
+    // ============================================================================
+
+    /**
+     * Email validation using standard email regex pattern
+     * @param {string} email - Email address to validate
+     * @returns {boolean} - True if email format is valid
+     */
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
+    /**
+     * Password strength validation
+     * Requirements: 8+ characters, uppercase, lowercase, and numbers
+     * @param {string} password - Password to validate
+     * @returns {boolean} - True if password meets requirements
+     */
     const validatePassword = (password) => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         return passwordRegex.test(password);
     };
 
+    /**
+     * Full name validation
+     * Requirements: Non-empty, trimmed, and under 50 characters
+     * @param {string} name - Full name to validate
+     * @returns {boolean} - True if name is valid
+     */
     const validateFullName = (name) => {
         return name && name.trim().length > 0 && name.length <= 50;
     };
 
-    // Clear field error helper
+    // ============================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================
+
+    /**
+     * Clears specific field error and general error state
+     * @param {string} fieldName - Name of the field to clear error for
+     */
     const clearFieldError = (fieldName) => {
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
         setError('');
     };
 
-    // Notification helpers
+    /**
+     * Shows notification toast with auto-dismiss
+     * @param {string} message - Message to display
+     * @param {string} type - Type of notification ('success' or 'error')
+     * @param {number} duration - Display duration in milliseconds
+     */
     const showNotification = (message, type = 'error', duration = 3000) => {
         setNotification({ message, type, show: true });
         setTimeout(() => {
@@ -140,16 +241,27 @@ export default function Register() {
         }, duration);
     };
 
+    /**
+     * Clears notification state immediately
+     */
     const clearNotification = () => {
         setNotification({ message: '', type: '', show: false });
     };
 
-    // Input change handlers with real-time validation
+    // ============================================================================
+    // INPUT CHANGE HANDLERS WITH REAL-TIME VALIDATION
+    // ============================================================================
+
+    /**
+     * Handles full name input changes with real-time validation
+     * Validates length and emptiness as user types
+     */
     const handleFullNameChange = (e) => {
         const value = e.target.value;
         setFullName(value);
         clearFieldError('fullName');
 
+        // Real-time validation feedback
         if (value && !validateFullName(value)) {
             if (value.trim().length === 0) {
                 setFieldErrors(prev => ({ ...prev, fullName: 'Họ và tên không được để trống.' }));
@@ -159,26 +271,36 @@ export default function Register() {
         }
     };
 
+    /**
+     * Handles email input changes with real-time validation
+     * Validates email format as user types
+     */
     const handleEmailChange = (e) => {
         const value = e.target.value;
         setEmail(value);
         clearFieldError('email');
 
+        // Real-time email format validation
         if (value && !validateEmail(value)) {
             setFieldErrors(prev => ({ ...prev, email: 'Invalid email. Please enter a valid email format (e.g., user@example.com).' }));
         }
     };
 
+    /**
+     * Handles password input changes with real-time validation
+     * Also triggers confirm password validation if it's already filled
+     */
     const handlePasswordChange = (e) => {
         const value = e.target.value;
         setPassword(value);
         clearFieldError('password');
 
+        // Real-time password strength validation
         if (value && !validatePassword(value)) {
             setFieldErrors(prev => ({ ...prev, password: 'Password must be at least 8 characters and include uppercase, lowercase, and numbers.' }));
         }
 
-        // Also validate confirm password if it's already filled
+        // Cross-validate with confirm password field if it's already filled
         if (confirmPassword && value !== confirmPassword) {
             setFieldErrors(prev => ({ ...prev, confirmPassword: 'Password confirmation does not match.' }));
         } else if (confirmPassword && value === confirmPassword) {
@@ -186,22 +308,37 @@ export default function Register() {
         }
     };
 
+    /**
+     * Handles confirm password input changes with real-time validation
+     * Compares with main password field for consistency
+     */
     const handleConfirmPasswordChange = (e) => {
         const value = e.target.value;
         setConfirmPassword(value);
         clearFieldError('confirmPassword');
 
+        // Real-time password match validation
         if (value && password && value !== password) {
             setFieldErrors(prev => ({ ...prev, confirmPassword: 'Password confirmation does not match.' }));
         }
     };
 
-    // Get specific error message based on error type
+    // ============================================================================
+    // ERROR MESSAGE PROCESSING
+    // ============================================================================
+
+    /**
+     * Processes backend error messages and returns user-friendly messages
+     * Handles various error types with specific, actionable feedback
+     * @param {string} errorMsg - Raw error message from backend
+     * @returns {string} - User-friendly error message with emoji
+     */
     const getErrorMessage = (errorMsg) => {
         if (!errorMsg) return '';
 
         const lowerError = errorMsg.toLowerCase();
 
+        // Handle specific error types with user-friendly messages
         if (lowerError.includes('email already exists') || lowerError.includes('email đã tồn tại')) {
             return '❌ This email is already in use. Please use a different email or login if this is your account.';
         }
@@ -226,13 +363,24 @@ export default function Register() {
             return '❌ Server error. Please try again in a few minutes.';
         }
 
-        // Default fallback for other errors
+        // Default fallback for unhandled error types
         return `❌ ${errorMsg}`;
-    }; const validateForm = () => {
+    };
+
+    // ============================================================================
+    // FORM VALIDATION
+    // ============================================================================
+
+    /**
+     * Comprehensive form validation before submission
+     * Validates all fields and sets appropriate error messages
+     * @returns {boolean} - True if all validation passes
+     */
+    const validateForm = () => {
         let isValid = true;
         const errors = {};
 
-        // Validate full name
+        // Full name validation
         if (!fullName || fullName.trim().length === 0) {
             errors.fullName = 'Full name is required.';
             isValid = false;
@@ -241,7 +389,7 @@ export default function Register() {
             isValid = false;
         }
 
-        // Validate email
+        // Email validation
         if (!email.trim()) {
             errors.email = 'Email is required.';
             isValid = false;
@@ -250,7 +398,7 @@ export default function Register() {
             isValid = false;
         }
 
-        // Validate password
+        // Password validation
         if (!password) {
             errors.password = 'Password is required.';
             isValid = false;
@@ -268,10 +416,10 @@ export default function Register() {
             isValid = false;
         }
 
-        // Set all field errors at once
+        // Apply all field errors at once for better UX
         setFieldErrors(errors);
 
-        // Set general error if form is invalid
+        // Set general error message if validation fails
         if (!isValid) {
             setError('Please check and fix the errors in the form.');
             showNotification('Please check and fix the errors in the form.', 'error');
@@ -280,17 +428,27 @@ export default function Register() {
         return isValid;
     };
 
+    // ============================================================================
+    // FORM SUBMISSION HANDLER
+    // ============================================================================
+
+    /**
+     * Handles form submission with comprehensive validation and error handling
+     * Manages loading state, authentication cleanup, and post-registration redirect
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
         setSuccess('');
 
+        // Early return if validation fails
         if (!validateForm()) {
             setIsLoading(false);
             return;
         }
 
+        // Prepare user data for registration API
         const userData = {
             username: fullName,
             email: email,
@@ -299,12 +457,15 @@ export default function Register() {
         };
 
         try {
+            // Call registration API through auth context
             const result = await register(userData);
 
             if (result.success) {
+                // Success handling
                 setSuccess('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.');
                 showNotification('Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.', 'success');
-                // Clear form
+
+                // Clear form data for security
                 setEmail('');
                 setPassword('');
                 setConfirmPassword('');
@@ -316,35 +477,42 @@ export default function Register() {
                     confirmPassword: ''
                 });
 
-                // Clear localStorage and logout to ensure fresh login
+                // Clear authentication data to ensure fresh login state
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('adminUser');
                 // Use logout function to clear all auth state
                 logout();
 
-                // Navigate to login page after a short delay
+                // Navigate to login page after displaying success message
                 setTimeout(() => {
                     navigate('/login');
                 }, 2000);
 
             } else {
+                // Handle registration failure
                 const errorMessage = getErrorMessage(result.error || 'Đăng ký thất bại');
                 setError(errorMessage);
                 showNotification(errorMessage, 'error');
             }
         } catch (error) {
+            // Handle unexpected errors during registration
             console.error('Registration error:', error);
             const errorMessage = getErrorMessage(error.message || 'An error occurred during registration. Please try again.');
             setError(errorMessage);
             showNotification(errorMessage, 'error');
         } finally {
+            // Always reset loading state
             setIsLoading(false);
         }
     };
 
+    // ============================================================================
+    // COMPONENT RENDER
+    // ============================================================================
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
-            {/* Notification Toast */}
+            {/* Notification Toast Component */}
             {notification.show && (
                 <NotificationToast
                     message={notification.message}
@@ -353,7 +521,9 @@ export default function Register() {
                 />
             )}
 
+            {/* Main Registration Form Container */}
             <div className="max-w-md w-full space-y-8">
+                {/* Header Section */}
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         🐾 My Little Pet
@@ -363,10 +533,12 @@ export default function Register() {
                     </p>
                 </div>
 
+                {/* Registration Form */}
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="bg-white p-6 rounded-lg shadow-md">
                         <div className="space-y-4">
 
+                            {/* Full Name Input Field */}
                             <div>
                                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                                     Full Name
@@ -383,6 +555,7 @@ export default function Register() {
                                         }`}
                                     placeholder="Enter your full name"
                                 />
+                                {/* Field-specific error message */}
                                 {fieldErrors.fullName && (
                                     <p className="mt-1 text-sm text-red-600 flex items-center">
                                         <span className="mr-1">⚠️</span>
@@ -391,6 +564,7 @@ export default function Register() {
                                 )}
                             </div>
 
+                            {/* Email Input Field */}
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                     Email Address

@@ -1,33 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, LogIn, Heart } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContextV2';
 
-// Notification Toast Component (copied from ShopProductManagement)
+/**
+ * Reusable notification toast component
+ * Shows success/error messages with auto-dismiss and progress bar
+ */
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     const [progress, setProgress] = useState(100);
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        // Show toast with fade-in animation
         setIsVisible(true);
+
+        // Calculate progress bar decrement
         const updateInterval = 50;
         const decrementAmount = 100 / (duration / updateInterval);
+
+        // Update progress bar every 50ms
         const interval = setInterval(() => {
             setProgress(prev => {
                 const newProgress = prev - decrementAmount;
                 return newProgress <= 0 ? 0 : newProgress;
             });
         }, updateInterval);
+
+        // Auto-dismiss toast after duration
         const timer = setTimeout(() => {
             setIsVisible(false);
-            setTimeout(onClose, 300);
+            setTimeout(onClose, 300); // Wait for fade-out animation
         }, duration);
+
         return () => {
             clearInterval(interval);
             clearTimeout(timer);
         };
     }, [duration, onClose]);
 
+    // Dynamic styling based on notification type
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
@@ -64,12 +76,13 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                 setTimeout(onClose, 300);
                             }}
                             className="ml-4 text-white/80 hover:text-white transition-colors"
+                            aria-label="Close notification"
                         >
                             <span className="h-4 w-4">×</span>
                         </button>
                     </div>
                 </div>
-                {/* Progress Bar */}
+                {/* Animated progress bar showing remaining time */}
                 <div className="h-1 bg-white/20">
                     <div
                         className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
@@ -81,74 +94,104 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     );
 };
 
+/**
+ * Login component for admin authentication
+ * Features: Form validation, error handling, role-based access control
+ */
 export default function Login() {
+    // Form state management
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Individual field error states for better UX (like Register)
+    // Field-specific error states for better UX
     const [fieldErrors, setFieldErrors] = useState({
         email: '',
         password: ''
     });
 
-    // Notification state
-    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+    // Notification state for toast messages
+    const [notification, setNotification] = useState({
+        message: '',
+        type: '',
+        show: false
+    });
 
     const { login, isAuthenticated } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Redirect if already logged in
+    // Redirect authenticated users to their intended destination
     if (isAuthenticated) {
         const from = location.state?.from?.pathname || '/';
         return <Navigate to={from} replace />;
     }
 
-    // Email validation function
+    // Utility functions
+    /**
+     * Validates email format using regex
+     */
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
-    // Clear field error helper
+    /**
+     * Clears specific field error and general error
+     */
     const clearFieldError = (fieldName) => {
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
         setError('');
     };
 
-    // Handle email input change with validation
+    // Event handlers
+    /**
+     * Handles email input with real-time validation
+     */
     const handleEmailChange = (e) => {
         const emailValue = e.target.value;
         setEmail(emailValue);
         clearFieldError('email');
 
+        // Real-time validation feedback
         if (emailValue && !validateEmail(emailValue)) {
-            setFieldErrors(prev => ({ ...prev, email: 'Invalid email. Please enter a valid email format.' }));
+            setFieldErrors(prev => ({
+                ...prev,
+                email: 'Invalid email. Please enter a valid email format.'
+            }));
         }
     };
 
-    // Handle password input change with validation
+    /**
+     * Handles password input with real-time validation
+     */
     const handlePasswordChange = (e) => {
         const passwordValue = e.target.value;
         setPassword(passwordValue);
         clearFieldError('password');
 
+        // Real-time validation feedback
         if (passwordValue && passwordValue.length < 6) {
-            setFieldErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters.' }));
+            setFieldErrors(prev => ({
+                ...prev,
+                password: 'Password must be at least 6 characters.'
+            }));
         }
     };
 
-    // Get specific error message based on error type
+    /**
+     * Converts backend error messages to user-friendly messages
+     * Handles role-based access, validation errors, and network issues
+     */
     const getErrorMessage = (errorMsg) => {
         if (!errorMsg) return '';
 
         const lowerError = errorMsg.toLowerCase();
         console.log('🔍 Debug: Analyzing error message:', errorMsg);
 
-        // Check for role-based access issues first (most specific)
+        // Role-based access control errors (highest priority)
         if (lowerError.includes('player') || lowerError.includes('user role') || lowerError.includes('not admin')) {
             return '🚫 This is a Player account, not authorized to access admin panel. Only Admin accounts can login to the management system.';
         }
@@ -157,6 +200,7 @@ export default function Login() {
             return '🚫 Your account does not have permission to access the admin panel. Only Admins can login.';
         }
 
+        // Authentication errors
         if (lowerError.includes('invalid email') || lowerError.includes('email not found') || lowerError.includes('user not found')) {
             return '📧 Email not found in the system. Please check your email address.';
         }
@@ -165,18 +209,23 @@ export default function Login() {
             return '🔐 Incorrect password. Please check your password.';
         }
 
+        // Account status errors
         if (lowerError.includes('account disabled') || lowerError.includes('account suspended') || lowerError.includes('banned') || lowerError.includes('inactive')) {
             return '⛔ Your account has been disabled. Please contact the system administrator.';
         }
 
+        // Network errors
         if (lowerError.includes('network') || lowerError.includes('connection')) {
             return '🌐 Network connection error. Please check your internet connection and try again.';
         }
 
-        // Default fallback for other errors  
+        // Default fallback for unhandled errors
         return `❌ ${errorMsg}`;
     };
 
+    /**
+     * Shows notification toast with auto-dismiss
+     */
     const showNotification = (message, type = 'error', duration = 3000) => {
         setNotification({ message, type, show: true });
         setTimeout(() => {
@@ -184,15 +233,25 @@ export default function Login() {
         }, duration);
     };
 
-    const clearNotification = () => setNotification({ message: '', type: '', show: false });
+    /**
+     * Manually clears notification
+     */
+    const clearNotification = () => setNotification({
+        message: '',
+        type: '',
+        show: false
+    });
 
+    /**
+     * Handles form submission with validation and authentication
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
         setFieldErrors({ email: '', password: '' });
 
-        // Client-side validation
+        // Client-side validation before API call
         const errors = {};
         let isValid = true;
 
@@ -212,6 +271,7 @@ export default function Login() {
             isValid = false;
         }
 
+        // Stop if validation fails
         if (!isValid) {
             setFieldErrors(errors);
             setIsLoading(false);
@@ -238,7 +298,7 @@ export default function Login() {
                     timestamp: Date.now()
                 }));
 
-                // Wait for notification to be visible before navigating
+                // Navigate after showing success message
                 setTimeout(() => {
                     const from = location.state?.from?.pathname || '/players';
                     console.log('🧭 Login: Navigating to:', from);
@@ -247,6 +307,7 @@ export default function Login() {
                 }, 1800); // 1.8 second delay to show the success notification
 
             } else {
+                // Handle login failure
                 console.log('❌ Login: Login failed with error:', result.error);
                 const errorMessage = getErrorMessage(result.error || 'Login failed');
                 console.log('📝 Login: Processed error message:', errorMessage);
@@ -254,6 +315,7 @@ export default function Login() {
                 showNotification(errorMessage, 'error');
             }
         } catch (error) {
+            // Handle unexpected errors
             console.log('💥 Login: Exception caught:', error);
             console.log('💥 Login: Error message:', error.message);
             const errorMessage = getErrorMessage(error.message || 'An error occurred during login. Please try again.');
@@ -267,7 +329,7 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-            {/* Notification Toast */}
+            {/* Notification Toast - positioned at top-right */}
             {notification.show && (
                 <NotificationToast
                     message={notification.message}
@@ -275,7 +337,9 @@ export default function Login() {
                     onClose={clearNotification}
                 />
             )}
+
             <div className="max-w-md w-full space-y-8">
+                {/* Header Section */}
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         🐾 My Little Pet
@@ -285,9 +349,11 @@ export default function Login() {
                     </p>
                 </div>
 
+                {/* Login Form */}
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="bg-white p-6 rounded-lg shadow-md">
                         <div className="space-y-4">
+                            {/* Email Field */}
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                     Email Address
@@ -311,6 +377,7 @@ export default function Login() {
                                 )}
                             </div>
 
+                            {/* Password Field */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                     Password
@@ -327,10 +394,12 @@ export default function Login() {
                                         className={`block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${fieldErrors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter your password"
                                     />
+                                    {/* Password visibility toggle */}
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
@@ -348,6 +417,7 @@ export default function Login() {
                             </div>
                         </div>
 
+                        {/* Submit Button */}
                         <div className="mt-6">
                             <button
                                 type="submit"
@@ -358,18 +428,23 @@ export default function Login() {
                                     !password.trim()
                                 }
                                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
-                            >                                {isLoading ? (
-                                <div className="flex items-center">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Signing in...
-                                </div>
-                            ) : (<div className="flex items-center">
-                                <LogIn className="h-4 w-4 mr-2" />
-                                Sign In
-                            </div>
-                            )}
+                            >
+                                {isLoading ? (
+                                    <div className="flex items-center">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Signing in...
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <LogIn className="h-4 w-4 mr-2" />
+                                        Sign In
+                                    </div>
+                                )}
                             </button>
-                        </div>                        <div className="mt-4 text-center">
+                        </div>
+
+                        {/* Register Link */}
+                        <div className="mt-4 text-center">
                             <p className="text-sm text-gray-600">
                                 Don't have an account?{' '}
                                 <Link

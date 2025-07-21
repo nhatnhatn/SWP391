@@ -1,20 +1,61 @@
 /**
- * Custom Hook for Notification Management
+ * ============================================================================================
+ * NOTIFICATION MANAGEMENT HOOK
+ * ============================================================================================
  * 
- * Provides a centralized notification system for the application including:
- * - Toast notification display and management
- * - Operation result handling with notifications
- * - Form submission with validation and notifications
- * - Persistent notifications across page navigation
+ * This custom hook provides a centralized notification system for handling user feedback
+ * throughout the application. It manages toast notifications, operation feedback, and
+ * form submission states with comprehensive error handling.
+ * 
+ * FEATURES:
+ * - Toast notification display with auto-dismiss and persistence
+ * - Operation wrapper with loading states and error handling
+ * - Form submission management with validation feedback
+ * - Data refresh integration after successful operations
+ * - Success/error message standardization
  * - Auto-cleanup and timing management
  * 
- * @param {Function} refreshData - Optional callback to refresh data after operations
+ * ARCHITECTURE:
+ * - Uses React hooks (useState, useEffect, useCallback) for state management
+ * - Provides stable function references through useCallback for performance
+ * - Integrates with external data refresh mechanisms
+ * - Handles async operations with proper error boundaries
+ * 
+ * USAGE PATTERNS:
+ * 1. Basic notifications: showNotification('Success!', 'success')
+ * 2. Operation wrapping: handleOperationWithNotification(apiCall, 'Creating item...')
+ * 3. Form submissions: handleFormSubmission(submitData, onSuccess, resetForm)
+ * 4. Data refresh: Pass refreshData callback for auto-refresh after operations
+ * 
+ * STATE STRUCTURE:
+ * - notification: {message, type, isVisible} - Current notification display state
+ * - isLoading: boolean - Global loading state for operations
+ * 
+ * NOTIFICATION TYPES:
+ * - 'success': Green toast for successful operations
+ * - 'error': Red toast for errors and failures  
+ * - 'info': Blue toast for informational messages
+ * - 'warning': Yellow toast for warnings
+ * 
+ * @param {Function} refreshData - Optional callback to refresh data after successful operations
  * @returns {Object} Notification state and management functions
  */
 import { useState, useEffect, useCallback } from 'react';
 
 export const useNotificationManager = (refreshData) => {
-    // ===== STATE MANAGEMENT =====
+    // ============================================================================================
+    // STATE MANAGEMENT
+    // ============================================================================================
+    
+    /**
+     * Notification State Object
+     * Manages the current notification display state with message content, type, and visibility
+     * 
+     * Structure:
+     * - message: string - The text content to display in the notification
+     * - type: string - The notification type (success, error, info, warning)
+     * - isVisible: boolean - Controls whether the notification is currently shown
+     */
     const [notification, setNotification] = useState({
         message: '',
         type: '',

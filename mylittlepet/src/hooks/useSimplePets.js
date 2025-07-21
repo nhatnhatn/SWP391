@@ -1,32 +1,98 @@
 /**
- * Custom Hook for Pet Management
+ * ============================================================================================
+ * PET MANAGEMENT HOOK
+ * ============================================================================================
  * 
- * Provides comprehensive pet data management functionality including:
- * - CRUD operations (Create, Read, Update, Delete)
- * - Filtering and searching capabilities
- * - Status management
- * - API integration with error handling
+ * This custom hook provides comprehensive pet data management functionality for the
+ * application. It handles all pet-related operations including CRUD operations,
+ * filtering, searching, and status management with full API integration.
  * 
- * @returns {Object} Hook state and methods for pet management
+ * FEATURES:
+ * - Full CRUD operations (Create, Read, Update, Delete) for pets
+ * - Advanced filtering by pet type and status
+ * - Real-time search functionality across pet names
+ * - Centralized loading and error state management
+ * - API integration with proper error handling
+ * - Optimized performance with useCallback for stable function references
+ * 
+ * USAGE PATTERNS:
+ * 1. Data Loading: loadPets() - Fetches all pets from backend
+ * 2. CRUD Operations: createPet(), updatePet(), deletePet()
+ * 3. Filtering: filterByType(), filterByStatus() 
+ * 4. Searching: searchPets() - Real-time search functionality
+ * 5. State Access: pets, loading, error states
+ * 
+ * STATE MANAGEMENT:
+ * - pets: Array - Main pets data collection
+ * - loading: boolean - Loading state for async operations
+ * - error: string/null - Error state for error handling
+ * - searchTerm: string - Current search query
+ * - typeFilter: string - Current type filter selection
+ * - statusFilter: string - Current status filter selection
+ * 
+ * API INTEGRATION:
+ * - Connects to backend pet management endpoints
+ * - Handles authentication and authorization
+ * - Provides comprehensive error handling and user feedback
+ * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Uses useCallback for stable function references
+ * - Minimizes unnecessary re-renders through proper state management
+ * - Efficient filtering and searching algorithms
+ * 
+ * @returns {Object} Hook state and methods for comprehensive pet management
  */
 import { useState, useEffect, useCallback } from 'react';
 import apiService from '../services/api';
 
 export const useSimplePets = () => {
-    // ===== STATE MANAGEMENT =====
+    // ============================================================================================
+    // STATE MANAGEMENT
+    // ============================================================================================
+    
+    /**
+     * Core Pet Data State
+     * - pets: Array of pet objects fetched from the backend
+     * - loading: Boolean indicating if any async operation is in progress
+     * - error: String containing error message or null if no error
+     */
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Filter states
+    /**
+     * Filter and Search States
+     * These states control the filtering and searching functionality:
+     * - searchTerm: String for filtering pets by name (real-time search)
+     * - typeFilter: String for filtering pets by type (dog, cat, etc.)
+     * - statusFilter: String for filtering pets by status (available, adopted, etc.)
+     */
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // ===== DATA LOADING =====
+    // ============================================================================================
+    // DATA LOADING OPERATIONS
+    // ============================================================================================
+
     /**
      * Load all pets from the backend API
-     * Handles loading state and error management
+     * 
+     * This function fetches the complete list of pets from the backend and
+     * updates the local state. It handles loading states and error management
+     * automatically.
+     * 
+     * Process:
+     * 1. Sets loading state to true
+     * 2. Makes API call to fetch pets
+     * 3. Updates pets state with fetched data
+     * 4. Handles any errors that occur
+     * 5. Resets loading state
+     * 
+     * Error Handling:
+     * - Logs errors to console for debugging
+     * - Sets error state for UI feedback
+     * - Maintains application stability
      */
     const loadPets = useCallback(async () => {
         try {
@@ -193,47 +259,23 @@ export const useSimplePets = () => {
         }
     }, [loadPets]);
 
-    // ===== UTILITY FUNCTIONS =====
+    // ============================================================================================
+    // INITIALIZATION
+    // ============================================================================================
+    
     /**
-     * Get a specific pet by ID
-     * @param {number} petId - ID of the pet to retrieve
-     * @returns {Object} Pet data
+     * Auto-load pets when the hook is first used
+     * This ensures data is available immediately when component mounts
      */
-    const getPetById = useCallback(async (petId) => {
-        try {
-            const pet = await apiService.getPetById(petId);
-            console.log('✅ Pet retrieved:', pet.petDefaultName);
-            return pet;
-        } catch (error) {
-            console.error('❌ Get pet by ID error:', error);
-            throw error;
-        }
-    }, []);
-
-    /**
-     * Test API connection for debugging purposes
-     * @returns {Object} Test result
-     */
-    const testConnection = useCallback(async () => {
-        try {
-            const result = await apiService.testPetApi();
-            console.log('✅ Pet API connection test successful');
-            return result;
-        } catch (error) {
-            console.error('❌ Pet API connection test failed:', error);
-            throw error;
-        }
-    }, []);
-
-    // ===== INITIALIZATION =====
-    // Auto-load pets when the hook is first used
     useEffect(() => {
         loadPets();
     }, [loadPets]);
 
-    // ===== RETURN HOOK INTERFACE =====
+    // ============================================================================================
+    // RETURN HOOK INTERFACE
+    // ============================================================================================
     return {
-        // ===== DATA STATE =====
+        // ===== CORE DATA STATE =====
         pets,           // Current list of pets (filtered/searched)
         loading,        // Loading state for UI feedback
         error,          // Error state for error handling
@@ -245,20 +287,13 @@ export const useSimplePets = () => {
         createPet,      // Create new pet
         updatePet,      // Update existing pet
         deletePet,      // Delete pet
-        getPetById,     // Get specific pet by ID
-        loadPets,       // Reload all pets
 
-        // ===== SEARCH & FILTER =====
+        // ===== SEARCH & FILTER FUNCTIONS =====
         searchPets,     // Search pets by keyword
         filterByType,   // Filter by pet type
         filterByStatus, // Filter by status
-        setSearchTerm,  // Update search term state
-        setTypeFilter,  // Update type filter state
-        setStatusFilter,// Update status filter state
 
-        // ===== UTILITIES =====
-        testConnection, // Test API connectivity
-        clearError: () => setError(null),    // Clear error state
-        refreshData: loadPets                // Alias for loadPets
+        // ===== DATA REFRESH =====
+        refreshData: loadPets // Refresh all pet data
     };
 };

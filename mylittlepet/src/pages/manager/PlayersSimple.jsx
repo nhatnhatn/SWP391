@@ -1,33 +1,67 @@
+/**
+ * Player Management Component
+ * 
+ * This component provides functionality for viewing and managing player data.
+ * Features include:
+ * - View player statistics and information
+ * - Search and filter players by various criteria
+ * - View player's pet collection
+ * - Responsive design with detailed modal views
+ * - Real-time search with debouncing
+ * - Pagination for large datasets
+ */
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
 
-// Notification Toast Component
+/**
+ * Reusable notification toast component
+ * Displays success/error messages with auto-dismiss and progress bar
+ * 
+ * @param {string} message - The message to display
+ * @param {string} type - 'success' or 'error' to determine styling
+ * @param {function} onClose - Callback function when toast is closed
+ * @param {number} duration - Auto-dismiss duration in milliseconds
+ */
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
+    // Progress bar state for visual countdown
     const [progress, setProgress] = useState(100);
+    // Visibility state for smooth animations
     const [isVisible, setIsVisible] = useState(false);
 
+    // Auto-dismiss timer and progress bar animation
     useEffect(() => {
+        // Show toast with fade-in animation
         setIsVisible(true);
+
+        // Configure progress bar animation - update every 50ms for smooth animation
         const updateInterval = 50;
         const decrementAmount = 100 / (duration / updateInterval);
+
+        // Update progress bar periodically
         const interval = setInterval(() => {
             setProgress(prev => {
                 const newProgress = prev - decrementAmount;
                 return newProgress <= 0 ? 0 : newProgress;
             });
         }, updateInterval);
+
+        // Auto-dismiss toast after duration
         const timer = setTimeout(() => {
             setIsVisible(false);
-            setTimeout(onClose, 300);
+            setTimeout(onClose, 300); // Wait for slide-out animation
         }, duration);
+
+        // Cleanup intervals on unmount
         return () => {
             clearInterval(interval);
             clearTimeout(timer);
         };
     }, [duration, onClose]);
 
+    // Dynamic styling based on notification type
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
     const progressColor = type === 'success' ? 'bg-green-200' : 'bg-red-200';
@@ -64,12 +98,13 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
                                 setTimeout(onClose, 300);
                             }}
                             className="ml-4 text-white/80 hover:text-white transition-colors"
+                            aria-label="Close notification"
                         >
                             <span className="h-4 w-4">×</span>
                         </button>
                     </div>
                 </div>
-                {/* Progress Bar */}
+                {/* Animated progress bar showing remaining time */}
                 <div className="h-1 bg-white/20">
                     <div
                         className={`h-full ${progressColor} transition-all duration-100 ease-linear`}
@@ -81,38 +116,63 @@ const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
     );
 };
 
-// Simple Players component - Updated with Backend Integration
-const PlayersSimple = () => {    // Use hook for data management
+/**
+ * Main Player Management Component
+ * 
+ * Handles player data display, searching, filtering, and detailed views
+ * with pagination and real-time search capabilities
+ */
+const PlayersSimple = () => {
+    // ============================================================================
+    // HOOKS AND DATA MANAGEMENT
+    // ============================================================================
+
+    /**
+     * Custom hook for player data management with pagination
+     * Provides players data, loading states, and pagination controls
+     */
     const {
         players,
-        allPlayers, // All unfiltered players for proper filtering
+        allPlayers, // All unfiltered players for proper client-side filtering
         loading,
         error,
         stats,
-        pagination, goToPage, nextPage,
+        pagination,
+        goToPage,
+        nextPage,
         previousPage,
         getPlayerPets,
         updatePlayer,
-        refreshData: refreshCurrentPage } = useSimplePlayers();
+        refreshData: refreshCurrentPage
+    } = useSimplePlayers();
 
-    // Local search state - separated from hook for debouncing
+    // ============================================================================
+    // STATE MANAGEMENT
+    // ============================================================================
+
+    // Search state with debouncing for performance
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
-    // Debounce search term to prevent excessive filtering
+    /**
+     * Debounce search term to prevent excessive filtering
+     * Waits 300ms after user stops typing before applying search
+     */
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchTerm(localSearchTerm);
-        }, 300); // Wait 300ms after user stops typing
+        }, 300);
 
         return () => clearTimeout(timer);
     }, [localSearchTerm]);
 
-    // Local UI state
-    const [selectedPlayer, setSelectedPlayer] = useState(null);
-    const [selectedPlayerPets, setSelectedPlayerPets] = useState([]);
-    const [loadingPets, setLoadingPets] = useState(false);
-    const [editModal, setEditModal] = useState({ isOpen: false, player: null });
+    // Modal and UI state
+    const [selectedPlayer, setSelectedPlayer] = useState(null); // Player selected for detailed view
+    const [selectedPlayerPets, setSelectedPlayerPets] = useState([]); // Pets owned by selected player
+    const [loadingPets, setLoadingPets] = useState(false); // Loading state for pet data
+    const [editModal, setEditModal] = useState({ isOpen: false, player: null }); // Edit modal state
+
+    // Form state for player editing
     const [editForm, setEditForm] = useState({
         userName: '',
         email: '',
@@ -122,7 +182,7 @@ const PlayersSimple = () => {    // Use hook for data management
         gem: 0
     });
 
-    // Use notification manager hook
+    // Notification management
     const {
         notification,
         showNotification,
@@ -131,23 +191,35 @@ const PlayersSimple = () => {    // Use hook for data management
         handleFormSubmission
     } = useNotificationManager(refreshCurrentPage);
 
-    // Sort state
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Filter states
-    const [levelFilter, setLevelFilter] = useState('all');
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    // Sorting and filtering state
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [levelFilter, setLevelFilter] = useState('all'); // Filter by level range
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false); // Toggle advanced filters
 
-    // Handle search - Use local state with debouncing
+    // ============================================================================
+    // EVENT HANDLERS
+    // ============================================================================
+
+    /**
+     * Handles search input with debouncing
+     * @param {string} term - Search term to filter players by name or email
+     */
     const handleSearch = useCallback((term) => {
         setLocalSearchTerm(term);
     }, []);
 
-    // Clear search with debouncing reset
+    /**
+     * Clears search input and resets debounced search
+     */
     const clearSearch = useCallback(() => {
         setLocalSearchTerm('');
         setDebouncedSearchTerm('');
     }, []);
 
-    // Sort function
+    /**
+     * Handles column sorting with direction toggle
+     * @param {string} key - The field to sort by
+     */
     const handleSort = (key) => {
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -156,7 +228,11 @@ const PlayersSimple = () => {    // Use hook for data management
         setSortConfig({ key, direction });
     };
 
-    // Get sort icon
+    /**
+     * Returns sort icon based on current sort configuration
+     * @param {string} columnKey - Column to check for sort icon
+     * @returns {JSX.Element|null} Sort icon or null
+     */
     const getSortIcon = (columnKey) => {
         if (sortConfig.key !== columnKey) {
             return null;
@@ -164,14 +240,29 @@ const PlayersSimple = () => {    // Use hook for data management
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="w-4 h-4 inline ml-1" /> :
             <ChevronDown className="w-4 h-4 inline ml-1" />;
-    };    // Filter and sort all players, then paginate (proper client-side pagination)
+    };
+
+    // ============================================================================
+    // DATA PROCESSING AND PAGINATION
+    // ============================================================================
+
+    // Client-side pagination state for filtered results
     const [currentFilterPage, setCurrentFilterPage] = useState(0);
     const itemsPerPage = 10;
 
+    /**
+     * Filters and sorts all players based on current filter and sort settings
+     * This provides proper client-side filtering and sorting
+     */
     const filteredPlayers = useMemo(() => {
+        // Safety check: ensure allPlayers is an array before filtering
+        if (!Array.isArray(allPlayers)) {
+            return [];
+        }
+        
         // Start with all players from the hook
         let filtered = allPlayers.filter(player => {
-            // Search filter - use debounced search term
+            // Apply search filter using debounced search term
             if (debouncedSearchTerm.trim()) {
                 const searchLower = debouncedSearchTerm.toLowerCase();
                 const userName = (player.userName || '').toLowerCase();
@@ -179,7 +270,7 @@ const PlayersSimple = () => {    // Use hook for data management
                 if (!userName.includes(searchLower) && !email.includes(searchLower)) return false;
             }
 
-            // Level filter
+            // Apply level filter
             if (levelFilter !== 'all') {
                 const playerLevel = player.level || 1;
                 switch (levelFilter) {
@@ -200,13 +291,13 @@ const PlayersSimple = () => {    // Use hook for data management
             return true;
         });
 
-        // Apply sorting
+        // Apply sorting if sort configuration is set
         if (sortConfig.key) {
             filtered.sort((a, b) => {
                 let aValue = a[sortConfig.key];
                 let bValue = b[sortConfig.key];
 
-                // Handle string comparisons
+                // Handle string comparisons case-insensitively
                 if (typeof aValue === 'string') {
                     aValue = aValue.toLowerCase();
                     bValue = bValue.toLowerCase();
@@ -229,47 +320,72 @@ const PlayersSimple = () => {    // Use hook for data management
         return filtered;
     }, [allPlayers, debouncedSearchTerm, sortConfig, levelFilter]);
 
-    // Calculate pagination for filtered results
+    // Calculate pagination values for filtered results
     const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
     const startIndex = currentFilterPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const displayPlayers = filteredPlayers.slice(startIndex, endIndex);    // Reset to first page when filters change
+    const displayPlayers = filteredPlayers.slice(startIndex, endIndex);
+
+    /**
+     * Reset to first page when any filter changes
+     */
     useEffect(() => {
         setCurrentFilterPage(0);
     }, [debouncedSearchTerm, levelFilter]);
 
-    // Pagination handlers for filtered results
+    // ============================================================================
+    // PAGINATION HANDLERS
+    // ============================================================================
+
+    /**
+     * Navigate to previous page in filtered results
+     */
     const handleFilterPreviousPage = () => {
         if (currentFilterPage > 0) {
             setCurrentFilterPage(currentFilterPage - 1);
         }
     };
 
+    /**
+     * Navigate to next page in filtered results
+     */
     const handleFilterNextPage = () => {
         if (currentFilterPage < totalFilteredPages - 1) {
             setCurrentFilterPage(currentFilterPage + 1);
         }
     };
 
-    // Basic functions - updated for backend
+    // ============================================================================
+    // MODAL AND CRUD HANDLERS
+    // ============================================================================
+
+    /**
+     * Opens player detail modal and loads their pet data
+     * @param {Object} player - Player object to display details for
+     */
     const handleView = async (player) => {
         setSelectedPlayer(player);
         setLoadingPets(true);
 
         try {
             console.log('Loading pets for player:', player.userName);
+            // Fetch pets associated with this player using the hook method
             const pets = await getPlayerPets(player.id);
             setSelectedPlayerPets(pets || []);
             console.log('Pets loaded:', pets);
         } catch (error) {
             console.error('Failed to load player pets:', error);
             setSelectedPlayerPets([]);
+            showNotification('Failed to load player pets', 'error');
         } finally {
             setLoadingPets(false);
         }
     };
 
-    // Edit functions
+    /**
+     * Opens edit modal with player data pre-filled
+     * @param {Object} player - Player object to edit
+     */
     const handleEdit = (player) => {
         setEditForm({
             userName: player.userName || '',
@@ -282,6 +398,10 @@ const PlayersSimple = () => {    // Use hook for data management
         setEditModal({ isOpen: true, player: player });
     };
 
+    /**
+     * Handles form submission for player editing
+     * Validates data and updates player information
+     */
     const handleEditSubmit = async () => {
         try {
             const updatedData = {
@@ -289,21 +409,28 @@ const PlayersSimple = () => {    // Use hook for data management
                 id: editModal.player.id
             };
 
+            // Call API to update player data
             await updatePlayer(editModal.player.id, updatedData);
+
+            // Close edit modal
             setEditModal({ isOpen: false, player: null });
 
-            // Refresh data sau khi update
+            // Refresh the current page data to show updates
             await refreshCurrentPage();
 
-            alert('Player information updated successfully!');
+            showNotification('Player information updated successfully!', 'success');
         } catch (error) {
             console.error('Failed to update player:', error);
-            alert('Update failed: ' + (error.message || 'Unknown error'));
+            showNotification('Update failed: ' + (error.message || 'Unknown error'), 'error');
         }
     };
 
+    /**
+     * Cancels edit operation and closes modal
+     */
     const handleEditCancel = () => {
         setEditModal({ isOpen: false, player: null });
+        // Reset form to initial state
         setEditForm({
             userName: '',
             email: '',
@@ -314,18 +441,26 @@ const PlayersSimple = () => {    // Use hook for data management
         });
     };
 
+    /**
+     * Handles player deletion with confirmation
+     * @param {number} playerId - ID of the player to delete
+     */
     const handleDelete = (playerId) => {
-        // Simple delete - happy case
-        const confirmDelete = window.confirm('Are you sure you want to delete?');
+        // Simple delete with confirmation dialog
+        const confirmDelete = window.confirm('Are you sure you want to delete this player?');
         if (confirmDelete) {
             // Note: deletePlayer function from hook can be added later
-            alert('Delete functionality will be completed later!');
+            showNotification('Delete functionality will be completed later!', 'info');
         }
     };
 
+    // ============================================================================
+    // COMPONENT RENDER
+    // ============================================================================
+
     return (
         <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-            {/* Notification Toast */}
+            {/* Notification Toast Component - displays temporary messages to user */}
             {notification.show && (
                 <NotificationToast
                     message={notification.message}
@@ -334,20 +469,21 @@ const PlayersSimple = () => {    // Use hook for data management
                 />
             )}
 
-            {/* Dashboard Header */}
+            {/* Dashboard Header - Main title and overview section */}
             <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
                 <div className="flex items-center justify-between">
+                    {/* Title Section with Icon */}
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl">
                             <Users className="h-8 w-8 text-white" />
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800">Player Management</h1>
-                            {/* <p className="text-gray-600 mt-1">Manage list of players in the game</p> */}
+                            <p className="text-gray-600 mt-1">Manage and view all players in the game</p>
                         </div>
                     </div>
 
-                    {/* Statistics in Header */}
+                    {/* Statistics Section - Desktop View */}
                     <div className="hidden lg:flex items-center gap-6">
                         <div className="text-center">
                             <div className="flex items-center gap-2 mb-1">
@@ -361,7 +497,7 @@ const PlayersSimple = () => {    // Use hook for data management
                     </div>
                 </div>
 
-                {/* Mobile Statistics */}
+                {/* Mobile Statistics Section */}
                 <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
                     <div className="grid grid-cols-1 gap-4">
                         <div className="text-center">
@@ -369,7 +505,7 @@ const PlayersSimple = () => {    // Use hook for data management
                                 <Users className="h-4 w-4 text-blue-600" />
                                 <p className="text-xs font-medium text-gray-600">Total Players</p>
                             </div>
-                            <p className="text-lg font-bold text-blue-600">{allPlayers.length}</p>
+                            <p className="text-lg font-bold text-blue-600">{allPlayers?.length || 0}</p>
                         </div>
                     </div>
                 </div>
