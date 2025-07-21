@@ -40,7 +40,9 @@ const DebugPage = () => {
             <p><strong>Hash:</strong> {location.hash || 'None'}</p>
           </div>
         </div>
-      </div>      <div className="mt-6 flex gap-4">
+      </div>
+    
+      <div className="mt-6 flex gap-4">
         <Link to="/players" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Go to Players
         </Link>
