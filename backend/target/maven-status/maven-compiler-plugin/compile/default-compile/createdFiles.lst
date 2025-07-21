@@ -10,7 +10,6 @@ com\mylittlepet\dto\ApiResponse.class
 com\mylittlepet\dto\AdminInfo.class
 com\mylittlepet\repository\PlayerRepository.class
 com\mylittlepet\entity\PasswordResetToken.class
-com\mylittlepet\controller\TestController.class
 com\mylittlepet\dto\LoginRequest.class
 com\mylittlepet\dto\PasswordResetConfirmRequest.class
 com\mylittlepet\service\ShopProductService.class
