@@ -19,7 +19,6 @@ com\mylittlepet\service\impl\PlayerServiceImpl.class
 com\mylittlepet\dto\PasswordResetRequest.class
 com\mylittlepet\security\UserDetailsServiceImpl.class
 com\mylittlepet\repository\ShopProductRepository.class
-com\mylittlepet\controller\SimpleController.class
 com\mylittlepet\repository\PetRepository.class
 com\mylittlepet\entity\PlayerPet.class
 com\mylittlepet\dto\PlayerPetDTO.class

@@ -89,7 +89,7 @@ public class PetController {
         }
     }
 
-    // PUT /api/pets/{id} - Update pet
+    // PUT /api/pets/{id} - Update status pet
     @PutMapping("/{id}")
     public ResponseEntity<PetDTO> updatePet(@PathVariable Integer id, @RequestBody PetDTO petDTO) {
         try {
@@ -101,21 +101,6 @@ public class PetController {
             }
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // DELETE /api/pets/{id} - Delete pet (soft delete)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePet(@PathVariable Integer id) {
-        try {
-            boolean deleted = petService.deletePet(id);
-            if (deleted) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
