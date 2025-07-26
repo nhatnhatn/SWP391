@@ -104,18 +104,4 @@ public class ShopProductController {
         }
     }
 
-    // DELETE /api/shop-products/{id} - Delete shop product
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteShopProduct(@PathVariable Integer id) {
-        try {
-            boolean deleted = shopProductService.deleteShopProduct(id);
-            if (deleted) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
 }
