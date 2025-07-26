@@ -76,29 +76,29 @@ export default function Layout({ children }) {
     // ============================================================================================
     // STATE MANAGEMENT
     // ============================================================================================
-    
+
     /**
      * Mobile sidebar visibility state
      * Controls whether the overlay sidebar is shown on mobile devices
      */
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    
+
     /**
      * Desktop sidebar expansion state  
      * Controls whether the desktop sidebar is expanded (wide) or collapsed (narrow)
      */
     const [sidebarExpanded, setSidebarExpanded] = useState(true);
-    
+
     /**
      * Logout dialog visibility state
      * Controls whether the logout confirmation modal is displayed
      */
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-    
+
     // ============================================================================================
     // HOOKS AND CONTEXT
     // ============================================================================================
-    
+
     const location = useLocation();     // Current route information
     const navigate = useNavigate();     // Programmatic navigation
     const { user, logout } = useAuth(); // Authentication context
@@ -106,7 +106,7 @@ export default function Layout({ children }) {
     // ============================================================================================
     // DYNAMIC THEMING SYSTEM
     // ============================================================================================
-    
+
     /**
      * Dynamic color theme generator based on current route
      * 
@@ -164,7 +164,7 @@ export default function Layout({ children }) {
     // ============================================================================================
     // EVENT HANDLERS
     // ============================================================================================
-    
+
     /**
      * Handle user logout process
      * 
@@ -182,10 +182,10 @@ export default function Layout({ children }) {
     // ============================================================================================
     // RENDER LAYOUT STRUCTURE
     // ============================================================================================
-    
+
     return (
         <div className="h-screen flex overflow-hidden bg-gray-100">
-            
+
             {/* ========================================================================================
                 MOBILE NAVIGATION OVERLAY
                 ========================================================================================
@@ -210,10 +210,13 @@ export default function Layout({ children }) {
                         >
                             <X className="h-6 w-6 text-white" />
                         </button>
-                    </div>                    <div className="flex-1 h-0 pt-3 pb-3 overflow-y-auto">
+                    </div>
+
+                    <div className="flex-1 h-0 pt-3 pb-3 overflow-y-auto">
                         <div className="flex-shrink-0 flex items-center px-3 mb-3">
                             <h1 className="text-base font-bold text-gray-900">My Little Pet</h1>
-                        </div>                        <nav className="mt-1 px-2 space-y-1">
+                        </div>
+                        <nav className="mt-1 px-2 space-y-1">
                             {navigation.map((item) => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname === item.href;
@@ -301,7 +304,8 @@ export default function Layout({ children }) {
                                 <div className="flex items-center flex-shrink-0 px-3 mb-3">
                                     <h1 className="text-base font-bold text-gray-900">My Little Pet</h1>
                                 </div>
-                            )}                            <nav className={`mt-1 flex-1 bg-white space-y-1 ${sidebarExpanded ? 'px-2' : 'px-1'}`}>
+                            )}
+                            <nav className={`mt-1 flex-1 bg-white space-y-1 ${sidebarExpanded ? 'px-2' : 'px-1'}`}>
                                 {navigation.map((item) => {
                                     const Icon = item.icon;
                                     const isActive = location.pathname === item.href;
@@ -380,7 +384,7 @@ export default function Layout({ children }) {
                 - Proper z-index stacking for overlays
             */}
             <div className="flex flex-col w-0 flex-1 overflow-hidden">
-                
+
                 {/* Mobile menu trigger - only visible on mobile devices */}
                 <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
                     <button

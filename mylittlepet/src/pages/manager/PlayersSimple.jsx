@@ -15,6 +15,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
+import apiService from '../../services/api';
 
 /**
  * Reusable notification toast component
@@ -128,22 +129,16 @@ const PlayersSimple = () => {
     // ============================================================================
 
     /**
-     * Custom hook for player data management with pagination
-     * Provides players data, loading states, and pagination controls
+     * Custom hook for player data management
+     * Provides players data, loading states, and utility functions
      */
     const {
-        players,
-        allPlayers, // All unfiltered players for proper client-side filtering
+        players, // All players data
         loading,
         error,
         stats,
-        pagination,
-        goToPage,
-        nextPage,
-        previousPage,
         getPlayerPets,
-        updatePlayer,
-        refreshData: refreshCurrentPage
+        refreshData: refreshPlayers
     } = useSimplePlayers();
 
     // ============================================================================
@@ -189,7 +184,7 @@ const PlayersSimple = () => {
         clearNotification,
         handleOperationWithNotification,
         handleFormSubmission
-    } = useNotificationManager(refreshCurrentPage);
+    } = useNotificationManager(refreshPlayers);
 
     // Sorting and filtering state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -255,13 +250,13 @@ const PlayersSimple = () => {
      * This provides proper client-side filtering and sorting
      */
     const filteredPlayers = useMemo(() => {
-        // Safety check: ensure allPlayers is an array before filtering
-        if (!Array.isArray(allPlayers)) {
+        // Safety check: ensure players is an array before filtering
+        if (!Array.isArray(players)) {
             return [];
         }
-        
+
         // Start with all players from the hook
-        let filtered = allPlayers.filter(player => {
+        let filtered = players.filter(player => {
             // Apply search filter using debounced search term
             if (debouncedSearchTerm.trim()) {
                 const searchLower = debouncedSearchTerm.toLowerCase();
@@ -318,7 +313,7 @@ const PlayersSimple = () => {
         }
 
         return filtered;
-    }, [allPlayers, debouncedSearchTerm, sortConfig, levelFilter]);
+    }, [players, debouncedSearchTerm, sortConfig, levelFilter]);
 
     // Calculate pagination values for filtered results
     const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
@@ -410,13 +405,13 @@ const PlayersSimple = () => {
             };
 
             // Call API to update player data
-            await updatePlayer(editModal.player.id, updatedData);
+            await apiService.updatePlayer(editModal.player.id, updatedData);
 
             // Close edit modal
             setEditModal({ isOpen: false, player: null });
 
-            // Refresh the current page data to show updates
-            await refreshCurrentPage();
+            // Refresh the player data to show updates
+            await refreshPlayers();
 
             showNotification('Player information updated successfully!', 'success');
         } catch (error) {
@@ -505,7 +500,7 @@ const PlayersSimple = () => {
                                 <Users className="h-4 w-4 text-blue-600" />
                                 <p className="text-xs font-medium text-gray-600">Total Players</p>
                             </div>
-                            <p className="text-lg font-bold text-blue-600">{allPlayers?.length || 0}</p>
+                            <p className="text-lg font-bold text-blue-600">{players?.length || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -925,10 +920,6 @@ const PlayersSimple = () => {
                                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                                             <span className="text-sm font-medium text-gray-600">Player Name</span>
                                             <span className="text-sm font-semibold text-gray-900">{selectedPlayer.userName || 'N/A'}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center py-2">
-                                            <span className="text-sm font-medium text-gray-600">Email</span>
-                                            <span className="text-sm text-gray-900 break-all">{selectedPlayer.email || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>

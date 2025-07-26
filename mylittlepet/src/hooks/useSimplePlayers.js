@@ -4,13 +4,11 @@
  * ============================================================================================
  * 
  * This custom hook provides comprehensive player data management functionality
- * for the application. It handles all player-related operations including CRUD operations,
- * pagination, status management, statistics tracking, and player-pet relationships
- * with full API integration.
+ * for the application. It handles all player-related operations including data fetching,
+ * statistics tracking, and player-pet relationships with full API integration.
  * 
  * FEATURES:
- * - Player data management with pagination support
- * - Advanced pagination with server-side support
+ * - Player data management and loading
  * - Player information updates and modifications
  * - Real-time statistics tracking and display
  * - Player-pet relationship management
@@ -19,26 +17,16 @@
  * - Performance optimizations with useCallback for stable function references
  * 
  * USAGE PATTERNS:
- * 1. Data Loading: Auto-loaded on hook initialization with pagination
- * 2. Pagination: goToPage(), nextPage(), previousPage() - Navigate through data
- * 3. Player Updates: updatePlayer() - Update player information
- * 4. Statistics: Access statistics object for dashboard displays
- * 5. Relationships: getPlayerPets() - Fetch player's pet collection
- * 6. State Access: players, loading, error, pagination states
+ * 1. Data Loading: Auto-loaded on hook initialization
+ * 2. Statistics: Access statistics object for dashboard displays
+ * 3. Relationships: getPlayerPets() - Fetch player's pet collection
+ * 4. State Access: players, loading, error states
  * 
  * STATE MANAGEMENT:
- * - players: Array - Current page of player data
+ * - players: Array - All players data
  * - loading: boolean - Loading state for async operations
  * - error: string/null - Error state for error handling
  * - statistics: Object - Player statistics (total, active, banned, etc.)
- * - pagination: Object - Complete pagination state and metadata
- * 
- * PAGINATION ARCHITECTURE:
- * - Server-side pagination for optimal performance
- * - Maintains comprehensive pagination metadata
- * - Supports navigation in all directions
- * - Handles edge cases and boundary conditions
- * - Page size and current page state management
  * 
  * STATISTICS TRACKING:
  * - Real-time player count statistics
@@ -54,7 +42,6 @@
  * 
  * PERFORMANCE OPTIMIZATIONS:
  * - Uses useCallback for stable function references
- * - Server-side pagination reduces memory usage
  * - Efficient state updates and re-render minimization
  * - Optimized search and filtering algorithms
  * 
@@ -68,19 +55,7 @@ export const useSimplePlayers = () => {
     const [players, setPlayers] = useState([]);           // All players data
     const [loading, setLoading] = useState(false);        // Loading state
     const [error, setError] = useState(null);             // Error state
-    const [searchTerm, setSearchTerm] = useState('');     // Search functionality
-    const [stats, setStats] = useState({});               // Player statistics    // ===== PAGINATION STATE =====
-    const [pagination, setPagination] = useState({
-        currentPage: 0,
-        totalPages: 1,
-        totalElements: 0,
-        size: 10,
-        hasNext: false,
-        hasPrevious: false
-    });
-
-    // Paginated players for current page display
-    const [paginatedPlayers, setPaginatedPlayers] = useState([]);
+    const [stats, setStats] = useState({});               // Player statistics
 
     // ===== STATISTICS MANAGEMENT =====
     /**
@@ -92,94 +67,65 @@ export const useSimplePlayers = () => {
             // Fetch fresh data for accurate statistics
             const allPlayers = await apiService.getAllPlayers();
             const statsData = {
-                total: allPlayers.length,
-                active: allPlayers.filter(p => p.userStatus === 'ACTIVE').length,
-                banned: allPlayers.filter(p => p.userStatus === 'BANNED').length,
-                inactive: allPlayers.filter(p => p.userStatus === 'INACTIVE').length
+                total: allPlayers.length
             };
             setStats(statsData);
             console.log('📊 Player statistics updated:', statsData);
         } catch (error) {
             console.error('❌ Load stats error:', error);
-            setStats({ total: 0, active: 0, banned: 0, inactive: 0 });
+            setStats({ total: 0 });
         }
     }, []);
 
-    // ===== DATA LOADING WITH PAGINATION =====
+    // ===== DATA LOADING =====
     /**
-     * Load players with client-side pagination
-     * @param {number} page - Page number to load (0-based)
+     * Load all players from the API
+     * This function fetches all players and stores them in state
+     * 
+     * @returns {Promise<void>} - Returns a promise that resolves when loading is complete
      */
-    const loadPlayers = useCallback(async (page = 0) => {
+    const loadPlayers = useCallback(async () => {
         try {
+            // Set loading state to show spinner/loading indicator in UI
             setLoading(true);
+            // Clear any previous error messages
             setError(null);
 
+            // Fetch all players from the backend API
             const response = await apiService.getAllPlayers();
             console.log('✅ Players loaded successfully:', response.length, 'players');
 
+            // Ensure we have an array, even if API returns unexpected data
             const allPlayers = Array.isArray(response) ? response : [];
+            // Store all players in state
             setPlayers(allPlayers);
 
-            // Calculate client-side pagination
-            const totalElements = allPlayers.length;
-            const totalPages = Math.ceil(totalElements / pagination.size);
-            const startIndex = page * pagination.size;
-            const endIndex = startIndex + pagination.size;
-            const currentPageData = allPlayers.slice(startIndex, endIndex);
-
-            // Update pagination state
-            setPagination(prev => ({
-                ...prev,
-                currentPage: page,
-                totalPages,
-                totalElements,
-                hasNext: page < totalPages - 1,
-                hasPrevious: page > 0
-            }));
-
-            setPaginatedPlayers(currentPageData);
-
         } catch (error) {
+            // Handle any errors that occur during API call or data processing
             console.error('❌ Load players error:', error);
+            // Set user-friendly error message
             setError('Không thể tải danh sách người chơi');
+            // Clear player data to prevent showing stale data
             setPlayers([]);
-            setPaginatedPlayers([]);
         } finally {
+            // Always turn off loading state, regardless of success or failure
             setLoading(false);
         }
-    }, [pagination.size]);
+    }, []); // No dependencies needed since we're not using pagination
 
     /**
-     * Refresh current page and update statistics
+     * Refresh players data and update statistics
+     * This function is called when data needs to be refreshed (e.g., after updates)
+     * It reloads all player data and recalculates statistics
+     * 
+     * @returns {Promise<void>} - Returns a promise that resolves when refresh is complete
      */
-    const refreshCurrentPage = useCallback(async () => {
-        await loadPlayers(pagination.currentPage);
+    const refreshPlayers = useCallback(async () => {
+        // Reload all players data
+        await loadPlayers();
+        // Update statistics with fresh data
         await loadStats();
-    }, [loadPlayers, pagination.currentPage, loadStats]);
-
-    // ===== CRUD OPERATIONS =====
-    /**
-     * Update player information
-     * @param {number} id - Player ID
-     * @param {Object} playerData - Updated player data
-     */
-    const updatePlayer = useCallback(async (id, playerData) => {
-        try {
-            setLoading(true);
-            const updatedPlayer = await apiService.updatePlayer(id, playerData);
-            console.log('✅ Player updated successfully:', updatedPlayer.userName);
-            await loadPlayers(pagination.currentPage);
-            await loadStats();
-            return updatedPlayer;
-
-        } catch (error) {
-            console.error('❌ Update player error:', error);
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    }, [loadPlayers, loadStats, pagination.currentPage]);
+    }, [loadPlayers, loadStats]); // Recreate if any of these dependencies change
 
     // ============================================================================================
     // UTILITY FUNCTIONS
@@ -210,46 +156,18 @@ export const useSimplePlayers = () => {
         }
     }, []);
 
-    // ============================================================================================
-    // PAGINATION CONTROLS
-    // ============================================================================================
 
-    /**
-     * Navigate to a specific page
-     * 
-     * Loads players for the specified page number if it's within valid bounds.
-     * Automatically handles boundary checking to prevent invalid page requests.
-     * 
-     * @param {number} page - Target page number (0-based index)
-     */
-    const goToPage = useCallback(async (page) => {
-        if (page >= 0 && page < pagination.totalPages) {
-            await loadPlayers(page);
-        }
-    }, [pagination.totalPages, loadPlayers]);
-
-    const nextPage = useCallback(async () => {
-        if (pagination.hasNext) {
-            await goToPage(pagination.currentPage + 1);
-        }
-    }, [pagination.hasNext, pagination.currentPage, goToPage]);
-
-    const previousPage = useCallback(async () => {
-        if (pagination.hasPrevious) {
-            await goToPage(pagination.currentPage - 1);
-        }
-    }, [pagination.hasPrevious, pagination.currentPage, goToPage]);
 
     // ============================================================================================
     // INITIALIZATION
     // ============================================================================================
-    
+
     /**
      * Auto-load players and stats when hook is first used
      * This ensures data is available immediately when component mounts
      */
     useEffect(() => {
-        loadPlayers(0);
+        loadPlayers();
         loadStats();
     }, [loadPlayers, loadStats]);
 
@@ -258,23 +176,13 @@ export const useSimplePlayers = () => {
     // ============================================================================================
     return {
         // ===== CORE DATA STATE =====
-        players: paginatedPlayers,      // Current page players for display
-        allPlayers: players,            // All players data for filtering/searching
+        players,                        // All players data
         loading,                        // Loading state for UI feedback
         error,                          // Error state for error handling
-        statistics: stats,              // Player statistics (renamed for clarity)
-        pagination,                     // Pagination information
-
-        // ===== CRUD OPERATIONS =====
-        updatePlayer,                   // Update player information
-
-        // ===== PAGINATION CONTROLS =====
-        goToPage,                       // Navigate to specific page
-        nextPage,                       // Go to next page
-        previousPage,                   // Go to previous page
+        stats,                          // Player statistics
 
         // ===== UTILITIES =====
         getPlayerPets,                  // Get pets owned by player
-        refreshData: refreshCurrentPage // Refresh current page data
+        refreshData: refreshPlayers     // Refresh all player data
     };
 };

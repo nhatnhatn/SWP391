@@ -46,18 +46,18 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContextV2';
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children }) {  //ProtectedRoute wrap others components that need to be protected
     // ============================================================================================
     // AUTHENTICATION STATE AND LOCATION
     // ============================================================================================
-    
+
     /**
      * Extract authentication state from auth context
      * - isAuthenticated: Boolean indicating if user is logged in
      * - loading: Boolean indicating if auth state is being determined
      */
     const { isAuthenticated, loading } = useAuth();
-    
+
     /**
      * Get current location for return URL preservation
      * This allows redirecting back to intended destination after login
@@ -67,7 +67,7 @@ export default function ProtectedRoute({ children }) {
     // ============================================================================================
     // LOADING STATE HANDLING
     // ============================================================================================
-    
+
     /**
      * Show loading spinner while authentication state is being determined
      * 
@@ -84,7 +84,7 @@ export default function ProtectedRoute({ children }) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center">
-                    <div 
+                    <div
                         className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"
                         role="status"
                         aria-label="Loading authentication status"
@@ -100,7 +100,7 @@ export default function ProtectedRoute({ children }) {
     // ============================================================================================
     // AUTHENTICATION REDIRECT HANDLING
     // ============================================================================================
-    
+
     /**
      * Redirect unauthenticated users to login page
      * 
@@ -117,12 +117,12 @@ export default function ProtectedRoute({ children }) {
     // ============================================================================================
     // PROTECTED CONTENT RENDERING
     // ============================================================================================
-    
+
     /**
      * Render protected content for authenticated users
      * 
      * At this point, the user is confirmed to be authenticated,
      * so it's safe to render the protected content.
      */
-    return children;
+    return children; //render the protected content. EX:"/players, /pets, /shop-products (pages link)"
 }

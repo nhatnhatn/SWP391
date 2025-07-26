@@ -46,7 +46,7 @@ export const useNotificationManager = (refreshData) => {
     // ============================================================================================
     // STATE MANAGEMENT
     // ============================================================================================
-    
+
     /**
      * Notification State Object
      * Manages the current notification display state with message content, type, and visibility
@@ -97,7 +97,7 @@ export const useNotificationManager = (refreshData) => {
     const handleOperationWithNotification = useCallback(async (
         operation,
         successMessage,
-        errorMessage = 'Có lỗi xảy ra',
+        errorMessage = 'There is an error occurred',
         shouldRefresh = true,
         persistSuccess = false
     ) => {
@@ -132,6 +132,7 @@ export const useNotificationManager = (refreshData) => {
 
     // ===== PERSISTENT NOTIFICATION MANAGEMENT =====
     // Check for persisted notifications on component mount
+
     useEffect(() => {
         // Handle login success notifications
         const loginNotification = sessionStorage.getItem('loginSuccessNotification');
@@ -187,14 +188,14 @@ export const useNotificationManager = (refreshData) => {
         validationErrors,
         submitOperation,
         successMessage,
-        errorMessage = 'Có lỗi xảy ra',
+        errorMessage = 'There is an error occurred',
         onSuccess = null,
         shouldRefresh = true
     ) => {
         // Check for validation errors first
         const hasErrors = Object.values(validationErrors).some(error => error !== '');
         if (hasErrors) {
-            showNotification('Vui lòng kiểm tra và sửa các lỗi trong form.', 'error');
+            showNotification('Please check and fix the errors in the form.', 'error');
             return false;
         }
 

@@ -107,14 +107,14 @@ export const AuthProvider = ({ children }) => {
     // ============================================================================================
     // STATE MANAGEMENT
     // ============================================================================================
-    
+
     /**
      * User Authentication State
      * Contains the currently authenticated user's information
      * null when user is not authenticated
      */
     const [user, setUser] = useState(null);
-    
+
     /**
      * Loading State
      * Indicates whether authentication initialization is in progress
@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
     // ============================================================================================
     // AUTHENTICATION INITIALIZATION
     // ============================================================================================
-    
+
     /**
      * Initialize Authentication on App Load
      * 
@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
          * 5. Set loading to false when complete
          */
         const initAuth = async () => {
-            
+
             // ========================================================================================
             // OPTIONAL: SESSION TIMEOUT CHECKING
             // ========================================================================================
@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
             // ========================================================================================
             // PERSISTENT AUTHENTICATION - Session Restoration
             // ========================================================================================
-            
+
             /**
              * Retrieve stored authentication data
              * Both token and user data must exist for session restoration
@@ -215,7 +215,7 @@ export const AuthProvider = ({ children }) => {
                     // ========================================================================================
                     // TOKEN VALIDATION WITH BACKEND
                     // ========================================================================================
-                    
+
                     /**
                      * Security Check: Validate Token with Backend
                      * 
@@ -227,7 +227,12 @@ export const AuthProvider = ({ children }) => {
                      * This prevents using stale or compromised tokens
                      */
                     try {
+                        // Make a request to the backend to validate the JWT token
+                        // This checks if the token is still valid and the user session can be restored
                         const response = await fetch('http://localhost:8080/api/auth/protected', {
+                            // Set request headers:
+                            // - 'Authorization': sends the JWT token to authenticate the user
+                            // - 'Content-Type': specifies that the request body (if any) is in JSON format
                             headers: {
                                 'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'application/json'
@@ -283,7 +288,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem('adminUser');
                 setUser(null);
             }
-            
+
             /**
              * Initialization Complete
              * Set loading to false to allow app to proceed
@@ -302,7 +307,7 @@ export const AuthProvider = ({ children }) => {
     // ================================================================================================
     // AUTHENTICATION METHODS
     // ================================================================================================
-    
+
     /**
      * Login Method
      * 
@@ -313,6 +318,7 @@ export const AuthProvider = ({ children }) => {
      * @param {string} password - User's password
      * @returns {Promise<{success: boolean, message: string, user?: Object}>}
      */
+
     const login = async (email, password) => {
         try {
             console.log('🔐 AuthContextV2: Starting login process', { email });
@@ -320,18 +326,18 @@ export const AuthProvider = ({ children }) => {
             // ========================================================================================
             // BACKEND AUTHENTICATION
             // ========================================================================================
-            
+
             /**
              * Send credentials to backend for verification
              * This validates user credentials and returns authentication token
              */
             const response = await apiService.login(email, password);
-            console.log('✅ AuthContextV2: Backend login successful:', response); 
-            
+            console.log('✅ AuthContextV2: Backend login successful:', response);
+
             // ========================================================================================
             // USER DATA PROCESSING
             // ========================================================================================
-            
+
             /**
              * Construct User Object
              * Normalize response data into consistent user object structure
@@ -348,11 +354,11 @@ export const AuthProvider = ({ children }) => {
             };
 
             console.log('📝 AuthContextV2: Setting user data:', userData);
-            
+
             // ========================================================================================
             // STATE AND STORAGE UPDATE
             // ========================================================================================
-            
+
             /**
              * Update Application State
              * Set user in context to trigger auth state changes throughout app
@@ -378,7 +384,7 @@ export const AuthProvider = ({ children }) => {
             // ========================================================================================
             // ERROR HANDLING
             // ========================================================================================
-            
+
             /**
              * Login Error Processing
              * Logs detailed error information for debugging
@@ -434,34 +440,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     /**
-     * Change Password Method
-     * 
-     * Allows authenticated users to change their password
-     * Requires current password for security verification
-     * 
-     * @param {string} oldPassword - Current password for verification
-     * @param {string} newPassword - New password to set
-     * @returns {Promise<{success: boolean, message: string}>}
-     */
-    const changePassword = async (oldPassword, newPassword) => {
-        try {
-            /**
-             * Send Password Change Request
-             * Backend verifies old password before setting new one
-             */
-            await apiService.changePassword(oldPassword, newPassword);
-            return { success: true, message: 'Password changed successfully' };
-        } catch (error) {
-            /**
-             * Password Change Error Handling
-             * Log error and re-throw for component handling
-             */
-            console.error('❌ AuthContextV2: Change password failed:', error);
-            throw error;
-        }
-    };
-
-    /**
      * Logout Method
      * 
      * Securely logs out the current user by:
@@ -473,7 +451,7 @@ export const AuthProvider = ({ children }) => {
      */
     const logout = () => {
         console.log('🚪 AuthContextV2: Logging out user');
-        
+
         /**
          * Clear Authentication Data
          * Remove all auth-related items from localStorage
@@ -483,7 +461,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('adminUser');
         localStorage.removeItem('lastActivity');
         localStorage.removeItem('lastVisitedPath'); // Also clear the saved path
-        
+
         /**
          * Reset Application State
          * Set user to null to trigger auth state changes
@@ -512,7 +490,7 @@ export const AuthProvider = ({ children }) => {
     // ================================================================================================
     // CONTEXT PROVIDER
     // ================================================================================================
-    
+
     /**
      * AuthContext Provider
      * 
@@ -534,7 +512,6 @@ export const AuthProvider = ({ children }) => {
             loading,                 // Authentication loading state
             login,                   // Login method
             register,                // Registration method
-            changePassword,          // Password change method
             logout,                  // Logout method
             clearAuthData,          // Clear all auth data method
             isAuthenticated: !!user  // Computed authentication status

@@ -62,7 +62,7 @@ export default function LogoutConfirmDialog({ isOpen, onClose, onConfirm }) {
             */}
             <div className="fixed inset-0 flex items-center justify-center p-4">
                 <DialogPanel className="max-w-md w-full bg-white rounded-lg shadow-lg">
-                    
+
                     {/* ========================================================================================
                         DIALOG HEADER
                         ========================================================================================
@@ -74,13 +74,6 @@ export default function LogoutConfirmDialog({ isOpen, onClose, onConfirm }) {
                         <DialogTitle className="text-lg font-medium text-gray-900">
                             Confirm Logout
                         </DialogTitle>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-gray-500 transition-colors"
-                            aria-label="Close dialog"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
                     </div>
 
                     {/* ========================================================================================

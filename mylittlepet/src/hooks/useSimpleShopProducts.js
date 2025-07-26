@@ -5,12 +5,10 @@
  * 
  * This custom hook provides comprehensive shop product data management functionality
  * for the application. It handles all product-related operations including CRUD operations,
- * advanced filtering, searching, and shop management with full API integration.
+ * shop management, and status management with full API integration.
  * 
  * FEATURES:
  * - Full CRUD operations (Create, Read, Update, Delete) for shop products
- * - Advanced filtering by type, status, currency, and price range
- * - Real-time search functionality across product names and descriptions
  * - Shop management and integration
  * - Product status management (active/inactive)
  * - Centralized loading and error state management
@@ -20,23 +18,15 @@
  * USAGE PATTERNS:
  * 1. Data Loading: loadShopProducts() - Fetches all products from backend
  * 2. CRUD Operations: createShopProduct(), updateShopProduct(), deleteShopProduct()
- * 3. Filtering: searchShopProducts(), filterByType(), filterByStatus()
- * 4. Shop Management: getShopName(), shop data access
- * 5. Status Management: updateShopProductStatus() for enable/disable products
- * 6. State Access: shopProducts, allShopProducts, shops, loading, error states
+ * 3. Shop Management: getShopName(), shop data access
+ * 4. Status Management: updateShopProductStatus() for enable/disable products
+ * 5. State Access: shopProducts, shops, loading, error states
  * 
  * STATE MANAGEMENT:
- * - shopProducts: Array - Filtered/searched products for display
- * - allShopProducts: Array - Complete unfiltered product collection 
+ * - shopProducts: Array - Complete product collection
  * - shops: Array - Available shop information
  * - loading: boolean - Loading state for async operations
  * - error: string/null - Error state for error handling
- * 
- * FILTERING ARCHITECTURE:
- * - Client-side filtering for better performance
- * - Multiple filter types can be combined
- * - Real-time search with immediate feedback
- * - Maintains both filtered and unfiltered data sets
  * 
  * API INTEGRATION:
  * - Connects to backend shop product management endpoints
@@ -47,8 +37,7 @@
  * PERFORMANCE OPTIMIZATIONS:
  * - Uses useCallback for stable function references
  * - Minimizes unnecessary re-renders through proper state management
- * - Efficient client-side filtering algorithms
- * - Dual data sets (filtered/unfiltered) for optimal performance
+ * - Efficient data loading and management
  * 
  * @returns {Object} Hook state and methods for comprehensive shop product management
  */
@@ -57,8 +46,7 @@ import apiService from '../services/api';
 
 export const useSimpleShopProducts = () => {
     // ===== STATE MANAGEMENT =====
-    const [shopProducts, setShopProducts] = useState([]);           // Filtered products
-    const [allShopProducts, setAllShopProducts] = useState([]);     // All unfiltered products
+    const [shopProducts, setShopProducts] = useState([]);           // All shop products
     const [shops, setShops] = useState([]);                         // Available shops
     const [loading, setLoading] = useState(false);                  // Loading state
     const [error, setError] = useState(null);                       // Error state
@@ -66,7 +54,7 @@ export const useSimpleShopProducts = () => {
     // ===== DATA LOADING =====
     /**
      * Load all shop products from the backend API
-     * Maintains both filtered and unfiltered data sets
+     * Stores all products in a single state array
      */
     const loadShopProducts = useCallback(async () => {
         try {
@@ -78,13 +66,11 @@ export const useSimpleShopProducts = () => {
 
             const allProducts = Array.isArray(response) ? response : [];
             setShopProducts(allProducts);
-            setAllShopProducts(allProducts); // Keep original unfiltered data
 
         } catch (error) {
             console.error('❌ Load shop products error:', error);
             setError('Không thể tải danh sách sản phẩm cửa hàng');
             setShopProducts([]);
-            setAllShopProducts([]);
         } finally {
             setLoading(false);
         }
@@ -243,8 +229,7 @@ export const useSimpleShopProducts = () => {
     // ============================================================================================
     return {
         // ===== CORE DATA STATE =====
-        shopProducts,                    // Current list of shop products (filtered)
-        allShopProducts,                 // All unfiltered products (for client-side filtering)
+        shopProducts,                    // All shop products
         shops,                           // Available shops
         loading,                         // Loading state for UI feedback
         error,                           // Error state for error handling

@@ -317,8 +317,7 @@ const ShopProductManagement = () => {
 
     // Main hook for shop product operations - provides CRUD functions and data
     const {
-        shopProducts,           // Currently displayed products (filtered/paginated)
-        allShopProducts,        // Complete unfiltered product list for client-side filtering
+        shopProducts,           // All shop products
         shops,                  // Available shop information
         loading,                // Loading state for API operations
         error,                  // Error state from failed API calls
@@ -919,7 +918,7 @@ const ShopProductManagement = () => {
      */
     const filteredAndSortedProducts = useMemo(() => {
         // Start with complete product dataset
-        const allProducts = allShopProducts || shopProducts;
+        const allProducts = shopProducts;
 
         // Apply all filters sequentially
         let filtered = allProducts.filter(product => {
@@ -996,7 +995,7 @@ const ShopProductManagement = () => {
         }
 
         return filtered;
-    }, [allShopProducts, shopProducts, debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, sortConfig]);
+    }, [shopProducts, debouncedSearchTerm, statusFilter, currencyFilter, shopTypeFilter, sortConfig]);
 
     // Calculate pagination (use filteredAndSortedProducts)
     const totalItems = filteredAndSortedProducts.length;

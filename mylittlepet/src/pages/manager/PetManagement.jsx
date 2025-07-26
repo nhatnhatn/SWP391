@@ -101,18 +101,9 @@ const PetManagement = () => {
         pets,
         loading,
         error,
-        searchTerm,
-        setSearchTerm,
-        typeFilter,
-        setTypeFilter,
-        statusFilter,
-        setStatusFilter,
         createPet,
         updatePet,
         deletePet,
-        searchPets,
-        filterByType,
-        filterByStatus,
         refreshData
     } = useSimplePets();
 
@@ -131,6 +122,11 @@ const PetManagement = () => {
         handleOperationWithNotification,
         handleFormSubmission
     } = useNotificationManager(refreshData);
+
+    // Local filter and search state (managed by component)
+    const [searchTerm, setSearchTerm] = useState('');
+    const [typeFilter, setTypeFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
 
     // State to store all unique pet types (for dropdown options)
     const [allPetTypes, setAllPetTypes] = useState([]);
@@ -275,11 +271,44 @@ const PetManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // Apply sorting to pets (must be before pagination)
-    const sortedPets = useMemo(() => {
-        if (!sortConfig.key) return pets;
+    // Apply filtering to pets first
+    const filteredPets = useMemo(() => {
+        if (!Array.isArray(pets)) return [];
 
-        return [...pets].sort((a, b) => {
+        return pets.filter(pet => {
+            // Search filter
+            if (searchTerm.trim()) {
+                const searchLower = searchTerm.toLowerCase();
+                const petName = (pet.petDefaultName || '').toLowerCase();
+                const petType = (pet.petType || '').toLowerCase();
+                const description = (pet.description || '').toLowerCase();
+
+                if (!petName.includes(searchLower) &&
+                    !petType.includes(searchLower) &&
+                    !description.includes(searchLower)) {
+                    return false;
+                }
+            }
+
+            // Type filter
+            if (typeFilter && pet.petType !== typeFilter) {
+                return false;
+            }
+
+            // Status filter
+            if (statusFilter !== '' && pet.petStatus !== parseInt(statusFilter)) {
+                return false;
+            }
+
+            return true;
+        });
+    }, [pets, searchTerm, typeFilter, statusFilter]);
+
+    // Apply sorting to filtered pets
+    const sortedPets = useMemo(() => {
+        if (!sortConfig.key) return filteredPets;
+
+        return [...filteredPets].sort((a, b) => {
             const aValue = a[sortConfig.key];
             const bValue = b[sortConfig.key];
 
@@ -287,7 +316,7 @@ const PetManagement = () => {
             if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
-    }, [pets, sortConfig]);
+    }, [filteredPets, sortConfig]);
 
     // Calculate pagination
     const totalItems = sortedPets.length;
@@ -327,31 +356,16 @@ const PetManagement = () => {
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-        if (value.trim()) {
-            searchPets(value);
-        } else {
-            refreshData();
-        }
     };
 
     // Handle type filter
     const handleTypeFilter = (type) => {
         setTypeFilter(type);
-        if (type) {
-            filterByType(type);
-        } else {
-            refreshData();
-        }
     };
 
     // Handle status filter
     const handleStatusFilter = (status) => {
         setStatusFilter(status);
-        if (status !== '') {
-            filterByStatus(status);
-        } else {
-            refreshData();
-        }
     };    // View pet details
     const handleView = (pet) => {
         setSelectedPet(pet);
@@ -469,8 +483,8 @@ const PetManagement = () => {
         return sortConfig.direction === 'asc' ?
             <ChevronUp className="w-4 h-4 inline ml-1" /> :
             <ChevronDown className="w-4 h-4 inline ml-1" />;
-    };    
-    
+    };
+
     // Open create modal
     const handleCreate = () => {
         const resetFormData = {
@@ -671,7 +685,7 @@ const PetManagement = () => {
             console.error('Failed to enable pet:', error);
             showNotification('Activation failed: ' + (error.message || 'Unknown error'), 'error');
         }
-    };    
+    };
     // Cancel forms
     const handleCancel = () => {
         setEditModal({ isOpen: false, pet: null });
