@@ -4,6 +4,7 @@ import { useSimplePets } from '../../hooks/useSimplePets';
 import { useSimpleShopProducts } from '../../hooks/useSimpleShopProducts';
 import { useAuth } from '../../contexts/AuthContextV2';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
+import apiService from '../../services/api';
 
 // Notification Toast Component with right alignment and timing bar
 const NotificationToast = ({ message, type, onClose, duration = 3000 }) => {
@@ -96,6 +97,12 @@ const PetManagement = () => {
     // Use auth hook to get current user
     const { user } = useAuth();
 
+    // Extract adminId from user object
+    const adminId = user?.id;
+
+    console.log('👤 PetManagement: Current Admin ID:', adminId);
+    console.log('👤 PetManagement: Full User Object:', user);
+
     // Use hook for data management
     const {
         pets,
@@ -142,6 +149,127 @@ const PetManagement = () => {
         petType: '',
         description: ''
     });
+
+    // Cache admin usernames to avoid repeated API calls
+    const [adminUsernames, setAdminUsernames] = useState({}); // { adminId: username }
+    const [allAdmins, setAllAdmins] = useState([]); // Cache all admin users
+    const [adminsLoaded, setAdminsLoaded] = useState(false); // Track if admins are loaded
+
+    // Load all admins when component mounts
+    useEffect(() => {
+        const loadAllAdmins = async () => {
+            try {
+                console.log('🔍 PetManagement: Loading all admin users...');
+                const admins = await apiService.getAllAdmins();
+
+                setAllAdmins(admins);
+
+                // Pre-populate username cache
+                const usernameCache = {};
+                admins.forEach(admin => {
+                    usernameCache[admin.id] = admin.userName || admin.username || `Admin #${admin.id}`;
+                });
+
+                setAdminUsernames(usernameCache);
+                setAdminsLoaded(true);
+
+                console.log('✅ PetManagement: Loaded admin users:', admins.length, 'admins');
+                console.log('✅ PetManagement: Username cache:', usernameCache);
+            } catch (error) {
+                console.error('❌ PetManagement: Failed to load admin users:', error);
+                setAdminsLoaded(true); // Still mark as loaded to avoid infinite retries
+            }
+        };
+
+        loadAllAdmins();
+    }, []);
+
+    // Function to get admin username by ID
+    const getAdminUsername = async (adminId) => {
+        if (!adminId) return 'Unknown';
+
+        // If this is the current admin, return their name from context
+        if (adminId === user?.id && user?.name) {
+            const currentAdminName = user.name;
+            // Cache this result
+            setAdminUsernames(prev => ({
+                ...prev,
+                [adminId]: currentAdminName
+            }));
+            return currentAdminName;
+        }
+
+        // Check cache first (from pre-loaded admins)
+        if (adminUsernames[adminId]) {
+            console.log(`✅ PetManagement: Username found in cache - Admin ${adminId}: ${adminUsernames[adminId]}`);
+            return adminUsernames[adminId];
+        }
+
+        // If admins are not loaded yet, wait and check cache again
+        if (!adminsLoaded) {
+            console.log(`⏳ PetManagement: Waiting for admins to load for ID: ${adminId}`);
+            return 'Loading...';
+        }
+
+        try {
+            console.log(`🔍 PetManagement: Attempting to fetch username for admin ID: ${adminId}`);
+
+            // Try individual user lookup as fallback
+            try {
+                const response = await apiService.getUserById(adminId);
+                const username = response.userName || response.username || `Admin #${adminId}`;
+
+                // Cache the result
+                setAdminUsernames(prev => ({
+                    ...prev,
+                    [adminId]: username
+                }));
+
+                console.log(`✅ PetManagement: Username fetched via getUserById - Admin ${adminId}: ${username}`);
+                return username;
+            } catch (userApiError) {
+                console.log(`ℹ️ PetManagement: getUserById failed for admin ${adminId}, using fallback display`);
+
+                // Final fallback - check if this admin exists in our loaded list
+                const foundAdmin = allAdmins.find(admin => admin.id === adminId);
+                if (foundAdmin) {
+                    const username = foundAdmin.userName || foundAdmin.username || `Admin #${adminId}`;
+
+                    // Cache the result
+                    setAdminUsernames(prev => ({
+                        ...prev,
+                        [adminId]: username
+                    }));
+
+                    return username;
+                }
+
+                // Absolute fallback
+                const fallbackName = `Admin #${adminId}`;
+
+                // Cache the fallback result
+                setAdminUsernames(prev => ({
+                    ...prev,
+                    [adminId]: fallbackName
+                }));
+
+                return fallbackName;
+            }
+        } catch (error) {
+            console.error(`❌ PetManagement: Failed to process admin ${adminId}:`, error);
+
+            // Final fallback
+            const fallbackName = `Admin #${adminId}`;
+
+            // Cache the fallback result to avoid repeated attempts
+            setAdminUsernames(prev => ({
+                ...prev,
+                [adminId]: fallbackName
+            }));
+
+            return fallbackName;
+        }
+    };
 
     // Validation helper functions
     const validatePetName = (name) => {
@@ -248,6 +376,9 @@ const PetManagement = () => {
     const [selectedPet, setSelectedPet] = useState(null);
     const [createModal, setCreateModal] = useState(false);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+    // State to store admin username for selected pet
+    const [selectedPetAdminUsername, setSelectedPetAdminUsername] = useState('Loading...');
 
     // Sort state
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });    // Edit state for detail modal
@@ -367,8 +498,29 @@ const PetManagement = () => {
     const handleStatusFilter = (status) => {
         setStatusFilter(status);
     };    // View pet details
-    const handleView = (pet) => {
+    const handleView = async (pet) => {
         setSelectedPet(pet);
+
+        // Load admin username for the pet creator
+        setSelectedPetAdminUsername('Loading...');
+
+        if (pet.adminId) {
+            try {
+                const username = await getAdminUsername(pet.adminId);
+                setSelectedPetAdminUsername(username);
+            } catch (error) {
+                console.error('❌ Failed to load admin username:', error);
+                setSelectedPetAdminUsername('Unknown Admin');
+            }
+        } else {
+            setSelectedPetAdminUsername('Unknown');
+        }
+    };
+
+    // Close pet detail modal
+    const handleClosePetDetail = () => {
+        setSelectedPet(null);
+        setSelectedPetAdminUsername('Loading...');
     };    // Handle Edit from detail modal
     const handleEdit = (pet) => {
         const formData = {
@@ -439,11 +591,14 @@ const PetManagement = () => {
                 ...editForm,
                 petType: editForm.petType.trim(),
                 petDefaultName: editForm.petDefaultName.trim(),
-                petId: editModal.pet.petId
+                petId: editModal.pet.petId,
+                adminId: adminId // Include adminId for tracking updates
             };
+
+            console.log('🐾 Updating pet with admin ID:', { adminId, petId: editModal.pet.petId, updatedData });
             await updatePet(editModal.pet.petId, updatedData);
             setEditModal({ isOpen: false, pet: null });
-            setSelectedPet(null); // Close detail modal too
+            handleClosePetDetail(); // Use the new function to properly reset state
             // Clear any previous errors and show success message
             setLocalError('');
             showNotification('Pet updated successfully!', 'success');
@@ -758,6 +913,7 @@ const PetManagement = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800">Pet Management</h1>
+
                         </div>
                     </div>
 
@@ -796,12 +952,13 @@ const PetManagement = () => {
                             </div>
                             <p className="text-2xl font-bold text-red-600">{inactivePets}</p>
                         </div>
+
                     </div>
                 </div>
 
                 {/* Mobile Statistics */}
                 <div className="lg:hidden mt-6 pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className={`grid gap-4 ${adminId ? 'grid-cols-2' : 'grid-cols-3'}`}>
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-1 mb-1">
                                 <PawPrint className="h-4 w-4 text-blue-600" />
@@ -825,6 +982,16 @@ const PetManagement = () => {
                             </div>
                             <p className="text-lg font-bold text-red-600">{inactivePets}</p>
                         </div>
+
+                        {adminId && (
+                            <div className="text-center">
+                                <div className="flex items-center justify-center gap-1 mb-1">
+                                    <span className="text-purple-600 font-bold text-sm">👤</span>
+                                    <p className="text-xs font-medium text-gray-600">Admin ID</p>
+                                </div>
+                                <p className="text-lg font-bold text-purple-600">#{adminId}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -903,16 +1070,27 @@ const PetManagement = () => {
                                                 </div>
                                             </div>
 
-                                            {   /**     <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                           <div className="flex items-center justify-between">
-                                                    <span className="text-sm font-medium text-gray-600">Admin ID</span>
-                                                    <span className="text-sm font-mono font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                                                        {selectedPet.adminId ? `#${selectedPet.adminId}` : (
-                                                            <span className="text-sm text-gray-500 italic">Not specified</span>
-                                                        )}
-                                                    </span>
+                                            {/* Admin Creator Info */}
+                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-medium text-gray-600">Created by Admin</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                                                            {selectedPetAdminUsername === 'Loading...' ? (
+                                                                <span className="text-sm text-gray-500 italic flex items-center gap-1">
+                                                                    <div className="w-3 h-3 border border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
+                                                                    Loading...
+                                                                </span>
+                                                            ) : selectedPetAdminUsername ? (
+                                                                selectedPetAdminUsername
+                                                            ) : (
+                                                                <span className="text-sm text-gray-500 italic">Unknown</span>
+                                                            )}
+                                                        </span>
+                                                        {selectedPet.adminId === adminId}
+                                                    </div>
                                                 </div>
-                                            </div>*/ }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -999,7 +1177,7 @@ const PetManagement = () => {
 
                                 <div className="flex gap-3">
                                     <button
-                                        onClick={() => setSelectedPet(null)}
+                                        onClick={() => handleClosePetDetail()}
                                         className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
                                     >
                                         <X className="w-4 h-4" />

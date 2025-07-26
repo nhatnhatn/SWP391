@@ -474,7 +474,7 @@ const PlayersSimple = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800">Player Management</h1>
-                            <p className="text-gray-600 mt-1">Manage and view all players in the game</p>
+
                         </div>
                     </div>
 

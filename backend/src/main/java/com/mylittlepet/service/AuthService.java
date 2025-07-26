@@ -92,7 +92,7 @@ public class AuthService {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Generate JWT token
+            // Generate JWT token (will use admin session timeout for admin users)
             String jwt = jwtTokenProvider.generateToken(authentication);
 
             // Find user for admin info
@@ -109,7 +109,7 @@ public class AuthService {
                     user.getEmail(),
                     user.getRole());
 
-            return new LoginResponse(true, "Login successful", jwt, adminInfo);
+            return new LoginResponse(true, "Login successful. Session timeout: 2 hours.", jwt, adminInfo);
 
         } catch (Exception e) {
             return new LoginResponse(false, "Login failed: " + e.getMessage());
@@ -125,8 +125,7 @@ public class AuthService {
                 return new ApiResponse(true, "If the email exists, a password reset link has been sent.");
             }
 
-            User user = userOptional.get();
-
+            // User exists, proceed with token generation
             // Delete any existing reset tokens for this email
             passwordResetTokenRepository.deleteByEmail(request.getEmail());
 

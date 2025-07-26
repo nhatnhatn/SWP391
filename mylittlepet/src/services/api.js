@@ -73,7 +73,7 @@ class ApiService {
     async request(endpoint, options = {}) {
         // Construct full URL by combining base URL with endpoint
         const url = `${this.baseURL}${endpoint}`;
-        
+
         // Merge default headers with any custom options
         const config = {
             headers: this.getAuthHeaders(),
@@ -269,7 +269,7 @@ class ApiService {
         try {
             const response = await this.post('/auth/login', { email, password });
             console.log('✅ ApiService: Backend login response:', response);
-            
+
             // Store JWT token in localStorage for subsequent requests
             if (response.token) {
                 localStorage.setItem('authToken', response.token);
@@ -279,8 +279,8 @@ class ApiService {
             console.error('❌ ApiService: Backend login error:', error.message);
             throw error;
         }
-    } 
-    
+    }
+
     /**
      * User registration
      * Creates new user account and automatically logs them in
@@ -291,7 +291,7 @@ class ApiService {
     async register(userData) {
         console.log('🔧 Register request data:', userData);
         const response = await this.post('/auth/register', userData);
-        
+
         // Auto-login after successful registration
         if (response.token) {
             localStorage.setItem('authToken', response.token);
@@ -364,8 +364,8 @@ class ApiService {
      */
     async getAllUsers() {
         return this.get('/users');
-    } 
-    
+    }
+
     /**
      * Get specific user by ID
      * @param {number} id - User ID
@@ -373,6 +373,16 @@ class ApiService {
      */
     async getUserById(id) {
         return this.get(`/users/${id}`);
+    }
+
+    /**
+     * Get all admin users
+     * For admin management and username lookup
+     * 
+     * @returns {Promise<Array>} List of all admin users
+     */
+    async getAllAdmins() {
+        return this.get('/users/admins');
     }
 
     /**
@@ -1023,6 +1033,43 @@ class ApiService {
     async testShopProductApi() {
         console.log('🛒 API: Testing shop product API');
         return this.get('/shop-products/test');
+    }
+
+    // ============================================================================================
+    // SESSION MANAGEMENT METHODS
+    // ============================================================================================
+
+    /**
+     * Get current admin session status
+     * Checks remaining time and expiration warnings
+     * 
+     * @returns {Promise<Object>} Session status with remaining time
+     */
+    async getSessionStatus() {
+        console.log('🔐 API: Getting session status');
+        return this.get('/session/status');
+    }
+
+    /**
+     * Refresh current admin session
+     * Extends session timeout with new token
+     * 
+     * @returns {Promise<Object>} New token and session info
+     */
+    async refreshSession() {
+        console.log('🔐 API: Refreshing session');
+        return this.post('/session/refresh');
+    }
+
+    /**
+     * Logout admin session
+     * Invalidates current session
+     * 
+     * @returns {Promise<Object>} Logout confirmation
+     */
+    async logoutSession() {
+        console.log('🔐 API: Logging out session');
+        return this.post('/session/logout');
     }
 }
 

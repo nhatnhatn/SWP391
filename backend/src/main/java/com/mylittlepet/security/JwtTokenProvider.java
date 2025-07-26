@@ -22,6 +22,12 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private int jwtExpirationInMs;
 
+    @Value("${admin.session.timeout}")
+    private int adminSessionTimeoutInMs;
+
+    @Value("${admin.session.warning.time}")
+    private int adminSessionWarningTimeInMs;
+
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
@@ -29,7 +35,15 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationInMs);
+
+        // Use admin session timeout for admin users
+        int expirationTime = jwtExpirationInMs;
+        if (authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+            expirationTime = adminSessionTimeoutInMs;
+        }
+
+        Date expiryDate = new Date(System.currentTimeMillis() + expirationTime);
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
@@ -40,7 +54,7 @@ public class JwtTokenProvider {
     }
 
     public String generateTokenFromUsername(String username) {
-        Date expiryDate = new Date(System.currentTimeMillis() + jwtExpirationInMs);
+        Date expiryDate = new Date(System.currentTimeMillis() + adminSessionTimeoutInMs);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -90,6 +104,32 @@ public class JwtTokenProvider {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    // Get remaining time before token expires (in milliseconds)
+    public long getRemainingTimeInMs(String token) {
+        try {
+            Date expiration = getExpirationDateFromToken(token);
+            return expiration.getTime() - System.currentTimeMillis();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    // Check if token is about to expire (within warning time)
+    public Boolean isTokenAboutToExpire(String token) {
+        long remainingTime = getRemainingTimeInMs(token);
+        return remainingTime > 0 && remainingTime <= adminSessionWarningTimeInMs;
+    }
+
+    // Generate refresh token with extended expiration
+    public String refreshToken(String token) {
+        try {
+            String username = getUsernameFromToken(token);
+            return generateTokenFromUsername(username);
+        } catch (Exception e) {
+            return null;
         }
     }
 }

@@ -8,6 +8,7 @@ D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\impl\PetServiceIm
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\PetRepository.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\LoginRequest.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\entity\Shop.java
+D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\CreateUserRequest.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\LoginResponse.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\config\SecurityConfig.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\controller\PetController.java
@@ -19,6 +20,7 @@ D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\PlayerDTO.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\PlayerPetRepository.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\entity\Pet.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\UserRepository.java
+D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\controller\UserController.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\RegisterResponse.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\AuthService.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\PlayerService.java
@@ -32,6 +34,7 @@ D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\PasswordResetT
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\ShopProductDTO.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\PlayerRepository.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\entity\PasswordResetToken.java
+D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\controller\SessionController.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\PlayerPetDTO.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\controller\AuthController.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\PetService.java
