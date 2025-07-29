@@ -9,30 +9,6 @@
 }
 
 @layer components {
-  .rarity-common {
-    @apply text-gray-500 border-gray-500 bg-gray-100;
-  }
-
-  .rarity-uncommon {
-    @apply text-green-600 border-green-600 bg-green-100;
-  }
-
-  .rarity-rare {
-    @apply text-blue-600 border-blue-600 bg-blue-100;
-  }
-
-  .rarity-epic {
-    @apply text-purple-600 border-purple-600 bg-purple-100;
-  }
-
-  .rarity-legendary {
-    @apply text-yellow-600 border-yellow-600 bg-yellow-100;
-  }
-
-  .rarity-mythic {
-    @apply text-pink-600 border-pink-600 bg-pink-100;
-  }
-
   .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 px-4 py-2 rounded-md font-medium transition-colors;
   }

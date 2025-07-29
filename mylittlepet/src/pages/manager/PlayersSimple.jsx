@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Edit, Shield, ShieldCheck } from 'lucide-react';
+import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
 import apiService from '../../services/api';
@@ -134,8 +134,8 @@ const PlayersSimple = () => {
      */
     const {
         players, // All players data
-        loading,
-        error,
+        loading, // Loading state for initial data fetch
+        error, // Error state for data fetching
         stats,
         getPlayerPets,
         refreshData: refreshPlayers
@@ -165,25 +165,12 @@ const PlayersSimple = () => {
     const [selectedPlayer, setSelectedPlayer] = useState(null); // Player selected for detailed view
     const [selectedPlayerPets, setSelectedPlayerPets] = useState([]); // Pets owned by selected player
     const [loadingPets, setLoadingPets] = useState(false); // Loading state for pet data
-    const [editModal, setEditModal] = useState({ isOpen: false, player: null }); // Edit modal state
-
-    // Form state for player editing
-    const [editForm, setEditForm] = useState({
-        userName: '',
-        email: '',
-        level: 1,
-        coin: 0,
-        diamond: 0,
-        gem: 0
-    });
 
     // Notification management
     const {
         notification,
         showNotification,
         clearNotification,
-        handleOperationWithNotification,
-        handleFormSubmission
     } = useNotificationManager(refreshPlayers);
 
     // Sorting and filtering state
@@ -210,32 +197,6 @@ const PlayersSimple = () => {
         setLocalSearchTerm('');
         setDebouncedSearchTerm('');
     }, []);
-
-    /**
-     * Handles column sorting with direction toggle
-     * @param {string} key - The field to sort by
-     */
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    /**
-     * Returns sort icon based on current sort configuration
-     * @param {string} columnKey - Column to check for sort icon
-     * @returns {JSX.Element|null} Sort icon or null
-     */
-    const getSortIcon = (columnKey) => {
-        if (sortConfig.key !== columnKey) {
-            return null;
-        }
-        return sortConfig.direction === 'asc' ?
-            <ChevronUp className="w-4 h-4 inline ml-1" /> :
-            <ChevronDown className="w-4 h-4 inline ml-1" />;
-    };
 
     // ============================================================================
     // DATA PROCESSING AND PAGINATION
@@ -377,78 +338,6 @@ const PlayersSimple = () => {
         }
     };
 
-    /**
-     * Opens edit modal with player data pre-filled
-     * @param {Object} player - Player object to edit
-     */
-    const handleEdit = (player) => {
-        setEditForm({
-            userName: player.userName || '',
-            email: player.email || '',
-            level: player.level || 1,
-            coin: player.coin || 0,
-            diamond: player.diamond || 0,
-            gem: player.gem || 0
-        });
-        setEditModal({ isOpen: true, player: player });
-    };
-
-    /**
-     * Handles form submission for player editing
-     * Validates data and updates player information
-     */
-    const handleEditSubmit = async () => {
-        try {
-            const updatedData = {
-                ...editForm,
-                id: editModal.player.id
-            };
-
-            // Call API to update player data
-            await apiService.updatePlayer(editModal.player.id, updatedData);
-
-            // Close edit modal
-            setEditModal({ isOpen: false, player: null });
-
-            // Refresh the player data to show updates
-            await refreshPlayers();
-
-            showNotification('Player information updated successfully!', 'success');
-        } catch (error) {
-            console.error('Failed to update player:', error);
-            showNotification('Update failed: ' + (error.message || 'Unknown error'), 'error');
-        }
-    };
-
-    /**
-     * Cancels edit operation and closes modal
-     */
-    const handleEditCancel = () => {
-        setEditModal({ isOpen: false, player: null });
-        // Reset form to initial state
-        setEditForm({
-            userName: '',
-            email: '',
-            level: 1,
-            coin: 0,
-            diamond: 0,
-            gem: 0
-        });
-    };
-
-    /**
-     * Handles player deletion with confirmation
-     * @param {number} playerId - ID of the player to delete
-     */
-    const handleDelete = (playerId) => {
-        // Simple delete with confirmation dialog
-        const confirmDelete = window.confirm('Are you sure you want to delete this player?');
-        if (confirmDelete) {
-            // Note: deletePlayer function from hook can be added later
-            showNotification('Delete functionality will be completed later!', 'info');
-        }
-    };
-
     // ============================================================================
     // COMPONENT RENDER
     // ============================================================================
@@ -519,6 +408,7 @@ const PlayersSimple = () => {
                     </div>
                 </div>
             )}
+
             {/* Search & Filters */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
                 {/* Header */}
@@ -556,15 +446,6 @@ const PlayersSimple = () => {
                                     onChange={(e) => handleSearch(e.target.value)}
                                     className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
                                 />
-                                {localSearchTerm && (
-                                    <button
-                                        onClick={clearSearch}
-                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                        title="Clear search"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                )}
                             </div>
 
                             {(localSearchTerm || debouncedSearchTerm) && (
@@ -586,7 +467,9 @@ const PlayersSimple = () => {
                                     </div>
                                 </div>)}
                         </div>
-                    </div>                    {/* Filters Section */}
+                    </div>
+
+                    {/* Filters Section */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <button
@@ -602,10 +485,25 @@ const PlayersSimple = () => {
                                 ) : (
                                     <ChevronDown className="h-4 w-4 text-gray-500 transition-transform duration-200" />
                                 )}
+
                                 {/* Filter Status Indicator */}
+
                                 {(levelFilter !== 'all' || sortConfig.key) && (
+                                    // The badge visually indicates how many filters/sorts are currently active
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
-                                        {[levelFilter !== 'all' ? levelFilter : null, sortConfig.key].filter(Boolean).length}
+                                        {/*
+                                            Count the number of active filters:
+                                            - If levelFilter is not 'all', it's active (so include its value)
+                                            - If sortConfig.key is set, sorting is active (so include its value)
+                                            - The array filters out any falsey values (null, undefined, empty string)
+                                            - Uses .filter(Boolean).length to count how many filters are active.
+                                        */}
+                                        {
+                                            [
+                                                levelFilter !== 'all' ? levelFilter : null,
+                                                sortConfig.key
+                                            ].filter(Boolean).length
+                                        }
                                     </span>
                                 )}
                             </button>
@@ -743,13 +641,15 @@ const PlayersSimple = () => {
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
                                                     <span className="text-blue-800 font-medium">
-                                                        Currently sorting by: <span className="font-bold">
+                                                        Currently sorting by:
+                                                        <span className="font-bold">
                                                             {sortConfig.key === 'userName' && 'Player Name'}
                                                             {sortConfig.key === 'level' && 'Level'}
                                                             {sortConfig.key === 'coin' && ' Coin'}
                                                             {sortConfig.key === 'diamond' && ' Diamond'}
                                                             {sortConfig.key === 'gem' && ' Gem'}
-                                                        </span> ({sortConfig.direction === 'asc' ? 'Ascending Order' : 'Descending Order'})
+                                                        </span>
+                                                        ({sortConfig.direction === 'asc' ? 'Ascending Order' : 'Descending Order'})
                                                     </span>
                                                 </div>
                                                 <button
@@ -775,6 +675,7 @@ const PlayersSimple = () => {
                                     <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={() => {
+                                                // Reset all filters and sorting
                                                 setLevelFilter('all');
                                                 setSortConfig({ key: null, direction: 'asc' });
                                                 clearSearch();
@@ -797,11 +698,12 @@ const PlayersSimple = () => {
                                             <div className="inline-flex items-center px-3 py-2 bg-red-100 text-red-800 rounded-lg text-xs font-medium border border-red-200">
                                                 <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></div>
                                                 {[
-                                                    (localSearchTerm || debouncedSearchTerm) && 'Search',
+                                                    (localSearchTerm || debouncedSearchTerm) && 'Search', //search is only used for counting active filters
                                                     levelFilter !== 'all' && 'Level',
                                                     sortConfig.key && 'Sort'
                                                 ].filter(Boolean).length} active filters
-                                            </div>)}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -809,6 +711,221 @@ const PlayersSimple = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Player Table */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                {/* Table Header */}
+                <div className="bg-gradient-to-l from-teal-600 to-green-600 px-6 py-4 border-b border-green-100">
+                    <div className="flex items-center justify-center">
+                        <p className="text-xl font-bold text-white text-center">PLAYER LIST</p>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="p-8 text-center">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                        <p className="mt-2 text-gray-600">Loading...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-hidden">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
+                            <colgroup>
+                                <col className="w-[20%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[20%]" />
+                            </colgroup>
+                            <thead className="bg-gradient-to-l from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
+                                <tr>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
+                                            Player Name
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
+                                            Level
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
+                                            Coin
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
+                                            Diamond
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
+                                        <span className="flex items-center justify-center gap-2">
+                                            Gem
+                                        </span>
+                                    </th>
+                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
+                                        Action
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="bg-white divide-y divide-gray-200 text-justify">
+                                {displayPlayers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="px-6 py-12 text-center">
+                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                                    <Users className="h-8 w-8 text-gray-400" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <h3 className="text-lg font-medium text-gray-900">No players found</h3>
+                                                    <p className="text-sm text-gray-500 mt-1">
+                                                        {(localSearchTerm || debouncedSearchTerm) || levelFilter !== 'all'
+                                                            ? 'No players found matching the filters.'
+                                                            : 'No players found on this page.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>) : (displayPlayers.map((player) => (
+                                        <tr key={player.id} className="hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 transition-all duration-200">
+                                            {/* Player Name */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-sm font-semibold text-gray-900 break-words text-center" title={player.userName || 'N/A'}>
+                                                        {player.userName || 'N/A'}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Level */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
+                                                        {player.level || 1}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            {/* Coin */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-xs font-medium text-yellow-700 text-center">
+                                                        {(player.coin || 0).toLocaleString('vi-VN')}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Diamond */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-xs font-medium text-blue-700 text-center">
+                                                        {(player.diamond || 0).toLocaleString('vi-VN')}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Gem */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="text-xs font-medium text-green-700 text-center">
+                                                        {(player.gem || 0).toLocaleString('vi-VN')}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            {/* Actions */}
+                                            <td className="px-3 py-4">
+                                                <div className="flex justify-center space-x-1">
+                                                    <button
+                                                        onClick={() => handleView(player)}
+                                                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                                                        title="View Details"
+                                                    >
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalFilteredPages > 1 && (
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
+                    <div className="flex items-center justify-center">
+                        <div className="flex items-center gap-2">
+                            {/* Previous Button: Go to previous page, disabled on first page */}
+                            <button
+                                onClick={handleFilterPreviousPage}
+                                disabled={currentFilterPage === 0}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                <span className="hidden sm:inline">Previous Page</span>
+                            </button>
+
+                            {/* Page Numbers: Show first, last, current, and neighbors. Ellipsis for skipped pages. */}
+                            <div className="flex items-center gap-1">
+                                {/* This line is used to dynamically generate the page number buttons */}
+                                {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
+                                    // Show first, last, and pages near the current page
+                                    const shouldShow =
+                                        page === 0 ||
+                                        page === totalFilteredPages - 1 ||
+                                        Math.abs(page - currentFilterPage) <= 1;
+
+                                    // Hide most pages except for first, last, and neighbors
+                                    if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
+                                        return null;
+                                    }
+
+                                    // Show ellipsis if there is a gap between shown pages
+                                    if (
+                                        (page === 1 && currentFilterPage > 3) ||
+                                        (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
+                                    ) {
+                                        return (
+                                            <span key={page} className="px-2 text-blue-500">
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    // Render page number button
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentFilterPage(page)}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
+                                                ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-md'
+                                                : 'bg-white border border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800'
+                                                }`}
+                                        >
+                                            {page + 1}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Next Button: Go to next page, disabled on last page */}
+                            <button
+                                onClick={handleFilterNextPage}
+                                disabled={currentFilterPage >= totalFilteredPages - 1}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                            >
+                                <span className="hidden sm:inline">Next Page</span>
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Player Details Modal */}
             {selectedPlayer && (
@@ -983,6 +1100,7 @@ const PlayersSimple = () => {
                                             {selectedPlayerPets.map((pet, index) => (
                                                 <div key={pet.playerPetId || index}
                                                     className="group bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-4 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer">
+                                                    
                                                     <div className="flex items-center justify-between mb-3">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white shadow-md">
@@ -1009,7 +1127,6 @@ const PlayersSimple = () => {
                                                             </div>
                                                         )}
                                                     </div>
-
                                                 </div>
                                             ))}
                                         </div>
@@ -1034,19 +1151,6 @@ const PlayersSimple = () => {
                         <div className="flex p-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white justify-end items-center">
 
                             <div className="flex gap-3">
-                                {/* Uncomment if you want to add edit functionality */}
-                                {/* <button
-                                        onClick={() => {
-                                            handleEdit(selectedPlayer);
-                                            setSelectedPlayer(null);
-                                            setSelectedPlayerPets([]);
-                                        }}
-                                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center gap-2"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                        Edit
-                                    </button> */}
-
                                 <button
                                     onClick={() => {
                                         setSelectedPlayer(null);
@@ -1063,216 +1167,6 @@ const PlayersSimple = () => {
                 </div>
             )}
 
-            {/* Player Table */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                {/* Table Header */}
-                <div className="bg-gradient-to-l from-teal-600 to-green-600 px-6 py-4 border-b border-green-100">
-                    <div className="flex items-center justify-center">
-                        <p className="text-xl font-bold text-white text-center">PLAYER LIST</p>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="p-8 text-center">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                        <p className="mt-2 text-gray-600">Loading...</p>
-                    </div>
-                ) : (
-                    <div className="overflow-hidden">
-                        <table className="w-full table-fixed divide-y divide-gray-200">
-                            <colgroup>
-                                <col className="w-[20%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[15%]" />
-                                <col className="w-[20%]" />
-                            </colgroup>
-                            <thead className="bg-gradient-to-l from-teal-600 to-green-600 border-b-4 border-green-800 shadow-lg">
-                                <tr>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Player Name
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Level
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Coin
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Diamond
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide border-r border-green-500 border-opacity-30">
-                                        <span className="flex items-center justify-center gap-2">
-                                            Gem
-                                        </span>
-                                    </th>
-                                    <th className="px-3 py-6 text-center text-sm font-bold text-white uppercase tracking-wide">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody className="bg-white divide-y divide-gray-200 text-justify">
-                                {displayPlayers.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="6" className="px-6 py-12 text-center">
-                                            <div className="flex flex-col items-center justify-center space-y-4">
-                                                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                                                    <Users className="h-8 w-8 text-gray-400" />
-                                                </div>
-                                                <div className="text-center">
-                                                    <h3 className="text-lg font-medium text-gray-900">No players found</h3>
-                                                    <p className="text-sm text-gray-500 mt-1">
-                                                        {(localSearchTerm || debouncedSearchTerm) || levelFilter !== 'all'
-                                                            ? 'No players found matching the filters.'
-                                                            : 'No players found on this page.'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>) : (displayPlayers.map((player) => (
-                                        <tr key={player.id} className="hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 transition-all duration-200">
-                                            {/* Player Name */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex items-center justify-center">
-                                                    <div className="text-sm font-semibold text-gray-900 break-words text-center" title={player.userName || 'N/A'}>
-                                                        {player.userName || 'N/A'}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Level */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex items-center justify-center">
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-200 shadow-sm">
-                                                        {player.level || 1}
-                                                    </span>
-                                                </div>
-                                            </td>
-
-                                            {/* Coin */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex items-center justify-center">
-                                                    <div className="text-xs font-medium text-yellow-700 text-center">
-                                                        {(player.coin || 0).toLocaleString('vi-VN')}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Diamond */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex items-center justify-center">
-                                                    <div className="text-xs font-medium text-blue-700 text-center">
-                                                        {(player.diamond || 0).toLocaleString('vi-VN')}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Gem */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex items-center justify-center">
-                                                    <div className="text-xs font-medium text-green-700 text-center">
-                                                        {(player.gem || 0).toLocaleString('vi-VN')}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            {/* Actions */}
-                                            <td className="px-3 py-4">
-                                                <div className="flex justify-center space-x-1">
-                                                    <button
-                                                        onClick={() => handleView(player)}
-                                                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                                                        title="View Details"
-                                                    >
-                                                        <Eye className="w-3.5 h-3.5" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
-            {/* Pagination - Blue-Cyan Gradient */}
-            {
-                totalFilteredPages > 1 && (
-                    <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
-                        <div className="flex items-center justify-center">
-                            <div className="flex items-center gap-2">
-                                {/* Previous Button */}
-                                <button
-                                    onClick={handleFilterPreviousPage}
-                                    disabled={currentFilterPage === 0}
-                                    className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Previous Page</span>
-                                </button>
-
-                                {/* Page Numbers */}
-                                <div className="flex items-center gap-1">
-                                    {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
-                                        const shouldShow =
-                                            page === 0 ||
-                                            page === totalFilteredPages - 1 ||
-                                            Math.abs(page - currentFilterPage) <= 1;
-
-                                        if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
-                                            return null;
-                                        }
-
-                                        if (
-                                            (page === 1 && currentFilterPage > 3) ||
-                                            (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
-                                        ) {
-                                            return (
-                                                <span key={page} className="px-2 text-blue-500">
-                                                    ...
-                                                </span>
-                                            );
-                                        }
-                                        return (
-                                            <button
-                                                key={page}
-                                                onClick={() => setCurrentFilterPage(page)}
-                                                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
-                                                    ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-md'
-                                                    : 'bg-white border border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800'
-                                                    }`}
-                                            >
-                                                {page + 1}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Next Button */}
-                                <button
-                                    onClick={handleFilterNextPage}
-                                    disabled={currentFilterPage >= totalFilteredPages - 1}
-                                    className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
-                                >
-                                    <span className="hidden sm:inline">Next Page</span>
-                                    <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
         </div>
     )
 };

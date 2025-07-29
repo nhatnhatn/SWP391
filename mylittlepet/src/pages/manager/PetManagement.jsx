@@ -1237,15 +1237,6 @@ const PetManagement = () => {
                                             onChange={handleSearch}
                                             className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200 hover:border-gray-400 bg-white text-gray-900 placeholder-gray-500"
                                         />
-                                        {searchTerm && (
-                                            <button
-                                                onClick={() => handleSearch({ target: { value: '' } })}
-                                                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-full hover:bg-red-50"
-                                                title="Clear search"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        )}
                                     </div>
                                 </div>
 

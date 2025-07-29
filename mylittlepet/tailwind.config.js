@@ -55,14 +55,6 @@ export default {
                     800: '#991b1b',
                     900: '#7f1d1d',
                 },
-                rarity: {
-                    common: '#9ca3af',
-                    uncommon: '#22c55e',
-                    rare: '#3b82f6',
-                    epic: '#8b5cf6',
-                    legendary: '#f59e0b',
-                    mythic: '#ec4899',
-                }
             },
             zIndex: {
                 '60': '60',

@@ -147,7 +147,11 @@ export default function Register() {
     const [success, setSuccess] = useState('');
 
     // Notification system state
-    const [notification, setNotification] = useState({ message: '', type: '', show: false });
+    const [notification, setNotification] = useState({
+        message: '',
+        type: '',
+        show: false
+    });
 
     /**
      * Individual field error tracking for granular validation feedback
@@ -160,8 +164,6 @@ export default function Register() {
         confirmPassword: ''
     });
 
-    // ============================================================================
-    // HOOKS AND AUTHENTICATION
     // ============================================================================
     // HOOKS AND AUTHENTICATION
     // ============================================================================
@@ -224,6 +226,7 @@ export default function Register() {
      * @param {string} fieldName - Name of the field to clear error for
      */
     const clearFieldError = (fieldName) => {
+        // Clear specific field error and reset general error
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
         setError('');
     };
@@ -262,13 +265,11 @@ export default function Register() {
         clearFieldError('fullName');
 
         // Real-time validation feedback
-        if (value && !validateFullName(value)) {
-            if (value.trim().length === 0) {
-                setFieldErrors(prev => ({ ...prev, fullName: 'Họ và tên không được để trống.' }));
-            } else if (value.length > 50) {
-                setFieldErrors(prev => ({ ...prev, fullName: 'Full name cannot exceed 50 characters.' }));
-            }
-        }
+        if (value.trim().length === 0) {
+            setFieldErrors(prev => ({ ...prev, fullName: 'Full name is required.' }));
+        } else if (value.length > 50) {
+            setFieldErrors(prev => ({ ...prev, fullName: 'Full name cannot exceed 50 characters.' }));
+        } 
     };
 
     /**
@@ -339,27 +340,27 @@ export default function Register() {
         const lowerError = errorMsg.toLowerCase();
 
         // Handle specific error types with user-friendly messages
-        if (lowerError.includes('email already exists') || lowerError.includes('email đã tồn tại')) {
+        if (lowerError.includes('email already exists')) {
             return '❌ This email is already in use. Please use a different email or login if this is your account.';
         }
 
-        if (lowerError.includes('username already exists') || lowerError.includes('tên người dùng đã tồn tại')) {
+        if (lowerError.includes('username already exists')) {
             return '❌ This username is already taken. Please choose a different name.';
         }
 
-        if (lowerError.includes('password must be') || lowerError.includes('weak password') || lowerError.includes('mật khẩu yếu')) {
+        if (lowerError.includes('password must be') || lowerError.includes('weak password')) {
             return '❌ Password is not strong enough. Must be at least 8 characters with uppercase, lowercase, and numbers.';
         }
 
-        if (lowerError.includes('invalid email') || lowerError.includes('email không hợp lệ')) {
+        if (lowerError.includes('invalid email')) {
             return '❌ Invalid email format. Please check again.';
         }
 
-        if (lowerError.includes('network') || lowerError.includes('connection') || lowerError.includes('kết nối')) {
+        if (lowerError.includes('network') || lowerError.includes('connection')) {
             return '❌ Network connection error. Please check your internet connection and try again.';
         }
 
-        if (lowerError.includes('server error') || lowerError.includes('lỗi máy chủ')) {
+        if (lowerError.includes('server error')) {
             return '❌ Server error. Please try again in a few minutes.';
         }
 

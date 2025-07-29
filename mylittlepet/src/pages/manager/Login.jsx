@@ -142,6 +142,7 @@ export default function Login() {
      * Clears specific field error and general error
      */
     const clearFieldError = (fieldName) => {
+        // Clear specific field error and reset general error
         setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
         setError('');
     };
@@ -209,11 +210,6 @@ export default function Login() {
             return '🔐 Incorrect password. Please check your password.';
         }
 
-        // Account status errors
-        if (lowerError.includes('account disabled') || lowerError.includes('account suspended') || lowerError.includes('banned') || lowerError.includes('inactive')) {
-            return '⛔ Your account has been disabled. Please contact the system administrator.';
-        }
-
         // Network errors
         if (lowerError.includes('network') || lowerError.includes('connection')) {
             return '🌐 Network connection error. Please check your internet connection and try again.';
@@ -246,8 +242,10 @@ export default function Login() {
      * Handles form submission with validation and authentication
      */
     const handleSubmit = async (e) => {
+        //Prevents the default browser behavior (page reload) when the form is submitted.
         e.preventDefault();
         setIsLoading(true);
+        //Clears any previous general error and field-specific errors before validating the new input.
         setError('');
         setFieldErrors({ email: '', password: '' });
 
@@ -309,6 +307,7 @@ export default function Login() {
             } else {
                 // Handle login failure
                 console.log('❌ Login: Login failed with error:', result.error);
+                // Process error message from back-end 
                 const errorMessage = getErrorMessage(result.error || 'Login failed');
                 console.log('📝 Login: Processed error message:', errorMessage);
                 setError(errorMessage);
@@ -318,6 +317,7 @@ export default function Login() {
             // Handle unexpected errors
             console.log('💥 Login: Exception caught:', error);
             console.log('💥 Login: Error message:', error.message);
+            // Process error message from back-end 
             const errorMessage = getErrorMessage(error.message || 'An error occurred during login. Please try again.');
             console.log('📝 Login: Processed exception message:', errorMessage);
             setError(errorMessage);
@@ -330,6 +330,7 @@ export default function Login() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
             {/* Notification Toast - positioned at top-right */}
+            {/* Check if show is true => show message and custom by type */}
             {notification.show && (
                 <NotificationToast
                     message={notification.message}
@@ -398,14 +399,17 @@ export default function Login() {
                                     <button
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                        // if clicked showPassword is set to the opposite value
                                         onClick={() => setShowPassword(!showPassword)}
+                                        //default is set to hide password
                                         aria-label={showPassword ? "Hide password" : "Show password"}
                                     >
-                                        {showPassword ? (
-                                            <EyeOff className="h-4 w-4 text-gray-400" />
-                                        ) : (
-                                            <Eye className="h-4 w-4 text-gray-400" />
-                                        )}
+                                        {showPassword ?
+                                            ( // if showPassword is true, show EyeOff icon 
+                                                <EyeOff className="h-4 w-4 text-gray-400" />
+                                            ) : ( // if showPassword is false, show Eye icon
+                                                <Eye className="h-4 w-4 text-gray-400" />
+                                            )}
                                     </button>
                                 </div>
                                 {fieldErrors.password && (
@@ -421,6 +425,7 @@ export default function Login() {
                         <div className="mt-6">
                             <button
                                 type="submit"
+                                //condidionally disable the button if loading, errors exist, or fields are empty
                                 disabled={
                                     isLoading ||
                                     Object.values(fieldErrors).some(error => error !== '') ||
