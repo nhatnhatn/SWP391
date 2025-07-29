@@ -21,6 +21,13 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByUserName(String userName);
 
+    // Case-insensitive email checks for nvarchar compatibility
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE LOWER(u.email) = LOWER(:email)")
+    boolean existsByEmailIgnoreCase(@Param("email") String email);
+
+    @Query("SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:email)")
+    Optional<User> findByEmailIgnoreCase(@Param("email") String email);
+
     // Find admin by email for login (exclude players)
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.role != 'Player'")
     Optional<User> findAdminByEmail(@Param("email") String email);

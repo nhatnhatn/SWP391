@@ -1,6 +1,9 @@
 package com.mylittlepet.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,9 +19,14 @@ public class User {
     private String role;
 
     @Column(name = "UserName", length = 100)
+    @NotBlank(message = "Username cannot be blank")
+    @Size(min = 3, max = 100, message = "Username must be between 3 and 100 characters")
     private String userName;
 
     @Column(name = "Email", unique = true, length = 100)
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email format is invalid")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
 
     @Column(name = "Password", nullable = false, length = 100)
@@ -101,6 +109,7 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
     public Integer getLevel() {
         return level;
     }

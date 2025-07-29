@@ -7,6 +7,7 @@ import com.mylittlepet.repository.PasswordResetTokenRepository;
 import com.mylittlepet.repository.UserRepository;
 import com.mylittlepet.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,12 +49,17 @@ public class AuthService {
                 return new RegisterResponse(false, "Username cannot be empty");
             }
 
+            // Validate email format (basic check)
+            if (request.getEmail() == null || !request.getEmail().contains("@")) {
+                return new RegisterResponse(false, "Invalid email format");
+            }
+
             // Check if username already exists
             if (userRepository.existsByUserName(request.getUsername())) {
                 return new RegisterResponse(false, "Username already exists");
             }
 
-            // Check if email already exists
+            // Check if email already exists (case-insensitive for nvarchar)
             if (userRepository.existsByEmail(request.getEmail())) {
                 return new RegisterResponse(false, "Email already exists");
             }
@@ -62,11 +68,23 @@ public class AuthService {
             User user = new User(
                     "ADMIN", // role
                     request.getUsername(), // userName
-                    request.getEmail(), // email
+                    request.getEmail().toLowerCase().trim(), // email - normalize for consistency
                     passwordEncoder.encode(request.getPassword())); // encoded password
 
-            // Save user
-            User savedUser = userRepository.save(user);
+            // Save user with proper exception handling
+            User savedUser;
+            try {
+                savedUser = userRepository.save(user);
+            } catch (DataIntegrityViolationException e) {
+                // Handle database-level unique constraint violation
+                if (e.getMessage().contains("Email") || e.getMessage().contains("email")) {
+                    return new RegisterResponse(false, "Email already exists in database");
+                } else if (e.getMessage().contains("UserName") || e.getMessage().contains("username")) {
+                    return new RegisterResponse(false, "Username already exists in database");
+                } else {
+                    return new RegisterResponse(false, "Registration failed due to data integrity violation");
+                }
+            }
 
             // Create admin info
             AdminInfo adminInfo = new AdminInfo(

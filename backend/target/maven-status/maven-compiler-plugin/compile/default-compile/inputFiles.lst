@@ -29,6 +29,7 @@ D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\security\JwtTokenProvider
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\BackendApplication.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\RegisterRequest.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\ShopProductRepository.java
+D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\exception\GlobalExceptionHandler.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\security\JwtAuthenticationEntryPoint.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\repository\PasswordResetTokenRepository.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\ShopProductDTO.java
@@ -42,5 +43,6 @@ D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\controller\SimpleControll
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\dto\AdminInfo.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\entity\PlayerPet.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\impl\PlayerServiceImpl.java
+D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\exception\EmailAlreadyExistsException.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\security\JwtAuthenticationFilter.java
 D:\GITHUB\SWP391\backend\src\main\java\com\mylittlepet\service\ShopProductService.java
