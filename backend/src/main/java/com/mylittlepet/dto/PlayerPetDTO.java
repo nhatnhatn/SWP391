@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 public class PlayerPetDTO {
     private Integer playerPetId;
     private String petCustomName;
-    private Integer level;
     private LocalDateTime adoptedAt;
 
     // Pet default name từ bảng Pet
@@ -32,13 +31,6 @@ public class PlayerPetDTO {
         this.petCustomName = petCustomName;
     }
 
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel(Integer level) {
-        this.level = level;
-    }
 
     public LocalDateTime getAdoptedAt() {
         return adoptedAt;

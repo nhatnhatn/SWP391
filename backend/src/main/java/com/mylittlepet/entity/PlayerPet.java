@@ -24,8 +24,8 @@ public class PlayerPet {
     @Column(name = "AdoptedAt")
     private LocalDateTime adoptedAt;
 
-    @Column(name = "Level")
-    private Integer level = 1;
+    @Column(name = "Status")
+    private String status;
 
     @Column(name = "LastStatusUpdate")
     private LocalDateTime lastStatusUpdate;
@@ -39,12 +39,12 @@ public class PlayerPet {
     public PlayerPet() {
     }
 
-    public PlayerPet(Integer playerId, Integer petId, String petCustomName) {
+    public PlayerPet(Integer playerId, Integer petId, String petCustomName, String status) {
         this.playerId = playerId;
         this.petId = petId;
         this.petCustomName = petCustomName;
         this.adoptedAt = LocalDateTime.now();
-        this.level = 1;
+        this.status = status;
         this.lastStatusUpdate = LocalDateTime.now();
     }
 
@@ -100,12 +100,13 @@ public class PlayerPet {
         this.adoptedAt = adoptedAt;
     }
 
-    public Integer getLevel() {
-        return level;
+    public String getStatus() {
+        return status;
     }
 
-    public void setLevel(Integer level) {
-        this.level = level;
+    public void setStatus(String status) {
+        this.status = status;
+        this.lastStatusUpdate = LocalDateTime.now(); // Update last status update time when status changes
     }
 
     public LocalDateTime getLastStatusUpdate() {

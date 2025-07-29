@@ -183,7 +183,6 @@ public class PlayerServiceImpl implements PlayerService {
                         PlayerPetDTO dto = new PlayerPetDTO();
                         dto.setPlayerPetId((Integer) result[0]);
                         dto.setPetCustomName((String) result[1]);
-                        dto.setLevel((Integer) result[2]);
                         dto.setAdoptedAt((LocalDateTime) result[3]);
                         dto.setPetDefaultName((String) result[4]);
                         return dto;
