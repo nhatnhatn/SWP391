@@ -110,7 +110,6 @@ const PetManagement = () => {
         error,
         createPet,
         updatePet,
-        deletePet,
         refreshData
     } = useSimplePets();
 
@@ -126,8 +125,6 @@ const PetManagement = () => {
         notification,
         showNotification,
         clearNotification,
-        handleOperationWithNotification,
-        handleFormSubmission
     } = useNotificationManager(refreshData);
 
     // Local filter and search state (managed by component)
@@ -259,6 +256,7 @@ const PetManagement = () => {
             console.error(`❌ PetManagement: Failed to process admin ${adminId}:`, error);
 
             // Final fallback
+            //If cannot found username, return a generic fallback
             const fallbackName = `Admin #${adminId}`;
 
             // Cache the fallback result to avoid repeated attempts
@@ -358,6 +356,8 @@ const PetManagement = () => {
     // Fetch all unique pet types when pets data changes
     useEffect(() => {
         if (pets && pets.length > 0) {
+            //set allPetTypes to unique pet types
+            // Use Set to ensure uniqueness, filter out any undefined or null types
             const uniqueTypes = [...new Set(pets.map(pet => pet.petType).filter(type => type))];
             setAllPetTypes(uniqueTypes);
 
@@ -372,7 +372,9 @@ const PetManagement = () => {
                 }
             }
         }
-    }, [pets, persistentPetTypes]);    // Local UI state
+    }, [pets, persistentPetTypes]);
+
+    // Local UI state
     const [selectedPet, setSelectedPet] = useState(null);
     const [createModal, setCreateModal] = useState(false);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -404,6 +406,7 @@ const PetManagement = () => {
 
     // Apply filtering to pets first
     const filteredPets = useMemo(() => {
+        //check if pets is an array
         if (!Array.isArray(pets)) return [];
 
         return pets.filter(pet => {
@@ -411,12 +414,8 @@ const PetManagement = () => {
             if (searchTerm.trim()) {
                 const searchLower = searchTerm.toLowerCase();
                 const petName = (pet.petDefaultName || '').toLowerCase();
-                const petType = (pet.petType || '').toLowerCase();
-                const description = (pet.description || '').toLowerCase();
 
-                if (!petName.includes(searchLower) &&
-                    !petType.includes(searchLower) &&
-                    !description.includes(searchLower)) {
+                if (!petName.includes(searchLower)) {
                     return false;
                 }
             }
@@ -454,7 +453,7 @@ const PetManagement = () => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentPets = sortedPets.slice(startIndex, endIndex);
+    const currentPets = sortedPets.slice(startIndex, endIndex); //return current pets for the current page
 
     // Calculate statistics
     const totalPets = pets.length;
@@ -521,7 +520,9 @@ const PetManagement = () => {
     const handleClosePetDetail = () => {
         setSelectedPet(null);
         setSelectedPetAdminUsername('Loading...');
-    };    // Handle Edit from detail modal
+    };
+
+    // Handle Edit from detail modal
     const handleEdit = (pet) => {
         const formData = {
             petType: pet.petType || '',
@@ -536,6 +537,7 @@ const PetManagement = () => {
     };
 
     // Check if form has changes
+    // Used to disable submit button if no changes made
     const hasFormChanges = useMemo(() => {
         return (
             editForm.petType !== originalFormData.petType ||
@@ -545,15 +547,17 @@ const PetManagement = () => {
         );
     }, [editForm, originalFormData]);
 
-    // Check if create form has any content (for create modal)
+    // Check if create form has all required content (for create modal)
+    // Used to control submit button if no changes made
     const hasCreateFormContent = useMemo(() => {
         return (
-            (editForm.petType && editForm.petType.trim().length > 0) ||
-            (editForm.petDefaultName && editForm.petDefaultName.trim().length > 0) ||
-            (editForm.description && editForm.description.trim().length > 0) ||
-            editForm.petStatus !== 1 // Default status is 1, so if it's different, user changed it
+            editForm.petType && editForm.petType.trim().length > 0 &&
+            editForm.petDefaultName && editForm.petDefaultName.trim().length > 0 &&
+            editForm.description && editForm.description.trim().length > 0
         );
-    }, [editForm]);    // Submit edit from detail modal
+    }, [editForm]);
+
+    // Submit edit from detail modal
     const handleEditSubmit = async () => {
         try {
             // Clear previous errors
@@ -592,6 +596,7 @@ const PetManagement = () => {
                 petType: editForm.petType.trim(),
                 petDefaultName: editForm.petDefaultName.trim(),
                 petId: editModal.pet.petId,
+                description: editForm.description.trim(),
                 adminId: adminId // Include adminId for tracking updates
             };
 
@@ -619,25 +624,6 @@ const PetManagement = () => {
         };
         setEditForm(resetFormData);
         setOriginalFormData(resetFormData);
-    };
-
-    // Sort function
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
-    };
-
-    // Get sort icon
-    const getSortIcon = (columnKey) => {
-        if (sortConfig.key !== columnKey) {
-            return null;
-        }
-        return sortConfig.direction === 'asc' ?
-            <ChevronUp className="w-4 h-4 inline ml-1" /> :
-            <ChevronDown className="w-4 h-4 inline ml-1" />;
     };
 
     // Open create modal
@@ -691,6 +677,7 @@ const PetManagement = () => {
                 ...editForm,
                 petType: editForm.petType.trim(),
                 petDefaultName: editForm.petDefaultName.trim(),
+                description: editForm.description.trim(),
                 adminId: user?.id // Add adminId from current user
             };
 
@@ -872,19 +859,6 @@ const PetManagement = () => {
         }
     };
 
-    // Get status badge
-    const getStatusBadge = (status) => {
-        return status === 1 ? (
-            <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                Active
-            </span>
-        ) : (
-            <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
-                Disabled
-            </span>
-        );
-    };
-
     // Get pet type badge with dynamic styling
     const getPetTypeBadge = (petType) => {
         if (!petType) {
@@ -1005,193 +979,30 @@ const PetManagement = () => {
                 />
             )}
 
-            {/* Pet Details Modal */}
-            {selectedPet && (
-                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-                        {/* Header with Gradient */}
-                        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
-                            <div className="relative flex justify-center items-center">
-                                <h3 className="text-4xl font-bold text-white">Pet Details</h3>
+            {/* Confirmation Dialog */}
+            {confirmDialog.isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-red-100 rounded-lg">
+                                <X className="w-5 h-5 text-red-600" />
                             </div>
-
+                            <h3 className="text-lg font-semibold text-gray-800">{confirmDialog.title}</h3>
                         </div>
-
-                        {/* Content with Enhanced Design */}
-                        <div className="p-8 overflow-y-auto max-h-[calc(95vh-200px)] bg-gradient-to-br from-gray-50 to-white">
-                            {/* Pet Name & Type Header Card */}
-                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 mb-8 border border-blue-100 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center justify-between w-full">
-                                        {/* Right Side: The label */}
-                                        <div>
-                                            <h1 className="text-3xl font-bold text-cyan-600">
-                                                Pet Name
-                                            </h1>
-                                        </div>
-                                        {/* Left Side: The pet's name */}
-                                        <div>
-                                            <h2 className="text-2xl font-semibold text-gray-800">
-                                                {selectedPet.petDefaultName || 'No name provided'}
-                                            </h2>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Information Cards Grid */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {/* Basic Info Card */}
-                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="p-6">
-                                        <div className="flex items-center gap-3 mb-5">
-                                            <h4 className="text-lg font-semibold text-gray-800">Basic Information</h4>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-medium text-gray-600">Pet ID</span>
-                                                    <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                                                        #{selectedPet.petId}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between mb-2 mt-2">
-                                                    <span className="text-sm font-medium text-gray-600">Pet Type</span>
-                                                    <div>
-                                                        {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
-                                                            <span className="text-sm text-gray-500 italic">Not specified</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Admin Creator Info */}
-                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg border border-gray-200">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-sm font-medium text-gray-600">Created by Admin</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded">
-                                                            {selectedPetAdminUsername === 'Loading...' ? (
-                                                                <span className="text-sm text-gray-500 italic flex items-center gap-1">
-                                                                    <div className="w-3 h-3 border border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
-                                                                    Loading...
-                                                                </span>
-                                                            ) : selectedPetAdminUsername ? (
-                                                                selectedPetAdminUsername
-                                                            ) : (
-                                                                <span className="text-sm text-gray-500 italic">Unknown</span>
-                                                            )}
-                                                        </span>
-                                                        {selectedPet.adminId === adminId}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Status & Description Card */}
-                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <div className="p-6">
-                                        <div className="flex items-center gap-3 mb-5">
-                                            <h4 className="text-lg font-semibold text-gray-800">Pet Status and Description</h4>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <span className="text-sm font-medium text-gray-600 block mb-2">Activity Status</span>
-                                                <div className="flex items-center gap-2">
-                                                    {selectedPet.petStatus === 1 ? (
-                                                        <>
-                                                            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                                                            <span className="text-sm font-semibold text-green-700">Active</span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                                            <span className="text-sm font-semibold text-red-700">Inactive</span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
-                                                <span className="text-sm font-medium text-gray-600 block mb-3">Pet Description</span>
-                                                {selectedPet.description ? (
-                                                    <div className="space-y-2">
-                                                        <div className={`text-sm text-gray-700 leading-relaxed break-words ${selectedPet.description.length > 150 && !selectedPet.expanded
-                                                            ? 'line-clamp-3'
-                                                            : ''
-                                                            }`}>
-                                                            {selectedPet.description}
-                                                        </div>
-                                                        {selectedPet.description.length > 150 && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelectedPet(prev => ({
-                                                                        ...prev,
-                                                                        expanded: !prev.expanded
-                                                                    }));
-                                                                }}
-                                                                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline hover:no-underline transition-colors duration-200 flex items-center gap-1"
-                                                            >
-                                                                {selectedPet.expanded ? (
-                                                                    <>
-                                                                        <ChevronUp className="h-3 w-3" />
-                                                                        Hide
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <ChevronDown className="h-3 w-3" />
-                                                                        View more
-                                                                    </>
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-center py-4">
-                                                        <div className="text-gray-400 mb-2">
-                                                            <Eye className="h-8 w-8 mx-auto opacity-50" />
-                                                        </div>
-                                                        <span className="text-sm text-gray-400 italic">
-                                                            No description available for this pet
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Enhanced Footer */}
-                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
-                            <div className="flex justify-end items-center">
-
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => handleClosePetDetail()}
-                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
-                                    >
-                                        <X className="w-4 h-4" />
-                                        Close
-                                    </button>
-                                    <button
-                                        onClick={() => handleEdit(selectedPet)}
-                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                        Update Pet
-                                    </button>
-                                </div>
-                            </div>
+                        <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
+                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDialog.onConfirm}
+                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                Confirm
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1289,7 +1100,11 @@ const PetManagement = () => {
                                 {/* Active Filters Count */}
                                 {(typeFilter || statusFilter !== '' || sortConfig.key) && (
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
-                                        {[typeFilter, statusFilter !== '' ? statusFilter : null, sortConfig.key].filter(Boolean).length}
+                                        {[
+                                            typeFilter,
+                                            statusFilter !== '' ? statusFilter : null,
+                                            sortConfig.key
+                                        ].filter(Boolean).length}
                                     </span>
                                 )}
                             </button>
@@ -1320,6 +1135,7 @@ const PetManagement = () => {
                                                 >
                                                     <option value="">Select Pet Type</option>
                                                     {/* Use persistent pet types that don't change when filters are applied */}
+                                                    {/* map through persistentPetTypes to create options */}
                                                     {persistentPetTypes.map(petType => (
                                                         <option key={petType} value={petType}>
                                                             {petType}
@@ -1443,6 +1259,7 @@ const PetManagement = () => {
                                             </div>
                                         </div>
                                     </div>
+
                                     {/* Current Sort Display */}
                                     {sortConfig.key && (
                                         <div className="mt-3 p-2.5 bg-blue-100 rounded-lg border border-blue-200">
@@ -1674,7 +1491,9 @@ const PetManagement = () => {
                         </table>
                     </div>
                 )}
-            </div>            {/* Pagination */}
+            </div>
+
+            {/* Pagination */}
             {totalPages > 1 && (
                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
                     <div className="flex items-center justify-center">
@@ -2023,6 +1842,7 @@ const PetManagement = () => {
                                             editForm.petType.length < 2 ||
                                             !editForm.petDefaultName ||
                                             editForm.petDefaultName.length < 2 ||
+                                            !editForm.description ||
                                             Object.values(fieldErrors).some(error => error !== '')
                                         }
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -2037,30 +1857,193 @@ const PetManagement = () => {
                 </div>
             )}
 
-            {/* Confirmation Dialog */}
-            {confirmDialog.isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-red-100 rounded-lg">
-                                <X className="w-5 h-5 text-red-600" />
+            {/* Pet Details Modal */}
+            {selectedPet && (
+                <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-5xl max-h-[95vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+                        {/* Header with Gradient */}
+                        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/10 to-transparent"></div>
+                            <div className="relative flex justify-center items-center">
+                                <h3 className="text-4xl font-bold text-white">Pet Details</h3>
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800">{confirmDialog.title}</h3>
+
                         </div>
-                        <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
-                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmDialog.onConfirm}
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                                Confirm
-                            </button>
+
+                        {/* Content with Enhanced Design */}
+                        <div className="p-8 overflow-y-auto max-h-[calc(95vh-200px)] bg-gradient-to-br from-gray-50 to-white">
+                            {/* Pet Name & Type Header Card */}
+                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 mb-8 border border-blue-100 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between w-full">
+                                        {/* Right Side: The label */}
+                                        <div>
+                                            <h1 className="text-3xl font-bold text-cyan-600">
+                                                Pet Name
+                                            </h1>
+                                        </div>
+                                        {/* Left Side: The pet's name */}
+                                        <div>
+                                            <h2 className="text-2xl font-semibold text-gray-800">
+                                                {selectedPet.petDefaultName || 'No name provided'}
+                                            </h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Information Cards Grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Basic Info Card */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="p-6">
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <h4 className="text-lg font-semibold text-gray-800">Basic Information</h4>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-medium text-gray-600">Pet ID</span>
+                                                    <span className="text-sm font-mono font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                                                        #{selectedPet.petId}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-2 mt-2">
+                                                    <span className="text-sm font-medium text-gray-600">Pet Type</span>
+                                                    <div>
+                                                        {selectedPet.petType ? getPetTypeBadge(selectedPet.petType) : (
+                                                            <span className="text-sm text-gray-500 italic">Not specified</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Admin Creator Info */}
+                                            <div className="p-6 bg-gradient-to-r from-gray-50 to-purple-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-sm font-medium text-gray-600">Created by Admin</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded">
+                                                            {selectedPetAdminUsername === 'Loading...' ? (
+                                                                <span className="text-sm text-gray-500 italic flex items-center gap-1">
+                                                                    <div className="w-3 h-3 border border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
+                                                                    Loading...
+                                                                </span>
+                                                            ) : selectedPetAdminUsername ? (
+                                                                selectedPetAdminUsername
+                                                            ) : (
+                                                                <span className="text-sm text-gray-500 italic">Unknown</span>
+                                                            )}
+                                                        </span>
+                                                        {selectedPet.adminId === adminId}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Status & Description Card */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                                    <div className="p-6">
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <h4 className="text-lg font-semibold text-gray-800">Pet Status and Description</h4>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <span className="text-sm font-medium text-gray-600 block mb-2">Activity Status</span>
+                                                <div className="flex items-center gap-2">
+                                                    {selectedPet.petStatus === 1 ? (
+                                                        <>
+                                                            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                                            <span className="text-sm font-semibold text-green-700">Active</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                            <span className="text-sm font-semibold text-red-700">Inactive</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                                                <span className="text-sm font-medium text-gray-600 block mb-3">Pet Description</span>
+                                                {selectedPet.description ? (
+                                                    <div className="space-y-2">
+                                                        <div className={`text-sm text-gray-700 leading-relaxed break-words ${selectedPet.description.length > 150 && !selectedPet.expanded
+                                                            ? 'line-clamp-3'
+                                                            : ''
+                                                            }`}>
+                                                            {selectedPet.description}
+                                                        </div>
+                                                        {selectedPet.description.length > 150 && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedPet(prev => ({
+                                                                        ...prev,
+                                                                        expanded: !prev.expanded
+                                                                    }));
+                                                                }}
+                                                                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline hover:no-underline transition-colors duration-200 flex items-center gap-1"
+                                                            >
+                                                                {selectedPet.expanded ? (
+                                                                    <>
+                                                                        <ChevronUp className="h-3 w-3" />
+                                                                        Hide
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <ChevronDown className="h-3 w-3" />
+                                                                        View more
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-4">
+                                                        <div className="text-gray-400 mb-2">
+                                                            <Eye className="h-8 w-8 mx-auto opacity-50" />
+                                                        </div>
+                                                        <span className="text-sm text-gray-400 italic">
+                                                            No description available for this pet
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Enhanced Footer */}
+                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 border-t border-gray-200">
+                            <div className="flex justify-end items-center">
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleClosePetDetail()}
+                                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        Close
+                                    </button>
+                                    <button
+                                        onClick={() => handleEdit(selectedPet)}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                        Update Pet
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
