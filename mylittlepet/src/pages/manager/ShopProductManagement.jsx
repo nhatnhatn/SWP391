@@ -1552,8 +1552,8 @@ const ShopProductManagement = () => {
                                     <Plus className="h-5 w-5" />
                                     Create new product
                                 </button>
-                            </div>
-
+                            </div>                            
+                            
                             {(localSearchTerm || debouncedSearchTerm) && (
                                 <div className="bg-purple-100 rounded-md p-3 border border-purple-200">
                                     <div className="flex items-center gap-2">
@@ -2489,8 +2489,6 @@ const ShopProductManagement = () => {
                                             parseInt(editForm.price) <= 0 ||
                                             editForm.quantity === '' ||
                                             parseInt(editForm.quantity) < 0 ||
-                                            !editForm.imageUrl.trim() ||
-                                            !editForm.description.trim() ||
                                             // Create mode specific validation
                                             (createModal && (
                                                 !hasCreateFormContent ||

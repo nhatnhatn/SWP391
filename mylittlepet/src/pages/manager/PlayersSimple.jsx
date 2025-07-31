@@ -15,6 +15,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Eye, Users, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Filter, Save, Shield, ShieldCheck } from 'lucide-react';
 import { useSimplePlayers } from '../../hooks/useSimplePlayers';
 import { useNotificationManager } from '../../hooks/useNotificationManager';
+import apiService from '../../services/api';
 
 /**
  * Reusable notification toast component
@@ -201,8 +202,8 @@ const PlayersSimple = () => {
     // DATA PROCESSING AND PAGINATION
     // ============================================================================
 
-    // Client-side pagination state for filtered results (1-based like Pet Management)
-    const [currentPage, setCurrentPage] = useState(1);
+    // Client-side pagination state for filtered results
+    const [currentFilterPage, setCurrentFilterPage] = useState(0);
     const itemsPerPage = 10;
 
     /**
@@ -276,8 +277,8 @@ const PlayersSimple = () => {
     }, [players, debouncedSearchTerm, sortConfig, levelFilter]);
 
     // Calculate pagination values for filtered results
-    const totalPages = Math.ceil(filteredPlayers.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
+    const totalFilteredPages = Math.ceil(filteredPlayers.length / itemsPerPage);
+    const startIndex = currentFilterPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const displayPlayers = filteredPlayers.slice(startIndex, endIndex);
 
@@ -285,27 +286,28 @@ const PlayersSimple = () => {
      * Reset to first page when any filter changes
      */
     useEffect(() => {
-        setCurrentPage(1);
+        setCurrentFilterPage(0);
     }, [debouncedSearchTerm, levelFilter]);
 
     // ============================================================================
     // PAGINATION HANDLERS
     // ============================================================================
 
-    // Pagination handlers (same as Pet Management)
-    const goToPage = (page) => {
-        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-    };
-
-    const goToNextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
+    /**
+     * Navigate to previous page in filtered results
+     */
+    const handleFilterPreviousPage = () => {
+        if (currentFilterPage > 0) {
+            setCurrentFilterPage(currentFilterPage - 1);
         }
     };
 
-    const goToPrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+    /**
+     * Navigate to next page in filtered results
+     */
+    const handleFilterNextPage = () => {
+        if (currentFilterPage < totalFilteredPages - 1) {
+            setCurrentFilterPage(currentFilterPage + 1);
         }
     };
 
@@ -854,41 +856,68 @@ const PlayersSimple = () => {
                 )}
             </div>
 
-            {/* Pagination Controls - Matching table header gradient style */}
-            {totalPages > 1 && (
-                <div className="bg-gradient-to-r from-teal-50 to-green-50 p-6 border-t border-teal-200">
+            {/* Pagination Controls */}
+            {totalFilteredPages > 1 && (
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 border-t border-blue-200">
                     <div className="flex items-center justify-center">
                         <div className="flex items-center gap-2">
+                            {/* Previous Button: Go to previous page, disabled on first page */}
                             <button
-                                onClick={goToPrevPage}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 bg-white border border-teal-300 text-teal-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-green-50 hover:border-teal-400 hover:text-teal-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-teal-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                                onClick={handleFilterPreviousPage}
+                                disabled={currentFilterPage === 0}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
                                 <ChevronLeft className="h-4 w-4" />
                                 <span className="hidden sm:inline">Previous Page</span>
                             </button>
 
+                            {/* Page Numbers: Show first, last, current, and neighbors. Ellipsis for skipped pages. */}
                             <div className="flex items-center gap-1">
-                                {/* generates an array of page numbers from 1 to total pages */}
-                                {/* (_, i) => i + 1 maps each index i (starting from 0) to i + 1, so you get [1, 2, 3, ..., totalPages]. */}
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => goToPage(page)}
-                                        className={`px-3 py-2 rounded-lg transition-all duration-200 font-medium text-sm ${currentPage === page
-                                            ? 'bg-gradient-to-r from-teal-600 to-green-600 text-white shadow-md transform scale-105'
-                                            : 'bg-white text-teal-700 border border-teal-200 hover:bg-gradient-to-r hover:from-teal-50 hover:to-green-50 hover:border-teal-300 hover:text-teal-800 shadow-sm'
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                                {/* This line is used to dynamically generate the page number buttons */}
+                                {Array.from({ length: totalFilteredPages }, (_, i) => i).map((page) => {
+                                    // Show first, last, and pages near the current page
+                                    const shouldShow =
+                                        page === 0 ||
+                                        page === totalFilteredPages - 1 ||
+                                        Math.abs(page - currentFilterPage) <= 1;
+
+                                    // Hide most pages except for first, last, and neighbors
+                                    if (!shouldShow && page !== 1 && page !== totalFilteredPages - 2) {
+                                        return null;
+                                    }
+
+                                    // Show ellipsis if there is a gap between shown pages
+                                    if (
+                                        (page === 1 && currentFilterPage > 3) ||
+                                        (page === totalFilteredPages - 2 && currentFilterPage < totalFilteredPages - 4)
+                                    ) {
+                                        return (
+                                            <span key={page} className="px-2 text-blue-500">
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    // Render page number button
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentFilterPage(page)}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${page === currentFilterPage
+                                                ? 'bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-md'
+                                                : 'bg-white border border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800'
+                                                }`}
+                                        >
+                                            {page + 1}
+                                        </button>
+                                    );
+                                })}
                             </div>
 
+                            {/* Next Button: Go to next page, disabled on last page */}
                             <button
-                                onClick={goToNextPage}
-                                disabled={currentPage >= totalPages}
-                                className="px-4 py-2 bg-white border border-teal-300 text-teal-700 rounded-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-green-50 hover:border-teal-400 hover:text-teal-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-teal-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
+                                onClick={handleFilterNextPage}
+                                disabled={currentFilterPage >= totalFilteredPages - 1}
+                                className="px-4 py-2 bg-white border border-blue-300 text-blue-700 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 hover:border-blue-400 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-blue-700 flex items-center gap-2 transition-all duration-200 shadow-sm"
                             >
                                 <span className="hidden sm:inline">Next Page</span>
                                 <ChevronRight className="h-4 w-4" />
@@ -1071,7 +1100,7 @@ const PlayersSimple = () => {
                                             {selectedPlayerPets.map((pet, index) => (
                                                 <div key={pet.playerPetId || index}
                                                     className="group bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-4 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer">
-
+                                                    
                                                     <div className="flex items-center justify-between mb-3">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white shadow-md">

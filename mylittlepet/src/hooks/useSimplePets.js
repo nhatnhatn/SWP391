@@ -83,13 +83,12 @@ export const useSimplePets = () => {
             const response = await apiService.getAllPets();
             console.log('✅ Pets loaded successfully:', response.length, 'pets');
 
-            //return an array of pets or an empty array if response is invalid
             const allPets = Array.isArray(response) ? response : [];
             setPets(allPets);
 
         } catch (error) {
             console.error('❌ Load pets error:', error);
-            setError('Cannot load pet list');
+            setError('Không thể tải danh sách thú cưng');
             setPets([]);
         } finally {
             setLoading(false);
