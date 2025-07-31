@@ -2696,7 +2696,7 @@ const ShopProductManagement = () => {
 
                                                 <div className="p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
                                                     <div className="flex justify-between items-center">
-                                                        <span className="text-sm font-medium text-gray-600">Product Type</span>
+                                                        <span className="text-md font-medium text-gray-600">Product Type</span>
                                                         <div>
                                                             {selectedProduct.type === 'Food' && (
                                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200 shadow-sm">
@@ -2704,12 +2704,12 @@ const ShopProductManagement = () => {
                                                                 </span>
                                                             )}
                                                             {isPetProduct(selectedProduct) && (
-                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-md font-medium bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 border border-purple-200 shadow-sm">
                                                                     Pet
                                                                 </span>
                                                             )}
                                                             {!isPetProduct(selectedProduct) && !['Food'].includes(selectedProduct.type) && (
-                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
+                                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-md font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-200 shadow-sm">
                                                                     {selectedProduct.type || 'Unknown'}
                                                                 </span>
                                                             )}
@@ -2724,7 +2724,7 @@ const ShopProductManagement = () => {
                                                             <span className="text-sm font-medium text-gray-600">Linked Pet</span>
                                                             <div className="text-right">
                                                                 {selectedProduct.petID ? (
-                                                                    <span className="text-sm font-medium text-gray-800">
+                                                                    <span className="text-md font-medium text-gray-800">
                                                                         {(() => {
                                                                             const linkedPet = pets.find(pet => pet.petId == selectedProduct.petID);
                                                                             return linkedPet
@@ -2758,7 +2758,7 @@ const ShopProductManagement = () => {
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Product Price</h5>
                                                     <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-xl font-bold text-green-700">
+                                                            <span className="text-md font-bold text-green-700">
                                                                 {selectedProduct.price?.toLocaleString('vi-VN') || 0} {selectedProduct.currencyType}
                                                             </span>
                                                         </div>
@@ -2769,7 +2769,7 @@ const ShopProductManagement = () => {
                                                 <div className="space-y-3">
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Quantity</h5>
                                                     <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                                                        <span className="text-xl font-bold text-blue-700">{selectedProduct.quantity}</span>
+                                                        <span className="text-md font-bold text-blue-700">{selectedProduct.quantity}</span>
                                                     </div>
                                                 </div>
 
@@ -2783,12 +2783,12 @@ const ShopProductManagement = () => {
                                                         <div className="flex items-center justify-between gap-2">
                                                             {selectedProduct.status === 1 ? (
                                                                 <>
-                                                                    <span className="text-base font-semibold text-green-700">Active</span>
+                                                                    <span className="text-md font-semibold text-green-700">Active</span>
 
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <span className="text-base font-semibold text-red-700">Inactive</span>
+                                                                    <span className="text-md font-semibold text-red-700">Inactive</span>
 
                                                                 </>
                                                             )}
@@ -2800,7 +2800,7 @@ const ShopProductManagement = () => {
                                                 <div className="space-y-3">
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Additional Information</h5>
                                                     <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                                                        <span className="text-base font-bold text-purple-700 font-mono">
+                                                        <span className="text-md font-bold text-purple-700 font-mono">
                                                             #{selectedProduct.shopProductId}
                                                         </span>
                                                     </div>
@@ -2814,7 +2814,7 @@ const ShopProductManagement = () => {
                                                     {selectedProduct.description ? (
                                                         <div className="space-y-2">
                                                             <div className="max-h-24 overflow-y-auto pr-2">
-                                                                <p className="text-sm text-gray-700 leading-relaxed break-words whitespace-pre-wrap word-wrap">
+                                                                <p className="text-md text-gray-700 leading-relaxed break-words whitespace-pre-wrap word-wrap">
                                                                     {selectedProduct.description}
                                                                 </p>
                                                             </div>
