@@ -2023,6 +2023,7 @@ const PetManagement = () => {
                                             editForm.petType.length < 2 ||
                                             !editForm.petDefaultName ||
                                             editForm.petDefaultName.length < 2 ||
+                                            !editForm.description ||
                                             Object.values(fieldErrors).some(error => error !== '')
                                         }
                                         className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 font-medium flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
