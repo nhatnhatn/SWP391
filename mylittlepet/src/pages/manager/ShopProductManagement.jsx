@@ -318,15 +318,11 @@ const ShopProductManagement = () => {
     // Main hook for shop product operations - provides CRUD functions and data
     const {
         shopProducts,           // All shop products
-        shops,                  // Available shop information
         loading,                // Loading state for API operations
         error,                  // Error state from failed API calls
         createShopProduct,      // Function to create a new product
         updateShopProduct,      // Function to update an existing product
-        deleteShopProduct,      // Function to delete a product
-        updateShopProductStatus, // Function to change product active/inactive status
         refreshData,            // Function to refetch data from API
-        getShopName            // Helper function to get shop name by ID
     } = useSimpleShopProducts();
 
     // Hook for pet data - needed because products can be linked to specific pets
@@ -507,7 +503,6 @@ const ShopProductManagement = () => {
     // Modal states for different CRUD operations
     const [editModal, setEditModal] = useState({ isOpen: false, product: null });
     const [createModal, setCreateModal] = useState(false);
-    const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
 
     // UI helper states
     const [linkConverted, setLinkConverted] = useState(false);           // Google Drive link conversion status
@@ -529,10 +524,6 @@ const ShopProductManagement = () => {
         handleOperationWithNotification, // Wrapper for operations with notifications
         handleFormSubmission            // Wrapper for form submissions with notifications
     } = useNotificationManager(refreshData);
-
-    // Local error and success message states (kept for legacy compatibility)
-    const [localError, setLocalError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
 
     // Field validation errors
     const [fieldErrors, setFieldErrors] = useState({
@@ -678,34 +669,6 @@ const ShopProductManagement = () => {
         const error = validateName(value, isEditing, currentProductId);
         if (error) {
             setFieldErrors(prev => ({ ...prev, name: error }));
-        }
-    };
-
-    /**
-     * Handle product type selection with validation
-     * Ensures a valid product category is selected
-     */
-    const handleProductTypeChange = (value) => {
-        setEditForm({ ...editForm, type: value });
-        clearFieldError('type');
-
-        const error = validateType(value);
-        if (error) {
-            setFieldErrors(prev => ({ ...prev, type: error }));
-        }
-    };
-
-    /**
-     * Handle pet type selection for pet-specific products
-     * Validates pet type when product is categorized as pet-related
-     */
-    const handlePetTypeChange = (value) => {
-        setEditForm({ ...editForm, petType: value });
-        clearFieldError('petType');
-
-        const error = validatePetType(value);
-        if (error) {
-            setFieldErrors(prev => ({ ...prev, petType: error }));
         }
     };
 
@@ -999,7 +962,7 @@ const ShopProductManagement = () => {
 
     // Calculate pagination (use filteredAndSortedProducts)
     const totalItems = filteredAndSortedProducts.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPages = Math.ceil(totalItems / itemsPerPage); //round up to nearest upward number
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
@@ -1051,15 +1014,6 @@ const ShopProductManagement = () => {
 
     const handleShopTypeFilter = (shopType) => {
         setShopTypeFilter(shopType);
-    };
-
-    // Sort function
-    const handleSort = (key) => {
-        let direction = 'asc';
-        if (sortConfig.key === key && sortConfig.direction === 'asc') {
-            direction = 'desc';
-        }
-        setSortConfig({ key, direction });
     };
 
     // View product details
@@ -1276,7 +1230,7 @@ const ShopProductManagement = () => {
         const imageError = validateImageUrl(editForm.imageUrl);
         if (imageError) errors.imageUrl = imageError;
 
-        // Only validate pet type and petID when creating new and product type is Pet
+        // Only validate pet type and pet`ID when creating new and product type is Pet
         if (!isEdit && editForm.type === 'Pet') {
             const petTypeError = validatePetType(editForm.petType);
             if (petTypeError) errors.petType = petTypeError;
@@ -1294,118 +1248,6 @@ const ShopProductManagement = () => {
             showNotification(`Please fix the following errors: ${errorMessages.join('; ')}`, 'error');
             return;
         }
-
-        // Use the notification manager for form submission
-        const success = await handleFormSubmission(
-            editForm,
-            errors,
-            async (formData) => {
-                // Determine the actual type to submit
-                let actualType = '';
-                let isPetType = false;
-
-                if (!isEdit) {
-                    // For new products, determine type based on form selection
-                    if (formData.type === 'Pet') {
-                        actualType = 'Pet';
-                        isPetType = true;
-                    } else {
-                        actualType = formData.type;
-                        isPetType = false;
-                    }
-                } else {
-                    // For editing, determine if it's a pet product
-                    if (formData.type === 'Pet' || formData.petID) {
-                        // It's a pet product - use shop product type "Pet"
-                        actualType = 'Pet';
-                        isPetType = true;
-                    } else {
-                        // If it's a regular product type (Food, etc.)
-                        actualType = formData.type;
-                        isPetType = false;
-                    }
-                }
-
-                // Prepare submission data
-                let submissionData = {
-                    ...formData,
-                    price: parseFloat(formData.price) || 0,
-                    quantity: parseInt(formData.quantity) || 0,
-                    status: parseInt(formData.status) || 0,
-                    adminId: user?.adminId || user?.id
-                };
-
-                // Set the type field for both create and edit
-                submissionData.type = actualType;
-                submissionData.shopId = isPetType ? 1 : 1;
-
-                if (isPetType && formData.petID) {
-                    submissionData.petID = parseInt(formData.petID);
-                } else {
-                    submissionData.petID = null;
-                }
-
-                // Remove petType field since we use type directly
-                delete submissionData.petType;
-
-                // Remove undefined fields
-                Object.keys(submissionData).forEach(key => {
-                    if (submissionData[key] === undefined) {
-                        delete submissionData[key];
-                    }
-                });
-
-                console.log('🚀 Submitting product data:', {
-                    isEdit,
-                    formData,
-                    actualType,
-                    isPetType,
-                    submissionData,
-                    relatedPet: formData.petID ? pets?.find(pet => pet.petId == formData.petID) : null
-                });
-
-                if (isEdit) {
-                    return await updateShopProduct(editModal.product.shopProductId, submissionData);
-                } else {
-                    return await createShopProduct(submissionData);
-                }
-            },
-            isEdit ? 'Product updated successfully!' : 'Product created successfully!',
-            'Error saving product',
-            () => {
-                // Success callback - reset form and close modals
-                if (isEdit) {
-                    setEditModal({ isOpen: false, product: null });
-                } else {
-                    setCreateModal(false);
-                }
-
-                setEditForm({
-                    petID: null,
-                    name: '',
-                    type: '',
-                    petType: '',
-                    description: '',
-                    imageUrl: '',
-                    price: '',
-                    currencyType: 'Coin',
-                    quantity: 10,
-                    status: 1
-                });
-            }
-        );
-    };
-
-    // Handle delete confirmation
-    const handleDeleteConfirm = async () => {
-        await handleOperationWithNotification(
-            () => deleteShopProduct(deleteModal.product.shopProductId),
-            'Product deleted successfully!',
-            'Error deleting product',
-            true,
-            false
-        );
-        setDeleteModal({ isOpen: false, product: null });
     };
 
     return (
@@ -1685,9 +1527,8 @@ const ShopProductManagement = () => {
                                                 <select
                                                     value={sortConfig.key || ''}
                                                     onChange={(e) => {
-                                                        const key = e.target.value;
-                                                        if (key) {
-                                                            handleSort(key);
+                                                        if (e.target.value) {
+                                                            setSortConfig({ key: e.target.value, direction: sortConfig.direction || 'asc' });
                                                         } else {
                                                             setSortConfig({ key: null, direction: 'asc' });
                                                         }
@@ -1781,7 +1622,9 @@ const ShopProductManagement = () => {
                                             <X className="h-2 w-2 text-white" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-700">Actions</span>
-                                    </div>                                    <div className="flex flex-wrap gap-3">
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-3">
                                         <button
                                             onClick={clearAllFilters}
                                             disabled={statusFilter === 'all' && currencyFilter === 'all' && shopTypeFilter === 'all' && !sortConfig.key && !localSearchTerm && !debouncedSearchTerm}
@@ -2314,18 +2157,25 @@ const ShopProductManagement = () => {
                                             : 'opacity-50 pointer-events-none'
                                             }`}>
                                             <div className="flex items-center gap-3 mb-4">
+                                                {/* Pet Type Selection Label - Dynamic styling based on product type */}
                                                 <label className={`text-lg font-semibold transition-colors duration-200 ${editForm.type === 'Pet'
-                                                    ? 'text-gray-800'
-                                                    : 'text-gray-400'
+                                                    ? 'text-gray-800'        // Active label color when Pet type is selected
+                                                    : 'text-gray-400'        // Muted label color when not Pet type
                                                     }`}>Pet Type</label>
                                             </div>
+
+                                            {/* Pet Type Dropdown - Only functional when product type is "Pet" */}
                                             <div className="relative">
                                                 <select
+                                                    // Value logic: Show selected petID only if product type is Pet, otherwise empty
                                                     value={editForm.type === 'Pet' ? (editForm.petID || '') : ''}
                                                     onChange={(e) => {
+                                                        // Only process selection changes when product type is Pet
                                                         if (editForm.type === 'Pet') {
                                                             const selectedPetId = e.target.value;
+                                                            // Find the complete pet object based on selected ID
                                                             const selectedPet = pets.find(pet => pet.petId == selectedPetId);
+                                                            // Update form with both petID and petType from selected pet
                                                             setEditForm({
                                                                 ...editForm,
                                                                 petID: selectedPetId,
@@ -2333,31 +2183,40 @@ const ShopProductManagement = () => {
                                                             });
                                                         }
                                                     }}
+                                                    // Dynamic styling: Active/interactive when Pet type, disabled appearance otherwise
                                                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none shadow-sm transition-all duration-200 appearance-none ${editForm.type === 'Pet'
-                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'
-                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                                                        ? 'border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent hover:border-gray-400 bg-white text-gray-900 cursor-pointer'  // Active Pet product styling
+                                                        : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'  // Disabled non-Pet product styling
                                                         }`}
+                                                    // Required field validation: Only required when product type is Pet
                                                     required={editForm.type === 'Pet'}
+                                                    // Disable conditions: Not Pet type, still loading pets, or no pets available
                                                     disabled={editForm.type !== 'Pet' || petsLoading || pets.length === 0}
                                                 >
+                                                    {/* Dynamic placeholder option based on current state */}
                                                     <option value="">
-                                                        {editForm.type !== 'Pet' ? "Only aviable for pet products" :
-                                                            petsLoading ? "Loading..." :
-                                                                pets.length === 0 ? "No pet available" :
+                                                        {editForm.type !== 'Pet' ? "Only aviable for pet products" :      // Not Pet type
+                                                            petsLoading ? "Loading..." :                                   // Loading state
+                                                                pets.length === 0 ? "No pet available" :                  // No pets found
                                                                     "Choose pet type"}
                                                     </option>
+
+                                                    {/* Render pet type options only when product type is Pet */}
                                                     {editForm.type === 'Pet' && dynamicPetTypes.map(petType => {
-                                                        // Find the first active pet of this type
-                                                        const firstPetOfType = pets.find(pet =>
-                                                            pet.petType === petType && pet.petStatus === 1
+                                                        // Business logic: Find the first active pet of each type
+                                                        // This ensures we always link to a valid, active pet
+                                                        const firstActivePetOfType = pets.find(pet =>
+                                                            pet.petType === petType && pet.petStatus === 1  // Only active pets (status = 1)
                                                         );
                                                         return (
-                                                            <option key={petType} value={firstPetOfType?.petId}>
-                                                                {petType}
+                                                            <option key={petType} value={firstActivePetOfType?.petId}>
+                                                                {petType}  {/* Display pet type name to user */}
                                                             </option>
                                                         );
                                                     })}
                                                 </select>
+
+                                                {/* Dropdown chevron icon - Dynamic styling based on state */}
                                                 <ChevronDown className={`absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none transition-colors duration-200 ${editForm.type === 'Pet' ? 'text-gray-400' : 'text-gray-300'
                                                     }`} />
                                             </div>
@@ -2520,102 +2379,6 @@ const ShopProductManagement = () => {
                 </div>
             )}
 
-            {/* Google Drive Help Modal */}
-            {showGoogleDriveHelp && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <Package className="h-5 w-5 text-blue-600" />
-                                Google Drive Usage Guide
-                            </h3>
-                            <button
-                                onClick={() => setShowGoogleDriveHelp(false)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                <h4 className="font-semibold text-blue-800 mb-2">📁 Step 1: Access Image Folder</h4>
-                                <p className="text-sm text-blue-700">
-                                    Click the "📁 Open Folder" button to access the Google Drive folder containing product images.
-                                </p>
-                            </div>
-
-                            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                                <h4 className="font-semibold text-green-800 mb-2">🖼️ Step 2: Select Image</h4>
-                                <p className="text-sm text-green-700 mb-2">
-                                    In the Google Drive folder:
-                                </p>
-                                <ol className="text-sm text-green-700 list-decimal list-inside space-y-1">
-                                    <li>Find and click the image you want to use</li>
-                                    <li>Picture will be display in preview mode</li>
-                                    <li>Select "Share" on the top right corner</li>
-                                </ol>
-                            </div>
-
-                            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                                <h4 className="font-semibold text-yellow-800 mb-2">🔗 Step 3: Get Share Link</h4>
-                                <ol className="text-sm text-yellow-700 list-decimal list-inside space-y-1">
-                                    <li>On the sharing pop up,loof for "Genertal Access"</li>
-                                    <li>Select "Anyone with the link"</li>
-                                    <li>Switch mode to "Editor"</li>
-                                    <li>Click "Copy link"</li>
-                                    <li>Paste the link into the "Image URL" field in the form</li>
-                                </ol>
-                            </div>
-
-                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                                <h4 className="font-semibold text-purple-800 mb-2">✨ Step 4: Finishing</h4>
-                                <p className="text-sm text-purple-700">
-                                    After pasting the link, the system will automatically convert it to the correct format and display a preview of the image.
-                                </p>
-                            </div>
-
-                            <div className="bg-red-50 p-4 rounded-lg border border-gray-200">
-                                <h4 className="font-semibold text-red-800 mb-2">💡 Pay attention!!!</h4>
-                                <ul className="text-sm text-red-500 list-disc list-inside space-y-1">
-                                    <li>Make sure the image is shared publicly ("Anyone with the link")</li>
-                                    <li>Only use image files (JPG, PNG, GIF, Webp)</li>
-                                    <li>Iamge size must be under 10MB for fast installation</li>
-                                    <li>The system supports automation converting various Google Drive link</li>
-                                </ul>
-                            </div>
-
-                            <div className="border-t pt-4">
-                                <h4 className="font-semibold text-gray-800 mb-2">🔗 Supported link format:</h4>
-                                <div className="text-xs text-gray-600 space-y-1">
-                                    <p>• <code>https://drive.google.com/file/d/FILE_ID/view</code></p>
-                                    <p>• <code>https://drive.google.com/uc?id=FILE_ID</code></p>
-                                    <p>• <code>https://drive.google.com/uc?export=view&id=FILE_ID</code></p>
-                                    <p>• <code>https://drive.google.com/open?id=FILE_ID</code></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <a
-                                href="https://drive.google.com/drive/u/0/folders/14-F6VcATkQVW8qwHrA4flc0fX8ffC5Ha"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
-                            >
-                                📁 Mở thư mục ngay
-                            </a>
-                            <button
-                                onClick={() => setShowGoogleDriveHelp(false)}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
-                            >
-                                Đóng
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* View Details Modal */}
             {selectedProduct && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -2758,7 +2521,7 @@ const ShopProductManagement = () => {
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Product Price</h5>
                                                     <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-xl font-bold text-green-700">
+                                                            <span className="text-lg font-bold text-green-700">
                                                                 {selectedProduct.price?.toLocaleString('vi-VN') || 0} {selectedProduct.currencyType}
                                                             </span>
                                                         </div>
@@ -2769,7 +2532,7 @@ const ShopProductManagement = () => {
                                                 <div className="space-y-3">
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Quantity</h5>
                                                     <div className="p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
-                                                        <span className="text-xl font-bold text-blue-700">{selectedProduct.quantity}</span>
+                                                        <span className="text-lg font-bold text-blue-700">{selectedProduct.quantity}</span>
                                                     </div>
                                                 </div>
 
@@ -2783,12 +2546,12 @@ const ShopProductManagement = () => {
                                                         <div className="flex items-center justify-between gap-2">
                                                             {selectedProduct.status === 1 ? (
                                                                 <>
-                                                                    <span className="text-base font-semibold text-green-700">Active</span>
+                                                                    <span className="text-lg font-bold text-green-700">Active</span>
 
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <span className="text-base font-semibold text-red-700">Inactive</span>
+                                                                    <span className="text-lg font-bold text-red-700">Inactive</span>
 
                                                                 </>
                                                             )}
@@ -2800,7 +2563,7 @@ const ShopProductManagement = () => {
                                                 <div className="space-y-3">
                                                     <h5 className="text-base font-semibold text-gray-700 border-b border-gray-200 pb-1">Additional Information</h5>
                                                     <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                                                        <span className="text-base font-bold text-purple-700 font-mono">
+                                                        <span className="text-lg font-bold text-purple-700 font-mono">
                                                             #{selectedProduct.shopProductId}
                                                         </span>
                                                     </div>
@@ -2814,12 +2577,12 @@ const ShopProductManagement = () => {
                                                     {selectedProduct.description ? (
                                                         <div className="space-y-2">
                                                             <div className="max-h-24 overflow-y-auto pr-2">
-                                                                <p className="text-sm text-gray-700 leading-relaxed break-words whitespace-pre-wrap word-wrap">
+                                                                <p className="text-lg font-semibold text-gray-700 leading-relaxed break-words whitespace-pre-wrap word-wrap">
                                                                     {selectedProduct.description}
                                                                 </p>
                                                             </div>
                                                             {selectedProduct.description.length > 150 && (
-                                                                <div className="flex items-center gap-2 text-xs text-gray-500 pt-1 border-t border-gray-200">
+                                                                <div className="flex items-center gap-2 text-xl font-semibold text-gray-500 pt-1 border-t border-gray-200">
                                                                     <Package className="h-3 w-3" />
                                                                     <span>{selectedProduct.description.length} words</span>
                                                                 </div>
@@ -2864,6 +2627,102 @@ const ShopProductManagement = () => {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Google Drive Help Modal */}
+            {showGoogleDriveHelp && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <Package className="h-5 w-5 text-blue-600" />
+                                Google Drive Usage Guide
+                            </h3>
+                            <button
+                                onClick={() => setShowGoogleDriveHelp(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                <h4 className="font-semibold text-blue-800 mb-2">📁 Step 1: Access Image Folder</h4>
+                                <p className="text-sm text-blue-700">
+                                    Click the "📁 Open Folder" button to access the Google Drive folder containing product images.
+                                </p>
+                            </div>
+
+                            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <h4 className="font-semibold text-green-800 mb-2">🖼️ Step 2: Select Image</h4>
+                                <p className="text-sm text-green-700 mb-2">
+                                    In the Google Drive folder:
+                                </p>
+                                <ol className="text-sm text-green-700 list-decimal list-inside space-y-1">
+                                    <li>Find and click the image you want to use</li>
+                                    <li>Picture will be display in preview mode</li>
+                                    <li>Select "Share" on the top right corner</li>
+                                </ol>
+                            </div>
+
+                            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                <h4 className="font-semibold text-yellow-800 mb-2">🔗 Step 3: Get Share Link</h4>
+                                <ol className="text-sm text-yellow-700 list-decimal list-inside space-y-1">
+                                    <li>On the sharing pop up,loof for "Genertal Access"</li>
+                                    <li>Select "Anyone with the link"</li>
+                                    <li>Switch mode to "Editor"</li>
+                                    <li>Click "Copy link"</li>
+                                    <li>Paste the link into the "Image URL" field in the form</li>
+                                </ol>
+                            </div>
+
+                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                                <h4 className="font-semibold text-purple-800 mb-2">✨ Step 4: Finishing</h4>
+                                <p className="text-sm text-purple-700">
+                                    After pasting the link, the system will automatically convert it to the correct format and display a preview of the image.
+                                </p>
+                            </div>
+
+                            <div className="bg-red-50 p-4 rounded-lg border border-gray-200">
+                                <h4 className="font-semibold text-red-800 mb-2">💡 Pay attention!!!</h4>
+                                <ul className="text-sm text-red-500 list-disc list-inside space-y-1">
+                                    <li>Make sure the image is shared publicly ("Anyone with the link")</li>
+                                    <li>Only use image files (JPG, PNG, GIF, Webp)</li>
+                                    <li>Iamge size must be under 10MB for fast installation</li>
+                                    <li>The system supports automation converting various Google Drive link</li>
+                                </ul>
+                            </div>
+
+                            <div className="border-t pt-4">
+                                <h4 className="font-semibold text-gray-800 mb-2">🔗 Supported link format:</h4>
+                                <div className="text-xs text-gray-600 space-y-1">
+                                    <p>• <code>https://drive.google.com/file/d/FILE_ID/view</code></p>
+                                    <p>• <code>https://drive.google.com/uc?id=FILE_ID</code></p>
+                                    <p>• <code>https://drive.google.com/uc?export=view&id=FILE_ID</code></p>
+                                    <p>• <code>https://drive.google.com/open?id=FILE_ID</code></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <a
+                                href="https://drive.google.com/drive/u/0/folders/14-F6VcATkQVW8qwHrA4flc0fX8ffC5Ha"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                            >
+                                📁 Open folder
+                            </a>
+                            <button
+                                onClick={() => setShowGoogleDriveHelp(false)}
+                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>
