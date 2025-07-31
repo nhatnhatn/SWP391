@@ -125,8 +125,6 @@ public class AuthService {
                 return new ApiResponse(true, "If the email exists, a password reset link has been sent.");
             }
 
-            User user = userOptional.get();
-
             // Delete any existing reset tokens for this email
             passwordResetTokenRepository.deleteByEmail(request.getEmail());
 
