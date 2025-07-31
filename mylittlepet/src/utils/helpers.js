@@ -45,14 +45,12 @@ export function extractGoogleDriveFileId(url) {
         /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,    // Direct links: uc?id=FILE_ID
         /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,  // Open links: open?id=FILE_ID
         /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/   // Full file URLs: file/d/FILE_ID
-        // part inside ([a-zA-Z0-9_-]+) is parantheses to capture the file ID
     ];
 
     // Try each pattern until we find a match
     for (const pattern of patterns) {
-        const match = cleanUrl.match(pattern); //match get the matched paranrthese which is ([a-zA-Z0-9_-]+)
-        if (match && match[1]) { // match[1] is the part inside the parentheses
-            //if match is found and has a valid file ID: ([a-zA-Z0-9_-]+)        
+        const match = cleanUrl.match(pattern);
+        if (match && match[1]) {
             // Clean up any accidentally captured URL parameters
             let fileId = match[1];
             fileId = fileId.split('&')[0].split('?')[0];  // Remove trailing parameters

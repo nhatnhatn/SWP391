@@ -153,6 +153,27 @@ export const useSimpleShopProducts = () => {
     }, [loadShopProducts]);
 
     /**
+     * Delete a shop product
+     * @param {number} shopProductId - Product ID to delete
+     * @returns {boolean} Success status
+     */
+    const deleteShopProduct = useCallback(async (shopProductId) => {
+        try {
+            setLoading(true);
+            await apiService.deleteShopProduct(shopProductId);
+            console.log('✅ Shop product deleted successfully:', shopProductId);
+            await loadShopProducts(); // Refresh product list
+            return true;
+
+        } catch (error) {
+            console.error('❌ Delete shop product error:', error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }, [loadShopProducts]);
+
+    /**
      * Update shop product status (enable/disable)
      * @param {number} shopProductId - Product ID
      * @param {number} status - New status (1 = active, 0 = inactive)
@@ -216,6 +237,7 @@ export const useSimpleShopProducts = () => {
         // ===== CRUD OPERATIONS =====
         createShopProduct,               // Create new shop product
         updateShopProduct,               // Update existing shop product
+        deleteShopProduct,               // Delete shop product
         updateShopProductStatus,         // Enable/disable shop product
 
         // ===== UTILITIES =====
